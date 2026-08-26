@@ -1,0 +1,847 @@
+/* =========================================================================
+   Everything that shows a result: the water that breaks over a finished level,
+   the level screen it leaves behind, the sections that break open one at a
+   time, the charts, the bars, the card, and somebody else's card arrived at
+   from a link.
+   ========================================================================= */
+
+/* --------------------- the water over a finished level ------------------- */
+
+/* Breaks across the middle of the window the moment a level is finished. Only
+   the band is painted — the rest of the screen is left showing — so the level
+   goes up behind the water while it crosses and is there as it runs off. The
+   layer itself still takes the whole window: a click anywhere waves it past. */
+.curtain {
+    position: fixed;
+    inset: 0;
+    z-index: 70;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    padding: 24px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.curtain[hidden] {
+    display: none;
+}
+
+/* The water itself: a band thrown across the window from the left, its crest
+   and trough fading off into the page rather than cut square. */
+.curtain__splash {
+    position: absolute;
+    left: -14%;
+    right: -14%;
+    top: 50%;
+    height: min(300px, 44vh);
+    transform: translateY(-50%);
+    background: radial-gradient(58% 130% at 30% 48%, rgba(217, 164, 65, 0.32), transparent 66%),
+        radial-gradient(62% 110% at 74% 44%, rgba(34, 211, 238, 0.16), transparent 70%),
+        linear-gradient(100deg, rgba(7, 10, 20, 0.82) 0%, rgba(18, 20, 31, 0.97) 44%, rgba(7, 10, 20, 0.82) 100%);
+    -webkit-mask-image: linear-gradient(180deg, transparent, #000 24%, #000 76%, transparent);
+    mask-image: linear-gradient(180deg, transparent, #000 24%, #000 76%, transparent);
+}
+
+/* The foam along the crest, and its thinner answer underneath. */
+.curtain__splash::before,
+.curtain__splash::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(217, 164, 65, 0.7) 30%, rgba(255, 245, 220, 0.55) 55%, transparent);
+}
+
+.curtain__splash::before {
+    top: 24%;
+}
+
+.curtain__splash::after {
+    bottom: 24%;
+    opacity: 0.45;
+}
+
+.curtain--in .curtain__splash {
+    animation: surge-in 0.62s cubic-bezier(0.65, 0, 0.3, 1) both;
+}
+
+.curtain--in .curtain__words {
+    animation: struck 0.7s 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Leaving, it carries on the way it came rather than backing out. */
+.curtain--out .curtain__splash {
+    animation: surge-out 0.9s cubic-bezier(0.55, 0, 0.2, 1) both;
+}
+
+.curtain--out .curtain__words {
+    animation: struck-out 0.45s ease both;
+}
+
+@keyframes surge-in {
+    from {
+        transform: translate(-118%, -50%) skewX(-9deg);
+    }
+    to {
+        transform: translate(0, -50%) skewX(0deg);
+    }
+}
+
+@keyframes surge-out {
+    from {
+        transform: translate(0, -50%);
+    }
+    to {
+        transform: translate(118%, -50%) skewX(9deg);
+    }
+}
+
+@keyframes struck {
+    from {
+        opacity: 0;
+        transform: translateY(18px) scale(0.94);
+        filter: blur(10px);
+    }
+}
+
+@keyframes struck-out {
+    to {
+        opacity: 0;
+        transform: translateY(-16px);
+    }
+}
+
+.curtain__words {
+    position: relative;
+}
+
+.curtain__title {
+    margin: 0;
+    font-family: var(--serif);
+    font-size: clamp(30px, 7vw, 68px);
+    font-weight: 400;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+    color: var(--gold-pale);
+    text-shadow: 0 0 90px rgba(217, 164, 65, 0.5);
+}
+
+.curtain__depth {
+    margin: 16px 0 0;
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+/* -------------------------- the level screen ---------------------------- */
+
+.level {
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+    padding: 34px 24px 36px;
+    border-radius: 24px;
+    border: 1px solid rgba(217, 164, 65, 0.3);
+    background: radial-gradient(120% 150% at 50% 0%, rgba(217, 164, 65, 0.18), transparent 68%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.035), transparent);
+    animation: rise 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* A shine that crosses the card once, as it arrives. */
+.level::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(100deg, transparent 40%, rgba(255, 245, 220, 0.13) 50%, transparent 60%);
+    transform: translateX(-100%);
+    animation: sheen 1.6s 0.35s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+/* The light crosses once and is then gone. It has to *end* invisible: the
+   animation is filled `both`, so whatever the last frame holds is held for as
+   long as the element lives — and a band of light parked one width to the
+   right of a section is a band of light sitting in the middle of the page. */
+@keyframes sheen {
+    99% {
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+.level__eyebrow {
+    margin: 0;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.34em;
+    text-transform: uppercase;
+    color: var(--gold);
+}
+
+.level__title {
+    font-family: var(--serif);
+    font-size: clamp(30px, 6vw, 46px);
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    margin: 12px 0 10px;
+    color: var(--gold-pale);
+    text-shadow: 0 0 60px rgba(217, 164, 65, 0.45);
+}
+
+.level .lede {
+    margin-bottom: 26px;
+}
+
+/* The level screen is the title and nothing else — what it opened follows
+   underneath it. */
+.level .level__title:last-child {
+    margin-bottom: 0;
+}
+
+/* The way on, at the bottom of everything the level opened: it arrives last,
+   once there is nothing left to watch appear. */
+.level__foot {
+    display: grid;
+    justify-items: center;
+    gap: 16px;
+    margin-top: 56px;
+    padding-top: 34px;
+    border-top: 1px solid var(--line);
+    text-align: center;
+    transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.level__foot--sealed {
+    opacity: 0;
+    transform: translateY(22px);
+    pointer-events: none;
+}
+
+/* ------------------------------- results -------------------------------- */
+
+.result {
+    position: relative;
+    margin-top: 40px;
+    padding-top: 26px;
+    border-top: 1px solid var(--line);
+    transition: opacity 0.7s ease, transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), filter 0.7s ease;
+}
+
+/* Held shut until the level opens it. What is behind the seal is drawn and
+   in place — this is only the lid. */
+.result--sealed {
+    opacity: 0;
+    transform: translateY(30px) scale(0.985);
+    filter: blur(12px);
+    pointer-events: none;
+}
+
+/* The moment it opens: a light crosses it and its edge burns gold, over the
+   spray of particles the script throws out of the middle of it. */
+.result--opening {
+    animation: won 1.5s ease both;
+}
+
+.result--opening::after {
+    content: "";
+    position: absolute;
+    inset: -8px;
+    pointer-events: none;
+    border-radius: 18px;
+    background: linear-gradient(100deg, transparent 40%, rgba(255, 245, 220, 0.12) 50%, transparent 60%);
+    transform: translateX(-100%);
+    animation: sheen 1.3s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+@keyframes won {
+    from {
+        box-shadow: 0 0 0 0 rgba(217, 164, 65, 0);
+    }
+    25% {
+        box-shadow: 0 -1px 40px -6px rgba(217, 164, 65, 0.55);
+    }
+    to {
+        box-shadow: 0 0 0 0 rgba(217, 164, 65, 0);
+    }
+}
+
+.result__name {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 18px;
+}
+
+.result__body {
+    display: grid;
+    gap: 20px;
+}
+
+/* The chart sits above the rows it summarises, centred on the section. */
+.result__chart {
+    position: relative;
+    width: 100%;
+    max-width: 440px;
+    margin: 0 auto;
+}
+
+.result__chart svg {
+    width: 100%;
+    height: auto;
+}
+
+/* A figure that carries its own words needs them at a size worth reading. */
+.result__chart--wide {
+    max-width: 660px;
+}
+
+/* A reading of the questionnaire as a whole, under its dimensions. */
+.result__reading {
+    margin: 0;
+    padding: 16px 20px;
+    border-radius: 14px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    font-size: 15px;
+    color: var(--muted);
+}
+
+.result__reading b {
+    color: var(--text);
+    font-weight: 600;
+}
+
+.rows {
+    display: grid;
+    gap: 16px;
+}
+
+.row__lead {
+    margin: 0;
+    font-size: 15px;
+    color: var(--text);
+}
+
+.row__lead b {
+    font-weight: 600;
+}
+
+.row__reading {
+    margin: 3px 0 0;
+    font-size: 14px;
+    font-style: italic;
+    color: var(--muted);
+}
+
+/* Does the prediction land? */
+.votes {
+    display: flex;
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.vote {
+    font: inherit;
+    font-size: 11.5px;
+    color: var(--muted);
+    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 3px 12px;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+
+.vote:hover {
+    color: var(--text);
+    border-color: rgba(255, 255, 255, 0.32);
+}
+
+.vote--picked {
+    color: #05070d;
+    background: var(--muted);
+    border-color: var(--muted);
+    font-weight: 600;
+}
+
+/* The same pair, held inside the figure that made the prediction, directly
+   under the words it is about. The figure brings its own spacing. */
+.soma__votes .votes {
+    margin-top: 0;
+}
+
+.soma__votes .vote {
+    font-size: 11px;
+    padding: 2px 11px;
+}
+
+/* ----------------------- a level not yet unlocked ----------------------- */
+
+/* What a locked level is worth finishing for, shown but not readable: the
+   dimensions are named, everything that has to be earned is blurred. */
+.taste {
+    margin: 0 0 8px;
+    padding: 16px 20px;
+    border-radius: 14px;
+    border: 1px solid rgba(217, 164, 65, 0.3);
+    background: radial-gradient(120% 180% at 50% 0%, rgba(217, 164, 65, 0.15), transparent 70%);
+    font-size: 15px;
+    color: var(--muted);
+}
+
+.taste b {
+    color: var(--gold-pale);
+    font-weight: 600;
+}
+
+.blank {
+    filter: blur(4.5px);
+    opacity: 0.7;
+    user-select: none;
+}
+
+.result--locked .result__chart svg {
+    filter: blur(5px);
+    opacity: 0.5;
+}
+
+/* Nothing in a locked section answers to being hovered or clicked. */
+.result--locked .result__body {
+    pointer-events: none;
+}
+
+.result__lock {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    padding: 7px 16px;
+    border-radius: 999px;
+    border: 1px solid rgba(217, 164, 65, 0.45);
+    background: rgba(10, 13, 22, 0.9);
+    color: var(--gold-pale);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+/* ------------------------ interoception, as a body ----------------------- */
+
+/* The head, the chest, and the cord that carries what one says to the other.
+   Each ring is filled to where the score sits on its own scale. */
+.soma {
+    width: 100%;
+    height: auto;
+}
+
+.soma__track,
+.soma__cord {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.08);
+    stroke-width: 7;
+    stroke-linecap: round;
+}
+
+.soma__ring,
+.soma__signal {
+    fill: none;
+    stroke: var(--chart);
+    stroke-width: 7;
+    stroke-linecap: round;
+    filter: drop-shadow(0 0 9px var(--chart));
+    animation: fade 0.6s ease both;
+}
+
+.soma__organ {
+    cursor: pointer;
+}
+
+.soma__icon {
+    fill: color-mix(in srgb, var(--chart) 24%, transparent);
+    stroke: var(--chart);
+    stroke-width: 2;
+    stroke-linejoin: round;
+}
+
+.soma__fold {
+    fill: none;
+    stroke: var(--chart);
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    opacity: 0.6;
+}
+
+/* The rungs are what make the cord a nerve rather than a wire. */
+.soma__rung {
+    stroke: rgba(255, 255, 255, 0.16);
+    stroke-width: 2;
+    stroke-linecap: round;
+}
+
+/* Where the average person sits, on the same ring and the same cord. */
+.soma__mean {
+    stroke: #767c92;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+}
+
+.soma__name {
+    fill: var(--muted);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+}
+
+/* Where it stands, in one sentence at one size. */
+.soma__reading {
+    fill: #e6ebf7;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+/* And what tends to follow from standing there. */
+.soma__told {
+    fill: var(--muted);
+    font-size: 12.5px;
+    font-style: italic;
+}
+
+.soma__unit {
+    fill: var(--muted);
+    font-size: 13px;
+    font-weight: 500;
+}
+
+/* ----------------------------- spider chart ----------------------------- */
+
+.chart {
+    max-width: 480px;
+    margin: 26px auto 0;
+}
+
+.profile__web {
+    width: 100%;
+    height: auto;
+}
+
+.chart__ring,
+.chart__axis {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.09);
+}
+
+.chart__label {
+    font-size: 11.5px;
+    font-weight: 600;
+    fill: #cfd4e4;
+}
+
+/* The everything-at-once chart carries many more labels. */
+.chart__web--many .chart__label {
+    font-size: 10px;
+}
+
+.chart__label--awaiting {
+    fill: #565c70;
+}
+
+/* The average person, for comparison. */
+.chart__average {
+    fill: none;
+    stroke: #767c92;
+    stroke-width: 1.5;
+    stroke-dasharray: 5 4;
+    stroke-linejoin: round;
+}
+
+.chart__area {
+    fill: var(--chart);
+    fill-opacity: 0.22;
+    stroke: var(--chart);
+    stroke-width: 2;
+    stroke-linejoin: round;
+    filter: drop-shadow(0 0 10px var(--chart));
+    animation: fade 0.5s ease both;
+}
+
+/* Used instead of the filled shape while dimensions are still locked. */
+.chart__link {
+    stroke: var(--chart);
+    stroke-width: 2;
+    stroke-linecap: round;
+    animation: fade 0.5s ease both;
+}
+
+.chart__point {
+    fill: var(--chart);
+    stroke: var(--bg);
+    stroke-width: 2;
+    transform-box: fill-box;
+    transform-origin: center;
+    cursor: pointer;
+    animation: reveal 0.45s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+
+.chart__point:hover {
+    stroke: var(--chart);
+    stroke-opacity: 0.4;
+    stroke-width: 6;
+}
+
+@keyframes reveal {
+    from {
+        opacity: 0;
+        transform: scale(0.3);
+    }
+}
+
+.chart__note {
+    text-align: center;
+    color: var(--muted);
+    font-size: 14px;
+    margin: 18px 0 0;
+}
+
+/* Tooltip for the chart points, over the panels they are drawn in. */
+.tip {
+    position: fixed;
+    z-index: 40;
+    transform: translate(-50%, -100%);
+    padding: 7px 12px;
+    border-radius: 9px;
+    border: 1px solid var(--line);
+    background: #161a29;
+    color: var(--text);
+    font-size: 13px;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.12s;
+}
+
+.tip--shown {
+    opacity: 1;
+}
+
+/* ------------------------------ the legend ------------------------------ */
+
+.legend {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin: 2px 0 0;
+    font-size: 12px;
+    color: var(--muted);
+}
+
+.legend__item {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.legend__you,
+.legend__average {
+    width: 20px;
+    height: 0;
+    border-top: 2px solid var(--chart, var(--accent));
+}
+
+.legend__average {
+    border-top-style: dashed;
+    border-top-color: #767c92;
+}
+
+/* ------------------------- where a score stands ------------------------- */
+
+.bar {
+    margin: 10px 0 2px;
+    max-width: 460px;
+}
+
+.bar__track {
+    position: relative;
+    height: 7px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.07);
+    overflow: visible;
+}
+
+.bar__fill {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, color-mix(in srgb, var(--chart) 40%, transparent), var(--chart));
+    box-shadow: 0 0 16px -3px var(--chart);
+    transition: width 0.6s cubic-bezier(0.22, 0.85, 0.3, 1);
+}
+
+/* The middle of the population, which the reading is relative to. */
+.bar__mean {
+    position: absolute;
+    left: 50%;
+    top: -4px;
+    bottom: -4px;
+    width: 2px;
+    margin-left: -1px;
+    background: rgba(255, 255, 255, 0.32);
+}
+
+.bar__you {
+    position: absolute;
+    top: 50%;
+    width: 13px;
+    height: 13px;
+    margin: -6.5px 0 0 -6.5px;
+    border-radius: 50%;
+    background: var(--chart);
+    border: 2px solid var(--bg);
+    box-shadow: 0 0 14px -1px var(--chart);
+}
+
+.bar__scale {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 7px;
+    font-size: 10.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(134, 143, 166, 0.75);
+}
+
+/* ------------------------------- the card ------------------------------- */
+
+/* The two buttons sit under the web they carry, with nothing between. */
+.share {
+    margin-top: 26px;
+}
+
+.card {
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    box-shadow: 0 30px 70px -30px rgba(0, 0, 0, 0.9);
+}
+
+.card__canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.share__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+}
+
+.share--waiting .share__actions {
+    display: none;
+}
+
+.share__actions .btn + .btn {
+    margin-left: 0;
+}
+
+.share__note {
+    margin: 14px 0 0;
+    text-align: center;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--muted);
+    overflow-wrap: anywhere;
+    transition: color 0.3s;
+}
+
+.share__note--done {
+    color: #7fcb9b;
+}
+
+/* --------------------------- the whole profile --------------------------- */
+
+/* Drawn in the panel during the run and, once there is nothing left to answer,
+   on the last screen — where it is the whole of what there is to show, so it
+   is given the page rather than announced with a way to it. */
+#profile-done {
+    text-align: center;
+    animation: rise 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.profile__title {
+    font-family: var(--serif);
+    font-size: clamp(30px, 6vw, 46px);
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    margin: 12px 0 12px;
+    color: var(--gold-pale);
+    text-shadow: 0 0 60px rgba(217, 164, 65, 0.45);
+}
+
+#profile-done .lede {
+    max-width: 52ch;
+    margin: 0 auto;
+}
+
+#profile-done .share {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.profile__foot {
+    margin-top: 40px;
+    padding-top: 28px;
+    border-top: 1px solid var(--line);
+}
+
+/* Somebody else's card, arrived at from a link. */
+.visit {
+    max-width: 820px;
+    margin: 0 auto;
+    text-align: center;
+    animation: rise 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.visit__title {
+    font-size: clamp(30px, 6vw, 48px);
+    margin: 10px 0 26px;
+    color: #ffffff;
+    text-shadow: 0 0 70px rgba(124, 92, 255, 0.5);
+}
+
+.visit .lede {
+    max-width: 54ch;
+    margin: 26px auto 30px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    /* The staging goes: a finished level is simply all there. */
+    .level::after,
+    .result--opening,
+    .result--opening::after,
+    .curtain--in .curtain__splash,
+    .curtain--in .curtain__words {
+        animation: none;
+    }
+
+    .result,
+    .level__foot {
+        transition: none;
+    }
+
+    .curtain--out .curtain__splash,
+    .curtain--out .curtain__words {
+        animation-name: vanish;
+    }
+}

@@ -1,0 +1,637 @@
+/* =========================================================================
+   The way in: the title that sinks as the page is scrolled off it, the case
+   for doing this at all, the consent form that has to be read, and the line
+   the test is named after, held over everything on the way to the first item.
+   ========================================================================= */
+
+/* The landing screen takes the whole window, so the title can too. */
+body[data-screen="intro"] #app {
+    max-width: none;
+    padding: 0;
+}
+
+.hero {
+    position: relative;
+    min-height: 100vh;
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0 20px;
+    text-align: center;
+    /* Set from the scroll position: the title sinks as the page moves down. */
+    opacity: calc(1 - var(--gone, 0));
+}
+
+/* The thing that gazes back — a slow, barely-there dilation behind the name. */
+.hero__iris {
+    position: absolute;
+    top: 46%;
+    left: 50%;
+    width: min(94vmin, 780px);
+    aspect-ratio: 1;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    pointer-events: none;
+    background: radial-gradient(circle, rgba(124, 92, 255, 0.17) 0%, rgba(34, 211, 238, 0.07) 38%, transparent 66%);
+    animation: iris 11s ease-in-out infinite alternate;
+}
+
+@keyframes iris {
+    from {
+        transform: translate(-50%, -50%) scale(0.86);
+        opacity: 0.55;
+    }
+    to {
+        transform: translate(-50%, -50%) scale(1.08);
+        opacity: 1;
+    }
+}
+
+/* Who stands behind the study — a row of marks above the title, left-aligned
+   against the same edge everything else on the page sits against. That is
+   what makes it read as legitimate at a glance: real institutions, not just
+   the page's own claim. */
+.hero__logos {
+    position: absolute;
+    top: clamp(18px, 3.6vh, 34px);
+    left: clamp(20px, 4vw, 48px);
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 18px;
+    animation: surface 1.6s 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.hero__logo img {
+    height: 95px;
+    width: auto;
+    max-width: 460px;
+    object-fit: contain;
+}
+
+.hero__mark {
+    position: relative;
+    margin: 0;
+    display: grid;
+    justify-items: center;
+    line-height: 0.86;
+    font-family: var(--serif);
+    font-weight: 400;
+    transform: translateY(calc(var(--gone, 0) * -60px));
+    filter: blur(calc(var(--gone, 0) * 7px));
+}
+
+.hero__the {
+    font-size: clamp(13px, 1.6vw, 20px);
+    letter-spacing: 0.62em;
+    text-indent: 0.62em;
+    text-transform: uppercase;
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 0.9em;
+}
+
+/* The name itself, sunk into the dark: pale at the top, gone by the bottom. */
+.hero__title {
+    font-size: clamp(94px, 19vw, 280px);
+    letter-spacing: 0.06em;
+    text-indent: 0.06em;
+    text-transform: uppercase;
+    background: linear-gradient(178deg, #ffffff 4%, #c3cdeb 30%, rgba(120, 133, 175, 0.55) 62%, rgba(80, 90, 130, 0) 92%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: surface 1.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* One line wherever there is room for one — it only breaks on a narrow
+   window, where it has to. */
+.hero__sub {
+    position: relative;
+    text-wrap: balance;
+    margin: clamp(26px, 5vh, 46px) 0 0;
+    font-family: var(--serif);
+    font-size: clamp(16px, 2.1vw, 23px);
+    font-style: italic;
+    line-height: 1.4;
+    color: #c8cfe4;
+    animation: surface 1.6s 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.hero__meta {
+    position: relative;
+    margin: 18px 0 0;
+    font-size: 12.5px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+    animation: surface 1.6s 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.hero__meta i {
+    font-style: normal;
+    opacity: 0.45;
+    margin: 0 4px;
+}
+
+/* The way down, and the invitation to take it. */
+.hero__cue {
+    position: absolute;
+    bottom: clamp(20px, 5vh, 44px);
+    display: grid;
+    justify-items: center;
+    gap: 10px;
+    font-size: 11px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-decoration: none;
+    animation: surface 1.6s 1s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.hero__cue:hover {
+    color: var(--text);
+}
+
+.hero__cue i {
+    display: block;
+    width: 1px;
+    height: 46px;
+    background: linear-gradient(180deg, transparent, var(--accent-2));
+    animation: sink 2.4s ease-in-out infinite;
+}
+
+@keyframes sink {
+    0%,
+    100% {
+        opacity: 0.25;
+        transform: scaleY(0.55);
+        transform-origin: top;
+    }
+    50% {
+        opacity: 1;
+        transform: scaleY(1);
+        transform-origin: top;
+    }
+}
+
+@keyframes surface {
+    from {
+        opacity: 0;
+        transform: translateY(26px);
+        filter: blur(10px);
+    }
+}
+
+/* Why it is worth doing, between the quote and the form. */
+.why__heading {
+    margin-top: 10px;
+}
+
+/* The shape of a finished profile, hanging behind the case for making one:
+   wider than the words, out of focus, and dim enough to read them through. It
+   is a hint at what the far end of this looks like, not a result — the figures
+   on it are the stand-ins a locked level is drawn from. */
+.why__web {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: -1;
+    width: min(1020px, 128%);
+    transform: translate(-50%, -50%);
+    opacity: 0.3;
+    filter: blur(7px) saturate(1.2);
+    pointer-events: none;
+    mask-image: radial-gradient(68% 62% at 50% 50%, #000 42%, transparent 78%);
+    -webkit-mask-image: radial-gradient(68% 62% at 50% 50%, #000 42%, transparent 78%);
+}
+
+.why__web svg {
+    width: 100%;
+    height: auto;
+}
+
+.why__heading {
+    margin: 10px 0 20px;
+    font-family: var(--serif);
+    font-size: clamp(25px, 3.6vw, 36px);
+    font-weight: 400;
+    line-height: 1.22;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+}
+
+.why__lede {
+    margin: 0;
+    font-size: clamp(16px, 1.7vw, 18px);
+    color: #b3bbd0;
+}
+
+.why__points {
+    display: grid;
+    gap: 14px;
+    margin: 30px 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.why__points li {
+    position: relative;
+    padding: 16px 20px 16px 44px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--surface);
+    font-size: 15px;
+    color: var(--muted);
+}
+
+/* A mote beside each point, in the accent the rest of the descent is lit by. */
+.why__points li::before {
+    content: "";
+    position: absolute;
+    left: 20px;
+    top: 25px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--accent-2);
+    box-shadow: 0 0 14px 1px var(--accent-2);
+}
+
+.why__points b {
+    color: var(--text);
+    font-weight: 600;
+}
+
+/* Every landing section takes a window of its own, so that scrolling down the
+   page moves from one to the next rather than showing two at once. The first
+   of them is the reason the whole thing exists, put better than the page puts
+   it: what the scroll uncovers before any case is made or any form read. */
+.creed,
+.why,
+.gate {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 100vh;
+    min-height: 100svh;
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 72px 24px;
+}
+
+.creed {
+    text-align: center;
+}
+
+.creed blockquote {
+    margin: 0;
+    font-family: var(--serif);
+    font-size: clamp(22px, 3.2vw, 34px);
+    font-style: italic;
+    line-height: 1.32;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+    color: #dde3f4;
+}
+
+.creed figcaption {
+    margin-top: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    text-indent: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+}
+
+/* The consent form, on the last window of the landing page. */
+.gate {
+    scroll-margin-top: 24px;
+}
+
+.gate__step {
+    margin: 0;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--accent-2);
+}
+
+.gate__heading {
+    margin: 8px 0 22px;
+    font-family: var(--serif);
+    font-size: clamp(26px, 4vw, 38px);
+    font-weight: 400;
+    letter-spacing: -0.01em;
+}
+
+/* Pressing Start opens more water under the form. The descent carries on down
+   into the quote rather than stopping dead where the form ended, and never
+   goes back up: the page is put back to the top under the fade instead. */
+body.sinking #screen-intro::after {
+    content: "";
+    display: block;
+    height: 72vh;
+}
+
+.consent {
+    max-height: min(52vh, 460px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 4px 26px 22px;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    /* Dark against the water rather than a film over it: this near the surface
+       there is still enough light behind the page to read the form through. */
+    background: linear-gradient(180deg, rgba(3, 8, 16, 0.55), rgba(3, 8, 16, 0.32));
+    box-shadow: inset 0 -30px 40px -30px rgba(0, 0, 0, 0.9);
+    color: #c2c9da;
+    font-size: 15px;
+}
+
+.consent:focus-visible {
+    outline: 2px solid var(--accent-2);
+    outline-offset: 2px;
+}
+
+/* Floated rather than placed absolutely, so it scrolls with the letter it
+   heads instead of sitting fixed over text passing underneath it. */
+.consent__logo {
+    float: right;
+    height: 100px;
+    width: auto;
+    margin: 10px 0 10px 20px;
+}
+
+.consent h2 {
+    font-family: var(--serif);
+    font-size: 20px;
+    font-weight: 400;
+    margin: 18px 0 0;
+    color: var(--text);
+}
+
+.consent h3 {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin: 26px 0 0;
+    color: var(--muted);
+}
+
+.consent p {
+    margin: 10px 0 0;
+}
+
+.consent ul {
+    margin: 14px 0 0;
+    padding-left: 22px;
+}
+
+.consent li {
+    margin-top: 8px;
+}
+
+.consent__hint {
+    margin: 16px 0 24px;
+    font-size: 14px;
+    color: var(--muted);
+    transition: color 0.3s;
+}
+
+.consent__hint--read {
+    color: #7fcb9b;
+}
+
+/* TEMPORARY, and it should look it: the way into a test run is a line of small
+   print under the button everybody else presses, not a second way in. */
+.testmode {
+    align-self: center;
+    margin-top: 18px;
+    padding: 4px 10px;
+    border: 1px dashed rgba(217, 164, 65, 0.45);
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-indent: 0.2em;
+    text-transform: uppercase;
+    color: rgba(217, 164, 65, 0.75);
+    text-decoration: none;
+    transition: color 0.25s, border-color 0.25s;
+}
+
+.testmode:hover {
+    border-color: rgba(217, 164, 65, 0.9);
+    color: #d9a441;
+}
+
+/* Once the form has been read, the way in should be hard to miss. */
+#start:not(:disabled) {
+    animation: beckon 3s ease-in-out infinite;
+}
+
+@keyframes beckon {
+    0%,
+    100% {
+        box-shadow: 0 16px 44px -18px var(--accent), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+    }
+    50% {
+        box-shadow: 0 20px 60px -14px var(--accent-2), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    }
+}
+
+/* ------------------------- the line, on the way in ----------------------- */
+
+/* Shown once, over everything, between agreeing to take part and the first
+   question. It comes on slowly enough that the page is seen carrying on down
+   underneath it. Any click or key cuts it short. */
+.gaze {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    display: grid;
+    place-items: center;
+    /* place-items only positions each row's own content; without this the rows
+       (quote, byline) pack to the top of the fixed viewport rather than
+       sitting as a block in the middle of it. */
+    align-content: center;
+    padding: 24px;
+    text-align: center;
+    cursor: pointer;
+    background: radial-gradient(115% 85% at 50% 50%, #0a0f1e 0%, #03050b 52%, #000000 100%);
+    animation: fade 1.15s ease both;
+}
+
+.gaze[hidden] {
+    display: none;
+}
+
+/* Leaving is staged, so it does not stop: the words lift away first, then the
+   eye closes, and the dark it leaves thins out onto the item underneath. */
+.gaze--out {
+    animation: fade 1.4s 0.5s ease both reverse;
+}
+
+.gaze--out .gaze__quote,
+.gaze--out .gaze__by,
+.gaze--out .gaze__skip {
+    animation: dissolve 0.7s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.gaze--out .gaze__eye {
+    animation: close 1.9s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+@keyframes dissolve {
+    to {
+        opacity: 0;
+        transform: translateY(-22px);
+        filter: blur(6px);
+    }
+}
+
+/* What is left of the words leaving when the lift and the blur are not wanted. */
+@keyframes vanish {
+    to {
+        opacity: 0;
+    }
+}
+
+@keyframes close {
+    to {
+        transform: scale(1.55);
+        opacity: 0;
+    }
+}
+
+.gaze__eye {
+    position: absolute;
+    display: grid;
+    place-items: center;
+    width: min(80vmin, 660px);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(124, 92, 255, 0.14) 0%, rgba(34, 211, 238, 0.06) 40%, transparent 68%);
+    box-shadow: inset 0 0 130px rgba(34, 211, 238, 0.09);
+    animation: open 7s cubic-bezier(0.3, 0, 0.15, 1) both;
+}
+
+/* Dilates on the second line: the looking back. */
+.gaze__pupil {
+    width: 34%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(circle, #000000 40%, rgba(0, 0, 0, 0.65) 70%, transparent 100%);
+    box-shadow: 0 0 90px 30px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(124, 92, 255, 0.22);
+    animation: dilate 7s 2.4s cubic-bezier(0.34, 0, 0.2, 1) both;
+}
+
+@keyframes open {
+    from {
+        transform: scale(0.55);
+        opacity: 0;
+    }
+}
+
+@keyframes dilate {
+    from {
+        transform: scale(0.35);
+        opacity: 0.4;
+    }
+    to {
+        transform: scale(1.9);
+        opacity: 0.95;
+    }
+}
+
+.gaze__quote {
+    position: relative;
+    margin: 0;
+    max-width: 22ch;
+    font-family: var(--serif);
+    font-size: clamp(26px, 5.2vw, 54px);
+    font-style: italic;
+    line-height: 1.28;
+    letter-spacing: -0.01em;
+    color: #b9c2dc;
+}
+
+.gaze__line {
+    display: block;
+    animation: rise 1.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.gaze__line:first-child {
+    animation-delay: 0.7s;
+}
+
+/* The half that turns it round, brighter than the half that sets it up, and
+   set apart from it — the turn wants a breath before it, not a line-height. */
+.gaze__line:last-child {
+    display: block;
+    margin-top: 0.5em;
+    color: #ffffff;
+    text-shadow: 0 0 60px rgba(124, 92, 255, 0.7), 0 0 26px rgba(34, 211, 238, 0.35);
+    animation-delay: 2.7s;
+}
+
+.gaze__by {
+    position: relative;
+    margin: 34px 0 0;
+    font-size: 11px;
+    letter-spacing: 0.34em;
+    text-transform: uppercase;
+    color: var(--muted);
+    animation: fade 1.4s 4.5s ease both;
+}
+
+.gaze__skip {
+    position: absolute;
+    bottom: 28px;
+    left: 0;
+    right: 0;
+    margin: 0;
+    font-size: 11px;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.28);
+    animation: fade 1.2s 1.6s ease both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hero__iris,
+    .hero__cue i {
+        animation: none;
+    }
+
+    .hero__mark,
+    .hero__title,
+    .hero__sub,
+    .hero__meta,
+    .hero__cue,
+    .gaze__eye,
+    .gaze__pupil {
+        animation: none;
+        transform: none;
+        filter: none;
+    }
+
+    .gaze__line {
+        animation-name: fade;
+    }
+
+    .gaze--out .gaze__quote,
+    .gaze--out .gaze__by,
+    .gaze--out .gaze__skip {
+        animation-name: vanish;
+    }
+}

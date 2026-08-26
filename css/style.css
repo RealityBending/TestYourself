@@ -1,0 +1,1163 @@
+/* =========================================================================
+   The shell: the water everything sits in, the menu bar, the screens and
+   panels they live on, the buttons, and the survey itself.
+
+   The landing screen is in intro.css and everything that shows a result is
+   in results.css, both loaded after this one. The animations shared across
+   all three — `fade` and `rise` — are defined here.
+   ========================================================================= */
+
+:root {
+    --bg: #05070d;
+    /* Darkens whatever is behind it rather than lightening it: the water at the
+       top of the descent is bright enough that a white film would be read
+       through. */
+    --surface: rgba(4, 10, 20, 0.32);
+    --raised: #0d1120;
+    --text: #eef1f8;
+    /* Light enough to hold against the sunlit top of the water as well as
+       against the dark at the bottom of it. The bright end is what sets it:
+       a grey that reads on the dark disappears into the surface. */
+    --muted: #d2d8e7;
+    --line: rgba(255, 255, 255, 0.11);
+    --accent: #7c5cff;
+    --accent-2: #22d3ee;
+    --gold: #d9a441;
+    --gold-pale: #f6e6c4;
+    /* The two edges the page is padded clear of. */
+    --sidebar: 100px;
+    --banner: 46px;
+    --serif: ui-serif, "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: 17px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* The abyss itself: sunlit water at the surface, near black at the bottom. The
+   column is several windows tall and `--descent` — 0 at the surface, 1 at the
+   end of the run — is how far down it the window is looking, so going on with
+   the test is going under. Fixed, so the page moves against it rather than
+   carrying it along. */
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    pointer-events: none;
+    background-repeat: no-repeat;
+    background-size: 100% 420%;
+    background-position: 0 calc(var(--descent, 0) * 100%);
+    background-image:
+        /* the light on the surface, only ever seen from just under it */
+        radial-gradient(64% 8% at 27% 1%, rgba(198, 244, 255, 0.55), transparent 72%),
+        radial-gradient(48% 6% at 72% 5%, rgba(160, 226, 255, 0.32), transparent 72%),
+        linear-gradient(
+            180deg,
+            #3f92b8 0%,
+            #2c7ba4 6%,
+            #1b5c82 14%,
+            #124b6e 24%,
+            #0e3a57 38%,
+            #0a2740 54%,
+            #06192c 70%,
+            #030e1a 84%,
+            #01050c 94%,
+            #01030a 100%
+        );
+}
+
+/* The water is sunk through rather than snapped between. */
+body::before {
+    transition: background-position 1s cubic-bezier(0.22, 0.85, 0.3, 1), filter 0.8s ease;
+}
+
+/* The landing screen is not in the water yet: it keeps the dark it always had,
+   and so does somebody else's card, which is nobody's descent. The surface only
+   opens underneath the quote on the way in — by then this rule is off the body
+   and what the quote clears onto is the top of the column. */
+body[data-screen="intro"]::before,
+body[data-screen="card"]::before {
+    background-size: auto;
+    background-position: 0 0;
+    background-image: radial-gradient(120% 70% at 50% -10%, rgba(124, 92, 255, 0.2), transparent 60%),
+        radial-gradient(90% 55% at 12% 8%, rgba(34, 211, 238, 0.11), transparent 62%),
+        radial-gradient(140% 100% at 50% 120%, rgba(3, 4, 8, 0.9), transparent 55%),
+        linear-gradient(180deg, #090d18 0%, #05070d 45%, #020308 100%);
+}
+
+/* A level's results are read rather than swum through: while they are up, the
+   light goes out of the water behind them. */
+body[data-screen="level"]::before {
+    filter: brightness(0.34) saturate(0.85);
+}
+
+/* Motes hanging in the water, drifting slowly upwards. */
+body::after {
+    content: "";
+    position: fixed;
+    inset: -15% -5%;
+    z-index: -1;
+    pointer-events: none;
+    opacity: 0.55;
+    background-image: radial-gradient(1.6px 1.6px at 12% 22%, rgba(190, 220, 255, 0.7), transparent 60%),
+        radial-gradient(1.2px 1.2px at 27% 71%, rgba(160, 210, 255, 0.55), transparent 60%),
+        radial-gradient(2px 2px at 41% 15%, rgba(214, 200, 255, 0.5), transparent 60%),
+        radial-gradient(1.1px 1.1px at 55% 48%, rgba(190, 220, 255, 0.6), transparent 60%),
+        radial-gradient(1.7px 1.7px at 68% 83%, rgba(150, 235, 235, 0.45), transparent 60%),
+        radial-gradient(1.3px 1.3px at 79% 31%, rgba(200, 215, 255, 0.6), transparent 60%),
+        radial-gradient(1px 1px at 88% 62%, rgba(255, 255, 255, 0.5), transparent 60%),
+        radial-gradient(1.5px 1.5px at 6% 54%, rgba(180, 200, 255, 0.4), transparent 60%),
+        radial-gradient(1.2px 1.2px at 34% 93%, rgba(200, 230, 255, 0.5), transparent 60%),
+        radial-gradient(1.8px 1.8px at 62% 6%, rgba(220, 205, 255, 0.4), transparent 60%),
+        radial-gradient(1.1px 1.1px at 94% 12%, rgba(190, 225, 255, 0.5), transparent 60%),
+        radial-gradient(1.4px 1.4px at 18% 40%, rgba(160, 220, 240, 0.4), transparent 60%);
+    animation: motes 34s ease-in-out infinite alternate;
+}
+
+@keyframes motes {
+    from {
+        transform: translate3d(0, 0, 0);
+    }
+    to {
+        transform: translate3d(-14px, -42px, 0);
+    }
+}
+
+#app {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: clamp(24px, 6vh, 60px) 24px 80px;
+}
+
+/* ------------------------- banner and the sidebar ------------------------ */
+
+/* The name of the test, across the top of every screen it is taken on. It is
+   drawn *under* the sidebar: the descent starts at the banner's own lower edge,
+   and the point it has reached would otherwise be half behind it. */
+.banner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 28;
+    height: var(--banner);
+    display: grid;
+    place-items: center;
+    background: rgba(9, 12, 21, 0.72);
+    backdrop-filter: blur(20px) saturate(1.5);
+    -webkit-backdrop-filter: blur(20px) saturate(1.5);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.banner__title {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.34em;
+    text-indent: 0.34em;
+    text-transform: uppercase;
+    background: linear-gradient(92deg, var(--accent-2), #cbb8ff 55%, var(--accent));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+/* A run started with `?testMode=true` answers most of itself and is not data.
+   It is marked across the top for as long as it lasts. It sits on the left,
+   the side the sidebar is not on, and shrinks with the screen: the title is
+   centred, and there is less room beside it the narrower the page gets. */
+.banner__test {
+    position: absolute;
+    left: 12px;
+    padding: 2px 9px;
+    border: 1px solid rgba(217, 164, 65, 0.55);
+    border-radius: 999px;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-indent: 0.2em;
+    text-transform: uppercase;
+    color: #d9a441;
+}
+
+/* Everything else the test carries with it, stood on end down the right: the
+   way into each level and into the panels, and the descent running down the
+   edge the page sits against. The page is padded clear of the whole of it —
+   with a little extra for the level buttons, which sit out over the line. */
+.sidebar {
+    position: fixed;
+    top: var(--banner);
+    right: 0;
+    bottom: 0;
+    z-index: 30;
+    width: var(--sidebar);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* No padding at the top: the line starts where the banner ends. */
+    padding: 0 0 22px;
+    background: rgba(9, 12, 21, 0.72);
+    backdrop-filter: blur(20px) saturate(1.5);
+    -webkit-backdrop-filter: blur(20px) saturate(1.5);
+    border-left: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+body {
+    padding: var(--banner) calc(var(--sidebar) + 18px) 0 0;
+}
+
+/* Nothing over the title on the way in, and nothing over somebody else's card
+   either — a visitor has no levels of their own to open. */
+body[data-screen="intro"] .banner,
+body[data-screen="card"] .banner,
+body[data-screen="intro"] .sidebar,
+body[data-screen="card"] .sidebar {
+    display: none;
+}
+
+body[data-screen="intro"],
+body[data-screen="card"] {
+    padding: 0;
+}
+
+/* The line and everything pinned to it share these bounds, so a level sits at
+   the height its share of the run puts it. */
+/* The last level sits at the very bottom of the line, so the line stops well
+   short of the links below it. */
+.sidebar__descent {
+    position: relative;
+    flex: 1;
+    width: 100%;
+    margin-bottom: 42px;
+}
+
+.sidebar__line {
+    position: absolute;
+    left: -2px;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar__fill {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 0;
+    border-radius: 999px;
+    background: linear-gradient(180deg, var(--accent-2), var(--accent));
+    box-shadow: 0 0 16px 1px rgba(124, 92, 255, 0.65);
+    transition: height 0.6s cubic-bezier(0.22, 0.85, 0.3, 1);
+}
+
+/* The point the descent has reached. */
+.sidebar__fill::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: -5px;
+    width: 11px;
+    height: 11px;
+    margin-left: -5.5px;
+    border-radius: 50%;
+    background: var(--accent-2);
+    box-shadow: 0 0 16px 2px var(--accent-2);
+}
+
+/* How far down that point is, in metres, riding along beside it. */
+.sidebar__depth {
+    position: absolute;
+    left: 22px;
+    top: 0;
+    transform: translateY(-50%);
+    font-size: 9.5px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    color: var(--accent-2);
+    transition: top 0.6s cubic-bezier(0.22, 0.85, 0.3, 1);
+}
+
+.sidebar__levels {
+    position: absolute;
+    inset: 0;
+}
+
+/* A level, sitting on the line at the point it is finished: passing it is
+   finishing it, and pressing it opens what it holds. */
+.sidebar__level {
+    position: absolute;
+    left: 0;
+    display: grid;
+    place-content: center;
+    width: 46px;
+    height: 46px;
+    padding: 0;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    background: rgba(6, 10, 20, 0.92);
+    color: var(--muted);
+    font: inherit;
+    line-height: 1.1;
+    text-align: center;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s, background 0.15s, box-shadow 0.15s, transform 0.15s;
+}
+
+.sidebar__level:hover,
+.sidebar__level:focus-visible {
+    color: var(--text);
+    border-color: rgba(255, 255, 255, 0.45);
+    transform: translate(-50%, -50%) scale(1.06);
+}
+
+.sidebar__level-word {
+    font-size: 7px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    opacity: 0.7;
+}
+
+.sidebar__level-number {
+    font-size: 16px;
+    font-weight: 700;
+}
+
+/* Finished, and worth the gold. */
+.sidebar__level--unlocked {
+    color: var(--gold-pale);
+    border-color: rgba(217, 164, 65, 0.55);
+    box-shadow: 0 0 22px -5px rgba(217, 164, 65, 0.9);
+}
+
+.sidebar__level--unlocked:hover {
+    border-color: rgba(217, 164, 65, 0.9);
+}
+
+/* Lit while the panel it opened is showing. */
+.sidebar__level--open {
+    color: var(--text);
+    background: rgba(255, 255, 255, 0.14);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* How much of the level is answered, out of the way until it is asked for. It
+   opens into the page, the side the bar is not on. */
+.sidebar__level-label {
+    position: absolute;
+    right: 56px;
+    top: 50%;
+    padding: 4px 11px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: rgba(14, 18, 30, 0.95);
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transform: translate(8px, -50%);
+    transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.sidebar__level:hover .sidebar__level-label,
+.sidebar__level:focus-visible .sidebar__level-label {
+    opacity: 1;
+    transform: translate(0, -50%);
+}
+
+.sidebar__links {
+    display: grid;
+    gap: 8px;
+    width: 100%;
+    padding: 0 8px;
+}
+
+.sidebar__link {
+    font: inherit;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 7px 4px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+
+.sidebar__link:hover {
+    color: var(--text);
+    border-color: rgba(255, 255, 255, 0.35);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.sidebar__link--open {
+    color: var(--text);
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.45);
+}
+
+/* ------------------------------- screens -------------------------------- */
+
+.screen {
+    display: none;
+}
+
+.screen--active {
+    display: block;
+    animation: rise 0.5s cubic-bezier(0.22, 0.85, 0.3, 1) both;
+}
+
+/* The first item, coming up out of the dark as the quote over it clears. It
+   is put in place while the quote is still opaque, so this is what the fade
+   uncovers: a question surfacing, not one handed over whole. */
+.screen--arriving {
+    animation: emerge 1.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes emerge {
+    from {
+        opacity: 0;
+        transform: translateY(32px) scale(0.99);
+        filter: blur(16px);
+    }
+    45% {
+        opacity: 1;
+    }
+    to {
+        opacity: 1;
+        transform: none;
+        filter: blur(0);
+    }
+}
+
+/* A level being put away: the screen is drawn into the button on the line that
+   opens it again, the same way its panel is. The animation every screen arrives
+   on has to go first — an animation filled `both` holds the transform for as
+   long as the element lives, and nothing transitions underneath one. */
+.screen--sucked {
+    animation: none;
+    transform: scale(0.04);
+    transform-origin: var(--from-x, 100%) var(--from-y, 50%);
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 0.46s cubic-bezier(0.6, 0, 0.36, 1), opacity 0.46s ease;
+}
+
+@keyframes rise {
+    from {
+        opacity: 0;
+        transform: translateY(14px);
+    }
+}
+
+@keyframes fade {
+    from {
+        opacity: 0;
+    }
+}
+
+/* ----------------------------- panels ----------------------------------- */
+
+/* The layer the panels live on, under the menu bar so it stays reachable:
+   whatever is open, the menu is still there and the page is still behind. */
+.overlay {
+    position: fixed;
+    inset: var(--banner) var(--sidebar) 0 0;
+    z-index: 20;
+    visibility: hidden;
+}
+
+.overlay--open {
+    visibility: visible;
+}
+
+.overlay__scrim {
+    position: absolute;
+    inset: 0;
+    background: rgba(3, 4, 9, 0.62);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    cursor: pointer;
+}
+
+.overlay--open .overlay__scrim {
+    opacity: 1;
+}
+
+/* Narrower than the window on purpose: the strip of page it leaves showing is
+   both the reminder that you never left it and the way back to it. */
+.panel {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: min(760px, 100% - 76px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    visibility: hidden;
+    background: rgba(11, 14, 25, 0.92);
+    backdrop-filter: blur(26px) saturate(1.4);
+    -webkit-backdrop-filter: blur(26px) saturate(1.4);
+    box-shadow: 0 0 90px rgba(0, 0, 0, 0.65);
+    transition: transform 0.34s cubic-bezier(0.22, 0.85, 0.3, 1), opacity 0.3s ease, visibility 0.34s;
+}
+
+.panel--left {
+    left: 0;
+    transform: translateX(-100%);
+    border-right: 1px solid var(--line);
+    border-radius: 0 22px 22px 0;
+}
+
+.panel--right {
+    right: 0;
+    transform: translateX(100%);
+    border-left: 1px solid var(--line);
+    border-radius: 22px 0 0 22px;
+}
+
+/* A level is not a drawer: it belongs to the button on the line that opens it.
+   The panel grows out of that point and is sucked back into it when it closes,
+   so the button reads as where the level is kept rather than as a link to it.
+   `--from-x` / `--from-y` are that point, written on by the script; the origin
+   sits out beyond the panel's own right edge, where the bar is. */
+.panel--summoned {
+    transform: scale(0.04);
+    transform-origin: var(--from-x, 100%) var(--from-y, 50%);
+    opacity: 0;
+}
+
+.panel--open {
+    visibility: visible;
+    transform: none;
+    opacity: 1;
+}
+
+/* Sticks to the top of the panel as its contents scroll under it. */
+.panel__bar {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px clamp(20px, 4vw, 34px);
+    background: rgba(11, 14, 25, 0.86);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border-bottom: 1px solid var(--line);
+}
+
+.panel__title {
+    flex: 1;
+    margin: 0;
+    font-family: var(--serif);
+    font-size: 23px;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+}
+
+.panel__close {
+    flex: 0 0 auto;
+    width: 32px;
+    height: 32px;
+    font: inherit;
+    font-size: 20px;
+    line-height: 1;
+    color: var(--muted);
+    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s, transform 0.15s;
+}
+
+.panel__close:hover {
+    color: var(--text);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: rotate(90deg);
+}
+
+.panel__body {
+    padding: 22px clamp(20px, 4vw, 34px) 40px;
+}
+
+.panel__body .lede {
+    margin-bottom: 24px;
+}
+
+h1 {
+    font-family: var(--serif);
+    font-size: 32px;
+    font-weight: 400;
+    line-height: 1.2;
+    letter-spacing: -0.015em;
+    margin: 0 0 12px;
+}
+
+.lede {
+    color: var(--muted);
+    margin: 0 0 32px;
+}
+
+/* The raw data file, as it would be saved. */
+.raw {
+    max-height: 60vh;
+    overflow: auto;
+    margin: 0 0 24px;
+    padding: 18px 20px;
+    border-radius: 14px;
+    border: 1px solid var(--line);
+    background: rgba(0, 0, 0, 0.35);
+    color: #c3c9da;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 12.5px;
+    line-height: 1.5;
+    white-space: pre;
+}
+
+/* ------------------------------- buttons -------------------------------- */
+
+.btn {
+    font: inherit;
+    font-weight: 600;
+    color: #05070d;
+    background: linear-gradient(135deg, var(--accent-2), var(--accent));
+    border: 1px solid transparent;
+    border-radius: 12px;
+    padding: 13px 28px;
+    cursor: pointer;
+    box-shadow: 0 16px 44px -18px var(--accent), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+    transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+}
+
+.btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 22px 54px -18px var(--accent), inset 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+
+.btn:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.btn:disabled {
+    opacity: 0.28;
+    filter: grayscale(0.75);
+    box-shadow: none;
+    cursor: not-allowed;
+}
+
+.btn--ghost {
+    color: var(--muted);
+    background: transparent;
+    border-color: var(--line);
+    font-weight: 500;
+    font-size: 15px;
+    padding: 9px 18px;
+    box-shadow: none;
+}
+
+.btn--ghost:hover:not(:disabled) {
+    color: var(--text);
+    border-color: rgba(255, 255, 255, 0.32);
+    background: rgba(255, 255, 255, 0.04);
+    box-shadow: none;
+}
+
+.btn + .btn {
+    margin-left: 10px;
+}
+
+/* ------------------------------- survey --------------------------------- */
+
+.instructions {
+    color: var(--muted);
+    font-size: 15px;
+    font-style: italic;
+    margin: 30px 0 0;
+}
+
+.instructions b {
+    color: var(--text);
+    font-weight: 600;
+}
+
+/* The item itself: lit in its own colour, and throwing that colour onto the
+   dark around it. */
+.text {
+    position: relative;
+    font-size: clamp(21px, 3.3vw, 28px);
+    line-height: 1.34;
+    letter-spacing: -0.015em;
+    font-weight: 600;
+    margin: 14px 0 0;
+    padding: 26px 28px;
+    border-radius: 22px;
+    background: linear-gradient(
+        152deg,
+        color-mix(in srgb, var(--selected, var(--accent)) 88%, #ffffff 12%),
+        color-mix(in srgb, var(--selected, var(--accent)) 72%, #05070d 28%)
+    );
+    box-shadow: 0 34px 90px -40px var(--selected, var(--accent)), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+    animation: breathe 4.5s ease-in-out infinite;
+}
+
+/* Each item fades out over what is left of the advance delay and the next one
+   fades in over it, so the run reads as one moving thing rather than a series
+   of pages. `turning` is the faded-out state; the script takes it off. */
+#instructions,
+.text,
+.scale,
+.section {
+    transition: opacity 0.26s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.turning #instructions,
+.turning .text,
+.turning .scale,
+.turning .section {
+    opacity: 0;
+    transform: translateY(12px);
+}
+
+/* An item that carries its own stem sets the thing actually being asked apart
+   from the lead-in to it: the lead-in is quieter and smaller, what is being
+   asked is the question. */
+.text small {
+    font-size: 0.6em;
+    font-weight: 500;
+    line-height: 1.4;
+    color: rgba(255, 255, 255, 0.72);
+}
+
+.text em {
+    display: inline-block;
+    margin-top: 12px;
+    font-style: italic;
+    font-weight: 500;
+}
+
+@keyframes breathe {
+    0%,
+    100% {
+        color: rgba(255, 255, 255, 0.74);
+    }
+    50% {
+        color: #ffffff;
+    }
+}
+
+/* Response scale: anchors sit either side of the options. Narrower than the
+   text above it — the circles are easier to take in as a scale when they stay
+   close together. */
+.scale {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 14px;
+    max-width: 720px;
+    margin: 40px auto 0;
+}
+
+.anchor {
+    max-width: 92px;
+    font-size: 13px;
+    line-height: 1.3;
+    color: var(--muted);
+}
+
+/* Placed explicitly: a hidden anchor is not a grid item, and without this the
+   options would slide into the column it left behind. */
+.anchor--left {
+    grid-column: 1;
+    text-align: right;
+}
+
+.anchor--right {
+    grid-column: 3;
+}
+
+.anchor[hidden] {
+    display: none;
+}
+
+/* The circles have a size of their own and sit in the middle of whatever
+   room is left, rather than stretching to fill it. */
+.options {
+    grid-column: 2;
+    display: grid;
+    grid-template-columns: repeat(var(--columns, 7), minmax(0, 62px));
+    justify-content: center;
+    gap: 8px;
+}
+
+/* Dark against the water rather than a film over it, and lit rather than
+   muted: near the surface there is too much light behind the page for a grey
+   label on a white film to be read. */
+.option {
+    aspect-ratio: 1;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    background: rgba(4, 10, 20, 0.26);
+    color: #dfe5f3;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+}
+
+.option:hover {
+    color: var(--hover, var(--text));
+    border-color: var(--hover, rgba(255, 255, 255, 0.45));
+    box-shadow: 0 0 22px -4px var(--hover, rgba(255, 255, 255, 0.35));
+    transform: translateY(-2px);
+}
+
+.option:active {
+    transform: translateY(0) scale(0.94);
+}
+
+.option:focus-visible {
+    outline: 2px solid var(--hover, var(--selected, var(--accent)));
+    outline-offset: 3px;
+}
+
+/* Selected in the colour it lit up with, not the item's own. */
+.option--selected {
+    background: var(--hover, var(--selected, var(--accent)));
+    border-color: var(--hover, var(--selected, var(--accent)));
+    color: #ffffff;
+    box-shadow: 0 0 30px -4px var(--hover, var(--selected, var(--accent)));
+}
+
+.scale[hidden] {
+    display: none;
+}
+
+.survey__foot {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 44px;
+}
+
+/* ------------------------------- a section ------------------------------ */
+
+/* A pause inside a level, in place of the question and its scale: what the
+   next stretch of the descent is about, and nothing to answer. It is read
+   rather than answered, so it is set on the quiet dark surface instead of in
+   the lit card an item gets — the break in rhythm is the point of it. */
+.section {
+    max-width: 640px;
+    margin: 26px auto 0;
+    padding: 36px 34px 32px;
+    border-radius: 22px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 30px 80px -46px rgba(0, 0, 0, 0.9);
+}
+
+/* Serif, and quieter than a question: this is prose to be read, and the eye
+   should know at a glance that nothing here is being asked of it. */
+.section__body h2 {
+    font-family: var(--serif);
+    font-size: clamp(23px, 3.4vw, 31px);
+    font-weight: 500;
+    line-height: 1.22;
+    letter-spacing: -0.01em;
+    margin: 0 0 20px;
+    color: var(--text);
+}
+
+.section__body p {
+    margin: 0 0 15px;
+    color: var(--muted);
+    font-size: clamp(15px, 1.7vw, 17px);
+    line-height: 1.72;
+}
+
+/* The line that carries the weight of the pause: the warning about what is
+   coming, or the one thing to hold on to on the way down. */
+.section__body em {
+    font-style: italic;
+    color: var(--gold-pale);
+}
+
+.section__body p:last-child {
+    margin-bottom: 28px;
+}
+
+/* Scales whose options carry a text label. Stacked full width unless the item
+   asks for columns, which puts a pair like Male / Female side by side. */
+.options--labelled {
+    grid-template-columns: repeat(var(--columns, 1), minmax(0, 1fr));
+}
+
+.options--labelled .option {
+    aspect-ratio: auto;
+    border-radius: 12px;
+    text-align: left;
+    font-weight: 500;
+    padding: 13px 20px;
+}
+
+/* A way out of the question rather than an answer to it: set apart, and
+   quieter than the answers above it. */
+.options--labelled .option--small {
+    grid-column: 1 / -1;
+    justify-self: center;
+    width: auto;
+    margin-top: 6px;
+    padding: 7px 16px;
+    border-radius: 999px;
+    border-style: dashed;
+    font-size: 13.5px;
+    color: var(--muted);
+}
+
+.options--labelled .option--small:hover {
+    color: var(--text);
+}
+
+/* Questions answered by typing: the field, and the button that takes it. */
+.options--entry {
+    grid-template-columns: minmax(0, 1fr) auto;
+    justify-content: stretch;
+    align-items: center;
+    gap: 10px;
+}
+
+.entry {
+    width: 100%;
+    padding: 14px 18px;
+    font: inherit;
+    font-weight: 600;
+    color: var(--text);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+}
+
+.entry::placeholder {
+    color: var(--muted);
+    font-weight: 400;
+}
+
+.entry:focus {
+    outline: none;
+    border-color: var(--selected, var(--accent));
+    box-shadow: 0 0 20px -4px var(--selected, var(--accent));
+}
+
+.option--go {
+    aspect-ratio: auto;
+    width: auto;
+    border-radius: 12px;
+    padding: 14px 24px;
+    color: var(--text);
+}
+
+.option--go:not(:disabled) {
+    background: var(--selected, var(--accent));
+    border-color: var(--selected, var(--accent));
+    color: #ffffff;
+}
+
+.option--go:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+/* Why a typed number is not being taken. Holds its row whether or not it has
+   anything to say, so the scale below does not jump when it appears. */
+.warning {
+    grid-column: 1 / -1;
+    margin: 4px 0 0;
+    min-height: 1.4em;
+    font-size: 14px;
+    color: #ff8f8f;
+    opacity: 0;
+    transform: translateY(-4px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.warning--shown {
+    opacity: 1;
+    transform: none;
+}
+
+/* ------------------------------ particles ------------------------------- */
+
+/* Dots thrown out of a chosen response, or out of a results section as it
+   opens. Built and cleaned up by the script. */
+.burst {
+    position: fixed;
+    z-index: 20;
+    pointer-events: none;
+}
+
+.burst i {
+    position: absolute;
+    width: 7px;
+    height: 7px;
+    margin: -3.5px 0 0 -3.5px;
+    border-radius: 50%;
+    animation: burst 0.65s cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
+}
+
+@keyframes burst {
+    from {
+        transform: translate(0, 0) scale(1);
+        opacity: 0.95;
+    }
+    to {
+        transform: translate(var(--x), var(--y)) scale(0.2);
+        opacity: 0;
+    }
+}
+
+@media (max-width: 760px) {
+    /* Too little width to give a hundred pixels of it away: the sidebar keeps
+       what it needs and everything on it comes in a size. */
+    :root {
+        --sidebar: 62px;
+    }
+
+    .sidebar__level {
+        width: 38px;
+        height: 38px;
+    }
+
+    .sidebar__level-number {
+        font-size: 14px;
+    }
+
+    .sidebar__level-label {
+        right: 48px;
+    }
+
+    .sidebar__depth {
+        left: 13px;
+        font-size: 8px;
+        letter-spacing: 0;
+    }
+
+    .sidebar__link {
+        font-size: 9px;
+        letter-spacing: 0.02em;
+        padding: 7px 2px;
+    }
+
+    /* Less room to give away, so the panels keep a thinner edge. */
+    .panel {
+        width: min(760px, 100% - 44px);
+    }
+
+    /* A section is prose, and the narrow column it comes down to on a phone is
+       most of the screen already: the padding gives its width back to it. */
+    .section {
+        padding: 26px 22px 24px;
+    }
+
+    /* The centred title comes further left with the screen; the mark beside it
+       gives up its spacing rather than running underneath it. */
+    .banner__test {
+        left: 8px;
+        padding: 1px 6px;
+        font-size: 8px;
+        letter-spacing: 0.1em;
+        text-indent: 0.1em;
+    }
+}
+
+@media (max-width: 560px) {
+    /* Not enough width for anchors beside the scale: put them underneath. */
+    .scale {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .options {
+        grid-column: 1 / -1;
+        order: -1;
+    }
+
+    .anchor {
+        max-width: none;
+    }
+
+    .anchor--left {
+        text-align: left;
+    }
+
+    .anchor--right {
+        grid-column: 2;
+        text-align: right;
+    }
+
+    /* More than seven circles do not fit on one row. */
+    .options--wide {
+        grid-template-columns: repeat(6, minmax(0, 62px));
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    /* Everything that moves stops; what is left is the fade, which does not. */
+    .text,
+    body::after {
+        animation: none;
+    }
+
+    .screen--active,
+    .screen--arriving {
+        animation: none;
+        transform: none;
+        filter: none;
+    }
+
+    .panel,
+    .overlay__scrim,
+    .sidebar__fill,
+    .sidebar__depth,
+    body::before {
+        transition: none;
+    }
+
+    .option:hover,
+    .btn:hover:not(:disabled) {
+        transform: none;
+    }
+
+    /* The turn between items stays a fade, without the lift under it. */
+    .turning #instructions,
+    .turning .text,
+    .turning .scale {
+        transform: none;
+    }
+}

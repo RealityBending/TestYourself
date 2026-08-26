@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>The Abyss Test</title>
+        <meta name="description" content="The Abyss Test — the science-based assessment of personality." />
+        <!-- Three waves going down, in the three colours the descent is lit by.
+             Written into the page rather than fetched: there is nothing to build
+             here, and a file for sixteen pixels is a file too many. -->
+        <link
+            rel="icon"
+            href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23070b16'/%3E%3Cg fill='none' stroke-linecap='round' stroke-width='2.6'%3E%3Cpath d='M3 11c2.6-3.4 5.2-3.4 7.8 0s5.2 3.4 7.8 0 5.2-3.4 7.8 0' stroke='%2322d3ee'/%3E%3Cpath d='M3 18c2.6-3.4 5.2-3.4 7.8 0s5.2 3.4 7.8 0 5.2-3.4 7.8 0' stroke='%237c5cff'/%3E%3Cpath d='M3 25c2.6-3.4 5.2-3.4 7.8 0s5.2 3.4 7.8 0 5.2-3.4 7.8 0' stroke='%23d9a441' opacity='.75'/%3E%3C/g%3E%3C/svg%3E"
+        />
+        <!-- Three sheets, in cascade order: the shell everything is built on,
+             then the landing screen, then everything that shows a result. -->
+        <link rel="stylesheet" href="css/style.css" />
+        <link rel="stylesheet" href="css/intro.css" />
+        <link rel="stylesheet" href="css/results.css" />
+    </head>
+    <body data-screen="intro">
+        <!-- The name of the test, over every screen it is taken on. -->
+        <header class="banner" id="banner"><span class="banner__title">The Abyss Test</span></header>
+
+        <!-- The bar down the right: the way into each level and into the panels,
+             and the descent itself running along the edge the page sits against.
+             The levels are the milestones on it — the point each one is finished
+             is where its button sits. Both this and the banner are hidden on the
+             landing screen, so the title has the page to itself. -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar__descent">
+                <div class="sidebar__line" aria-hidden="true"><span class="sidebar__fill" id="descent-fill"></span></div>
+                <span class="sidebar__depth" id="depth" title="How far down you have got"></span>
+                <nav class="sidebar__levels" id="levels" aria-label="Your descent"></nav>
+            </div>
+
+            <div class="sidebar__links">
+                <button class="sidebar__link" id="profile" aria-expanded="false">Profile</button>
+                <button class="sidebar__link" id="raw" aria-expanded="false">See result</button>
+            </div>
+        </aside>
+
+        <main id="app">
+            <!-- intro: the title, then the consent form, which has to be read to
+                 the end before the test will open -->
+            <section class="screen screen--active" id="screen-intro">
+                <div class="hero" id="hero">
+                    <div class="hero__iris" aria-hidden="true"></div>
+
+                    <!-- Who stands behind the study, so the case for taking it is
+                         not just the page's own word for it. -->
+                    <div class="hero__logos">
+                        <span class="hero__logo"><img src="assets/logo_sussex.svg" alt="University of Sussex" /></span>
+                        <span class="hero__logo"><img src="assets/logo_researchplus.png" alt="ResearchPlus" /></span>
+                        <span class="hero__logo"><img src="assets/logo_rebel.png" alt="Reality Bending Lab" /></span>
+                    </div>
+
+                    <h1 class="hero__mark" aria-label="The Abyss Test">
+                        <span class="hero__the" aria-hidden="true">The</span>
+                        <span class="hero__title" aria-hidden="true">Abyss</span>
+                    </h1>
+
+                    <p class="hero__sub">The Science-based Assessment of Deep Personality</p>
+                    <p class="hero__meta">Research-grade measures <i>·</i> immediate results <i>·</i> entirely anonymous</p>
+
+                    <a class="hero__cue" href="#gate"><span>Scroll to descend</span><i aria-hidden="true"></i></a>
+                </div>
+
+                <!-- The first thing under the title: the reason for the whole
+                     thing, put better than the page puts it. -->
+                <figure class="creed">
+                    <blockquote>Until you make the unconscious conscious, it will direct your life and you will call it fate.</blockquote>
+                    <figcaption>Carl Jung</figcaption>
+                </figure>
+
+                <!-- Why it is worth the twelve minutes, before the form that
+                     has to be read to get past it. -->
+                <section class="why">
+                    <!-- The shape of a finished profile, out of focus behind the
+                         case for making one. It is drawn from the same stand-in
+                         figures a locked level is, so it is nobody's result. -->
+                    <div class="why__web" aria-hidden="true"><svg id="why-web"></svg></div>
+
+                    <p class="gate__step">Why do this</p>
+                    <h2 class="why__heading">Know thyself.</h2>
+                    <p class="why__lede">
+                        We actually know very little about ourselves, and spend little time thinking about it. This test is an opportunity
+                        to take a few minutes to engage in introspection, think about your own thoughts, feelings and behaviours, and see
+                        how it compares to others.
+                    </p>
+
+                    <ul class="why__points">
+                        <li>
+                            <b>You get told what it means.</b> Every level you finish opens a chart, and a reading of where you sit against
+                            other people.
+                        </li>
+                        <li><b>It is scientifically measured, not guessed.</b> Validated questionnaires, real scores.</li>
+                        <li>
+                            <b>Confidential.</b> We don't collect IP, cookies, nor personal information. Your answers are anonymous, and
+                            used to deepen our understanding of human nature.
+                        </li>
+                    </ul>
+                </section>
+
+                <div class="gate" id="gate">
+                    <p class="gate__step">Before you begin</p>
+                    <h2 class="gate__heading">Information and consent</h2>
+
+                    <div class="consent" id="consent" tabindex="0" role="region" aria-label="Consent form">
+                        <!-- The one logo repeated from the row above: this is the
+                             letterhead of the document itself, not another trust
+                             signal, so only the study's own institution belongs
+                             here. -->
+                        <img class="consent__logo" src="assets/logo_sussex.svg" alt="University of Sussex" />
+
+                        <h2>Informed Consent</h2>
+
+                        <h3>Invitation to take part</h3>
+                        <p>
+                            Thank you for considering taking part in this study, conducted by Dr Dominique Makowski from the University of
+                            Sussex (see contact information below). Taking part is entirely up to you, and you can decide not to without
+                            giving a reason.
+                        </p>
+
+                        <h3>Why have I been invited, and what will I do?</h3>
+                        <p>
+                            The study looks at how people differ in the way they describe their own personality traits, their mood over the
+                            past two weeks, and the sensations they notice in their body. You will answer a series of short questions on
+                            screen, one at a time, mostly by picking a point on a scale. The whole thing usually takes
+                            <b>10 to 15 minutes</b> to complete. Please make sure that you are attentive and in a quiet environment, and
+                            that you have the time to complete it in one go. You must be 18 or older to take part.
+                        </p>
+
+                        <h3>What will happen to the results and my personal information?</h3>
+                        <p>
+                            The results of this research may be written into a scientific publication. Your anonymity will be ensured in the
+                            way described in the consent information below. Please read this information carefully and then, if you wish to
+                            take part, please acknowledge that you have fully understood this sheet, and that you consent to take part in the
+                            study as it is described here.
+                        </p>
+                        <p>
+                            The feedback you are shown along the way is for interest only. It is generated from brief questionnaires scored
+                            against reference values, and it is not a diagnosis, an assessment or advice. If you are worried about your
+                            mood, your health, or anything the questions bring up, please speak to your doctor or another qualified
+                            professional.
+                        </p>
+
+                        <h3>Consent</h3>
+                        <ul>
+                            <li>
+                                I understand that by pressing Start below I am agreeing to take part in the University of Sussex research
+                                described here, and that I have read and understood this information sheet.
+                            </li>
+                            <li>
+                                I understand that my participation is entirely voluntary, that I can choose not to participate in part or
+                                all of the study, and that I can withdraw at any stage without having to give a reason and without being
+                                penalised in any way (e.g., if I am a student, my decision whether or not to take part will not affect my
+                                grades).
+                            </li>
+                            <li>
+                                I understand that since the study is anonymous, it will be impossible to withdraw my data once I have
+                                completed it.
+                            </li>
+                            <li>
+                                I understand that my personal data will be used for the purposes of this research study and will be handled
+                                in accordance with Data Protection legislation. I understand that the University's Privacy Notice provides
+                                further information on how the University uses personal data in its research.
+                            </li>
+                            <li>
+                                I understand that my collected data will be stored in a de-identified way. De-identified data may be made
+                                publicly available through secured scientific online data repositories.
+                            </li>
+                            <li>
+                                By participating, I agree to follow the instructions and provide honest answers. If I do not wish to
+                                participate, or don't have the time, I can simply close my browser.
+                            </li>
+                        </ul>
+
+                        <p>
+                            For further information about this research, or if you have any concerns, please contact Dr Dominique Makowski
+                            (<i>D.Makowski@sussex.ac.uk</i>). This research has been approved
+                            <!-- Placeholder, in the format the other studies use: fill in once this study has its own reference,
+                                 rather than quoting one that covers a different protocol. -->
+                            (XX/XXXX/XX) by the Sciences &amp; Technology Cross-Schools Research Ethics Committee (C-REC)
+                            (<i>crecscitec@sussex.ac.uk</i>). The University of Sussex has insurance in place to cover its legal liabilities
+                            in respect of this study.
+                        </p>
+                    </div>
+
+                    <p class="consent__hint" id="consent-hint">Scroll to the end of the form to continue.</p>
+                    <button class="btn" id="start" disabled>Read the form to begin</button>
+
+                    <!-- TEMPORARY, for building the thing: the way straight into
+                         a run that answers most of itself. It is a plain link to
+                         the same page with `?testMode=true` on it, since that is
+                         what the switch is. Take it out before the study runs. -->
+                    <a class="testmode" href="?testMode=true">Test mode</a>
+                </div>
+            </section>
+
+            <!-- survey -->
+            <section class="screen" id="screen-survey">
+                <p class="instructions" id="instructions" hidden></p>
+                <h2 class="text" id="text"></h2>
+
+                <div class="scale" id="scale">
+                    <span class="anchor anchor--left" id="anchor-left"></span>
+                    <div class="options" id="options" role="radiogroup" aria-labelledby="text"></div>
+                    <span class="anchor anchor--right" id="anchor-right"></span>
+                </div>
+
+                <!-- A pause inside a level, in place of the question and its
+                     scale: what the next stretch of the descent is about, and
+                     nothing to answer. Filled in by renderSection. -->
+                <div class="section" id="section" hidden>
+                    <div class="section__body" id="section-body"></div>
+                    <button class="btn" id="section-go">Dive deeper →</button>
+                </div>
+
+                <div class="survey__foot">
+                    <button class="btn btn--ghost" id="back">← Previous</button>
+                </div>
+            </section>
+
+            <!-- level complete: the header, then the sections it opened, one
+                 after another, and the way on at the bottom of them -->
+            <section class="screen" id="screen-level">
+                <div class="level">
+                    <p class="level__eyebrow">Depth reached</p>
+                    <h1 class="level__title" id="level-title"></h1>
+                </div>
+
+                <div id="level-results"></div>
+
+                <div class="level__foot" id="level-foot">
+                    <button class="btn" id="level-continue">Descend further →</button>
+                </div>
+            </section>
+
+            <!-- done: nothing left to answer, so the whole web is the screen -->
+            <section class="screen" id="screen-done">
+                <div class="profile" id="profile-done">
+                    <p class="level__eyebrow">Descent complete</p>
+                    <h1 class="profile__title">The abyss gazes back</h1>
+                    <p class="lede">Here is your complete profile.</p>
+
+                    <div class="chart">
+                        <svg class="profile__web" viewBox="0 0 440 290" role="img" aria-label="Spider chart of your dimensions"></svg>
+                    </div>
+                    <div class="profile__legend"></div>
+                    <p class="chart__note profile__note"></p>
+
+                    <section class="share">
+                        <div class="share__actions">
+                            <button class="btn share__download">Download your card</button>
+                            <button class="btn btn--ghost share__copy">Copy share link</button>
+                        </div>
+                        <p class="share__note"></p>
+                    </section>
+
+                    <div class="profile__foot">
+                        <button class="btn btn--ghost" id="download">Download responses (.json)</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- somebody else's card, opened from a shared link -->
+            <section class="screen" id="screen-card">
+                <div class="visit">
+                    <p class="level__eyebrow">Shared with you</p>
+                    <h1 class="visit__title">A profile from the Abyss</h1>
+                    <div class="card" id="visit-card"></div>
+                    <p class="lede" id="visit-note"></p>
+                    <button class="btn" id="visit-start">Take the test yourself</button>
+                </div>
+            </section>
+        </main>
+
+        <!-- The water that breaks across the middle of the screen when a level is
+             finished. The level is put together behind it as it crosses. -->
+        <div class="curtain" id="curtain" role="presentation" hidden>
+            <div class="curtain__splash" aria-hidden="true"></div>
+            <div class="curtain__words">
+                <h2 class="curtain__title" id="curtain-title"></h2>
+                <p class="curtain__depth" id="curtain-depth"></p>
+            </div>
+        </div>
+
+        <!-- The line the test is named after, shown once, on the way in. -->
+        <div class="gaze" id="gaze" role="presentation" hidden>
+            <div class="gaze__eye" aria-hidden="true"><span class="gaze__pupil"></span></div>
+            <blockquote class="gaze__quote">
+                <span class="gaze__line">And if you gaze long into an abyss,</span>
+                <span class="gaze__line">the abyss also gazes into you.</span>
+            </blockquote>
+            <p class="gaze__by">Friedrich Nietzsche</p>
+            <p class="gaze__skip">Click anywhere to continue</p>
+        </div>
+
+        <!-- Panels, over the screen rather than instead of it. The strip of the
+             page left showing beside a panel closes it, as does Escape. -->
+        <div class="overlay" id="overlay">
+            <div class="overlay__scrim" id="scrim"></div>
+
+            <!-- one level's results, opened from — and closed back into — its
+                 mark on the rail -->
+            <section
+                class="panel panel--left panel--summoned"
+                id="panel-results"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="results-title"
+            >
+                <header class="panel__bar">
+                    <h1 class="panel__title" id="results-title"></h1>
+                    <button class="panel__close" data-close aria-label="Close">&times;</button>
+                </header>
+                <div class="panel__body">
+                    <div id="results-body"></div>
+                </div>
+            </section>
+
+            <!-- profile -->
+            <section class="panel panel--right" id="panel-profile" role="dialog" aria-modal="true" aria-labelledby="profile-title">
+                <header class="panel__bar">
+                    <h1 class="panel__title" id="profile-title">Your profile</h1>
+                    <button class="panel__close" data-close aria-label="Close">&times;</button>
+                </header>
+                <!-- The same profile the last screen shows, so both are drawn by
+                     class rather than by id: whichever one is handed to
+                     renderProfile is the one that gets the web. -->
+                <div class="panel__body">
+                    <p class="lede">
+                        Every dimension you have answered, on one web. A point appears as soon as you have answered everything that
+                        dimension is built from.
+                    </p>
+
+                    <div class="profile" id="profile-panel">
+                        <div class="chart">
+                            <svg class="profile__web" viewBox="0 0 440 290" role="img" aria-label="Spider chart of your dimensions"></svg>
+                        </div>
+                        <div class="profile__legend"></div>
+                        <p class="chart__note profile__note"></p>
+
+                        <!-- The two ways of taking the web above with you. The card
+                             itself is only drawn when one of them is pressed. -->
+                        <section class="share">
+                            <div class="share__actions">
+                                <button class="btn share__download">Download your card</button>
+                                <button class="btn btn--ghost share__copy">Copy share link</button>
+                            </div>
+                            <p class="share__note"></p>
+                        </section>
+                    </div>
+                </div>
+            </section>
+
+            <!-- the raw data file -->
+            <section class="panel panel--right" id="panel-raw" role="dialog" aria-modal="true" aria-labelledby="raw-title">
+                <header class="panel__bar">
+                    <h1 class="panel__title" id="raw-title">Raw results</h1>
+                    <button class="panel__close" data-close aria-label="Close">&times;</button>
+                </header>
+                <div class="panel__body">
+                    <p class="lede">Everything recorded so far, exactly as it would be saved.</p>
+                    <pre class="raw" id="raw-json"></pre>
+                    <button class="btn btn--ghost" id="raw-download">Download (.json)</button>
+                </div>
+            </section>
+        </div>
+
+        <!-- Content, then everything that reads a score back, then the engine
+             that hands itself to it. -->
+        <script src="content/schema.js"></script>
+        <script src="content/level1.js"></script>
+        <script src="content/level2.js"></script>
+        <script src="content/level3.js"></script>
+        <script src="content/level4.js"></script>
+        <script src="js/results.js"></script>
+        <script src="js/app.js"></script>
+    </body>
+</html>
