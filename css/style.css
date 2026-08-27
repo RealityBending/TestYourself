@@ -733,14 +733,14 @@ h1 {
 #instructions,
 .text,
 .scale,
-.section {
+.briefing {
     transition: opacity 0.26s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .turning #instructions,
 .turning .text,
 .turning .scale,
-.turning .section {
+.turning .briefing {
     opacity: 0;
     transform: translateY(12px);
 }
@@ -806,6 +806,23 @@ h1 {
     display: none;
 }
 
+/* A row of circles is only as wide as its circles, so the middle track is
+   sized to them and the anchors are drawn in against it: a five-point scale
+   then reads like a seven-point one rather than leaving its anchors marooned
+   at the edges of the room. Labelled options and typed fields keep the `1fr`
+   above, since those do take the width they are given. */
+.scale--circles {
+    grid-template-columns: 1fr minmax(0, auto) 1fr;
+}
+
+.scale--circles .anchor--left {
+    justify-self: end;
+}
+
+.scale--circles .anchor--right {
+    justify-self: start;
+}
+
 /* The circles have a size of their own and sit in the middle of whatever
    room is left, rather than stretching to fill it. */
 .options {
@@ -866,13 +883,13 @@ h1 {
     margin-top: 44px;
 }
 
-/* ------------------------------- a section ------------------------------ */
+/* ------------------------------- a briefing ------------------------------ */
 
 /* A pause inside a level, in place of the question and its scale: what the
    next stretch of the descent is about, and nothing to answer. It is read
    rather than answered, so it is set on the quiet dark surface instead of in
    the lit card an item gets — the break in rhythm is the point of it. */
-.section {
+.briefing {
     max-width: 640px;
     margin: 26px auto 0;
     padding: 36px 34px 32px;
@@ -885,7 +902,7 @@ h1 {
 
 /* Serif, and quieter than a question: this is prose to be read, and the eye
    should know at a glance that nothing here is being asked of it. */
-.section__body h2 {
+.briefing__body h2 {
     font-family: var(--serif);
     font-size: clamp(23px, 3.4vw, 31px);
     font-weight: 500;
@@ -895,7 +912,7 @@ h1 {
     color: var(--text);
 }
 
-.section__body p {
+.briefing__body p {
     margin: 0 0 15px;
     color: var(--muted);
     font-size: clamp(15px, 1.7vw, 17px);
@@ -904,12 +921,12 @@ h1 {
 
 /* The line that carries the weight of the pause: the warning about what is
    coming, or the one thing to hold on to on the way down. */
-.section__body em {
+.briefing__body em {
     font-style: italic;
     color: var(--gold-pale);
 }
 
-.section__body p:last-child {
+.briefing__body p:last-child {
     margin-bottom: 28px;
 }
 
@@ -1012,6 +1029,118 @@ h1 {
     transform: none;
 }
 
+/* ------------------------------- the curve ------------------------------ */
+
+/* A place in a room of a hundred, picked on the curve itself: the figure is
+   the whole control. What is filled under it is the share of the room below
+   where the pointer is, and the reading rides the curve above that point. */
+.options--curve {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    gap: 20px;
+}
+
+.curve {
+    position: relative;
+    width: 100%;
+    max-width: 640px;
+    cursor: crosshair;
+    /* The figure is dragged across on a phone; the page must not go with it. */
+    touch-action: none;
+}
+
+/* The range underneath is invisible, so what shows that it has the keyboard
+   has to be the figure it drives. */
+.curve:focus-within {
+    outline: 2px solid var(--selected, var(--accent));
+    outline-offset: 8px;
+    border-radius: 14px;
+}
+
+.curve__figure {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+/* The answer itself, and the only way in that is not a pointer. Laid over the
+   figure but taking no pointer events, so that the figure alone decides where
+   the mark is. */
+.curve__slide {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    margin: 0;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.curve__line {
+    fill: none;
+    stroke: rgba(223, 229, 243, 0.55);
+    stroke-width: 2;
+}
+
+.curve__area {
+    fill: var(--selected, var(--accent));
+    opacity: 0.36;
+}
+
+.curve__floor {
+    stroke: var(--line);
+    stroke-width: 1;
+}
+
+/* Nothing is claimed until the pointer is on it: no mark, no number, and the
+   fill at nothing. */
+.curve__stem,
+.curve__mark,
+.curve__reading {
+    opacity: 0;
+    transition: opacity 0.16s ease;
+}
+
+.curve--held .curve__stem,
+.curve--held .curve__mark,
+.curve--held .curve__reading {
+    opacity: 1;
+}
+
+.curve__stem {
+    stroke: var(--selected, var(--accent));
+    stroke-width: 1.5;
+    stroke-dasharray: 4 5;
+}
+
+/* The mark is also what the spray comes out of when the curve is answered, and
+   `burst` reads the colour off `--hover` the way it does from an option. An
+   SVG shape has no background colour for it to fall back on, so the colour has
+   to be here for it to find. */
+.curve__mark {
+    --hover: var(--selected, var(--accent));
+    fill: var(--hover);
+    stroke: #ffffff;
+    stroke-width: 2;
+}
+
+.curve__reading {
+    fill: var(--text);
+    font-family: inherit;
+    font-size: 19px;
+    font-weight: 600;
+}
+
+.curve__hint {
+    fill: var(--muted);
+    font-family: inherit;
+    font-size: 14px;
+    transition: opacity 0.16s ease;
+}
+
+.curve--held .curve__hint {
+    opacity: 0;
+}
+
 /* ------------------------------ particles ------------------------------- */
 
 /* Dots thrown out of a chosen response, or out of a results section as it
@@ -1079,9 +1208,9 @@ h1 {
         width: min(760px, 100% - 44px);
     }
 
-    /* A section is prose, and the narrow column it comes down to on a phone is
-       most of the screen already: the padding gives its width back to it. */
-    .section {
+    /* A briefing is prose, and the narrow column it comes down to on a phone
+       is most of the screen already: the padding gives its width back to it. */
+    .briefing {
         padding: 26px 22px 24px;
     }
 
@@ -1124,6 +1253,17 @@ h1 {
     /* More than seven circles do not fit on one row. */
     .options--wide {
         grid-template-columns: repeat(6, minmax(0, 62px));
+    }
+
+    /* The curve is drawn in its own coordinates and scaled down to the screen,
+       which takes the writing on it down too: these are the sizes that come
+       back out at something readable. */
+    .curve__reading {
+        font-size: 30px;
+    }
+
+    .curve__hint {
+        font-size: 22px;
     }
 }
 

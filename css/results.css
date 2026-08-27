@@ -320,9 +320,13 @@
     font-weight: 600;
 }
 
+/* One dimension's reading is a lead, a bar, a prediction and the vote on it,
+   set close together; the gap between two of them has to be wider than
+   anything inside one, or the block reads as a list of loose lines rather than
+   as one reading after another. */
 .rows {
     display: grid;
-    gap: 16px;
+    gap: 30px;
 }
 
 .row__lead {

@@ -7,28 +7,26 @@ Include "gamified" mechanisms, such as unlocking rewards, e.g., in the form of "
 
 ## Includes
 
-- **Level 1** — *Personality, Self-regard*
+- **Level 1**
   - Demographics 1: Gender (and, on that answer, sex assigned at birth and gender identity), Age, Birth Month
-  - *Section*: what is coming, and a warning that it gets stranger the deeper it goes
   - Big-5: Five-Item Personality Inventory (FIPI) — Extraversion, Agreeableness, Conscientiousness, Emotional Stability, Openness
-  - Narcissism: Single Item Narcissism Scale (SINS)
-- **Level 2** — *Interoception*
+  - Single-item scales, asked in among one another as one shuffled run and none of them scored — no norms yet, so none opens a results row:
+    - Narcissism: Single Item Narcissism Scale (SINS)
+    - General health: Single-Item Self-Rated Health (SRH)
+    - Stress: Single-Item Measure of Stress Symptoms (SIMS)
+    - Self-esteem: Single-Item Self-Esteem Scale (SISE)
+    - Attractiveness
+    - Intelligence
+- **Level 2**
   - Demographics 2: Education, Discipline, Student status, Ethnicity, Country (each with an "other, please say" behind it)
-  - *Section*: the turn from questions about you to questions about your body
   - Interoception: Multidimensional Interoceptive Traits (MINT) — Bodily Awareness, Bodily Sensitivity, Bodily Clarity. 34 items, on one of two 7-point scales drawn per participant. Carries the run's one attention check
-  - ~~Job satisfaction: Global Job Satisfaction (GJS)~~ — **disabled**: commented out in `content/level2.js` and out of `RUN`, waiting on an item saying who has a job
-- **Level 3** — *Mood, Strain*
+- **Level 3**
   - Mood: Patient Health Questionnaire-4 (PHQ-4), refined 5-option version — Anxiety, Depression, read against the published bands rather than as averages
   - Life satisfaction: Single-Item Life Satisfaction Scale (SILSS)
   - Depersonalisation: Cambridge Depersonalisation Scale, 2-item (CDS-2)
-  - Trauma: PTSD Checklist, 2-item (PCL-2)
-- **Level 4** — *nothing scored in it, so it opens no results*
+  - Trauma: PTSD Checklist, 2-item (PCL-2), with one additional sleep-quality item from the Single-Item Sleep Quality Scale (SQS)
+- **Ending** 
   - Closing: whether the test was taken seriously
-
-64 items in all: 56 put to everybody, 8 opening only on an earlier answer.
-Ten scored dimensions, every one of whose norms is still a placeholder. The
-*sections* are pauses rather than questions — nothing is asked or recorded on
-them — and are not counted above.
 
 
 ## Questionnaire Ideas

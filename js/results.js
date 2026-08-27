@@ -30,8 +30,13 @@ function makeResults(engine) {
 
     // The dimensions of one questionnaire, in the order written. A chart shows
     // all of them, so the ones still locked keep their place on the web.
+    // The dimensions of a questionnaire that have something to say. A
+    // dimension with no `norms` is not one of them: there is nothing to place
+    // it against, so it earns no percentile, no standing and no prediction,
+    // and a bare number is worse than silence to the person who gave it.
+    // Writing the norms is what puts a scale into the results.
     function dimensionsOf(name) {
-        return dimensionOrder.filter((dimension) => dimensions[dimension][0].questionnaire === name)
+        return dimensionOrder.filter((dimension) => dimensions[dimension][0].questionnaire === name && normOf(dimension))
     }
 
     const SVG = "http://www.w3.org/2000/svg"
@@ -626,16 +631,23 @@ function makeResults(engine) {
             c.stroke()
         })
 
-        // The average person, dashed, under your own shape.
-        c.setLineDash([6, 5])
-        c.strokeStyle = "#767c92"
-        c.lineWidth = 2
-        trace(
-            dimensionOrder.map((dimension, position) => spot(position, reachOf(dimension, normOf(dimension).mean) * radius)),
-            true
-        )
-        c.stroke()
-        c.setLineDash([])
+        // The average person, dashed, under your own shape — but only when
+        // there is one to draw on every axis. A dimension written without
+        // norms has no mean to put here, and half a comparison is worse than
+        // none, so the whole ring goes rather than a broken one.
+        const comparable = dimensionOrder.every((dimension) => normOf(dimension))
+
+        if (comparable) {
+            c.setLineDash([6, 5])
+            c.strokeStyle = "#767c92"
+            c.lineWidth = 2
+            trace(
+                dimensionOrder.map((dimension, position) => spot(position, reachOf(dimension, normOf(dimension).mean) * radius)),
+                true
+            )
+            c.stroke()
+            c.setLineDash([])
+        }
 
         // Your own shape. Complete, it closes; partial, only neighbouring
         // dimensions are joined, so a gap stays a gap.
@@ -970,10 +982,9 @@ function makeResults(engine) {
         }
 
         for (const name of RUN) {
-            const inLevel = dimensionOrder.filter(
-                (dimension) =>
-                    dimensions[dimension][0].questionnaire === name && dimensions[dimension][0].level === level
-            )
+            // `dimensionsOf` leaves out anything with no norms behind it, so a
+            // scale written without them opens no rows and no section at all.
+            const inLevel = dimensionsOf(name).filter((dimension) => dimensions[dimension][0].level === level)
             const scored = inLevel.filter((dimension) => score(dimension) !== undefined)
             const shown = locked ? inLevel : scored
             if (!shown.length) continue

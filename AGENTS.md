@@ -4,12 +4,13 @@ The one set of notes on this project. `CLAUDE.md` is a pointer to this file, not
 a second copy — write here and nowhere else, or the two will drift.
 
 Single-page survey app. No build, no dependencies, no framework, no tests.
-`index.html` loads the content first (`content/schema.js`, then `content/level1.js`
-… `level4.js`), then `js/results.js` (reads scores back), then `js/app.js` (the
-engine) — and three stylesheets in cascade order: `css/style.css` →
-`css/intro.css` → `css/results.css`. Nothing is a module: each file adds to the
-globals the next one reads, so **the order of the tags in `index.html` is the
-only thing holding it together**. A new file means a new tag in the right place.
+`index.html` loads the content first (`content/timeline.js`, then a
+`content/block_*.js` per block of questions), then `js/results.js` (reads
+scores back), then `js/app.js` (the engine) — and
+three stylesheets in cascade order: `css/style.css` → `css/intro.css` →
+`css/results.css`. Nothing is a module: each file adds to the globals the next
+one reads, so **the order of the tags in `index.html` is the only thing holding
+it together**. A new file means a new tag in the right place.
 
 Run it: the `testyourself` config in `.claude/launch.json` serves the folder on
 port 8123 (`python -m http.server`). Open a file change in the browser by
@@ -22,8 +23,9 @@ A change usually needs one file out of one of them.
 
 | | |
 |---|---|
-| `content/schema.js` | How a questionnaire is written — the schema, in one comment. **Read it before editing anything in `content/`.** Also holds `formatMint` and the empty `QUESTIONNAIRES` the level files fill. |
-| `content/level1.js` … `level4.js` | Every question, scale, colour and norm, **split by the level it is asked on** rather than by what it measures, so the file to open is the stretch of the run being changed. **Content changes go here and nowhere else.** Each is one `Object.assign(QUESTIONNAIRES, { … })`, and holds the *sections* of that level as well as its questions. A questionnaire's own `level:` is what actually decides when it is asked; the file it sits in only has to agree with it. |
+| `content/timeline.js` | **The frame the rest of `content/` is written into, and what is asked when.** `TIMELINE` is one entry per level, in order, naming that level's blocks — moving a block is moving its name from one line to another, and a block named nowhere here is never asked. Also `defineBlock()` and the `QUESTIONNAIRES` / `BLOCKS` the block files fill, and, at the head of the file, an annotated skeleton of every field a block may carry. **Read that before editing anything in `content/`**; it says what the fields are, and this file says why. |
+| `content/block_*.js` | Every question, scale, colour and norm, **split by block** — one stretch of the run that moves as a piece — so the file to open is the thing being changed rather than the position it happens to be asked in. **Content changes go here and nowhere else.** Each is one `defineBlock("name", [ … ])` over an ordered list of entries: briefings and questionnaires, each carrying its own `key`. |
+| `content/block_UNUSED.js` | Questionnaires written but not asked, commented out, waiting on whatever they want before they can go in. Nothing in it defines a block, so nothing in it can be reached. |
 | `js/app.js` | The engine, one IIFE, in labelled sections: build the run → branching → scoring → rendering an item → the rail → panels → particles → finishing a level → flow → results → the way in → wiring. |
 | `js/results.js` | `makeResults(engine)`, a factory returning the handful of functions `app.js` calls. Spider charts, the interoception body, PHQ-4 severity, the card, the results sections, the staged opening of a finished level, and the example web the landing page hangs behind its case. Reads scores; never records anything. |
 | `css/style.css` | The shell: tokens on `:root`, the water, the banner and the sidebar the descent runs down, screens, panels, buttons, the survey, particles. Also the animations the other two sheets share (`fade`, `rise`). |
@@ -42,30 +44,56 @@ adding to that object literal, so keep it small.
 
 ## How it works
 
-**Run order.** Every item of every questionnaire in `RUN` is flattened into
-`questions`. Items are grouped into *levels* (`level:`, default 1), asked lowest
-first; within a level the questionnaires are shuffled together, except items
-marked `shuffle: false`, which hold their written position. `RUN` order is also
-results order, and `demographics1` is first in it so its items open the run.
+**Run order.** Four lists, each knowing only the one under it: `TIMELINE` is a
+list of levels, a level is a list of block names, a block is a list of entries
+(briefings and questionnaires), and a questionnaire is a list of items. Every
+entry of every one of them carries its own `key` and is found by it, so adding,
+removing or moving anything is moving one object in one list. `app.js` walks all
+four in order to flatten `questions`, stamping each item with the `level` and
+`block` it came from — which is why nothing in `content/` carries a `level:` of
+its own, and why there is no second place for it to disagree with. That same
+walk builds `RUN`, the questionnaires in order, which is also the order a
+level's results read in.
 
-**What is asked, and where.** Four levels, three of them scored — and a file each
-in `content/`, so this table is also the map of that folder:
+**A questionnaire is the unit of shuffling, and the only one.** Its items may
+come in any order, but they come together; everything around them — the other
+questionnaires, the briefings, the blocks, the levels — holds the order the
+timeline gives it, and an item marked `shuffle: false` keeps its own place
+while the rest move around it.
+
+The whole of the run's order follows from that one rule, and answers most
+questions about it before they are asked. Two instruments meant to be asked in
+among each other go in **one** questionnaire, because being one questionnaire
+is what makes them one shuffled run — which is why the six single-item scales
+of the `fast` block are one `singles` questionnaire rather than six, and why
+the FIPI beside them stays a run of five that nothing is ever dealt into. Two
+meant to stay apart go in two. And a briefing, being an entry of the block
+rather than of any questionnaire, can never be crossed by anything.
+
+**What is asked, and where.** Four levels, three of them scored, out of seven
+blocks — so this table is the map of `content/timeline.js` and of the folder
+around it at once:
 
 | | |
 |---|---|
-| `level1.js` | `demographics1` (age, month of birth, gender and what branches off it), `fipi`, `sins` → Personality, Self-regard |
-| `level2.js` | `demographics2` (education, discipline, student, ethnicity, country), `mint` → Interoception. Also `gjs`, which is written there but not asked |
-| `level3.js` | `phq4`, `pathological` (CSD-2, PCL-2) → Mood, Strain |
-| `level4.js` | `closing` — nothing scored in it, so it opens no results |
+| Level 1 | `demographics1` (age, month of birth, gender and what branches off it), `fast` (a briefing, then `fipi`, then `singles`) → Personality |
+| Level 2 | `demographics2` (education, discipline, student, ethnicity, country), `mint` (a briefing, then the items) → Interoception |
+| Level 3 | `phq4`, `pathological` (CSD-2, PCL-2) → Mood, Strain |
+| Level 4 | `closing` — nothing scored in it, so it opens no results |
+| — | `gjs` sits in `content/block_UNUSED.js`, named on no level, so it is never asked |
 
 The demographics of a level are written `shuffle: false` and come first in it;
 everything else on that level is shuffled in behind them. A follow-up to an
 answer (`…Other`, `GenderIdentity`) is written directly after the item it
-branches from. `sins` is one item and is a questionnaire of its own rather than
-a sixth item on the FIPI, so that it does not join a chart it does not belong
-on. `gjs` is **commented out** in `content/level2.js` *and* left out of `RUN` —
-a questionnaire not named there is inert either way — because it asks everybody
-about a job without asking first whether they have one. Waking it takes both.
+branches from. The one-item scales of the `fast` block — narcissism, health,
+stress, self-esteem and the two self-placements — are written as one `singles`
+questionnaire and not as six, so that they are asked in among one another; none
+of them is a sixth item on the FIPI, which would put them on a chart they do
+not belong on. If one of them ever earns norms it wants a questionnaire of its
+own back, so that its results carry its own name. `gjs` is **commented out** in
+`content/block_UNUSED.js` *and* named on no level of the timeline — a block the
+timeline does not name is inert either way — because it asks everybody about a
+job without asking first whether they have one. Waking it takes both.
 
 **Levels that score, and levels that don't.** A level with nothing scored in it
 opens no results: `scoredLevels` (the levels that hold a dimension) is what the
@@ -87,30 +115,73 @@ saved file from one never reached (`response` and `timeOnset` both null).
 **The item itself.** `text` is written into the page as HTML, so a question may
 carry its own stem — the PHQ-4 items are "Over the last 2 weeks…<br /><em>the
 thing being asked</em>" — rather than leaning on `instructions` above them. It
-comes from the level file it is written in and nowhere else.
+comes from the block file it is written in and nowhere else.
 
-**Sections.** An item carrying `section: true` is not a question but a pause
+**Types.** Every item has a `type`, which is the whole of what decides how it
+is put on screen: `"choice"` for option buttons, `"input"` for a typed field,
+`"curve"` for a place on a bell curve, `"briefing"` for a screen with nothing
+to answer on it. The first two need never be written in `content/` —
+`typeOf()` reads them off the format, since a question that said its own type
+as well would only be a second place for the two to disagree; the other two are
+written. `SCALES` in `app.js` is a renderer per type, and `SPRAYS` beside it names what
+each type is answered *by* — which is where the spray comes out of when it is.
+Those two tables are the only places a type is dispatched on, so **a new way of
+answering is a `type` in `content/` and a line in each of them, and nothing
+else moves** — `curve` was added that way, and touched nothing but the tables,
+its own renderer and its own stylesheet block.
+A Likert scale and a list of countries are both `"choice"`: they differ in what
+is written on the buttons and in nothing the engine can see, and giving them
+separate types would be a distinction with no behaviour behind it.
+
+**Briefings.** An entry of `type: "briefing"` is not a scored question but a pause
 inside a level: a heading, a few paragraphs of `text` (HTML, into
-`.section__body`) saying what the next stretch is about, and a button. It is
-written in `content/` in the place it is to be shown — at the end of the
-questionnaire it closes, or at the head of the one it introduces — and the
-engine forces `shuffle: false` on it, since a section that moved would be
-introducing something else. Two are asked: one after the demographics of level
-1, warning that the questions get stranger further down, and one at the head of
-the MINT, turning from questions about you to questions about your body.
+`.briefing__body`) saying what the next stretch is about, and a button. **It
+belongs to its block, beside the questionnaires rather than inside one** — it
+introduces the whole stretch that follows, which may be more than one
+questionnaire, and nothing that shuffles the items of a questionnaire can reach
+it there. `typeOf()` throws if one is found among a questionnaire's `items`,
+since that used to be where they lived and there it would render as a scale with
+nothing on it. The engine forces `shuffle: false`, and the run is shuffled around
+it rather than through it. Two are asked: one at the head of the `fast` block,
+warning that the questions get stranger further down, and one at the head of the
+`mint` block, turning from questions about you to questions about your body.
 
 It takes the survey screen over rather than being a screen of its own
-(`renderSection`, hiding `#text` and `#scale`), so everything guarding on
+(`renderBriefing`, hiding `#text` and `#scale`), so everything guarding on
 `screen === "survey"` — the keyboard, the back button, the timing — goes on
-holding while it is up. **Nothing about it is recorded**: no response, no row in
-`items[]`, no reaction time in the quality-control figures, and `askedIn` leaves
-it out so that it can never be the thing holding a level shut. Test mode never
-stands one in for a person either — there is no answer to stand in for, and a
-short run is exactly when the copy still wants reading. Leaving one goes through
-`advance()`, the same way out an answered item takes, so a section could end a
-level and the level would still break the same way.
+holding while it is up. Its onset, continue response and response time are
+recorded in `items[]` like any other item, but `askedIn` leaves it out of
+scoring and quality-control counts so it can never be the thing holding a level
+shut. `isBriefing()` is the one test for one, and everything that counts what
+was answered goes through it. Test mode never stands one in for a person either
+— only the items of a questionnaire are thinned, and a briefing is not one of
+those. Leaving one goes through `advance()`, the same way out an answered item
+takes, so a briefing could end a level and the level would still break the same
+way.
 
-**Typed answers.** A format with `input:` renders a field and a Continue button
+**The curve.** A `"curve"` item (`renderCurve`) asks where somebody puts
+themselves in a room of a hundred, and is answered on a normal curve rather
+than on a scale of points. Moving across it fills it from the left and writes
+the share over the mark, and those are the same fact twice: the area under the
+curve up to a point *is* the share below it, so the fill is read off
+`percentile()` — the one already used for scoring — against the standard normal
+the curve is drawn from. The number shown is what is answered and what is
+saved.
+
+A click on the figure is the answer, with nothing in between to confirm it:
+where it lands is the place, and the number standing over the mark is what is
+recorded. **The whole figure is therefore live** — a click anywhere on it ends
+the item — so anything added around it wants to sit outside `.curve`.
+Underneath it is a real `<input type="range">`, invisible and taking no pointer
+events of its own: it holds the value, carries the item to a screen reader, and
+is the only way in that is not a pointer — the global key handler already
+ignores an `INPUT`, so its arrows move the mark instead of sending the run
+backwards, and Enter takes where it has been moved to. The figure alone handles pointers, so the two can
+never disagree about where the mark is. Going back to an answered one puts the
+mark where it was left, which is why `placeOf()` exists: what is kept is the
+share, so the place has to be found back from it.
+
+**Typed answers.** An `"input"` item renders a field and a Continue button
 (`renderEntry`) instead of option buttons, taking what is in it on Enter or
 click: `"number"` once it is inside `min`/`max`, `"text"` as soon as it is not
 blank (`max` is its length). The global key handler ignores events from an
@@ -125,9 +196,17 @@ of a chart point or a results row. An item marked `reverse: true` is counted
 backwards into its dimension (`counted()`, `lowest + highest - answer`) — what
 was answered is still recorded as given, only the scoring turns over, which is
 how the MINT's deficit items add up to Clarity. `norms` (mean/sd) turn a score
-into a percentile; the tercile it lands in picks the `interpretations` text. The
-PHQ-4 is the exception: `phq4Reading()` reads *sums*, not averages, against the
-published 0-12 bands and the ≥3 subscale cut-off.
+into a percentile; the tercile it lands in picks the `interpretations` text.
+**Norms are also what put a dimension on a results screen at all**:
+`dimensionsOf` leaves out any dimension without them, so it takes no row, no
+point on its questionnaire's chart, and — if that is all of that
+questionnaire's dimensions — no section either. It is still asked, still
+scored and still saved; there is simply nothing to place it against, and a bare
+number tells the person who gave it less than silence does. Writing the norms
+is how a scale earns its way into the feedback, which is why `sins`, `srh` and
+`sims` are asked and read back to nobody. The PHQ-4 is the exception:
+`phq4Reading()` reads *sums*, not averages, against the published 0-12 bands
+and the ≥3 subscale cut-off.
 
 **Figures.** Most questionnaires get a spider chart (`CHARTS`). The MINT gets a
 body instead (`drawSoma`): bodily awareness in the head, bodily sensitivity in
@@ -153,7 +232,7 @@ the dimension's name, meaning nothing — and everything earned is blurred by
 events, so no fabricated number is ever readable. Keep it that way, and keep the
 preview faithful: it should show exactly what finishing the level will show.
 
-**The MINT's two scales.** `formatMint` is drawn in `content/schema.js` when
+**The MINT's two scales.** `formatMint` is drawn in `content/block_mint.js` when
 the page loads — `sequential7` or `symmetric7` — and the MINT's `format` reads
 it, which is the whole of the mechanism: the symmetric run carries `labels`,
 seven strings written on the circles over the values behind them. Only the
@@ -333,15 +412,15 @@ where there is only one time to go on — and `attentionChecksFailed`. `took()`
 is the one place a reaction time is worked out; an item that was shown again
 after being answered has had `timeOnset` re-stamped past its response and is
 left out rather than counted as negative. An attention check is any item
-carrying `check:` in a level file — the answer it must have — and one left
+carrying `check:` in a block file — the answer it must have — and one left
 unanswered has not been failed. Only items actually asked count, so checks
 answered for the run by test mode are not among them. Nothing here is shown to
 anybody, and no score, norm or interpretation goes near it.
 
 **Test mode.** `?testMode=true` walks the run in miniature, so that every chart,
-level and reading can be reached in a minute: a questionnaire longer than
-`TEST_LONG` (10) items keeps `TEST_KEPT` (2) of them, chosen at random, and
-`thinRun()` answers the rest at random and marks them `auto`. `shown()` returns
+level and reading can be reached quickly: every questionnaire keeps
+`TEST_KEPT` (1) item, chosen at random, and `thinRun()` answers the rest at
+random and marks them `auto`. `shown()` returns
 false for an `auto` item, so everything that walks the run — the sidebar, the
 descent, `levelProgress`, the level that unlocks — behaves as though it were not
 there, while the scoring behind the results has its answer. Such an item is
@@ -378,22 +457,30 @@ before the study runs.**
   one is worse than none: it is what the author, and anybody asking what is in
   the study, will go by. Keep it in the shape it is already in — a bullet per
   level, a line per questionnaire, the abbreviation in brackets — and keep the
-  counts at the foot of it right. A questionnaire written but left out of `RUN`
-  stays on the list, marked as not asked, so that it is not written twice.
+  counts at the foot of it right. A block written but named on no level of the
+  timeline stays on the list, marked as not asked, so that it is not written
+  twice.
 
 ## Gotchas
 
-- **"Section" means two things, and only one of them is an item.** A `section:
-  true` item is a pause in the middle of a level (`.section`, `#section-body`,
-  `renderSection`, `passSection`). A *results* section is one block of a
-  finished level's results (`sealSections`, `openSections`, `.result` in
-  `results.css`). They never meet — one is in `app.js` and the survey screen,
-  the other in `results.js` and the level screen — but say which you mean.
+- **"Section" is now only ever a *results* section** — one block of a finished
+  level's results (`sealSections`, `openSections`, `.result` in `results.css`).
+  The pause in the middle of a level is a **briefing** (`type: "briefing"`,
+  `.briefing`, `renderBriefing`, `passBriefing`), and was called a section, then
+  a presentation screen, before it settled. If you find either of the old words
+  anywhere outside `results.js` and the level screen, it is a leftover — but
+  note that `role="presentation"` in `index.html` is an ARIA role and nothing to
+  do with any of this.
+- **"Block" also means two things.** A *block* is one file of questions in
+  `content/`, named in the timeline. A *results* block is a `.result` section,
+  above. The first is in `content/` and `app.js`, the second in `results.js`.
 - **A new file needs a `<script>` or `<link>` tag in `index.html`, in the right
   place.** There are no modules and nothing imports anything: each file adds to
-  the globals the next one reads. A level file loaded before `content/schema.js`
-  throws on a `QUESTIONNAIRES` that is not there yet, and `js/app.js` has to be
-  last of the scripts.
+  the globals the next one reads. A block file loaded before
+  `content/timeline.js` throws on a `defineBlock` that is not there yet, and
+  `js/app.js` has to be last of the scripts. A block with no tag does not exist;
+  a block with a tag but no name in `TIMELINE` exists and is never asked, which
+  is the difference between forgetting one and leaving one out.
 - **All `norms` in `content/` are invented placeholders**, flagged as such in
   comments. Never present them as real, and keep the flags when editing.
 - **The consent form in `index.html` is still placeholder wording** — the banner
@@ -406,9 +493,10 @@ before the study runs.**
 - The PHQ-4 uses the refined 5-option version, so `0.5` is a valid response and
   sums are not always whole (`tidy()`).
 - Items with no `dimension` (attention checks) are skipped by all scoring.
-- **`gjs` is out of `RUN`, not out of `content/level2.js`.** It wants an employment item
-  to hang a `showIf` on before it goes back in — and note that an escape option
-  would feed a number into its score, so it cannot simply be given one.
+- **`gjs` is out of the timeline, not out of `content/`.** It has a block file
+  of its own, commented out, and is named on no level. It wants an employment
+  item to hang a `showIf` on before it goes back in — and note that an escape
+  option would feed a number into its score, so it cannot simply be given one.
 - **`Country` is four buttons and a branch.** The commonest few are options,
   everywhere else is `CountryOther`, typed — the engine has no dropdown, and no
   list of every country belongs on a screen of option buttons. What is typed
@@ -430,6 +518,21 @@ before the study runs.**
   lives.** `sheen` ends with `opacity: 0` for exactly this reason: its last
   frame parks a band of light one full width to the right of the section, which
   is otherwise painted over the middle of the page for ever.
+- **Anything reading `normOf(...)` must expect nothing back.** A scale may be
+  written without norms — several are — so every `.mean` in `results.js` sits
+  behind a check for one. The card is the one that bites: it draws the average
+  person across *every* axis in one path, so it draws that ring only when every
+  dimension has a norm, rather than skipping the axes that have none.
+- **The anchors either side of a scale hang off the circles, not off the page.**
+  `renderChoice` puts `.scale--circles` on `#scale` for a scale of numbered
+  circles, which sizes the middle grid track to the circles so the anchors come
+  in with them — otherwise a five-point scale strands them at the edges of the
+  room. Labelled options and typed fields keep the full width they are given,
+  and below 560px the stylesheet stacks the anchors underneath either way.
+- **`draw()` exists twice, in `app.js` and in `results.js`.** Same three
+  lines, same meaning — an SVG element with attributes — but the seam runs one
+  way, so neither file can borrow the other's. Keep them identical or leave
+  them alone.
 - **`drawSpider`/`drawSoma` add their classes rather than setting them.** The
   same `<svg>` is found again by a class of its own (`.profile__web`), so
   writing `class` outright makes the second render of a profile throw.

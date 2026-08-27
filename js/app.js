@@ -10,13 +10,6 @@
 ;(function () {
     "use strict"
 
-    // Questionnaires to include. The order matters twice over: items are written
-    // in it, so the ones held in place by `shuffle: false` sit where it puts
-    // them, and the results of a level read in it.
-    // `gjs` is commented out in content/level2.js and left out here besides: it
-    // asks everybody about a job, and there is nothing yet to say who has one.
-    // Waking it takes both.
-    const RUN = ["demographics1", "fipi", "sins", "demographics2", "mint", "phq4", "pathological", "closing"]
     const CHARTS = ["fipi", "phq4"] // questionnaires that get a spider chart of their own
     const ADVANCE_DELAY = 330 // ms between answering and the next item
     const TURN = 180 // ms of that spent fading the answered item out
@@ -85,84 +78,155 @@
         return item[entry] !== undefined ? item[entry] : questionnaire[entry]
     }
 
+    // What kind of question it is, and so how it is put on screen. Neither
+    // choosing nor typing has to be written in the content: a question's type
+    // follows from the format it is asked with, so writing it as well would
+    // only be a second place for the two to disagree. A briefing is not a
+    // question at all and belongs to its block, which is what the throw is
+    // about — written among the items it introduces, it would render as a
+    // scale with nothing on it.
+    function typeOf(item, questionnaire) {
+        const written = setting(item, questionnaire, "type")
+        if (written === "briefing") {
+            throw new Error("a briefing belongs to its block, not to a questionnaire's items: " + item.key)
+        }
+        if (written) return written
+        return (setting(item, questionnaire, "format") || {}).input ? "input" : "choice"
+    }
+
+    // The questionnaires of the run, level by level and block by block, in the
+    // order the timeline asks for them. This is also the order the results of a
+    // level read in. A block the timeline does not name is never reached, which
+    // is the whole of how one is kept out of the run.
+    const RUN = []
+    const levels = TIMELINE.map((entry, at) => at + 1)
+
     // Every item of every questionnaire, in the order written, each carrying
-    // everything needed to show it.
+    // everything needed to show it — and the level and block it came from,
+    // which are the timeline's answer rather than the content's.
     const written = []
 
-    for (const name of RUN) {
-        const questionnaire = QUESTIONNAIRES[name]
-        for (const item of questionnaire.items) {
-            // A section is a pause rather than a question: words, and a way
-            // on. It introduces whatever is written after it, so it can only
-            // ever hold its own place — `shuffle` is decided here rather than
-            // left to be remembered in the content. Its `options` are empty, so
-            // everything that reads a scale off an item finds nothing to read.
-            if (item.section) {
-                written.push({
-                    key: item.key,
-                    text: item.text,
-                    questionnaire: name,
-                    section: true,
-                    options: [],
-                    shuffle: false,
-                    level: setting(item, questionnaire, "level") || 1,
-                })
-                continue
+    TIMELINE.forEach((entry, at) => {
+        const level = at + 1
+
+        for (const name of entry.blocks) {
+            const block = BLOCKS[name]
+            if (!block) throw new Error("timeline.js asks for a block that is not defined: " + name)
+
+            for (const part of block) {
+                // A briefing is a pause rather than a question: words, and a
+                // way on. It belongs to the block rather than to any one
+                // questionnaire in it, since it introduces the whole stretch
+                // that follows — which may be several — and nothing that
+                // shuffles items can reach it there. Its `options` are empty,
+                // so everything that reads a scale off an item finds nothing.
+                if (part.type === "briefing") {
+                    written.push({
+                        key: part.key,
+                        text: part.text,
+                        type: "briefing",
+                        options: [],
+                        shuffle: false,
+                        block: name,
+                        level: level,
+                    })
+                    continue
+                }
+
+                const questionnaire = part
+                RUN.push(questionnaire.key)
+
+                for (const item of questionnaire.items) {
+                    const type = typeOf(item, questionnaire)
+                    const place = { questionnaire: questionnaire.key, block: name, level: level }
+                    const format = setting(item, questionnaire, "format")
+                    // A scale may write its own numbers over the values behind
+                    // them (`labels`), which is how the same points can be
+                    // shown two ways.
+                    const options = (format.options || []).map((one, position) =>
+                        Object.assign(
+                            { text: null, label: format.labels ? format.labels[position] : null },
+                            typeof one === "object" ? one : { value: one },
+                        ),
+                    )
+                    const values = options.map((o) => o.value)
+
+                    written.push(
+                        Object.assign(
+                            {
+                                key: item.key,
+                                text: item.text,
+                                type: type,
+                                dimension: item.dimension,
+                                instructions: setting(item, questionnaire, "instructions"),
+                                options: options,
+                                input: format.input,
+                                placeholder: format.placeholder,
+                                // A typed answer has no options, so its bounds are the scale.
+                                lowest: options.length ? Math.min.apply(null, values) : format.min,
+                                highest: options.length ? Math.max.apply(null, values) : format.max,
+                                anchors: format.anchors,
+                                columns: format.columns,
+                                tooLow: format.tooLow,
+                                tooHigh: format.tooHigh,
+                                color: format.color,
+                                hovercolors: format.hovercolors,
+                                showIf: item.showIf,
+                                check: item.check,
+                                reverse: item.reverse,
+                                shuffle: setting(item, questionnaire, "shuffle"),
+                            },
+                            place,
+                        ),
+                    )
+                }
             }
-
-            const format = setting(item, questionnaire, "format")
-            // A scale may write its own numbers over the values behind them
-            // (`labels`), which is how the same points can be shown two ways.
-            const options = (format.options || []).map((one, at) =>
-                Object.assign(
-                    { text: null, label: format.labels ? format.labels[at] : null },
-                    typeof one === "object" ? one : { value: one }
-                )
-            )
-            const values = options.map((o) => o.value)
-
-            written.push({
-                key: item.key,
-                text: item.text,
-                questionnaire: name,
-                dimension: item.dimension,
-                instructions: setting(item, questionnaire, "instructions"),
-                options: options,
-                input: format.input,
-                placeholder: format.placeholder,
-                // A typed answer has no options, so its bounds are the scale.
-                lowest: options.length ? Math.min.apply(null, values) : format.min,
-                highest: options.length ? Math.max.apply(null, values) : format.max,
-                anchors: format.anchors,
-                columns: format.columns,
-                tooLow: format.tooLow,
-                tooHigh: format.tooHigh,
-                color: format.color,
-                hovercolors: format.hovercolors,
-                showIf: item.showIf,
-                check: item.check,
-                reverse: item.reverse,
-                shuffle: setting(item, questionnaire, "shuffle"),
-                level: setting(item, questionnaire, "level") || 1,
-            })
         }
+    })
+
+    // A briefing has no scale to score, but it is still a recorded step through
+    // the run, so it uses the same log and item record as every question.
+    function isBriefing(question) {
+        return question.type === "briefing"
     }
 
-    // Levels are asked in order. Within one, the items of every questionnaire
-    // are shuffled together, except those marked `shuffle: false`, which hold
-    // the position they were written in.
-    const levels = [...new Set(written.map((question) => question.level))].sort((a, b) => a - b)
+    // Levels are asked in order. Within one, the items of every block are
+    // shuffled together, except those marked `shuffle: false`, which hold the
+    // position the timeline's order gives them.
+    //
+    // **A questionnaire is the unit of shuffling, and the only one.** Its items
+    // may come in any order but they come together, and everything around them
+    // — the other questionnaires, the briefings, the blocks, the levels — holds
+    // the order the timeline gives it. An item marked `shuffle: false` keeps
+    // its own place while the rest move around it.
+    //
+    // Everything about the run's order follows from that one rule: two
+    // instruments meant to be asked in among each other go in *one*
+    // questionnaire, since that is what makes them one shuffled run; two meant
+    // to stay apart go in two; and a briefing, being an entry of its own,
+    // cannot be crossed by anything.
     const questions = []
+    let group = []
+    let holding = null
 
-    for (const level of levels) {
-        const inLevel = written.filter((question) => question.level === level)
-        const moving = shuffle(inLevel.filter((question) => question.shuffle !== false))
+    // The run so far, in place. `written` is built in order, so a questionnaire
+    // is always a single stretch of it and a change of name is its end.
+    function settle() {
+        const moving = shuffle(group.filter((question) => question.shuffle !== false))
         let next = 0
 
-        inLevel
-            .map((question) => (question.shuffle === false ? question : moving[next++]))
-            .forEach((question) => questions.push(question))
+        group.map((question) => (question.shuffle === false ? question : moving[next++])).forEach((question) => questions.push(question))
+        group = []
     }
+
+    for (const question of written) {
+        if (question.questionnaire !== holding) {
+            settle()
+            holding = question.questionnaire
+        }
+        group.push(question)
+    }
+    settle()
 
     const responses = {} // key -> value, what the scoring reads
     const log = {} // key -> when it was shown, when it was answered, with what
@@ -177,35 +241,34 @@
 
     /* ------------------------------ test mode ----------------------------- */
 
-    // `?testMode=true` walks the run in miniature: a long questionnaire puts
-    // only a couple of its items on screen and the rest are answered for it at
-    // random, so that every chart, level and reading can be reached in a minute
-    // rather than in twelve. What comes out of such a run is not data, and the
-    // saved file says so at the top of itself.
-    const TEST_LONG = 10 // items above which a questionnaire is thinned
-    const TEST_KEPT = 2 // items it still asks
+    // `?testMode=true` walks the run in miniature: one item of each questionnaire
+    // is put on screen and the rest are answered for it at random, so that every
+    // chart, level and reading can be reached quickly. What comes out of such a
+    // run is not data, and the saved file says so at the top of itself.
+    const TEST_KEPT = 1 // item each questionnaire still asks
 
     // An answer given by nobody: a point off the item's own scale, a number
     // inside the bounds of the field, or a word in place of the written one.
     function anyAnswer(question) {
         if (question.input === "text") return "test"
-        if (question.input) return question.lowest + Math.floor(Math.random() * (question.highest - question.lowest + 1))
+        // Anything with a range and no options to pick from — a typed number,
+        // a place on a curve — is answered somewhere inside that range.
+        if (!question.options.length) {
+            return question.lowest + Math.floor(Math.random() * (question.highest - question.lowest + 1))
+        }
         return question.options[Math.floor(Math.random() * question.options.length)].value
     }
 
     // An item marked `auto` is answered here, once, and never shown: `shown()`
     // passes over it, so the run is walked, counted and finished as though it
-    // were not in it, while the scoring behind the results has its answer. An
-    // item waiting on another (`showIf`) is left out of the thinning — it is
-    // asked, or not, on the answer that opens it, exactly as it would be — and
-    // so is a section, which has no answer to stand in for and is the one thing
-    // a short run should still show in full.
+    // were not in it, while the scoring behind the results has its answer. All
+    // items of a questionnaire except the one kept for display are thinned,
+    // including conditional items. A briefing is never stood in for: it belongs
+    // to the block rather than to any questionnaire and has no answer to give.
     function thinRun() {
         for (const name of RUN) {
             const mine = questions.filter((question) => question.questionnaire === name)
-            if (mine.length <= TEST_LONG) continue
-
-            for (const question of shuffle(mine.filter((one) => !one.showIf && !one.section)).slice(TEST_KEPT)) {
+            for (const question of shuffle(mine).slice(TEST_KEPT)) {
                 question.auto = true
                 responses[question.key] = anyAnswer(question)
                 // Nothing was put on screen, so there is no onset and no
@@ -243,11 +306,11 @@
         return -1
     }
 
-    // The items of a level that are actually being asked, in order. A section
-    // is not among them: it is a pause with nothing to answer, so it is owed no
-    // answer and must never be what holds a level shut.
+    // The items of a level that are actually being asked, in order. A
+    // briefing is not among them: it is a pause with nothing to
+    // answer, so it is owed none and must never be what holds a level shut.
     function askedIn(level) {
-        return questions.filter((question) => question.level === level && !question.section && shown(question))
+        return questions.filter((question) => question.level === level && !isBriefing(question) && shown(question))
     }
 
     // An answer can close a branch that was open. What it held was given under
@@ -345,10 +408,7 @@
         file.qualityControl = {}
         for (const level of levels) file.qualityControl["level" + level] = qualityControl(level)
 
-        // A section was read rather than answered, so it is not in here: the
-        // file is the record of what somebody said, and `order` counts the
-        // items they were actually asked.
-        file.items = questions.filter((question) => !question.section).map((question, position) => {
+        file.items = questions.map((question, position) => {
             const entry = log[question.key] || {}
             return {
                 key: question.key,
@@ -409,8 +469,7 @@
         const z = (value - norm.mean) / norm.sd
         const t = 1 / (1 + 0.2316419 * Math.abs(z))
         const density = 0.3989422804014327 * Math.exp((-z * z) / 2)
-        const tail =
-            density * t * (0.31938153 + t * (-0.356563782 + t * (1.781477937 + t * (-1.821255978 + t * 1.330274429))))
+        const tail = density * t * (0.31938153 + t * (-0.356563782 + t * (1.781477937 + t * (-1.821255978 + t * 1.330274429))))
         return z > 0 ? 1 - tail : tail
     }
 
@@ -515,76 +574,286 @@
         field.focus()
     }
 
-    function renderScale(question) {
+    // A question answered by choosing: one button per option, on the scale the
+    // format gives them. A Likert scale and a list of countries come through
+    // here alike — what differs is the writing on the buttons.
+    function renderChoice(question, wrap) {
         const labelled = question.options.some((o) => o.text !== null)
+
+        // A row of circles is only as wide as its circles, so the scale draws
+        // its anchors in against them rather than against its own edges — five
+        // points and eleven then read the same. Labelled options take the
+        // width they are given, which is the whole of it.
+        $("scale").classList.toggle("scale--circles", !labelled)
+
+        wrap.classList.toggle("options--labelled", labelled)
+        wrap.classList.toggle("options--wide", !labelled && question.options.length > 7)
+        // Labelled options stack unless the item asks for columns; circles
+        // always get one column each.
+        wrap.style.setProperty("--columns", labelled ? question.columns || 1 : question.options.length)
+
+        question.options.forEach((option, position) => {
+            const button = document.createElement("button")
+            button.type = "button"
+            button.className = "option" + (option.small ? " option--small" : "")
+            button.dataset.value = String(option.value)
+            button.textContent = option.text === null ? option.label || String(option.value) : option.text
+            button.setAttribute("role", "radio")
+            button.setAttribute("aria-checked", "false")
+            button.addEventListener("click", () => answer(option.value))
+
+            // Each option lights up at its own point along the gradient.
+            if (question.hovercolors) {
+                const spread = question.options.length - 1
+                const shade = mix(question.hovercolors[0], question.hovercolors[1], position / spread)
+                button.style.setProperty("--hover", shade)
+            }
+
+            wrap.appendChild(button)
+        })
+    }
+
+    /* ------------------------------- the curve ---------------------------- */
+
+    // A place in a room of a hundred people rather than a point on a scale.
+    // The curve is drawn once and filled from the left as far as the pointer:
+    // the area under a normal curve up to a point *is* the share of people
+    // below it, so what is filled and the number written over it are the same
+    // fact said twice, and neither can drift from the other.
+    const CURVE = { width: 640, height: 200, floor: 156, peak: 34, reach: 3, samples: 160 }
+    const SVG = "http://www.w3.org/2000/svg"
+
+    function draw(shape, attributes) {
+        const element = document.createElementNS(SVG, shape)
+        for (const name of Object.keys(attributes)) element.setAttribute(name, attributes[name])
+        return element
+    }
+
+    function renderCurve(question, wrap) {
+        wrap.classList.add("options--curve")
+
+        // Across the figure is three standard deviations either side of the
+        // middle, which is as far out as a room of a hundred reaches.
+        const zAt = (x) => (x / CURVE.width) * 2 * CURVE.reach - CURVE.reach
+
+        const yAt = (x) => {
+            const z = zAt(x)
+            return CURVE.floor - (CURVE.floor - CURVE.peak) * Math.exp((-z * z) / 2)
+        }
+
+        // How much of the room is below a point: the area under the curve up to
+        // it, which is what `percentile` works out — here against the same
+        // standard normal the curve itself is drawn from.
+        const shareAt = (x) => Math.round(percentile(zAt(x), { mean: 0, sd: 1 }) * 100)
+
+        // The curve as a run of points; the same run closed down to the floor
+        // is the area that fills.
+        const points = []
+        for (let at = 0; at <= CURVE.samples; at++) {
+            const x = (at / CURVE.samples) * CURVE.width
+            points.push(x.toFixed(1) + "," + yAt(x).toFixed(1))
+        }
+        const run = points.join(" ")
+
+        const holder = document.createElement("div")
+        holder.className = "curve"
+
+        // The figure says nothing to a screen reader: the range below carries
+        // the question, the value and the way to move it.
+        const figure = draw("svg", {
+            class: "curve__figure",
+            viewBox: "0 0 " + CURVE.width + " " + CURVE.height,
+            "aria-hidden": "true",
+        })
+
+        // What is filled is a window onto the whole area, widened to the mark
+        // rather than an area redrawn on every move.
+        const clip = draw("rect", { x: 0, y: 0, width: 0, height: CURVE.height })
+        const window_ = draw("clipPath", { id: "curve-fill" })
+        const defs = draw("defs", {})
+        window_.appendChild(clip)
+        defs.appendChild(window_)
+        figure.appendChild(defs)
+
+        const filled = draw("g", { "clip-path": "url(#curve-fill)" })
+        filled.appendChild(
+            draw("polygon", {
+                class: "curve__area",
+                points: "0," + CURVE.floor + " " + run + " " + CURVE.width + "," + CURVE.floor,
+            }),
+        )
+        figure.appendChild(filled)
+        figure.appendChild(draw("polyline", { class: "curve__line", points: run }))
+        figure.appendChild(draw("line", { class: "curve__floor", x1: 0, y1: CURVE.floor, x2: CURVE.width, y2: CURVE.floor }))
+
+        const stem = draw("line", { class: "curve__stem", x1: 0, y1: 0, x2: 0, y2: CURVE.floor })
+        const mark = draw("circle", { class: "curve__mark", cx: 0, cy: 0, r: 6 })
+        const reading = draw("text", { class: "curve__reading", x: 0, y: 0, "text-anchor": "middle" })
+        const hint = draw("text", {
+            class: "curve__hint",
+            x: CURVE.width / 2,
+            y: CURVE.floor + 32,
+            "text-anchor": "middle",
+        })
+        hint.textContent = "Click where you sit"
+
+        figure.appendChild(stem)
+        figure.appendChild(mark)
+        figure.appendChild(reading)
+        figure.appendChild(hint)
+
+        // The answer itself, and the only way into it that is not a pointer.
+        // It takes no pointer events of its own — the figure above handles
+        // those — so the two can never disagree about where the mark is. The
+        // global key handler ignores an INPUT, so the arrows move this rather
+        // than sending the run backwards.
+        const field = document.createElement("input")
+        field.type = "range"
+        field.className = "curve__slide"
+        field.min = String(question.lowest)
+        field.max = String(question.highest)
+        field.step = "1"
+        field.value = String(Math.round((question.lowest + question.highest) / 2))
+        field.setAttribute("aria-labelledby", "text")
+
+        let held = false
+
+        const show = (x) => {
+            const place = Math.max(0, Math.min(CURVE.width, x))
+            const y = yAt(place)
+            const share = shareAt(place)
+
+            clip.setAttribute("width", place)
+            stem.setAttribute("x1", place)
+            stem.setAttribute("x2", place)
+            stem.setAttribute("y1", y)
+            mark.setAttribute("cx", place)
+            mark.setAttribute("cy", y)
+
+            // The reading rides the curve, and is kept off the ends of the
+            // figure so that it is never half outside it.
+            reading.setAttribute("x", Math.max(62, Math.min(CURVE.width - 62, place)))
+            reading.setAttribute("y", y - 18)
+            reading.textContent = share + "% of people"
+
+            field.value = String(share)
+            field.setAttribute("aria-valuetext", share + "% of people")
+
+            held = true
+            holder.classList.add("curve--held")
+            return share
+        }
+
+        // Back to an item already answered, or moved by the keyboard: what is
+        // kept is the share, so the place has to be found back from it. The
+        // curve only ever rises, so halving the interval gets there.
+        const placeOf = (share) => {
+            let low = 0
+            let high = CURVE.width
+
+            for (let step = 0; step < 40; step++) {
+                const middle = (low + high) / 2
+                if (shareAt(middle) < share) low = middle
+                else high = middle
+            }
+            return high
+        }
+
+        const at = (event) => {
+            const box = figure.getBoundingClientRect()
+            return ((event.clientX - box.left) / box.width) * CURVE.width
+        }
+
+        const follow = (event) => {
+            if (locked) return
+            show(at(event))
+        }
+
+        holder.addEventListener("pointermove", follow)
+        holder.addEventListener("pointerdown", follow)
+
+        // Where the click lands is the answer. There is nothing to confirm: the
+        // number standing over the mark when it is pressed is what is recorded.
+        holder.addEventListener("click", (event) => {
+            if (locked) return
+            answer(show(at(event)))
+        })
+
+        // The keyboard's way through, for want of a button to press: the arrows
+        // move the mark, and Enter takes where it has been moved to.
+        field.addEventListener("input", () => show(placeOf(Number(field.value))))
+        field.addEventListener("keydown", (event) => {
+            if (event.key === "Enter" && held) answer(Number(field.value))
+        })
+
+        holder.appendChild(figure)
+        holder.appendChild(field)
+        wrap.appendChild(holder)
+
+        // An answer already given is put back where it was left.
+        const given = responses[question.key]
+        if (given !== undefined) show(placeOf(given))
+    }
+
+    // A renderer per type of question, and beside it the thing each type is
+    // answered by — which is where the spray comes out of. Only a choice
+    // carries its value in a selector: a written answer is somebody's own
+    // words, and a place on a curve is a place rather than a button. A new way
+    // of answering is a `type` written in content/ and a line in each of these,
+    // and nothing else moves.
+    const SCALES = { choice: renderChoice, input: renderEntry, curve: renderCurve }
+
+    const SPRAYS = {
+        choice: (value) => document.querySelector('.option[data-value="' + value + '"]'),
+        input: () => $("options").querySelector(".option--go"),
+        curve: () => $("options").querySelector(".curve__mark"),
+    }
+
+    function renderScale(question) {
         const wrap = $("options")
 
         wrap.innerHTML = ""
         wrap.className = "options"
+        // Whatever the last item was answered on, this one is not shown on it:
+        // each renderer puts back only the classes it needs.
+        $("scale").className = "scale"
+        SCALES[question.type](question, wrap)
 
-        if (question.input) {
-            renderEntry(question, wrap)
-        } else {
-            wrap.classList.toggle("options--labelled", labelled)
-            wrap.classList.toggle("options--wide", !labelled && question.options.length > 7)
-            // Labelled options stack unless the item asks for columns; circles
-            // always get one column each.
-            wrap.style.setProperty("--columns", labelled ? question.columns || 1 : question.options.length)
-
-            question.options.forEach((option, position) => {
-                const button = document.createElement("button")
-                button.type = "button"
-                button.className = "option" + (option.small ? " option--small" : "")
-                button.dataset.value = String(option.value)
-                button.textContent = option.text === null ? option.label || String(option.value) : option.text
-                button.setAttribute("role", "radio")
-                button.setAttribute("aria-checked", "false")
-                button.addEventListener("click", () => answer(option.value))
-
-                // Each option lights up at its own point along the gradient.
-                if (question.hovercolors) {
-                    const spread = question.options.length - 1
-                    const shade = mix(question.hovercolors[0], question.hovercolors[1], position / spread)
-                    button.style.setProperty("--hover", shade)
-                }
-
-                wrap.appendChild(button)
-            })
-        }
-
-        const anchored = question.anchors && !question.input
+        // Only a scale has sides to name; a field typed into has none.
+        const anchored = question.anchors && question.type === "choice"
         $("anchor-left").textContent = anchored ? question.anchors[0] : ""
         $("anchor-right").textContent = anchored ? question.anchors[1] : ""
         $("anchor-left").hidden = !anchored
         $("anchor-right").hidden = !anchored
     }
 
-    // A pause in the middle of a level: what the next stretch of it is about,
-    // and a way on. It takes the survey screen over rather than being a screen
-    // of its own, so that everything guarding on `screen === "survey"` — the
-    // keyboard, the back button, the timing — goes on holding while it is up.
-    function renderSection(question) {
+    // A briefing: a pause in the middle of a level, saying what the
+    // next stretch of it is about, with nothing to answer. It takes the survey
+    // screen over rather than being a screen of its own, so that everything
+    // guarding on `screen === "survey"` — the keyboard, the back button, the
+    // timing — goes on holding while it is up.
+    function renderBriefing(question) {
         // The options of the item before it would otherwise still be sitting in
-        // the screen behind the section, answerable by anything that finds them.
+        // the screen behind it, answerable by anything that finds them.
         $("options").innerHTML = ""
-        $("section-body").innerHTML = question.text
+        $("briefing-body").innerHTML = question.text
     }
 
     function renderQuestion() {
         const question = questions[index]
         const survey = $("screen-survey")
-        const pausing = !!question.section
+        const pausing = isBriefing(question)
 
         // Drives the item's background, its selected response and the progress bar.
         document.documentElement.style.setProperty("--selected", question.color || "var(--accent)")
 
         $("text").hidden = pausing
         $("scale").hidden = pausing
-        $("section").hidden = !pausing
+        $("briefing").hidden = !pausing
         $("instructions").hidden = pausing || !question.instructions
 
         if (pausing) {
-            renderSection(question)
+            renderBriefing(question)
         } else {
             // The item is HTML: a question may carry its own stem, with the thing
             // actually being asked set apart inside it. It comes from content/.
@@ -654,7 +923,7 @@
     }
 
     function depth() {
-        const asked = questions.filter((question) => !question.section && shown(question))
+        const asked = questions.filter((question) => !isBriefing(question) && shown(question))
         const answered = asked.filter((question) => responses[question.key] !== undefined).length
         const share = descentShare()
         return { answered: answered, size: asked.length, share: share, metres: Math.round(share * DEEPEST) }
@@ -704,13 +973,9 @@
             // again by the level it holds.
             button.dataset.level = level
             button.className =
-                "sidebar__level" +
-                (progress.unlocked ? " sidebar__level--unlocked" : "") +
-                (showing ? " sidebar__level--open" : "")
+                "sidebar__level" + (progress.unlocked ? " sidebar__level--unlocked" : "") + (showing ? " sidebar__level--open" : "")
             button.style.top = ((at + 1) / scoredLevels.length) * 100 + "%"
-            button.title = progress.unlocked
-                ? "See the results of level " + level
-                : "See a taste of level " + level + ", still locked"
+            button.title = progress.unlocked ? "See the results of level " + level : "See a taste of level " + level + ", still locked"
             button.innerHTML =
                 '<span class="sidebar__level-word">Level</span><span class="sidebar__level-number">' +
                 level +
@@ -797,13 +1062,15 @@
         results.hideTip()
         panel = name
 
-        for (const section of document.querySelectorAll(".panel")) {
-            section.classList.toggle("panel--open", section.id === "panel-" + name)
+        for (const sheet of document.querySelectorAll(".panel")) {
+            sheet.classList.toggle("panel--open", sheet.id === "panel-" + name)
         }
         $("overlay").classList.add("overlay--open")
 
         markSidebar()
-        $("panel-" + name).querySelector(".panel__close").focus()
+        $("panel-" + name)
+            .querySelector(".panel__close")
+            .focus()
     }
 
     function closePanel() {
@@ -818,7 +1085,7 @@
         panel = null
         openLevel = null
 
-        for (const section of document.querySelectorAll(".panel")) section.classList.remove("panel--open")
+        for (const sheet of document.querySelectorAll(".panel")) sheet.classList.remove("panel--open")
         $("overlay").classList.remove("overlay--open")
         markSidebar()
 
@@ -940,7 +1207,7 @@
             () => {
                 burst($("level-title"), "#d9a441", { count: 24, reach: 90 })
                 results.openSections($("level-results"), $("level-foot"))
-            }
+            },
         )
     }
 
@@ -956,7 +1223,7 @@
         if (still()) return then()
 
         FINALE_COLOURS.forEach((colour, at) =>
-            setTimeout(() => burst($("text"), colour, { count: 30, reach: 190 + at * 70 }), at * FINALE_STEP)
+            setTimeout(() => burst($("text"), colour, { count: 30, reach: 190 + at * 70 }), at * FINALE_STEP),
         )
 
         setTimeout(then, FINALE_COLOURS.length * FINALE_STEP + 280)
@@ -984,11 +1251,8 @@
         // and taken again if a branch reopens the level and it is finished twice.
         if (levelProgress(question.level).unlocked) levelTimes[question.level] = new Date().toISOString()
 
-        // The spray comes out of what was pressed: the option itself, or the
-        // Continue button of a typed answer, whose value is not a selector.
-        const chosen = question.input
-            ? $("options").querySelector(".option--go")
-            : document.querySelector('.option[data-value="' + value + '"]')
+        // The spray comes out of whatever this kind of item is answered by.
+        const chosen = SPRAYS[question.type](value)
         if (chosen) burst(chosen)
 
         // The answer stays lit and the burst clears before the item goes; what
@@ -1004,8 +1268,9 @@
 
     // On from whatever is showing: the next item, the level screen if that was
     // the end of a level, or the profile if it was the end of the run. Both
-    // ways forward — answering an item, and reading a section and leaving it —
-    // come through here, so a level ends the same way whichever ended it.
+    // ways forward — answering an item, and reading a briefing and
+    // leaving it — come through here, so a level ends the same way whichever
+    // ended it.
     function advance() {
         const finished = questions[index].level
         const next = nextShown(index + 1)
@@ -1036,11 +1301,15 @@
         } else renderQuestion()
     }
 
-    // A section is read and left. Nothing is recorded: no response, nothing in
-    // the file, and nothing in the quality-control figures — leaving one is a
-    // step through the run and not an answer to anything.
-    function passSection() {
-        if (locked || screen !== "survey" || !questions[index].section) return
+    // A briefing has one possible response: leaving it by pressing its continue
+    // button. Store that response and its completion time like any other item.
+    function passBriefing() {
+        if (locked || screen !== "survey" || !isBriefing(questions[index])) return
+        const question = questions[index]
+        const entry = log[question.key] || {}
+        entry.response = $("briefing-go").textContent.trim()
+        entry.timeResponse = new Date().toISOString()
+        log[question.key] = entry
         advance()
     }
 
@@ -1140,12 +1409,12 @@
 
         const question = questions[index]
 
-        // A section has nothing to answer, so the only key that carries it on
-        // is the one that means "yes, on we go".
-        if (question.section) {
+        // A briefing has nothing to answer, so the only key that
+        // carries it on is the one that means "yes, on we go".
+        if (isBriefing(question)) {
             if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault() // space would scroll the section instead
-                passSection()
+                e.preventDefault() // space would scroll the screen instead
+                passBriefing()
             } else if (e.key === "ArrowLeft") {
                 goBack()
             }
@@ -1257,7 +1526,7 @@
     })
 
     $("back").addEventListener("click", goBack)
-    $("section-go").addEventListener("click", passSection)
+    $("briefing-go").addEventListener("click", passBriefing)
     $("download").addEventListener("click", download)
     $("raw-download").addEventListener("click", download)
     // Every way in is also the way out: pressing a lit button shuts what it lit.

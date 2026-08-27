@@ -135,8 +135,8 @@
                         <p>
                             The results of this research may be written into a scientific publication. Your anonymity will be ensured in the
                             way described in the consent information below. Please read this information carefully and then, if you wish to
-                            take part, please acknowledge that you have fully understood this sheet, and that you consent to take part in the
-                            study as it is described here.
+                            take part, please acknowledge that you have fully understood this sheet, and that you consent to take part in
+                            the study as it is described here.
                         </p>
                         <p>
                             The feedback you are shown along the way is for interest only. It is generated from brief questionnaires scored
@@ -209,12 +209,13 @@
                     <span class="anchor anchor--right" id="anchor-right"></span>
                 </div>
 
-                <!-- A pause inside a level, in place of the question and its
-                     scale: what the next stretch of the descent is about, and
-                     nothing to answer. Filled in by renderSection. -->
-                <div class="section" id="section" hidden>
-                    <div class="section__body" id="section-body"></div>
-                    <button class="btn" id="section-go">Dive deeper →</button>
+                <!-- A briefing: a pause inside a level, in place of the
+                     question and its scale. What the next stretch of the
+                     descent is about, and nothing to answer. Filled in by
+                     renderBriefing. -->
+                <div class="briefing" id="briefing" hidden>
+                    <div class="briefing__body" id="briefing-body"></div>
+                    <button class="btn" id="briefing-go">Dive deeper →</button>
                 </div>
 
                 <div class="survey__foot">
@@ -369,13 +370,20 @@
             </section>
         </div>
 
-        <!-- Content, then everything that reads a score back, then the engine
-             that hands itself to it. -->
-        <script src="content/schema.js"></script>
-        <script src="content/level1.js"></script>
-        <script src="content/level2.js"></script>
-        <script src="content/level3.js"></script>
-        <script src="content/level4.js"></script>
+        <!-- How a question is written, then the running order, then the blocks
+             of questions themselves — a file each — then everything that reads
+             a score back, then the engine that hands itself to it. A block with
+             no tag here does not exist; one the timeline does not name exists
+             but is never asked. -->
+        <script src="content/timeline.js"></script>
+        <script src="content/block_demographics1.js"></script>
+        <script src="content/block_fast.js"></script>
+        <script src="content/block_demographics2.js"></script>
+        <script src="content/block_mint.js"></script>
+        <script src="content/block_phq4.js"></script>
+        <script src="content/block_mentalhealth.js"></script>
+        <script src="content/block_closing.js"></script>
+        <script src="content/block_UNUSED.js"></script>
         <script src="js/results.js"></script>
         <script src="js/app.js"></script>
     </body>
