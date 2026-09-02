@@ -4,7 +4,7 @@ defineBlock("bait", [
         key: "Briefing_AI",
         text:
             "<h2>Now, the machines.</h2>" +
-            "<p>You have answered for yourself, for your body, and for your last few weeks. The questions that follow " +
+            "<p>You have answered for yourself, for your body, for your last few weeks and for your last year. The questions that follow " +
             "are about something outside of you: <b>artificial intelligence</b> — what you believe it can produce, and " +
             "what you make of it.</p>" +
             "<p><em>Answer for AI as it exists today, not for what it might become.</em></p>",

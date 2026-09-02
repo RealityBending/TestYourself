@@ -72,8 +72,8 @@ the FIPI beside them stays a run of five that nothing is ever dealt into. Two
 meant to stay apart go in two. And a briefing, being an entry of the block
 rather than of any questionnaire, can never be crossed by anything.
 
-**What is asked, and where.** Six levels, five of them scored, out of ten
-blocks — so this table is the map of `content/timeline.js` and of the folder
+**What is asked, and where.** Seven levels, six of them scored, out of eleven
+blocks (the `personality` block holds three questionnaires and two briefings) — so this table is the map of `content/timeline.js` and of the folder
 around it at once:
 
 | | |
@@ -81,9 +81,10 @@ around it at once:
 | Level 1 | `demographics1` (age, month of birth, gender and what branches off it), `fast` (a briefing, then `fipi`, then `singles`) → Personality |
 | Level 2 | `demographics2` (education, discipline, student, ethnicity, country), `mint` (a briefing, then the items) → Interoception |
 | Level 3 | `demographics3` (household financial comfort, MacArthur subjective social status), then `mood` and `health` in a random order. `mood` is a briefing, then `phq4` and `Dissociation` (CDS-2, PCL-2, SQS — the first two pooled into one Strain dimension, Sleep asked and scored but shown nowhere) and `health` is a briefing, then `sss8` (Pain, Gastrointestinal, Cardiopulmonary, Fatigue), then the list of psychiatric diagnoses and treatments (`psychiatric`, asked and saved but scored and fed back nowhere; its somatic sibling sits commented out in the same file) — all three of `phq4`, `Dissociation` and `sss8` read back together as one "Mood & Health" section: Mood, Strain, Health |
-| Level 4 | `bait` — a briefing, the AI knowledge and usage singles, then the shuffled BAIT statements (the union of the 2.1B and 2.2 administrations, under the harmonised item names of the pooled validation, plus its attention check). Scored as the BAIT-8 — AI Realism, AI Enthusiasm, AI Apprehension — and read back as one of three archetypes (see below) |
-| Level 5 | `archetypes` — a briefing, then twelve two-item scales after Pearson's twelve-archetype framework (Idealist, Sage, Seeker, Revolutionary, Magician, Warrior, Realist, Jester, Lover, Creator, Ruler, Caregiver). The only scored questionnaire in the app **written without norms on purpose**, and the only one fed back anyway: read back as a wheel (see below) |
-| Level 6 | `closing` — nothing scored in it, so it opens no results |
+| Level 4 | `personality` — a briefing, then the HEX-ACO-18 (`hexaco18`, 18 items, the HEXACO on its own 5-point scale), read back as a spider chart with a row per domain but **kept off the whole-run profile web** by `profile: false` (its dimension names carry "(HEXACO)", because a dimension is one name across the run and an unmarked Extraversion would pool with the FIPI's). The Mini-IPIP6 (`ipip6`) sits commented out in the same file, dropped for the HEXACO; then a second briefing and the HiTOP-BR (`hitopbr`): 45 statements about the last twelve months on a 4-point scale, scored as six spectra (Somatoform, Internalizing, Thought Disorder, Detachment, Disinhibition, Antagonism) and read back as a spider chart with a row per spectrum, like the FIPI. The one questionnaire whose norms are **not** invented — they are the development-sample means and SDs of Simms et al. (2026) — and, being norms, they put the six on the whole-run profile web too. Item keys are the {hitop} package's own (`HBR_01`…`HBR_45`) so a saved file scores with `score_hitopbr()` as it is |
+| Level 5 | `bait` — a briefing, the AI knowledge and usage singles, then the shuffled BAIT statements (the union of the 2.1B and 2.2 administrations, under the harmonised item names of the pooled validation, plus its attention check). Scored as the BAIT-8 — AI Realism, AI Enthusiasm, AI Apprehension — and read back as one of three archetypes (see below) |
+| Level 6 | `archetypes` — a briefing, then twelve two-item scales after Pearson's twelve-archetype framework (Idealist, Sage, Seeker, Revolutionary, Magician, Warrior, Realist, Jester, Lover, Creator, Ruler, Caregiver). The only scored questionnaire in the app **written without norms on purpose**, and the only one fed back anyway: read back as a wheel (see below) |
+| Level 7 | `closing` — nothing scored in it, so it opens no results |
 | — | `gjs` sits in `content/block_UNUSED.js`, named on no level, so it is never asked; the `somatic` medical-history questionnaire sits commented out in `content/block_health.js` |
 
 The demographics of a level are written `shuffle: false` and come first in it;
@@ -148,11 +149,14 @@ questionnaire, and nothing that shuffles the items of a questionnaire can reach
 it there. `typeOf()` throws if one is found among a questionnaire's `items`,
 since that used to be where they lived and there it would render as a scale with
 nothing on it. The engine forces `shuffle: false`, and the run is shuffled around
-it rather than through it. Six are asked, one at the head of each of the
+it rather than through it. Eight are asked, one at the head of each of the
 `fast` block (warning that the questions get stranger further down), the `mint`
 block (turning from questions about you to questions about your body), the
 `mood` and `health` blocks (each turning from you in general to the last few
-weeks), the `bait` block (turning from you to what you make of AI), and the
+weeks), two in the `personality` block (one at its head, turning from the five
+strokes of level 1 to a fuller drawing of the same traits, and one before the
+HiTOP-BR, widening from the last few weeks to the last year and saying that
+what follows is asked as spectra rather than as categories), the `bait` block (turning from you to what you make of AI), and the
 `archetypes` block (turning from AI back to the self, as a story).
 
 It takes the survey screen over rather than being a screen of its own
@@ -512,11 +516,13 @@ The web does **not** draw every dimension the run scores. It draws `PROFILE`
 (in `results.js`, at the head of the card section): the dimensions a level's
 results name under their own name — a row under the personality chart, an
 organ of the body, a face. Currently that is the Big Five, the three MINT
-dimensions and Strain, nine axes. The rule is derived rather than listed
+dimensions, Strain and the six HiTOP-BR spectra, fifteen axes. The rule is derived rather than listed
 (`onProfile`): a dimension is on the web if it has norms, unless it belongs to
 a questionnaire read back as one figure — the BAIT (the archetype) and the
 twelve archetypes (the wheel) are left off, and of the three Mood & Health
-questionnaires only a dimension that is itself a face (Strain) stays. So a
+questionnaires only a dimension that is itself a face (Strain) stays; and a
+questionnaire written `profile: false` in `content/` (the HEXACO) keeps its
+dimensions off it however many norms they carry. So a
 scale that earns its norms takes an axis in the same breath, and a dimension
 folded into a composite (Anxiety, Depression, the SSS-8 domains) or shown
 nowhere (Sleep, Life Satisfaction) takes none. It used to carry all
@@ -681,15 +687,22 @@ before the study runs.**
   do with any of this.
 - **"Archetype" now means two things, in two different files.** The *AI*
   archetype (`ARCHETYPE_OF`, `renderArchetype`, `ARCHETYPES`) is which of three
-  answer profiles the BAIT came nearest, on level 4. The twelve *archetypes*
+  answer profiles the BAIT came nearest, on level 5. The twelve *archetypes*
   (`WHEEL_OF`, `renderWheel`, `WHEEL`) are the Pearson framework asked on level
-  5, drawn as a wheel. They share nothing but the word — different questionnaire,
+  6, drawn as a wheel. They share nothing but the word — different questionnaire,
   different figure, different feedback key (`"AI Archetype"` against
   `"Archetype"`, and both keys are load-bearing, since the agree/disagree
   collected under them has to keep stacking).
 - **"Block" also means two things.** A *block* is one file of questions in
   `content/`, named in the timeline. A *results* block is a `.result` section,
   above. The first is in `content/` and `app.js`, the second in `results.js`.
+- **A dimension is one name across the whole run.** `dimensions` in `app.js`
+  is keyed by name alone, so two questionnaires writing `dimension:
+  "Extraversion"` are averaged into one score, on whatever mix of scales they
+  came in, and `normOf` reads the first one's norms for both. That is why the
+  HEX-ACO-18 dimensions carry "(HEXACO)" (and the commented-out Mini-IPIP6's
+  "(IPIP)"): the FIPI had the plain names first. A new instrument on ground already covered wants
+  a tag of its own.
 - **A new file needs a `<script>` or `<link>` tag in `index.html`, in the right
   place.** There are no modules and nothing imports anything: each file adds to
   the globals the next one reads. A block file loaded before
@@ -698,7 +711,11 @@ before the study runs.**
   a block with a tag but no name in `TIMELINE` exists and is never asked, which
   is the difference between forgetting one and leaving one out.
 - **All `norms` in `content/` are invented placeholders**, flagged as such in
-  comments. Never present them as real, and keep the flags when editing. The
+  comments, **with one exception**: the HiTOP-BR's in `content/block_personality.js`
+  are the development-sample means and SDs printed in Table 1 of Simms et al.
+  (2026), by way of the {hitop} R package — a development sample, not a norming
+  one, and skewed towards its floor, which the comment beside them says. Never
+  present the rest as real, and keep the flags when editing. The
   `archetypes` block has none at all, and that is deliberate rather than
   unfinished — writing twelve would be twelve more invented numbers, and the
   wheel does not want them. Don't "fix" it by adding some.
@@ -729,9 +746,10 @@ before the study runs.**
 - `drawSpider` needs 3+ dimensions to draw a polygon; with fewer, or with some
   still unanswered, it joins neighbours with lines instead. Past eight of them
   it goes `many`: a bigger viewBox and smaller labels. The whole-run web is the
-  only thing that gets there, and at nine axes it fits; if `PROFILE` ever grows
-  well past that, the labels near the top and bottom of the rim start running
-  into each other and want staggering again.
+  only thing that gets there, and at fifteen axes it still fits — the two-word
+  names wrap onto a second line, which is what keeps the neighbours apart. If
+  `PROFILE` grows much past that, the labels near the top and bottom of the rim
+  start running into each other and want staggering again.
 - The keyboard handler (digits answer, ← goes back) must stay disabled while a
   panel is open — the survey behind it is not being read.
 - **`answer()` is reachable when the survey is not on screen.** The option

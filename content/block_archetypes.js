@@ -56,6 +56,11 @@ defineBlock("archetypes", [
 
         items: [
             // Yearn for paradise ------------------------------------------
+
+            // Idealist (the PMAI's Innocent): trust, optimism, faith, hope,
+            // loyalty, simplicity. Wants to stay safe and believes things will
+            // work out; fears abandonment and doing wrong; its shadow is
+            // denial and naivety.
             {
                 key: "Archetype_Idealist_1",
                 dimension: "Idealist",
@@ -66,6 +71,11 @@ defineBlock("archetypes", [
                 dimension: "Idealist",
                 text: "I prefer to focus on the good in people and situations rather than their flaws.",
             },
+
+            // Sage: wisdom, truth, knowledge, objectivity, scepticism,
+            // analysis, non-attachment. Wants to understand; fears deception
+            // and illusion; its shadow is cold detachment and judging from
+            // the sidelines.
             {
                 key: "Archetype_Sage_1",
                 dimension: "Sage",
@@ -76,6 +86,11 @@ defineBlock("archetypes", [
                 dimension: "Sage",
                 text: "I trust careful analysis and evidence over gut feeling and opinion.",
             },
+
+            // Seeker (the Explorer): autonomy, independence, exploration,
+            // ambition, authenticity, freedom, self-discovery. Wants a better
+            // life and to find out who they are; fears conformity and being
+            // trapped; its shadow is perpetual wandering and never committing.
             {
                 key: "Archetype_Seeker_1",
                 dimension: "Seeker",
@@ -88,6 +103,12 @@ defineBlock("archetypes", [
             },
 
             // Leave a mark -------------------------------------------------
+
+            // Revolutionary (the PMAI's Destroyer): letting go, metamorphosis,
+            // humility, acceptance, breaking rules, clearing away what no
+            // longer serves. Wants growth through release; fears annihilation
+            // and loss; its shadow is self-destruction and wrecking for its
+            // own sake.
             {
                 key: "Archetype_Revolutionary_1",
                 dimension: "Revolutionary",
@@ -98,16 +119,27 @@ defineBlock("archetypes", [
                 dimension: "Revolutionary",
                 text: "I am willing to break rules and traditions that stand in the way of something better.",
             },
+
+            // Magician: transformation, healing, catalyst, vision, personal
+            // power, win-win solutions, synchronicity, aligning inner and
+            // outer change. Wants to turn dreams into reality; fears
+            // unintended negative consequences; its shadow is manipulation
+            // and the sorcerer.
             {
                 key: "Archetype_Magician_1",
                 dimension: "Magician",
-                text: "By changing how I see a situation, I can often change the outcome for everyone involved.",
+                text: "When I change my inner attitude and intentions, the situation around me tends to change too.",
             },
             {
                 key: "Archetype_Magician_2",
                 dimension: "Magician",
-                text: "I am good at helping people see a situation differently.",
+                text: "I have a knack for finding solutions that work for everyone when others see only conflict.",
             },
+
+            // Warrior (the Hero): courage, discipline, determination,
+            // competence, achievement, protecting others, fighting for what
+            // matters. Wants to win and make a difference; fears weakness and
+            // vulnerability; its shadow is ruthlessness and the villain.
             {
                 key: "Archetype_Warrior_1",
                 dimension: "Warrior",
@@ -116,20 +148,31 @@ defineBlock("archetypes", [
             {
                 key: "Archetype_Warrior_2",
                 dimension: "Warrior",
-                text: "When I see an injustice or a problem, I feel a strong duty to step up and fix it.",
+                text: "I have the discipline to push through adversity until I achieve what I set out to do.",
             },
 
             // Connect with others ------------------------------------------
+
+            // Realist (the PMAI's Orphan, the Regular Person): realism,
+            // resilience, empathy, interdependence, pragmatism, being
+            // down-to-earth, belonging. Wants to regain safety and to belong;
+            // fears exploitation and being let down; its shadow is cynicism
+            // and victimhood.
             {
                 key: "Archetype_Realist_1",
                 dimension: "Realist",
-                text: "I would rather be one of the team than the one in charge.",
+                text: "I take life as it comes, hard parts and all, rather than expecting it to be fair.",
             },
             {
                 key: "Archetype_Realist_2",
                 dimension: "Realist",
                 text: "I try to stay unpretentious and down-to-earth.",
             },
+
+            // Jester (the Fool): joy, humour, playfulness, freedom, lightness,
+            // irreverence, living in the moment. Wants to enjoy life and
+            // lighten it for others; fears boredom and deadness; its shadow
+            // is irresponsibility and cruelty in the guise of a joke.
             {
                 key: "Archetype_Jester_1",
                 dimension: "Jester",
@@ -140,6 +183,11 @@ defineBlock("archetypes", [
                 dimension: "Jester",
                 text: "I love bringing playfulness, laughter, and lightness into any situation I am in.",
             },
+
+            // Lover: passion, intimacy, commitment, enthusiasm, appreciation,
+            // sensuality, connection, beauty. Wants bliss and union with what
+            // it loves; fears loss of love and isolation; its shadow is
+            // jealousy, obsession and losing oneself in another.
             {
                 key: "Archetype_Lover_1",
                 dimension: "Lover",
@@ -148,10 +196,15 @@ defineBlock("archetypes", [
             {
                 key: "Archetype_Lover_2",
                 dimension: "Lover",
-                text: "Closeness and intimacy are where I find the most meaning in life.",
+                text: "Closeness, intimacy, and passion are where I find the most meaning in life.",
             },
 
             // Provide structure --------------------------------------------
+
+            // Creator: imagination, vision, self-expression, originality,
+            // invention, craftsmanship, authenticity. Wants to make something
+            // of enduring value; fears mediocrity and inauthenticity; its
+            // shadow is perfectionism and creating for its own sake.
             {
                 key: "Archetype_Creator_1",
                 dimension: "Creator",
@@ -162,6 +215,11 @@ defineBlock("archetypes", [
                 dimension: "Creator",
                 text: "Beauty, originality, and self-expression matter more to me than practicality or convention.",
             },
+
+            // Ruler: leadership, responsibility, order, control, sovereignty,
+            // prosperity, taking charge. Wants a prosperous and orderly
+            // realm; fears chaos and being overthrown; its shadow is tyranny
+            // and rigidity.
             {
                 key: "Archetype_Ruler_1",
                 dimension: "Ruler",
@@ -170,8 +228,13 @@ defineBlock("archetypes", [
             {
                 key: "Archetype_Ruler_2",
                 dimension: "Ruler",
-                text: "I like setting clear rules and making sure they are followed.",
+                text: "I naturally step up to bring order and direction when things are chaotic.",
             },
+
+            // Caregiver: compassion, generosity, nurturing, service,
+            // sacrifice, protection, altruism. Wants to help and protect
+            // others; fears selfishness and ingratitude; its shadow is
+            // martyrdom, enabling and smothering.
             {
                 key: "Archetype_Caregiver_1",
                 dimension: "Caregiver",

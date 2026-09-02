@@ -1155,9 +1155,15 @@ function makeResults(engine) {
     // The rule is worked out rather than written as a list, so a scale that
     // earns its norms, or a face that reads a real dimension, takes its axis
     // here in the same breath and nothing has to be kept in step by hand.
+    //
+    // A questionnaire can also take itself off the web with `profile: false`,
+    // written in `content/` beside its name: the HEXACO does, because the Big
+    // Five already stand for personality here and six more axes would crowd
+    // everything else.
     function onProfile(dimension) {
         const name = dimensions[dimension][0].questionnaire
         if (name === ARCHETYPE_OF || name === WHEEL_OF) return false
+        if (QUESTIONNAIRES[name].profile === false) return false
         if (MOOD_HEALTH_OF.indexOf(name) !== -1) return MOOD_HEALTH.some((build) => build().key === dimension)
         return !!normOf(dimension)
     }

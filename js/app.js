@@ -10,7 +10,7 @@
 ;(function () {
     "use strict"
 
-    const CHARTS = ["fipi"] // questionnaires that get a spider chart of their own
+    const CHARTS = ["fipi", "hexaco18", "hitopbr"] // questionnaires that get a spider chart of their own
     const ADVANCE_DELAY = 330 // ms between answering and the next item
     const TURN = 180 // ms of that spent fading the answered item out
 

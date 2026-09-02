@@ -34,6 +34,8 @@
          {
              key: "example",             // what a score is traced back by
              name: "Interoception",      // what the results screen calls it
+             profile: false,             // optional: keep its dimensions off the
+                                         // whole-run profile web and card
              instructions: "shown under every item of this one (HTML)",
              format: { … },              // the scale, below
              norms: {                    // no norms, no results: a dimension
@@ -144,6 +146,7 @@ const TIMELINE = [
     { blocks: ["demographics1", "fast"] },
     { blocks: ["demographics2", "mint"] },
     { blocks: ["demographics3", shuffle(["mood", "health"])].flat() },
+    { blocks: ["personality"] },
     { blocks: ["bait"] },
     { blocks: ["archetypes"] },
     { blocks: ["closing"] },
