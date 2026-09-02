@@ -10,7 +10,7 @@
 ;(function () {
     "use strict"
 
-    const CHARTS = ["fipi", "phq4"] // questionnaires that get a spider chart of their own
+    const CHARTS = ["fipi"] // questionnaires that get a spider chart of their own
     const ADVANCE_DELAY = 330 // ms between answering and the next item
     const TURN = 180 // ms of that spent fading the answered item out
 
@@ -104,7 +104,7 @@
     // Every item of every questionnaire, in the order written, each carrying
     // everything needed to show it — and the level and block it came from,
     // which are the timeline's answer rather than the content's.
-    const written = []
+    const authored = []
 
     TIMELINE.forEach((entry, at) => {
         const level = at + 1
@@ -113,17 +113,17 @@
             const block = BLOCKS[name]
             if (!block) throw new Error("timeline.js asks for a block that is not defined: " + name)
 
-            for (const part of block) {
+            for (const entry of block) {
                 // A briefing is a pause rather than a question: words, and a
                 // way on. It belongs to the block rather than to any one
                 // questionnaire in it, since it introduces the whole stretch
                 // that follows — which may be several — and nothing that
                 // shuffles items can reach it there. Its `options` are empty,
                 // so everything that reads a scale off an item finds nothing.
-                if (part.type === "briefing") {
-                    written.push({
-                        key: part.key,
-                        text: part.text,
+                if (entry.type === "briefing") {
+                    authored.push({
+                        key: entry.key,
+                        text: entry.text,
                         type: "briefing",
                         options: [],
                         shuffle: false,
@@ -133,13 +133,13 @@
                     continue
                 }
 
-                const questionnaire = part
+                const questionnaire = entry
                 RUN.push(questionnaire.key)
 
                 for (const item of questionnaire.items) {
                     const type = typeOf(item, questionnaire)
                     const place = { questionnaire: questionnaire.key, block: name, level: level }
-                    const format = setting(item, questionnaire, "format")
+                    const format = setting(item, questionnaire, "format") || {}
                     // A scale may write its own numbers over the values behind
                     // them (`labels`), which is how the same points can be
                     // shown two ways.
@@ -149,9 +149,17 @@
                             typeof one === "object" ? one : { value: one },
                         ),
                     )
-                    const values = options.map((o) => o.value)
 
-                    written.push(
+                    // An option marked `custom: true` — "Something else",
+                    // "Other" — is an answer outside the scale: a category of
+                    // its own, not a point on it. Its value is then only a
+                    // label for `showIf` to match, so it takes no part in the
+                    // scale's bounds, and `counted()` below never averages it
+                    // into a dimension.
+                    const scale = options.filter((one) => !one.custom)
+                    const values = scale.map((o) => o.value)
+
+                    authored.push(
                         Object.assign(
                             {
                                 key: item.key,
@@ -163,10 +171,12 @@
                                 input: format.input,
                                 placeholder: format.placeholder,
                                 // A typed answer has no options, so its bounds are the scale.
-                                lowest: options.length ? Math.min.apply(null, values) : format.min,
-                                highest: options.length ? Math.max.apply(null, values) : format.max,
+                                lowest: scale.length ? Math.min.apply(null, values) : format.min,
+                                highest: scale.length ? Math.max.apply(null, values) : format.max,
+                                custom: options.filter((one) => one.custom).map((one) => one.value),
                                 anchors: format.anchors,
                                 columns: format.columns,
+                                vertical: format.vertical,
                                 tooLow: format.tooLow,
                                 tooHigh: format.tooHigh,
                                 color: format.color,
@@ -209,17 +219,18 @@
     let group = []
     let holding = null
 
-    // The run so far, in place. `written` is built in order, so a questionnaire
+    // The run so far, in place. `authored` is built in order, so a questionnaire
     // is always a single stretch of it and a change of name is its end.
     function settle() {
         const moving = shuffle(group.filter((question) => question.shuffle !== false))
         let next = 0
 
-        group.map((question) => (question.shuffle === false ? question : moving[next++])).forEach((question) => questions.push(question))
+        const settled = group.map((question) => (question.shuffle === false ? question : moving[next++]))
+        for (const question of settled) questions.push(question)
         group = []
     }
 
-    for (const question of written) {
+    for (const question of authored) {
         if (question.questionnaire !== holding) {
             settle()
             holding = question.questionnaire
@@ -249,25 +260,35 @@
 
     // An answer given by nobody: a point off the item's own scale, a number
     // inside the bounds of the field, or a word in place of the written one.
+    // A custom option is passed over where a real one exists, so a thinned
+    // scored item never holds its dimension shut with an answer off the scale.
     function anyAnswer(question) {
         if (question.input === "text") return "test"
+        const pool = question.options.filter((one) => !one.custom)
+        const options = pool.length ? pool : question.options
+        // Several answers may be true at once, and one of them stands in for
+        // the rest.
+        if (question.type === "multi") return [options[Math.floor(Math.random() * options.length)].value]
         // Anything with a range and no options to pick from — a typed number,
         // a place on a curve — is answered somewhere inside that range.
-        if (!question.options.length) {
+        if (!options.length) {
             return question.lowest + Math.floor(Math.random() * (question.highest - question.lowest + 1))
         }
-        return question.options[Math.floor(Math.random() * question.options.length)].value
+        return options[Math.floor(Math.random() * options.length)].value
     }
 
     // An item marked `auto` is answered here, once, and never shown: `shown()`
     // passes over it, so the run is walked, counted and finished as though it
     // were not in it, while the scoring behind the results has its answer. All
-    // items of a questionnaire except the one kept for display are thinned,
-    // including conditional items. A briefing is never stood in for: it belongs
-    // to the block rather than to any questionnaire and has no answer to give.
+    // items of a questionnaire except the one kept for display are thinned —
+    // except those waiting on another answer (`showIf`), which are left out of
+    // it so a branch still opens on the answer that opens it, given by a
+    // person or by the thinning alike. A briefing is never stood in for: it
+    // belongs to the block rather than to any questionnaire and has no answer
+    // to give.
     function thinRun() {
         for (const name of RUN) {
-            const mine = questions.filter((question) => question.questionnaire === name)
+            const mine = questions.filter((question) => question.questionnaire === name && !question.showIf)
             for (const question of shuffle(mine).slice(TEST_KEPT)) {
                 question.auto = true
                 responses[question.key] = anyAnswer(question)
@@ -291,9 +312,14 @@
     function shown(question) {
         if (question.auto) return false // a test run answered it; it is never put on screen
         if (!question.showIf) return true
+        // An answer may be several things at once — a `multi` item hands back
+        // a list — so both sides are read as lists and the branch opens on any
+        // one of the wanted answers being among the ones given. A single
+        // answer is a list of one, so nothing else changes shape.
         const given = responses[question.showIf.key]
+        const chosen = Array.isArray(given) ? given : [given]
         const wanted = question.showIf.is
-        return Array.isArray(wanted) ? wanted.indexOf(given) !== -1 : given === wanted
+        return Array.isArray(wanted) ? wanted.some((one) => chosen.indexOf(one) !== -1) : chosen.indexOf(wanted) !== -1
     }
 
     function nextShown(from) {
@@ -331,6 +357,9 @@
     // numbered circle — and a typed answer are saved as what was given.
     function said(question, value) {
         if (value === undefined) return null
+        // Several answers at once are read back one at a time, so the file
+        // holds the words that were on screen rather than a list of codes.
+        if (Array.isArray(value)) return value.map((one) => said(question, one))
         const option = question.options.find((one) => one.value === value)
         if (!option) return value
         return option.text !== null ? option.text : option.label || value
@@ -430,7 +459,7 @@
     const dimensions = {}
     const dimensionOrder = []
 
-    for (const question of written) {
+    for (const question of authored) {
         if (!question.dimension) continue // attention checks and the like
         if (!dimensions[question.dimension]) {
             dimensions[question.dimension] = []
@@ -445,6 +474,10 @@
     function counted(question) {
         const answer = responses[question.key]
         if (answer === undefined) return undefined
+        // An answer outside the scale has no worth on it: a custom option
+        // holds the dimension unfinished rather than feeding its label — an
+        // arbitrary number — into the average.
+        if (question.custom.indexOf(answer) !== -1) return undefined
         return question.reverse ? question.lowest + question.highest - answer : answer
     }
 
@@ -490,8 +523,15 @@
     }
 
     function markSelection(value) {
-        for (const button of document.querySelectorAll(".option")) {
-            const selected = value !== undefined && Number(button.dataset.value) === value
+        // A `multi` item is answered with several values at once, everything
+        // else with one — read here as a list of one, so a single loop lights
+        // both. A button with no value of its own (Continue) is in neither.
+        const chosen = value === undefined ? [] : Array.isArray(value) ? value : [value]
+
+        // Only the buttons that carry a value: Continue is an `.option` too,
+        // but it is not an answer and takes no checked state.
+        for (const button of document.querySelectorAll(".option[data-value]")) {
+            const selected = chosen.indexOf(Number(button.dataset.value)) !== -1
             button.classList.toggle("option--selected", selected)
             button.setAttribute("aria-checked", selected ? "true" : "false")
         }
@@ -574,6 +614,22 @@
         field.focus()
     }
 
+    // One option as a button, the same whether it will be picked once or
+    // ticked among several: what differs between a choice and a multi is the
+    // part the button plays and what a press of it does, which is all the two
+    // renderers keep to themselves.
+    function optionButton(option, role, press) {
+        const button = document.createElement("button")
+        button.type = "button"
+        button.className = "option" + (option.small ? " option--small" : "")
+        button.dataset.value = String(option.value)
+        button.textContent = option.text === null ? option.label || String(option.value) : option.text
+        button.setAttribute("role", role)
+        button.setAttribute("aria-checked", "false")
+        button.addEventListener("click", press)
+        return button
+    }
+
     // A question answered by choosing: one button per option, on the scale the
     // format gives them. A Likert scale and a list of countries come through
     // here alike — what differs is the writing on the buttons.
@@ -585,6 +641,13 @@
         // points and eleven then read the same. Labelled options take the
         // width they are given, which is the whole of it.
         $("scale").classList.toggle("scale--circles", !labelled)
+        // Stacked into a ladder rather than set in a row: a numbered scale
+        // asking where somebody stands, or a labelled scale stacked strongest
+        // on top instead of first-written on top, read bottom to top rather
+        // than top to bottom. Written on the format rather than a type of its
+        // own — it is still an ordinary choice, only the room it stands in
+        // differs.
+        $("scale").classList.toggle("scale--vertical", !!question.vertical)
 
         wrap.classList.toggle("options--labelled", labelled)
         wrap.classList.toggle("options--wide", !labelled && question.options.length > 7)
@@ -593,14 +656,7 @@
         wrap.style.setProperty("--columns", labelled ? question.columns || 1 : question.options.length)
 
         question.options.forEach((option, position) => {
-            const button = document.createElement("button")
-            button.type = "button"
-            button.className = "option" + (option.small ? " option--small" : "")
-            button.dataset.value = String(option.value)
-            button.textContent = option.text === null ? option.label || String(option.value) : option.text
-            button.setAttribute("role", "radio")
-            button.setAttribute("aria-checked", "false")
-            button.addEventListener("click", () => answer(option.value))
+            const button = optionButton(option, "radio", () => answer(option.value))
 
             // Each option lights up at its own point along the gradient.
             if (question.hovercolors) {
@@ -611,6 +667,61 @@
 
             wrap.appendChild(button)
         })
+    }
+
+    // A question several answers may be true of at once: the same labelled
+    // buttons a choice is answered on, but latched rather than taken on the
+    // first press, with a Continue underneath saying the list is finished.
+    // What is recorded is a list in the order the options are *written*, not
+    // the order they were pressed, so two people who picked the same things
+    // save the same answer.
+    function renderMulti(question, wrap) {
+        wrap.classList.add("options--labelled", "options--multi")
+        wrap.style.setProperty("--columns", question.columns || 1)
+
+        // Held here rather than read back off the buttons: the answer is a set,
+        // and going back to an item already answered puts its set back.
+        const given = responses[question.key]
+        const picked = new Set(Array.isArray(given) ? given : [])
+
+        const go = document.createElement("button")
+        go.type = "button"
+        go.className = "option option--go"
+        go.textContent = "Continue"
+
+        const listed = () => question.options.map((one) => one.value).filter((value) => picked.has(value))
+
+        // The lighting itself is `markSelection`, the same path a revisited
+        // answer takes; all that is latched here is the Continue button.
+        const refresh = () => {
+            markSelection(listed())
+            // Nothing chosen is not an answer: "none of these" is one of the
+            // things that can be chosen, and saying so is a different act from
+            // saying nothing.
+            go.disabled = picked.size === 0
+        }
+
+        // "None of these" is not one more thing that can be true of somebody:
+        // taking it puts down everything else, and anything else puts it down.
+        const toggle = (option) => {
+            if (picked.has(option.value)) {
+                picked.delete(option.value)
+            } else {
+                if (option.exclusive) picked.clear()
+                else for (const other of question.options) if (other.exclusive) picked.delete(other.value)
+                picked.add(option.value)
+            }
+            refresh()
+        }
+
+        question.options.forEach((option) => {
+            wrap.appendChild(optionButton(option, "checkbox", () => toggle(option)))
+        })
+
+        go.addEventListener("click", () => answer(listed()))
+        wrap.appendChild(go)
+
+        refresh()
     }
 
     /* ------------------------------- the curve ---------------------------- */
@@ -798,14 +909,16 @@
     // A renderer per type of question, and beside it the thing each type is
     // answered by — which is where the spray comes out of. Only a choice
     // carries its value in a selector: a written answer is somebody's own
-    // words, and a place on a curve is a place rather than a button. A new way
-    // of answering is a `type` written in content/ and a line in each of these,
-    // and nothing else moves.
-    const SCALES = { choice: renderChoice, input: renderEntry, curve: renderCurve }
+    // words, a place on a curve is a place rather than a button, and a list of
+    // several answers is finished by pressing Continue rather than by any one
+    // of them. A new way of answering is a `type` written in content/ and a
+    // line in each of these, and nothing else moves.
+    const SCALES = { choice: renderChoice, input: renderEntry, multi: renderMulti, curve: renderCurve }
 
     const SPRAYS = {
         choice: (value) => document.querySelector('.option[data-value="' + value + '"]'),
         input: () => $("options").querySelector(".option--go"),
+        multi: () => $("options").querySelector(".option--go"),
         curve: () => $("options").querySelector(".curve__mark"),
     }
 
@@ -817,6 +930,14 @@
         // Whatever the last item was answered on, this one is not shown on it:
         // each renderer puts back only the classes it needs.
         $("scale").className = "scale"
+
+        // What the group is to a screen reader follows the kind of answer:
+        // radios pick one, checkboxes tick several, and a typed field or a
+        // curve is no group at all — its own control carries the item.
+        if (question.type === "choice") wrap.setAttribute("role", "radiogroup")
+        else if (question.type === "multi") wrap.setAttribute("role", "group")
+        else wrap.removeAttribute("role")
+
         SCALES[question.type](question, wrap)
 
         // Only a scale has sides to name; a field typed into has none.
@@ -896,7 +1017,10 @@
         return {
             answered: answered,
             size: asked.length,
-            share: Math.round((answered / asked.length) * 100),
+            // A level can be asked nothing — every kept item behind a closed
+            // branch, in a thinned test run — and owing no answers is complete,
+            // not a division by zero.
+            share: asked.length ? Math.round((answered / asked.length) * 100) : 100,
             unlocked: answered === asked.length,
         }
     }
@@ -941,11 +1065,41 @@
         document.documentElement.style.setProperty("--descent", share.toFixed(4))
     }
 
-    function renderDepth() {
-        const so_far = depth()
-        $("depth").textContent = metres()
-        $("depth").title = so_far.answered + " of " + so_far.size + " questions answered"
-        setDescent(so_far.share)
+    // Handed the walk `renderSidebar` has already made rather than making its
+    // own: `depth()` walks every question, and once an answer is enough.
+    function renderDepth(soFar) {
+        $("depth").textContent = soFar.metres.toLocaleString("en-GB") + " m"
+        $("depth").title = soFar.answered + " of " + soFar.size + " questions answered"
+        setDescent(soFar.share)
+    }
+
+    // Built once: the buttons *are* the levels, which never change. Everything
+    // that moves — each level's share, whether it is open, the fill they sit
+    // on — is written onto them by renderSidebar, so re-rendering never throws
+    // away the button somebody's keyboard focus is on.
+    function buildSidebar() {
+        const wrap = $("levels")
+
+        scoredLevels.forEach((level, at) => {
+            const button = document.createElement("button")
+
+            button.type = "button"
+            // The panel opens out of this button, so it has to be findable
+            // again by the level it holds.
+            button.dataset.level = level
+            button.className = "sidebar__level"
+            button.style.top = ((at + 1) / scoredLevels.length) * 100 + "%"
+            button.innerHTML =
+                '<span class="sidebar__level-word">Level</span><span class="sidebar__level-number">' +
+                level +
+                '</span><span class="sidebar__level-label"></span>'
+
+            // The button that opened it closes it again: a level is a thing on
+            // the line that is either open or shut, not a link that only leads
+            // one way.
+            button.addEventListener("click", () => (panel === "results" && openLevel === level ? closePanel() : openResults(level)))
+            wrap.appendChild(button)
+        })
     }
 
     // The whole run on one line down the edge of the bar, filling as it is
@@ -954,44 +1108,24 @@
     // every one of them opens, one still locked showing a blurred taste of what
     // finishing gives.
     function renderSidebar() {
-        renderDepth()
+        const soFar = depth()
+        renderDepth(soFar)
 
-        const wrap = $("levels")
-        const share = depth().share * 100
-
+        const share = soFar.share * 100
         $("descent-fill").style.height = share + "%"
         $("depth").style.top = share + "%"
-        wrap.innerHTML = ""
 
-        scoredLevels.forEach((level, at) => {
+        for (const button of $("levels").children) {
+            const level = Number(button.dataset.level)
             const progress = levelProgress(level)
             const showing = panel === "results" && openLevel === level
-            const button = document.createElement("button")
 
-            button.type = "button"
-            // The panel opens out of this button, so it has to be findable
-            // again by the level it holds.
-            button.dataset.level = level
-            button.className =
-                "sidebar__level" + (progress.unlocked ? " sidebar__level--unlocked" : "") + (showing ? " sidebar__level--open" : "")
-            button.style.top = ((at + 1) / scoredLevels.length) * 100 + "%"
+            button.classList.toggle("sidebar__level--unlocked", progress.unlocked)
+            button.classList.toggle("sidebar__level--open", showing)
             button.title = progress.unlocked ? "See the results of level " + level : "See a taste of level " + level + ", still locked"
-            button.innerHTML =
-                '<span class="sidebar__level-word">Level</span><span class="sidebar__level-number">' +
-                level +
-                '</span><span class="sidebar__level-label">Level ' +
-                level +
-                " · " +
-                progress.share +
-                "%</span>"
-
+            button.querySelector(".sidebar__level-label").textContent = "Level " + level + " · " + progress.share + "%"
             button.setAttribute("aria-expanded", showing ? "true" : "false")
-            // The button that opened it closes it again: a level is a thing on
-            // the line that is either open or shut, not a link that only leads
-            // one way.
-            button.addEventListener("click", () => (showing ? closePanel() : openResults(level)))
-            wrap.appendChild(button)
-        })
+        }
     }
 
     // A level's results belong to the button that opens them: they grow out of
@@ -1033,12 +1167,14 @@
         }, SUCK)
     }
 
+    // `sealed`, not `locked`: that name already means "ignore input while
+    // advancing" everywhere else in this file, and this is a different lock.
     function openResults(level) {
-        const locked = !levelProgress(level).unlocked
+        const sealed = !levelProgress(level).unlocked
         openLevel = level
         fromLevel(level)
-        $("results-title").textContent = "Level " + level + (locked ? " — locked" : "")
-        results.renderResults($("results-body"), level, locked)
+        $("results-title").textContent = "Level " + level + (sealed ? " — locked" : "")
+        results.renderResults($("results-body"), level, sealed)
         openPanel("results")
     }
 
@@ -1277,9 +1413,15 @@
 
         // Nothing left to answer: the run breaks up over the last item, and
         // then the whole web is the last screen — rather than an announcement
-        // with the way to it.
+        // with the way to it. The answers leave for the repository at the
+        // same moment, and the last screen says whether they got there.
         if (next === -1) {
             locked = true // there is nothing after this, and nothing to answer
+            saved("sending")
+            save().then(
+                () => saved("done"),
+                () => saved("failed"),
+            )
             finale(() => {
                 results.renderProfile($("profile-done"))
                 showScreen("done")
@@ -1371,6 +1513,78 @@
         URL.revokeObjectURL(url)
     }
 
+    /* -------------------------------- saving ------------------------------ */
+
+    // Where a finished run goes. DataPipe (pipe.jspsych.org) takes a file over
+    // a plain POST and puts it in the repository its experiment ID is bound to
+    // — here a Zenodo deposit, under the beta of the service that writes there
+    // rather than to OSF. The file sent is `container()` exactly as "Download
+    // responses" would save it, so the two can never disagree.
+    // It goes once, when the last item is answered: nothing after that changes
+    // an answer. The one thing it can miss is an agree/disagree given on a
+    // level reopened after the end, which is accepted rather than sent twice —
+    // a filename is taken once at the far end, and a second copy would be
+    // refused.
+    //
+    // PARKED (September 2026): saving at every level too, so that a run left
+    // halfway still leaves what it had. DataPipe refuses a filename it has
+    // already taken (OSF_FILE_EXISTS, on the Zenodo adapter as much as on
+    // OSF — tested 2026-09-02), so that would mean one file per checkpoint
+    // and six files a run, against a Zenodo record's default limit of a
+    // hundred. Its maintainer has said a coming release may allow a file to
+    // be overwritten, or updated before it is sent; when it does, a `save()`
+    // call at the top of `completeLevel()` is the whole of the change. Until
+    // then, once, at the end.
+    //
+    // Writing to Zenodo is, as of September 2026, only on DataPipe's *test*
+    // deployment (`datapipe-test.web.app`, the `test` branch of
+    // jspsych/datapipe), which keeps experiments of its own: the production
+    // site (`pipe.jspsych.org`) does not know this experiment ID. When Zenodo
+    // reaches production, the experiment has to be made again there and both
+    // constants changed together.
+    const DATAPIPE = "https://datapipe-test.web.app/api/data/"
+    const DATAPIPE_EXPERIMENT = "Elsjcjycb6ru"
+
+    // The file's name at the far end has to be one nobody has used: a code
+    // brought in on the link (`?sub=`) may come round twice, so the moment the
+    // run began goes on the end of it. A test run says what it is up front,
+    // so that it can be picked out and thrown away.
+    function filename() {
+        const began = timeStart.replace(/[-:]/g, "").slice(0, 15) // 20260902T141530
+        return (testMode ? "test-" : "responses-") + participant + "_" + began + ".json"
+    }
+
+    function save() {
+        return fetch(DATAPIPE, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Accept: "*/*" },
+            body: JSON.stringify({
+                experimentID: DATAPIPE_EXPERIMENT,
+                filename: filename(),
+                data: JSON.stringify(container(), null, 2),
+            }),
+        }).then((reply) => {
+            // DataPipe refuses with a status as well as a message, so the
+            // status is enough to go on.
+            if (!reply.ok) throw new Error("DataPipe answered " + reply.status)
+        })
+    }
+
+    // What the last screen says about it. The download button underneath is
+    // the way out if it went wrong: the answers are still in the page, and the
+    // person can keep them and send them by hand.
+    function saved(state) {
+        const note = $("save-note")
+        note.classList.toggle("save__note--done", state === "done")
+        note.classList.toggle("save__note--failed", state === "failed")
+        note.textContent =
+            state === "done"
+                ? "Your answers have been saved. Thank you for taking part."
+                : state === "failed"
+                  ? "Your answers could not be sent. Please download them below and email the file to D.Makowski@sussex.ac.uk."
+                  : "Saving your answers…"
+    }
+
     /* ------------------------------- results ----------------------------- */
 
     // Everything results.js is allowed to reach. It reads the run and the
@@ -1399,8 +1613,26 @@
         if (e.metaKey || e.ctrlKey || e.altKey) return
 
         // A panel takes the keyboard: the survey behind it is not being read.
+        // It says `aria-modal`, so Tab is held inside it too — off the end of
+        // the panel is back to its start, not out into the page underneath.
         if (panel) {
             if (e.key === "Escape") closePanel()
+            else if (e.key === "Tab") {
+                const sheet = $("panel-" + panel)
+                const stops = sheet.querySelectorAll("button, a[href], input, [tabindex]:not([tabindex='-1'])")
+                if (!stops.length) return
+
+                const first = stops[0]
+                const last = stops[stops.length - 1]
+
+                if (!sheet.contains(document.activeElement) || (e.shiftKey && document.activeElement === first)) {
+                    e.preventDefault()
+                    ;(e.shiftKey ? last : first).focus()
+                } else if (!e.shiftKey && document.activeElement === last) {
+                    e.preventDefault()
+                    first.focus()
+                }
+            }
             return
         }
 
@@ -1418,6 +1650,19 @@
             } else if (e.key === "ArrowLeft") {
                 goBack()
             }
+            return
+        }
+
+        // Several answers may be true at once, so a digit latches one instead
+        // of taking the item, and Enter is what says the list is finished.
+        // Pressing the buttons is how it goes through the same latching the
+        // pointer does, rather than a second copy of it here.
+        if (question.type === "multi") {
+            const buttons = $("options").querySelectorAll(".option[data-value]")
+            const pressed = Number(e.key)
+            if (pressed >= 1 && pressed <= buttons.length) buttons[pressed - 1].click()
+            else if (e.key === "Enter") $("options").querySelector(".option--go").click()
+            else if (e.key === "ArrowLeft") goBack()
             return
         }
 
@@ -1564,6 +1809,7 @@
         $("banner").appendChild(mark)
     }
 
+    buildSidebar()
     renderSidebar()
     results.renderExample($("why-web")) // the shape of a finished profile, behind the case for making one
 

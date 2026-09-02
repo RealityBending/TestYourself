@@ -187,11 +187,6 @@ body[data-screen="intro"] #app {
     }
 }
 
-/* Why it is worth doing, between the quote and the form. */
-.why__heading {
-    margin-top: 10px;
-}
-
 /* The shape of a finished profile, hanging behind the case for making one:
    wider than the words, out of focus, and dim enough to read them through. It
    is a hint at what the far end of this looks like, not a result — the figures
@@ -215,6 +210,7 @@ body[data-screen="intro"] #app {
     height: auto;
 }
 
+/* Why it is worth doing, between the quote and the form. */
 .why__heading {
     margin: 10px 0 20px;
     font-family: var(--serif);
@@ -408,7 +404,7 @@ body.sinking #screen-intro::after {
 }
 
 .consent__hint--read {
-    color: #7fcb9b;
+    color: var(--done);
 }
 
 /* TEMPORARY, and it should look it: the way into a test run is a line of small
@@ -431,7 +427,7 @@ body.sinking #screen-intro::after {
 
 .testmode:hover {
     border-color: rgba(217, 164, 65, 0.9);
-    color: #d9a441;
+    color: var(--gold);
 }
 
 /* Once the form has been read, the way in should be hard to miss. */
@@ -496,13 +492,6 @@ body.sinking #screen-intro::after {
         opacity: 0;
         transform: translateY(-22px);
         filter: blur(6px);
-    }
-}
-
-/* What is left of the words leaving when the lift and the blur are not wanted. */
-@keyframes vanish {
-    to {
-        opacity: 0;
     }
 }
 
@@ -577,7 +566,6 @@ body.sinking #screen-intro::after {
 /* The half that turns it round, brighter than the half that sets it up, and
    set apart from it — the turn wants a breath before it, not a line-height. */
 .gaze__line:last-child {
-    display: block;
     margin-top: 0.5em;
     color: #ffffff;
     text-shadow: 0 0 60px rgba(124, 92, 255, 0.7), 0 0 26px rgba(34, 211, 238, 0.35);

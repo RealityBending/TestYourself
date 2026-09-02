@@ -1,14 +1,8 @@
-// The MINT is asked on one of two scales, drawn when the page loads and saved
-// with the answers as `formatMint`: seven points counted straight through, or
-// the same seven about a middle of nothing. Only what is written on the circles
-// differs — the values behind them are the same either way — so this changes
-// what people are shown and nothing about what is made of it.
+// Note: The MINT has 2 versions, being picked randomly (experimental manipulation.
+// It differs on the scale format.
 const formatMint = Math.random() < 0.5 ? "sequential7" : "symmetric7"
 
 defineBlock("mint", [
-    // The turn from being asked about yourself to being asked about your body
-    // is a sharp one, and some of what follows is blunt enough to want a word
-    // of warning in front of it.
     {
         type: "briefing",
         key: "Briefing_Interoception",
@@ -22,12 +16,8 @@ defineBlock("mint", [
     },
 
     // MINT =================================================================
-    // Multidimensional Interoceptive Traits questionnaire, read on three
-    // dimensions: Awareness (what the body says about itself — excretion,
-    // relaxation, arousal), Visceroception (the organs: breath, heart, gut)
-    // and Clarity, which its items are written the wrong way round for and are
-    // counted backwards into. Results.js draws these three as a body rather
-    // than as a chart.
+    // Multidimensional Interoceptive Traits questionnaire.
+    // Results.js draws these three as a body rather than as a chart.
 
     {
         key: "mint",
@@ -41,8 +31,7 @@ defineBlock("mint", [
             hovercolors: ["#ef4444", "#22c55e"],
         },
 
-        // PLACEHOLDER NORMS — invented numbers, on the 0-6 scale of the items,
-        // and placeholder interpretations to go with them.
+        // PLACEHOLDER norms, invented. Not from any published sample.
         norms: {
             "Bodily Awareness": {
                 mean: 3.9,

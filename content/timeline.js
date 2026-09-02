@@ -65,9 +65,20 @@
          labels: ["--", "-", "+", "++"],  // optional: written over the values
          anchors: ["Disagree", "Agree"],  // optional: the two ends of the scale
          columns: 2,                      // optional: labelled options only
+         vertical: true,                  // optional: stacked instead of set in
+                                           // a row or (labelled) left to right —
+                                           // strongest/highest written last,
+                                           // shown on top
          color: "#e0457b",                // the chosen response
          hovercolors: ["#ef4444", "#22c55e"], // optional: options light up along it
      }
+
+   ...or, for `type: "multi"`, the same options as a list several of which may
+   be true at once. They are ticked rather than picked and Continue ends the
+   item, so the answer is a *list* of values. An option marked
+   `exclusive: true` — "none of these" — puts every other answer down when it
+   is taken, and is put down by any of them. A `showIf` against such an item
+   opens on any one of its `is:` values being among those given.
 
    ...or a field to type into:
 
@@ -88,9 +99,18 @@
    question rather than an answer to it. A question of ten or more options
    wants `columns: 2`. `max` on a text field is how long the answer may run.
 
+   An option marked `custom: true` — "Something else", "Other" — is an answer
+   outside the scale: a category of its own, not a point on it. It is asked,
+   chosen and saved like any other, but the engine keeps it out of the scale's
+   bounds and never counts it into a dimension's score, so its `value` is only
+   a label for `showIf` to match (the convention is 99, or 0 for "Other" at
+   the foot of a ladder of real codes). `small: true` beside it is the look;
+   this is the meaning.
+
    Types: `"choice"` and `"input"` are read off the format and need not be
-   written. `"curve"` is written, on the item or on the questionnaire around
-   it. `"briefing"` is written too, and only ever on a block entry.
+   written. `"multi"` and `"curve"` are written, on the item or on the
+   questionnaire around it. `"briefing"` is written too, and only ever on a
+   block entry.
    ========================================================================== */
 
 // Every questionnaire there is and every block that holds them, filled in by
@@ -105,6 +125,16 @@ function defineBlock(name, entries) {
     BLOCKS[name] = entries
 }
 
+// Fisher–Yates, in place: sorting by a coin flip is a biased shuffle, however
+// short the list. Used on the blocks of a level asked in a random order.
+function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1))
+        ;[arr[i], arr[j]] = [arr[j], arr[i]]
+    }
+    return arr
+}
+
 // The run itself. One entry per level, asked in this order; a level with
 // nothing scored in it opens no results and takes no share of the descent,
 // which is what the closing level is for — the last question is asked after
@@ -113,6 +143,8 @@ function defineBlock(name, entries) {
 const TIMELINE = [
     { blocks: ["demographics1", "fast"] },
     { blocks: ["demographics2", "mint"] },
-    { blocks: ["phq4", "mentalhealth"] },
+    { blocks: ["demographics3", shuffle(["mood", "health"])].flat() },
+    { blocks: ["bait"] },
+    { blocks: ["archetypes"] },
     { blocks: ["closing"] },
 ]

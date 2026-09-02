@@ -47,3 +47,6 @@ po/*~
 
 # RStudio Connect folder
 rsconnect/
+
+# Reference PDFs behind the questionnaire ideas list - not part of the app
+literature/

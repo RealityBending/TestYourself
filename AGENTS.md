@@ -27,7 +27,7 @@ A change usually needs one file out of one of them.
 | `content/block_*.js` | Every question, scale, colour and norm, **split by block** — one stretch of the run that moves as a piece — so the file to open is the thing being changed rather than the position it happens to be asked in. **Content changes go here and nowhere else.** Each is one `defineBlock("name", [ … ])` over an ordered list of entries: briefings and questionnaires, each carrying its own `key`. |
 | `content/block_UNUSED.js` | Questionnaires written but not asked, commented out, waiting on whatever they want before they can go in. Nothing in it defines a block, so nothing in it can be reached. |
 | `js/app.js` | The engine, one IIFE, in labelled sections: build the run → branching → scoring → rendering an item → the rail → panels → particles → finishing a level → flow → results → the way in → wiring. |
-| `js/results.js` | `makeResults(engine)`, a factory returning the handful of functions `app.js` calls. Spider charts, the interoception body, PHQ-4 severity, the card, the results sections, the staged opening of a finished level, and the example web the landing page hangs behind its case. Reads scores; never records anything. |
+| `js/results.js` | `makeResults(engine)`, a factory returning the handful of functions `app.js` calls. Spider charts, the interoception body, the mood faces, the AI archetype, the archetype wheel, PHQ-4 severity, the card, the results sections, the staged opening of a finished level, and the example web the landing page hangs behind its case. Reads scores; records nothing but the agree/disagree `feedback` on a prediction. |
 | `css/style.css` | The shell: tokens on `:root`, the water, the banner and the sidebar the descent runs down, screens, panels, buttons, the survey, particles. Also the animations the other two sheets share (`fade`, `rise`). |
 | `css/intro.css` | The landing screen only: hero, the case for doing this and the Jung line under it, consent form, and the Nietzsche quote on the way in. |
 | `css/results.css` | The water that breaks on a finished level, the level screen, results sections, charts, the interoception body, bars, the profile, card. |
@@ -39,8 +39,10 @@ A change usually needs one file out of one of them.
 two pieces of chrome (`showScreen`, `burst`) a result arrives with — and hands
 it to `makeResults()`. That object is the whole of what crosses between them,
 in one direction: `results.js` never reaches back for anything else, and
-nothing in it walks the run or writes to `responses`. Adding to the seam means
-adding to that object literal, so keep it small.
+nothing in it walks the run or writes to `responses`. (It does read
+`QUESTIONNAIRES` — a `content/` global, for norms and section names — which is
+shared ground rather than app.js state, so it crosses no seam to get there.)
+Adding to the seam means adding to that object literal, so keep it small.
 
 ## How it works
 
@@ -70,7 +72,7 @@ the FIPI beside them stays a run of five that nothing is ever dealt into. Two
 meant to stay apart go in two. And a briefing, being an entry of the block
 rather than of any questionnaire, can never be crossed by anything.
 
-**What is asked, and where.** Four levels, three of them scored, out of seven
+**What is asked, and where.** Six levels, five of them scored, out of ten
 blocks — so this table is the map of `content/timeline.js` and of the folder
 around it at once:
 
@@ -78,19 +80,22 @@ around it at once:
 |---|---|
 | Level 1 | `demographics1` (age, month of birth, gender and what branches off it), `fast` (a briefing, then `fipi`, then `singles`) → Personality |
 | Level 2 | `demographics2` (education, discipline, student, ethnicity, country), `mint` (a briefing, then the items) → Interoception |
-| Level 3 | `phq4`, `pathological` (CSD-2, PCL-2) → Mood, Strain |
-| Level 4 | `closing` — nothing scored in it, so it opens no results |
-| — | `gjs` sits in `content/block_UNUSED.js`, named on no level, so it is never asked |
+| Level 3 | `demographics3` (household financial comfort, MacArthur subjective social status), then `mood` and `health` in a random order. `mood` is a briefing, then `phq4` and `Dissociation` (CDS-2, PCL-2, SQS — the first two pooled into one Strain dimension, Sleep asked and scored but shown nowhere) and `health` is a briefing, then `sss8` (Pain, Gastrointestinal, Cardiopulmonary, Fatigue), then the list of psychiatric diagnoses and treatments (`psychiatric`, asked and saved but scored and fed back nowhere; its somatic sibling sits commented out in the same file) — all three of `phq4`, `Dissociation` and `sss8` read back together as one "Mood & Health" section: Mood, Strain, Health |
+| Level 4 | `bait` — a briefing, the AI knowledge and usage singles, then the shuffled BAIT statements (the union of the 2.1B and 2.2 administrations, under the harmonised item names of the pooled validation, plus its attention check). Scored as the BAIT-8 — AI Realism, AI Enthusiasm, AI Apprehension — and read back as one of three archetypes (see below) |
+| Level 5 | `archetypes` — a briefing, then twelve two-item scales after Pearson's twelve-archetype framework (Idealist, Sage, Seeker, Revolutionary, Magician, Warrior, Realist, Jester, Lover, Creator, Ruler, Caregiver). The only scored questionnaire in the app **written without norms on purpose**, and the only one fed back anyway: read back as a wheel (see below) |
+| Level 6 | `closing` — nothing scored in it, so it opens no results |
+| — | `gjs` sits in `content/block_UNUSED.js`, named on no level, so it is never asked; the `somatic` medical-history questionnaire sits commented out in `content/block_health.js` |
 
 The demographics of a level are written `shuffle: false` and come first in it;
 everything else on that level is shuffled in behind them. A follow-up to an
 answer (`…Other`, `GenderIdentity`) is written directly after the item it
 branches from. The one-item scales of the `fast` block — narcissism, health,
-stress, self-esteem and the two self-placements — are written as one `singles`
-questionnaire and not as six, so that they are asked in among one another; none
-of them is a sixth item on the FIPI, which would put them on a chart they do
-not belong on. If one of them ever earns norms it wants a questionnaire of its
-own back, so that its results carry its own name. `gjs` is **commented out** in
+stress, self-esteem, self-efficacy, life satisfaction and the two
+self-placements — are written as one `singles` questionnaire and not as eight,
+so that they are asked in among one another; none of them is a sixth item on
+the FIPI, which would put them on a chart they do not belong on. If one of
+them ever earns norms it wants a questionnaire of its own back, so that its
+results carry its own name. `gjs` is **commented out** in
 `content/block_UNUSED.js` *and* named on no level of the timeline — a block the
 timeline does not name is inert either way — because it asks everybody about a
 job without asking first whether they have one. Waking it takes both.
@@ -119,10 +124,11 @@ comes from the block file it is written in and nowhere else.
 
 **Types.** Every item has a `type`, which is the whole of what decides how it
 is put on screen: `"choice"` for option buttons, `"input"` for a typed field,
-`"curve"` for a place on a bell curve, `"briefing"` for a screen with nothing
+`"multi"` for a list several answers may be true of at once, `"curve"` for a
+place on a bell curve, `"briefing"` for a screen with nothing
 to answer on it. The first two need never be written in `content/` —
 `typeOf()` reads them off the format, since a question that said its own type
-as well would only be a second place for the two to disagree; the other two are
+as well would only be a second place for the two to disagree; the other three are
 written. `SCALES` in `app.js` is a renderer per type, and `SPRAYS` beside it names what
 each type is answered *by* — which is where the spray comes out of when it is.
 Those two tables are the only places a type is dispatched on, so **a new way of
@@ -142,9 +148,12 @@ questionnaire, and nothing that shuffles the items of a questionnaire can reach
 it there. `typeOf()` throws if one is found among a questionnaire's `items`,
 since that used to be where they lived and there it would render as a scale with
 nothing on it. The engine forces `shuffle: false`, and the run is shuffled around
-it rather than through it. Two are asked: one at the head of the `fast` block,
-warning that the questions get stranger further down, and one at the head of the
-`mint` block, turning from questions about you to questions about your body.
+it rather than through it. Six are asked, one at the head of each of the
+`fast` block (warning that the questions get stranger further down), the `mint`
+block (turning from questions about you to questions about your body), the
+`mood` and `health` blocks (each turning from you in general to the last few
+weeks), the `bait` block (turning from you to what you make of AI), and the
+`archetypes` block (turning from AI back to the self, as a story).
 
 It takes the survey screen over rather than being a screen of its own
 (`renderBriefing`, hiding `#text` and `#scale`), so everything guarding on
@@ -190,12 +199,36 @@ somebody's own words, so nothing may put it in a selector — the spray on
 answering comes out of the Continue button rather than out of
 `[data-value="…"]`.
 
+**Several answers at once.** A `"multi"` item (`renderMulti`) is a list to
+tick rather than a scale to pick a point on: the labelled buttons of a choice,
+latched instead of taken on the first press, with a Continue underneath that
+is what actually ends the item. What is recorded is a **list**, written in the
+order the options are authored and not the order they were pressed, so two
+people who chose the same things save the same answer. An option marked
+`exclusive: true` — "none of these" — is not one more thing that can be true
+of somebody: taking it puts every other answer down, and any other answer puts
+it down. Nothing chosen is not an answer, since saying "none of these" is a
+different act from saying nothing, which is why Continue stays disabled until
+something is latched.
+
+A list is one answer and travels as one everywhere: `said()` reads it back
+option by option so the file holds the words, `markSelection()` treats a single
+answer as a list of one so both light the same way, and `shown()` opens a
+branch on **any** of the wanted answers being among the ones given — which is
+how the psychiatric treatment item waits on there being a diagnosis at all. The
+keyboard latches by pressing the buttons themselves rather than keeping a
+second copy of the toggling, and Enter is what says the list is finished.
+
 **Scoring.** Items sharing a `dimension` are averaged by `score()`, which returns
 `undefined` until every one of them is answered — that is what gates the reveal
 of a chart point or a results row. An item marked `reverse: true` is counted
 backwards into its dimension (`counted()`, `lowest + highest - answer`) — what
 was answered is still recorded as given, only the scoring turns over, which is
-how the MINT's deficit items add up to Clarity. `norms` (mean/sd) turn a score
+how the MINT's deficit items add up to Clarity. An option marked `custom: true`
+("Something else", "Other") is an answer outside the scale: the engine keeps it
+out of the scale's bounds and `counted()` treats choosing it as the item being
+unanswered, so an escape answer holds its dimension unfinished rather than
+feeding an arbitrary code into the average. `norms` (mean/sd) turn a score
 into a percentile; the tercile it lands in picks the `interpretations` text.
 **Norms are also what put a dimension on a results screen at all**:
 `dimensionsOf` leaves out any dimension without them, so it takes no row, no
@@ -203,10 +236,18 @@ point on its questionnaire's chart, and — if that is all of that
 questionnaire's dimensions — no section either. It is still asked, still
 scored and still saved; there is simply nothing to place it against, and a bare
 number tells the person who gave it less than silence does. Writing the norms
-is how a scale earns its way into the feedback, which is why `sins`, `srh` and
-`sims` are asked and read back to nobody. The PHQ-4 is the exception:
-`phq4Reading()` reads *sums*, not averages, against the published 0-12 bands
-and the ≥3 subscale cut-off.
+is how a scale earns its way into the feedback, which is why the `singles`
+items are asked and read back to nobody — not in a level's results, and not on
+the whole-run profile web either, which carries only what a level names (see
+**The profile**, below). The PHQ-4 is a different kind of
+exception: Anxiety and Depression carry norms, so `dimensionsOf("phq4")` is
+not empty, but neither ever earns a row — `total()` reads them as a *sum*
+rather than `score()`'s average, folded straight into the Mood face instead
+(see **Faces**, below). The twelve archetypes are the one outright exception,
+and the only one there is meant to be: they carry no norms and are fed back
+anyway, because they are read against *each other* rather than against other
+people (see **The wheel**, below). Everything else follows the rule — a
+dimension with nothing to be placed against says nothing.
 
 **Figures.** Most questionnaires get a spider chart (`CHARTS`). The MINT gets a
 body instead (`drawSoma`): bodily awareness in the head, bodily sensitivity in
@@ -220,8 +261,131 @@ figure, in a `<foreignObject>` holding the same `voteButtons` every other
 prediction gets and writing to the same `feedback`. SVG text
 does not wrap, so `lines()` breaks the interpretation itself, and the holder
 gets `.result__chart--wide` for the room to read it. It draws from `teaseValue`
-when the level is locked, like every other figure, and it is the third and last
-place a questionnaire is named in `results.js`.
+when the level is locked, like every other figure.
+
+**Faces.** The PHQ-4, the Dissociation questionnaire and the SSS-8 read as one
+section rather than three — "Mood & Health" — a row of three faces (Mood,
+Strain, Health) instead of a chart and rows apiece: sad at one end of a scale,
+pleased at the other, on a ring that fills exactly the way a MINT organ's
+does, coloured along the way from red to green, with one general reading of
+what that tends to mean underneath and the same agree/disagree every other
+prediction gets. `MOOD_HEALTH_OF` names the three questionnaires this section
+stands in for; `renderResults` renders it once, in place of whichever of the
+three comes first in `RUN`, and skips the other two where they would
+otherwise fall — the only place in `results.js` a handful of questionnaires
+share a single section rather than each keeping one of its own. Their items,
+scoring and place in the run are entirely untouched; only what `renderResults`
+draws from their name changes. `MOOD_HEALTH` is the three readings themselves,
+each a small builder function rather than a stored value, so every one is
+worked out fresh on every render the way `score()` is.
+
+Most of what a face reads is a real dimension — Strain is — but Mood and
+Health are not: the PHQ-4's Anxiety and Depression have to stay apart, as
+items, for `total()` to read the way they are written, and the SSS-8's four
+domains are real dimensions in their own right (asked, scored and saved, just
+no longer given a row of their own here). Mood and Health are instead worked
+out directly from `total()`/`score()` of the real dimensions behind them and
+read against a norm written in `results.js` itself (`MOOD_NORM`, `HEALTH_NORM`
+— each in the same `{ mean, sd, interpretations }` shape a written-in-`content/`
+norm takes, so the same `tercile`/`sentence`/`voteButtons` plumbing reads
+either kind without knowing the difference) rather than in `content/` —
+invented exactly as every other norm in this app is, and flagged as such
+beside them. Because neither is a dimension, neither takes an axis on the
+whole-run profile web or the shareable card — and nor do Anxiety, Depression
+and the four SSS-8 domains behind them, which are only ever read folded into a
+face. Of this section only Strain, a real dimension read back under its own
+name, is on the web. Sleep is asked, scored and saved the same as ever, but is
+not one of the three faces and carries no norms, so it earns no row here and
+no axis there either.
+
+The row is only ever as wide as the faces that have something to show. Each of
+`moodFace`/`strainFace`/`healthFace` names its dimensions directly rather than
+discovering them through `dimensionsOf`, so — unlike everywhere else in this
+file, which only ever asks `score()`/`total()` about a dimension it already
+knows exists — they have to allow for one being missing outright, not only
+unfinished: a block left out of `content/timeline.js`, say, rather than one
+still in progress. `known()` is that check, and a face whose dimension does not
+exist reads as `undefined`, the same value an unfinished one would carry.
+`renderFaces` already skips a face with nothing to show, so a questionnaire
+that never ran and one not yet finished narrow the row the same way.
+
+Strain itself is two instruments pooled into one dimension rather than two:
+the CDS-2 and the PCL-2 measure different things — detachment from one's
+surroundings, and the return of difficult memories — but nothing downstream
+ever reads them apart, so their four items all carry `dimension: "Strain"`
+in `content/block_mood.js` and are averaged together by the ordinary `score()`
+machinery, the same as any dimension with several items. That only holds
+together because both instruments, and the PHQ-4 beside them, were put on the
+*same* response format (`vertical: true`, strongest on top) — `score()`
+averages raw answers with no notion of which item they came from, so pooling
+items answered on different scales would quietly mix two different units into
+one number.
+
+A face reads its ring, its colour and its mouth off one shared number, `happy`
+— 0 sad, 1 pleased — which is a *reach* along the reading's own scale
+(`lowest`/`highest`), flipped for the readings where less of it is the happier
+place to be (`worse: "high"`, on Mood, Strain and Health alike). That is a
+different axis from the percentile written beside the face ("higher than 84%
+of people"), which reads the same value against a norm instead: a modest score
+on a scale where most people score near zero can be both a mostly-green ring
+and a high percentile at once, exactly as a soma organ's ring already can. The
+mouth is `faceMouth()`'s one job: a curve bowed *below* its own ends for a
+smile and *above* them for a frown — the opposite of what "curves up" suggests
+in words, which is the one thing about it worth double-checking on sight
+rather than by reasoning about the path string.
+
+**The archetype.** The BAIT closes its level as neither rows nor rings but as
+one figure (`renderArchetype`): a robot, "Based on your answers, you are…", and
+**which of three archetypes** the answers are nearest. The three come from a
+cluster analysis of the pooled BAIT samples rather than from a shape drawn on
+the facets: the partitions are not crisp, but they say which *combinations*
+occur — at k = 2 one evaluative axis (realistic, hard to spot and likeable,
+against the reverse of all three), and at k = 3 a group carved out of the
+attitude end (worry 1.21 SD low, enthusiasm high, capability beliefs merely
+average), leaving one that holds AI output realistic, hard to spot *and*
+dangerous. **Believing AI capable and being alarmed by it are not two ends of
+one thing** — which is what the enthusiasm × apprehension quadrants this
+replaced implicitly claimed, and the reason the shape changed.
+
+`aiArchetype` places somebody by nearest-centroid on the z scores of all
+three dimensions — Realism now counts, where the quadrants read only the two
+attitude facets — each read against its own norm, so the same `normOf`
+plumbing that serves the mood faces serves this. `ARCHETYPE_OF` names the
+questionnaire it stands in for, `ARCHETYPE_ON` the dimensions somebody is
+placed on, and `ARCHETYPES` (in `results.js`, beside `MOOD_NORM`) is the three
+themselves — name, share, `at` (the centroid, in SD units per dimension), and
+reading. The centroids are that reported description read into SD units, only
+the worry figure being exact, and the *shares* are invented placeholders
+exactly as the norms are, flagged as such. `feedback["AI Archetype"]` is still
+where the agree/disagree is filed — the key is unchanged so that answers
+collected either way stack. The BAIT's three dimensions earn no rows — the
+archetype is the whole of the section — and take no axes on the whole-run
+profile web or card either: the archetype is how they are read back, and the
+web carries only what a level names. Locked, the figure keeps its
+shape: a stand-in name, a 00% share, all blurred, and no live buttons.
+
+**The wheel.** The twelve archetypes close their own level as neither rows nor
+rings but a wheel (`renderWheel`, `drawWheel`): each takes a petal of the
+circle, filled out from the middle as far along its own scale as the answers
+put it, in its own colour, with whichever came out longest picked out in gold
+and named underneath — the whole shape is the reading, and the longest petal is
+the story loudest in you. `WHEEL_OF` names the questionnaire it stands in for,
+`WHEEL` the twelve themselves (dimension, colour, reading) and `WHEEL_HELD`
+those of them the run actually holds, the way the faces check `known()`. The
+colours are the twelve-hue circle it was ported from and live in `results.js`
+for the same reason the MINT's organ colours do: they are how the figure is
+drawn, not anything that was asked.
+
+**This is the one section drawn without norms**, and the only place
+`dimensionsIn` is used rather than `dimensionsOf` — there is no population mean
+for "Warrior" that would mean anything, so the twelve are placed against one
+another instead of against other people, which is also why they are a wheel and
+not rows: a row wants a percentile, and there is none to give. Two-item scales
+tie often, so `leading()` returns *all* of the archetypes tied for the top
+rather than picking one, and past `WHEEL_MOST` of them the wheel is called an
+even one instead of crowning anybody. The twelve take no axes on the whole-run
+profile web or card: the wheel is how they are read back, and twelve more axes
+on the web only repeated it and crowded out everything else there.
 
 **Locked levels.** Every level button opens, finished or not. An unfinished one
 renders through the same `renderResults(into, level, locked)` path with
@@ -344,16 +508,32 @@ class* inside it. That is why those hooks are classes (`.profile__web`,
 twice. Finishing the run shows that screen directly; there is no announcement
 with a way to the profile on it.
 
-**The card.** `drawCard()` paints a 1200×630 canvas of the whole web — every
-dimension the run has, on the same geometry the profile panel draws, with the
+The web does **not** draw every dimension the run scores. It draws `PROFILE`
+(in `results.js`, at the head of the card section): the dimensions a level's
+results name under their own name — a row under the personality chart, an
+organ of the body, a face. Currently that is the Big Five, the three MINT
+dimensions and Strain, nine axes. The rule is derived rather than listed
+(`onProfile`): a dimension is on the web if it has norms, unless it belongs to
+a questionnaire read back as one figure — the BAIT (the archetype) and the
+twelve archetypes (the wheel) are left off, and of the three Mood & Health
+questionnaires only a dimension that is itself a face (Strain) stays. So a
+scale that earns its norms takes an axis in the same breath, and a dimension
+folded into a composite (Anxiety, Depression, the SSS-8 domains) or shown
+nowhere (Sleep, Life Satisfaction) takes none. It used to carry all
+thirty-odd, which was unreadable and only repeated the wheel; the crowding
+code in `drawSpider` and `drawCard` went with them. The landing page's
+`.why__web` and the card are drawn from the same list.
+
+**The card.** `drawCard()` paints a 1200×630 canvas of the whole web — the
+`PROFILE` dimensions, on the same geometry the profile panel draws, with the
 ones still unanswered left as gaps. It is never previewed in the panel — the
 web above the two buttons is the same drawing — so it is only made when
-"Download your card" or "Copy share link" is pressed. There is no separate
-subset and no archetype: sharing carries everything finished, mood included,
-because pressing the button is a deliberate act. The same values go into
-`?card=1&s=Name~value,…`;
+"Download your card" or "Copy share link" is pressed. It carries exactly what
+the web does and no more — no archetype, no wheel — and sharing carries all
+of that, because pressing the button is a deliberate act. The same values go
+into `?card=1&s=Name~value,…`;
 `readCardLink()` reads them back, keeping only names it finds in
-`dimensionOrder` and numbers inside that dimension's own scale, so a link is
+`PROFILE` and numbers inside that dimension's own scale, so a link is
 never a way to get arbitrary text onto the page. A good link shows
 `screen-card` — somebody else's result, nothing recorded, with the way into the
 test underneath it.
@@ -396,6 +576,32 @@ only the file carries the words. Computed scores are deliberately **not** saved
 — they are derived at analysis time.
 `timeOnset` is re-stamped whenever the item is shown again, including on closing
 a panel that covered it, so the gap to `timeResponse` stays a reaction time.
+
+**Where it goes.** When the last item is answered, `advance()` calls `save()`,
+which POSTs `container()` — the very JSON "Download responses" would save — to
+DataPipe (`DATAPIPE`, `DATAPIPE_EXPERIMENT` in `app.js`), which files it in the
+repository the experiment is bound to (a Zenodo deposit). It is sent once, at
+that moment, and never again: DataPipe takes a filename once, so
+`filename()` puts the run's start time after the participant code (a `?sub=`
+code can come round twice) and prefixes a test run `test-` rather than
+`responses-` so it can be picked out and binned. `saved()` writes the outcome
+into `#save-note` on the last screen — sending, saved, or failed with the
+download button as the way out. An agree/disagree given on a level reopened
+*after* the end is the one thing the sent file can miss; that is accepted.
+DataPipe answers 201 with `{"message":"Success"}` on success and 400 with an
+`error` code otherwise (`EXPERIMENT_NOT_FOUND`, `OSF_FILE_EXISTS`, …);
+`save()` goes on `response.ok` alone.
+
+**Parked, September 2026: saving at every level.** A run left halfway saves
+nothing, and the author wants a checkpoint at each level. **DataPipe refuses a
+filename it has already taken** (`OSF_FILE_EXISTS`, on the Zenodo adapter too
+— tested 2026-09-02 against `datapipe-test.web.app`), so checkpoints would
+have to be one file per stage — six a run, against a Zenodo record's default
+limit of a hundred files. DataPipe's maintainer has said a coming release may
+allow overwriting a file, or updating one before it is sent. **Come back to
+this once that release is out** (a few weeks from then): with overwriting, a
+`save()` call at the top of `completeLevel()` is the whole change; without it,
+the stage has to go in the filename and the file quota raised.
 
 **Who is taking it.** Every run carries a `participant` code, twelve characters
 drawn from an alphabet with no I, L, O, 0 or 1 in it — a code is read off a
@@ -442,15 +648,17 @@ before the study runs.**
 - Comments say *why*, in prose, above the thing. British spelling. Don't add
   comments that restate the code.
 - Prefer adding to `content/` over adding branches to the scripts. Questionnaire
-  behaviour is data-driven; `phq4Reading` and `CHARTS` are the only places that
-  name a questionnaire, and new ones should be rare.
+  behaviour is data-driven; `CHARTS`, `SOMA`, `MOOD_HEALTH_OF`,
+  `ARCHETYPE_OF` and `WHEEL_OF` are the only places that name a questionnaire,
+  and new ones should be rare.
 - Anything that reads a score goes in `results.js`, anything that walks the run
   in `app.js`. If a change wants both, it probably wants a new member on the
   `engine` object rather than a second copy of the state.
 - Keep it dependency-free and buildless.
 - One folder each for the questions (`content/`), the code (`js/`) and the look
-  (`css/`). Nothing else belongs at the root but `index.html`, `assets/` and the
-  notes.
+  (`css/`). Nothing else belongs at the root but `index.html`, `assets/`, the
+  notes, and `literature/` — a git-ignored shelf of reference PDFs behind the
+  ideas list in `README.md`, which no part of the app reaches for.
 - **Adding, removing or renaming anything in `content/` means updating the
   Includes list in `README.md` in the same breath.** It is the only summary of
   what the test asks that anybody reads without opening the files, so a stale
@@ -471,6 +679,14 @@ before the study runs.**
   anywhere outside `results.js` and the level screen, it is a leftover — but
   note that `role="presentation"` in `index.html` is an ARIA role and nothing to
   do with any of this.
+- **"Archetype" now means two things, in two different files.** The *AI*
+  archetype (`ARCHETYPE_OF`, `renderArchetype`, `ARCHETYPES`) is which of three
+  answer profiles the BAIT came nearest, on level 4. The twelve *archetypes*
+  (`WHEEL_OF`, `renderWheel`, `WHEEL`) are the Pearson framework asked on level
+  5, drawn as a wheel. They share nothing but the word — different questionnaire,
+  different figure, different feedback key (`"AI Archetype"` against
+  `"Archetype"`, and both keys are load-bearing, since the agree/disagree
+  collected under them has to keep stacking).
 - **"Block" also means two things.** A *block* is one file of questions in
   `content/`, named in the timeline. A *results* block is a `.result` section,
   above. The first is in `content/` and `app.js`, the second in `results.js`.
@@ -482,7 +698,10 @@ before the study runs.**
   a block with a tag but no name in `TIMELINE` exists and is never asked, which
   is the difference between forgetting one and leaving one out.
 - **All `norms` in `content/` are invented placeholders**, flagged as such in
-  comments. Never present them as real, and keep the flags when editing.
+  comments. Never present them as real, and keep the flags when editing. The
+  `archetypes` block has none at all, and that is deliberate rather than
+  unfinished — writing twelve would be twelve more invented numbers, and the
+  wheel does not want them. Don't "fix" it by adding some.
 - **The consent form in `index.html` is still placeholder wording** — the banner
   that said so has been taken off at the author's request, so nothing on screen
   flags it any more. It must be replaced with the approved text before the study
@@ -495,8 +714,11 @@ before the study runs.**
 - Items with no `dimension` (attention checks) are skipped by all scoring.
 - **`gjs` is out of the timeline, not out of `content/`.** It has a block file
   of its own, commented out, and is named on no level. It wants an employment
-  item to hang a `showIf` on before it goes back in — and note that an escape
-  option would feed a number into its score, so it cannot simply be given one.
+  item to hang a `showIf` on before it goes back in. (An escape option marked
+  `custom: true` no longer feeds its number into the score — it holds the
+  dimension unfinished instead — so one is *possible* now, but a dimension that
+  can never complete earns no results row, which is why the `showIf` is still
+  the better design.)
 - **`Country` is four buttons and a branch.** The commonest few are options,
   everywhere else is `CountryOther`, typed — the engine has no dropdown, and no
   list of every country belongs on a screen of option buttons. What is typed
@@ -505,7 +727,11 @@ before the study runs.**
   `Discipline`): stacked full width, they run off the bottom of the window. A
   `small` option keeps a row of its own whatever the columns are.
 - `drawSpider` needs 3+ dimensions to draw a polygon; with fewer, or with some
-  still unanswered, it joins neighbours with lines instead.
+  still unanswered, it joins neighbours with lines instead. Past eight of them
+  it goes `many`: a bigger viewBox and smaller labels. The whole-run web is the
+  only thing that gets there, and at nine axes it fits; if `PROFILE` ever grows
+  well past that, the labels near the top and bottom of the rim start running
+  into each other and want staggering again.
 - The keyboard handler (digits answer, ← goes back) must stay disabled while a
   panel is open — the survey behind it is not being read.
 - **`answer()` is reachable when the survey is not on screen.** The option
@@ -529,10 +755,22 @@ before the study runs.**
   in with them — otherwise a five-point scale strands them at the edges of the
   room. Labelled options and typed fields keep the full width they are given,
   and below 560px the stylesheet stacks the anchors underneath either way.
-- **`draw()` exists twice, in `app.js` and in `results.js`.** Same three
-  lines, same meaning — an SVG element with attributes — but the seam runs one
-  way, so neither file can borrow the other's. Keep them identical or leave
-  them alone.
+- **A scale may stand on end.** `format: { vertical: true }` stacks the
+  options strongest/highest-standing on top instead of last-written-on-the-
+  right (circles: the MacArthur ladder in `content/block_demographics3.js`) or
+  first-written-on-top (a labelled scale stacked in one column: the PHQ-4, the
+  pooled CDS-2/PCL-2/SQS format and the SSS-8, all in the `mood` and `health`
+  blocks). The options are still *written* weakest-first — the keyboard,
+  `said()` and the saved file all read them in that order regardless — only
+  `.scale--vertical`'s CSS turns the row upside down visually
+  (`flex-direction: column-reverse`). `.scale--circles.scale--vertical` keeps
+  the narrow column the ladder metaphor wants; a labelled vertical scale keeps
+  the full width its buttons are otherwise given.
+- **`draw()` exists twice, in `app.js` and in `results.js` — and so does
+  `mix()`.** Same lines, same meaning — an SVG element with attributes, and a
+  colour a share of the way between two others — but the seam runs one way, so
+  neither file can borrow the other's. Keep each pair identical or leave them
+  alone.
 - **`drawSpider`/`drawSoma` add their classes rather than setting them.** The
   same `<svg>` is found again by a class of its own (`.profile__web`), so
   writing `class` outright makes the second render of a profile throw.

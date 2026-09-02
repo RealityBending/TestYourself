@@ -27,7 +27,7 @@
              The levels are the milestones on it — the point each one is finished
              is where its button sits. Both this and the banner are hidden on the
              landing screen, so the title has the page to itself. -->
-        <aside class="sidebar" id="sidebar">
+        <aside class="sidebar">
             <div class="sidebar__descent">
                 <div class="sidebar__line" aria-hidden="true"><span class="sidebar__fill" id="descent-fill"></span></div>
                 <span class="sidebar__depth" id="depth" title="How far down you have got"></span>
@@ -61,7 +61,10 @@
                     </h1>
 
                     <p class="hero__sub">The Science-based Assessment of Deep Personality</p>
-                    <p class="hero__meta">Research-grade measures <i>·</i> immediate results <i>·</i> entirely anonymous</p>
+                    <p class="hero__meta">
+                        Research-grade measures <i aria-hidden="true">·</i> immediate results <i aria-hidden="true">·</i> entirely
+                        anonymous
+                    </p>
 
                     <a class="hero__cue" href="#gate"><span>Scroll to descend</span><i aria-hidden="true"></i></a>
                 </div>
@@ -205,7 +208,10 @@
 
                 <div class="scale" id="scale">
                     <span class="anchor anchor--left" id="anchor-left"></span>
-                    <div class="options" id="options" role="radiogroup" aria-labelledby="text"></div>
+                    <!-- What this is to a screen reader is set per item by
+                         renderScale: a radiogroup for a choice, a group for a
+                         multi, no role for a field or a curve. -->
+                    <div class="options" id="options" aria-labelledby="text"></div>
                     <span class="anchor anchor--right" id="anchor-right"></span>
                 </div>
 
@@ -260,6 +266,9 @@
                     </section>
 
                     <div class="profile__foot">
+                        <!-- Whether the answers got where they were going. Written by
+                             `saved()` in app.js once DataPipe has answered. -->
+                        <p class="save__note" id="save-note" role="status"></p>
                         <button class="btn btn--ghost" id="download">Download responses (.json)</button>
                     </div>
                 </div>
@@ -332,8 +341,8 @@
                      renderProfile is the one that gets the web. -->
                 <div class="panel__body">
                     <p class="lede">
-                        Every dimension you have answered, on one web. A point appears as soon as you have answered everything that
-                        dimension is built from.
+                        The main dimensions the levels read back to you, on one web. A point appears as soon as you have answered
+                        everything that dimension is built from.
                     </p>
 
                     <div class="profile" id="profile-panel">
@@ -377,11 +386,14 @@
              but is never asked. -->
         <script src="content/timeline.js"></script>
         <script src="content/block_demographics1.js"></script>
-        <script src="content/block_fast.js"></script>
         <script src="content/block_demographics2.js"></script>
+        <script src="content/block_demographics3.js"></script>
+        <script src="content/block_fast.js"></script>
         <script src="content/block_mint.js"></script>
-        <script src="content/block_phq4.js"></script>
-        <script src="content/block_mentalhealth.js"></script>
+        <script src="content/block_mood.js"></script>
+        <script src="content/block_health.js"></script>
+        <script src="content/block_bait.js"></script>
+        <script src="content/block_archetypes.js"></script>
         <script src="content/block_closing.js"></script>
         <script src="content/block_UNUSED.js"></script>
         <script src="js/results.js"></script>

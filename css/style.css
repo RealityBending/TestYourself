@@ -4,7 +4,7 @@
 
    The landing screen is in intro.css and everything that shows a result is
    in results.css, both loaded after this one. The animations shared across
-   all three — `fade` and `rise` — are defined here.
+   all three — `fade`, `rise` and `vanish` — are defined here.
    ========================================================================= */
 
 :root {
@@ -13,7 +13,6 @@
        top of the descent is bright enough that a white film would be read
        through. */
     --surface: rgba(4, 10, 20, 0.32);
-    --raised: #0d1120;
     --text: #eef1f8;
     /* Light enough to hold against the sunlit top of the water as well as
        against the dark at the bottom of it. The bright end is what sets it:
@@ -24,6 +23,12 @@
     --accent-2: #22d3ee;
     --gold: #d9a441;
     --gold-pale: #f6e6c4;
+    /* Something done and confirmed — the form read, the link copied. */
+    --done: #7fcb9b;
+    /* The average person, wherever they are drawn in for comparison. */
+    --mean: #767c92;
+    /* The house easing: how the water, the line and the depth move. */
+    --ease: cubic-bezier(0.22, 0.85, 0.3, 1);
     /* The two edges the page is padded clear of. */
     --sidebar: 100px;
     --banner: 46px;
@@ -83,7 +88,7 @@ body::before {
 
 /* The water is sunk through rather than snapped between. */
 body::before {
-    transition: background-position 1s cubic-bezier(0.22, 0.85, 0.3, 1), filter 0.8s ease;
+    transition: background-position 1s var(--ease), filter 0.8s ease;
 }
 
 /* The landing screen is not in the water yet: it keeps the dark it always had,
@@ -97,7 +102,7 @@ body[data-screen="card"]::before {
     background-image: radial-gradient(120% 70% at 50% -10%, rgba(124, 92, 255, 0.2), transparent 60%),
         radial-gradient(90% 55% at 12% 8%, rgba(34, 211, 238, 0.11), transparent 62%),
         radial-gradient(140% 100% at 50% 120%, rgba(3, 4, 8, 0.9), transparent 55%),
-        linear-gradient(180deg, #090d18 0%, #05070d 45%, #020308 100%);
+        linear-gradient(180deg, #090d18 0%, var(--bg) 45%, #020308 100%);
 }
 
 /* A level's results are read rather than swum through: while they are up, the
@@ -146,6 +151,16 @@ body::after {
 
 /* ------------------------- banner and the sidebar ------------------------ */
 
+/* Both pieces of chrome are the same pane of glass: dark, blurred, and edged
+   with the same hairline — the banner's along its bottom, the sidebar's along
+   its left. */
+.banner,
+.sidebar {
+    background: rgba(9, 12, 21, 0.72);
+    backdrop-filter: blur(20px) saturate(1.5);
+    -webkit-backdrop-filter: blur(20px) saturate(1.5);
+}
+
 /* The name of the test, across the top of every screen it is taken on. It is
    drawn *under* the sidebar: the descent starts at the banner's own lower edge,
    and the point it has reached would otherwise be half behind it. */
@@ -158,9 +173,6 @@ body::after {
     height: var(--banner);
     display: grid;
     place-items: center;
-    background: rgba(9, 12, 21, 0.72);
-    backdrop-filter: blur(20px) saturate(1.5);
-    -webkit-backdrop-filter: blur(20px) saturate(1.5);
     border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
@@ -191,7 +203,7 @@ body::after {
     letter-spacing: 0.2em;
     text-indent: 0.2em;
     text-transform: uppercase;
-    color: #d9a441;
+    color: var(--gold);
 }
 
 /* Everything else the test carries with it, stood on end down the right: the
@@ -210,9 +222,6 @@ body::after {
     align-items: center;
     /* No padding at the top: the line starts where the banner ends. */
     padding: 0 0 22px;
-    background: rgba(9, 12, 21, 0.72);
-    backdrop-filter: blur(20px) saturate(1.5);
-    -webkit-backdrop-filter: blur(20px) saturate(1.5);
     border-left: 1px solid rgba(255, 255, 255, 0.06);
 }
 
@@ -264,7 +273,7 @@ body[data-screen="card"] {
     border-radius: 999px;
     background: linear-gradient(180deg, var(--accent-2), var(--accent));
     box-shadow: 0 0 16px 1px rgba(124, 92, 255, 0.65);
-    transition: height 0.6s cubic-bezier(0.22, 0.85, 0.3, 1);
+    transition: height 0.6s var(--ease);
 }
 
 /* The point the descent has reached. */
@@ -293,7 +302,7 @@ body[data-screen="card"] {
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
     color: var(--accent-2);
-    transition: top 0.6s cubic-bezier(0.22, 0.85, 0.3, 1);
+    transition: top 0.6s var(--ease);
 }
 
 .sidebar__levels {
@@ -428,7 +437,7 @@ body[data-screen="card"] {
 
 .screen--active {
     display: block;
-    animation: rise 0.5s cubic-bezier(0.22, 0.85, 0.3, 1) both;
+    animation: rise 0.5s var(--ease) both;
 }
 
 /* The first item, coming up out of the dark as the quote over it clears. It
@@ -480,6 +489,15 @@ body[data-screen="card"] {
     }
 }
 
+/* What is left of a leaving animation when the lift and the blur are not
+   wanted: the reduced-motion stand-in intro.css and results.css both swap
+   their exits for. */
+@keyframes vanish {
+    to {
+        opacity: 0;
+    }
+}
+
 /* ----------------------------- panels ----------------------------------- */
 
 /* The layer the panels live on, under the menu bar so it stays reachable:
@@ -524,7 +542,7 @@ body[data-screen="card"] {
     backdrop-filter: blur(26px) saturate(1.4);
     -webkit-backdrop-filter: blur(26px) saturate(1.4);
     box-shadow: 0 0 90px rgba(0, 0, 0, 0.65);
-    transition: transform 0.34s cubic-bezier(0.22, 0.85, 0.3, 1), opacity 0.3s ease, visibility 0.34s;
+    transition: transform 0.34s var(--ease), opacity 0.3s ease, visibility 0.34s;
 }
 
 .panel--left {
@@ -646,7 +664,7 @@ h1 {
 .btn {
     font: inherit;
     font-weight: 600;
-    color: #05070d;
+    color: var(--bg);
     background: linear-gradient(135deg, var(--accent-2), var(--accent));
     border: 1px solid transparent;
     border-radius: 12px;
@@ -721,7 +739,7 @@ h1 {
     background: linear-gradient(
         152deg,
         color-mix(in srgb, var(--selected, var(--accent)) 88%, #ffffff 12%),
-        color-mix(in srgb, var(--selected, var(--accent)) 72%, #05070d 28%)
+        color-mix(in srgb, var(--selected, var(--accent)) 72%, var(--bg) 28%)
     );
     box-shadow: 0 34px 90px -40px var(--selected, var(--accent)), inset 0 1px 0 rgba(255, 255, 255, 0.22);
     animation: breathe 4.5s ease-in-out infinite;
@@ -821,6 +839,53 @@ h1 {
 
 .scale--circles .anchor--right {
     justify-self: start;
+}
+
+/* A ladder rather than a row: the options stack instead of running side by
+   side, strongest or highest-standing on top. They stay written weakest-first
+   — for the keyboard and the saved file alike, "1" is still the first one —
+   and are only turned upside down visually, by reversing the flex row rather
+   than the array. Circles keep the narrow column the ladder metaphor wants;
+   a labelled scale keeps the full width its buttons are otherwise given. */
+.scale--vertical {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+    justify-items: center;
+}
+
+.scale--vertical.scale--circles {
+    max-width: 200px;
+}
+
+.scale--vertical .anchor--left,
+.scale--vertical .anchor--right {
+    grid-column: 1;
+    max-width: none;
+    text-align: center;
+    /* The circles rules above push the anchors in against the row's edges;
+       stood on end there is no row to sit against, so both come back to the
+       middle, over and under the ladder. */
+    justify-self: center;
+}
+
+.scale--vertical .anchor--right {
+    grid-row: 1;
+}
+
+.scale--vertical .anchor--left {
+    grid-row: 3;
+}
+
+.scale--vertical .options {
+    grid-column: 1;
+    grid-row: 2;
+    display: flex;
+    flex-direction: column-reverse;
+    width: 100%;
+}
+
+.scale--vertical.scale--circles .options .option {
+    width: 46px;
 }
 
 /* The circles have a size of their own and sit in the middle of whatever
@@ -960,6 +1025,18 @@ h1 {
 
 .options--labelled .option--small:hover {
     color: var(--text);
+}
+
+/* Questions several answers may be true of at once. The buttons are the
+   labelled ones above, latched rather than taken on the first press, and the
+   way on sits under them across the full width — nothing here ends the item
+   but Continue, so it has to be the thing the eye finishes on. */
+.options--multi .option--go {
+    grid-column: 1 / -1;
+    justify-self: center;
+    margin-top: 14px;
+    padding: 13px 28px;
+    text-align: center;
 }
 
 /* Questions answered by typing: the field, and the button that takes it. */
@@ -1294,10 +1371,12 @@ h1 {
         transform: none;
     }
 
-    /* The turn between items stays a fade, without the lift under it. */
+    /* The turn between items stays a fade, without the lift under it — for a
+       briefing the same as for a question. */
     .turning #instructions,
     .turning .text,
-    .turning .scale {
+    .turning .scale,
+    .turning .briefing {
         transform: none;
     }
 }

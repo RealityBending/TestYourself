@@ -1,0 +1,152 @@
+defineBlock("bait", [
+    {
+        type: "briefing",
+        key: "Briefing_AI",
+        text:
+            "<h2>Now, the machines.</h2>" +
+            "<p>You have answered for yourself, for your body, and for your last few weeks. The questions that follow " +
+            "are about something outside of you: <b>artificial intelligence</b> — what you believe it can produce, and " +
+            "what you make of it.</p>" +
+            "<p><em>Answer for AI as it exists today, not for what it might become.</em></p>",
+    },
+
+    // BAIT =================================================================
+    // Beliefs about Artificial Images Technology (Makowski et al.), the union
+    // of the two fullest administrations to date: BAIT 2.1B (FictionEro
+    // study 2 — the 12 core items plus the exploratory Expertise,
+    // Discrimination and Bias blocks) and BAIT 2.2 (FakeArt / FakeFace3 — the
+    // 12 core items plus two art items, the attention check, and the
+    // knowledge and usage singles). The two art items exist in both with
+    // slightly different wording; the 2.2 wording is used, being the main
+    // line. Item keys are the *harmonised* names established in the pooled
+    // validation (BAIT/study1/analysis.qmd), so this data stacks onto the
+    // eight earlier samples without renaming — and without inheriting the
+    // BAIT_3/BAIT_4 label swap that runs through the 2.0/2.1 files.
+    //
+    // Scored per that validation's BAIT-8: the realism four as one dimension,
+    // and the attitude items as two 2-item facets rather than one scale (the
+    // facets behave too differently to pool — the negative pair is the more
+    // reliable, the positive pair carries the validity). Everything else is
+    // asked and saved, feeding nothing back. All three dimensions are read
+    // back not as rows but as an archetype — which of the three answer
+    // profiles a cluster analysis of the pooled samples found the answers are
+    // nearest — drawn in results.js.
+
+    {
+        key: "bait",
+        name: "Artificial Intelligence",
+        instructions: "Indicate the extent to which you agree with each statement, for AI <b>as it exists today</b>",
+        format: {
+            options: [0, 1, 2, 3, 4, 5, 6],
+            anchors: ["Disagree", "Agree"],
+            // No hovercolors: agreement is not the good end of these — "AI is
+            // exciting" and "AI is dangerous" sit on the same scale.
+            color: "#06b6d4",
+        },
+
+        // The Enthusiasm mean is real — 3.89, computed in FictionEro and used
+        // as the population reference in every study since. The rest are
+        // PLACEHOLDER norms, invented. Not from any published sample.
+        // No `interpretations` on purpose: these dimensions are read back as
+        // an archetype (ARCHETYPES, in results.js), not as rows — but every
+        // mean *and* sd here is now load-bearing, since that is what the
+        // answers are turned into z scores by before being placed.
+        norms: {
+            "AI Enthusiasm": { mean: 3.89, sd: 1.4 },
+            "AI Apprehension": { mean: 3.2, sd: 1.4 },
+            "AI Realism": { mean: 4.3, sd: 1.0 },
+        },
+
+        items: [
+            // The two singles are asked first, before the shuffled statements:
+            // what somebody says they know and use frames how the rest reads.
+            {
+                key: "BAIT_Knowledge",
+                shuffle: false,
+                text: "How knowledgeable do you consider yourself about Artificial Intelligence (AI) technology?",
+                instructions: "",
+                format: {
+                    options: [0, 1, 2, 3, 4, 5, 6],
+                    anchors: ["Not at all", "Expert"],
+                    color: "#06b6d4",
+                },
+            },
+            {
+                key: "BAIT_Usage",
+                shuffle: false,
+                text: "How frequently do you use Artificial Intelligence (AI) tools or technologies in your daily life?",
+                instructions: "This includes tools like ChatGPT, image or art generators, and AI assistants.",
+                format: {
+                    options: [
+                        { value: 0, text: "Never" },
+                        { value: 1, text: "A few times per month" },
+                        { value: 2, text: "A few times per week" },
+                        { value: 3, text: "Once a day" },
+                        { value: 4, text: "A few times per day" },
+                    ],
+                    vertical: true,
+                    color: "#06b6d4",
+                },
+            },
+
+            // Expectations — what AI can produce. The realism four are the
+            // structurally stable core; the Issues items are kept for the
+            // detectability dimension even though they measure it poorly.
+            { key: "BAIT_ImagesRealistic", dimension: "AI Realism", text: "Current AI algorithms can generate very realistic images" },
+            { key: "BAIT_ImagesIssues", text: "Images of faces or people generated by AI always contain errors and artifacts" },
+            { key: "BAIT_VideosIssues", text: "Videos generated by AI have obvious problems that make them easy to spot as fake" },
+            { key: "BAIT_VideosRealistic", dimension: "AI Realism", text: "Current AI algorithms can generate very realistic videos" },
+            {
+                key: "BAIT_ImitatingReality",
+                dimension: "AI Realism",
+                text: "Computer-Generated Images (CGI) are capable of perfectly imitating reality",
+            },
+            {
+                key: "BAIT_EnvironmentReal",
+                dimension: "AI Realism",
+                text: "Technology allows the creation of environments that seem just as real as reality",
+            },
+            { key: "BAIT_TextRealistic", text: "AI assistants can write texts that are indistinguishable from those written by humans" },
+            { key: "BAIT_TextIssues", text: "Documents and paragraphs written by AI usually read differently compared to Human productions" },
+
+            // Attitudes — the two 2-item facets of the BAIT-8.
+            { key: "BAIT_Dangerous", dimension: "AI Apprehension", text: "AI is dangerous" },
+            { key: "BAIT_Worry", dimension: "AI Apprehension", text: "I am worried about future uses of AI" },
+            { key: "BAIT_Exciting", dimension: "AI Enthusiasm", text: "AI is exciting" },
+            { key: "BAIT_Benefit", dimension: "AI Enthusiasm", text: "Much of society will benefit from a future full of AI" },
+
+            // Expertise (FictionEro study 2 only, carried forward here).
+            { key: "BAIT_ExpertAI", text: "I consider myself an expert in AI technology" },
+            { key: "BAIT_UnderstandingAI", text: "I have a good understanding of how AI works" },
+            { key: "BAIT_UserAI", text: "I use AI technology on a regular basis" },
+
+            // Discrimination — self-rated ability to tell AI from real
+            // (inert against behaviour in the pooled validation, kept for
+            // another look).
+            { key: "BAIT_ImageDistinctionEasy", text: "I can easily distinguish between real and AI-generated images" },
+            { key: "BAIT_ImageDistinctionBad", text: "I am bad at telling if images are real or AI-generated" },
+            { key: "BAIT_TextDifferentiation", text: "I often find it challenging to differentiate between AI-generated and human-written text" },
+            { key: "BAIT_ContentDetection", text: "I can accurately detect subtle differences between AI from human-created content" },
+
+            // Bias — human-superiority beliefs. The two art items carry the
+            // 2.2 wording; the harmonised names keep them stackable with the
+            // FictionEro 2 variants.
+            { key: "BAIT_UniqueHuman", text: "Human creators bring a unique perspective that AI cannot replicate" },
+            { key: "BAIT_ArtAIBest", text: "AI-generated art can sometimes surpass human creativity and artistic value" },
+            { key: "BAIT_ImpersonalAI", text: "AI-generated content often feels impersonal compared to human-generated media" },
+            {
+                key: "BAIT_InterestingAI",
+                text: "AI-generated content tends to be more interesting and engaging than human-generated content",
+            },
+            { key: "BAIT_ArtHumanBest", text: "Human-made art evokes stronger emotional responses than AI-generated art" },
+            {
+                key: "BAIT_PreferenceHuman",
+                text: "I am more likely to appreciate content when I know it is created by humans rather than AI",
+            },
+            { key: "BAIT_TrustHuman", text: "I am more likely to trust content when I know it is created by a human rather than AI" },
+
+            // The 2.2 attention check: all the way to the right is 6.
+            { key: "BAIT_AttentionCheck", check: 6, text: "I can show that I am Human and not an AI by answering all the way to the right" },
+        ],
+    },
+])

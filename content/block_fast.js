@@ -27,6 +27,7 @@ defineBlock("fast", [
             hovercolors: ["#ef4444", "#22c55e"],
         },
 
+        // PLACEHOLDER norms, invented. Not from any published sample.
         norms: {
             Extraversion: {
                 mean: 4.1,

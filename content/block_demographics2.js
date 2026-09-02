@@ -32,7 +32,7 @@ defineBlock("demographics2", [
                         { value: 3, text: "University (bachelor)" },
                         { value: 2, text: "High school / Secondary school (or 6th form college)" },
                         { value: 1, text: "Elementary school" },
-                        { value: 0, text: "Other", small: true },
+                        { value: 0, text: "Other", small: true, custom: true },
                     ],
                     columns: 1,
                     color: "#2f6f9f",
@@ -64,7 +64,7 @@ defineBlock("demographics2", [
                         { value: 10, text: "Biology, Chemistry" },
                         { value: 11, text: "Mathematics, Physics" },
                         { value: 12, text: "Engineering, Computer Science" },
-                        { value: 0, text: "Other", small: true },
+                        { value: 0, text: "Other", small: true, custom: true },
                     ],
                     columns: 2,
                     color: "#2f6f9f",
@@ -97,9 +97,9 @@ defineBlock("demographics2", [
                         { value: 6, text: "East Asian" },
                         { value: 7, text: "Southeast Asian" },
                         { value: 8, text: "Mixed" },
-                        { value: 0, text: "Other", small: true },
+                        { value: 0, text: "Other", small: true, custom: true },
                         // A way out of the question rather than an answer to it.
-                        { value: -1, text: "Prefer not to say", small: true },
+                        { value: -1, text: "Prefer not to say", small: true, custom: true },
                     ],
                     // Ten of them stacked would run off the bottom of the
                     // window; the two set below the rest still span it.
@@ -126,7 +126,7 @@ defineBlock("demographics2", [
                         { value: 2, text: "Ireland" },
                         { value: 3, text: "United States" },
                         { value: 4, text: "Australia" },
-                        { value: 0, text: "Somewhere else", small: true },
+                        { value: 0, text: "Somewhere else", small: true, custom: true },
                     ],
                     columns: 2,
                     color: "#2f6f9f",
