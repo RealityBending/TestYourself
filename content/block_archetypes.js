@@ -7,25 +7,30 @@ defineBlock("archetypes", [
             "<p>Long before anybody measured a personality, people described one another by the part they seemed to be " +
             "playing: the sage, the warrior, the fool, the one who looks after everybody else. These are " +
             "<b>archetypes</b> — the handful of shapes a life keeps being told in.</p>" +
-            "<p>What follows is twelve of them, two lines each. None is better than another, and most people carry " +
+            "<p>What follows is twelve of them, three lines each. None is better than another, and most people carry " +
             "several at once.</p>" +
             "<p><em>Answer for the story you are actually in, not the one you would pick.</em></p>",
     },
 
-    // ARCHETYPES ===========================================================
-    // Twelve two-item scales after the twelve-archetype framework of Carol S.
-    // Pearson's Pearson–Marr Archetype Indicator (PMAI). The statements are
-    // NOT the PMAI's own: they are paraphrased and theoretically inferred,
-    // written to capture the core assumption, gift and pitfall of each
-    // archetype, first for the Neuropsychological Tarot prototype and revised
-    // here (September 2026). The revision kept every statement in the first
-    // person and about oneself rather than about how the world should be,
-    // took out the absolutes ("always", "never", "the most important") and
-    // the comparisons that pitted one archetype against another inside a
-    // single item, split the double-barrelled ones down to one claim each,
-    // and dropped the qualifiers nobody could disagree with ("systems that
-    // are harmful"). The instrument is therefore unvalidated, and nothing
-    // here is a PMAI score.
+    // OSAI-PM ==============================================================
+    // The Open Source Archetype Indicator – Pearson-Marr (OSAI-PM): twelve
+    // three-item scales after the twelve-archetype framework of Carol S.
+    // Pearson and Hugh Marr's Pearson–Marr Archetype Indicator (PMAI). It is
+    // an open paraphrase of that framework, not a copy of the instrument: the
+    // statements are NOT the PMAI's own, and were written from the open,
+    // public descriptions of the twelve archetypes — each one's core
+    // assumption, gift and pitfall — first for the Neuropsychological Tarot
+    // prototype and revised here (September 2026). The revision kept every
+    // statement in the first person and about oneself rather than about how
+    // the world should be, took out the absolutes ("always", "never", "the
+    // most important") and the comparisons that pitted one archetype against
+    // another inside a single item, split the double-barrelled ones down to
+    // one claim each, and dropped the qualifiers nobody could disagree with
+    // ("systems that are harmful"). A third item was then written for each
+    // archetype to the same rules, each covering a facet of the archetype
+    // the first two leave out (September 2026). The OSAI-PM is to be
+    // validated independently of the original instrument, on its own data;
+    // until then it is unvalidated, and nothing here is a PMAI score.
     //
     // The twelve are written in the order they are drawn on the wheel in
     // results.js — three to a quarter, round the colour circle — rather than
@@ -71,6 +76,11 @@ defineBlock("archetypes", [
                 dimension: "Idealist",
                 text: "I prefer to focus on the good in people and situations rather than their flaws.",
             },
+            {
+                key: "Archetype_Idealist_3",
+                dimension: "Idealist",
+                text: "I find it easy to trust that people mean well.",
+            },
 
             // Sage: wisdom, truth, knowledge, objectivity, scepticism,
             // analysis, non-attachment. Wants to understand; fears deception
@@ -86,6 +96,11 @@ defineBlock("archetypes", [
                 dimension: "Sage",
                 text: "I trust careful analysis and evidence over gut feeling and opinion.",
             },
+            {
+                key: "Archetype_Sage_3",
+                dimension: "Sage",
+                text: "I try to look at my own life from a detached, objective distance.",
+            },
 
             // Seeker (the Explorer): autonomy, independence, exploration,
             // ambition, authenticity, freedom, self-discovery. Wants a better
@@ -100,6 +115,11 @@ defineBlock("archetypes", [
                 key: "Archetype_Seeker_2",
                 dimension: "Seeker",
                 text: "Having the freedom to chart my own course is more important to me than security or settling down.",
+            },
+            {
+                key: "Archetype_Seeker_3",
+                dimension: "Seeker",
+                text: "I get restless whenever my life starts to feel settled and predictable.",
             },
 
             // Leave a mark -------------------------------------------------
@@ -119,6 +139,11 @@ defineBlock("archetypes", [
                 dimension: "Revolutionary",
                 text: "I am willing to break rules and traditions that stand in the way of something better.",
             },
+            {
+                key: "Archetype_Revolutionary_3",
+                dimension: "Revolutionary",
+                text: "I can let go of things — plans, roles, relationships — once their time has passed.",
+            },
 
             // Magician: transformation, healing, catalyst, vision, personal
             // power, win-win solutions, synchronicity, aligning inner and
@@ -135,6 +160,11 @@ defineBlock("archetypes", [
                 dimension: "Magician",
                 text: "I have a knack for finding solutions that work for everyone when others see only conflict.",
             },
+            {
+                key: "Archetype_Magician_3",
+                dimension: "Magician",
+                text: "I see myself as a catalyst: things tend to transform when I get involved.",
+            },
 
             // Warrior (the Hero): courage, discipline, determination,
             // competence, achievement, protecting others, fighting for what
@@ -149,6 +179,11 @@ defineBlock("archetypes", [
                 key: "Archetype_Warrior_2",
                 dimension: "Warrior",
                 text: "I have the discipline to push through adversity until I achieve what I set out to do.",
+            },
+            {
+                key: "Archetype_Warrior_3",
+                dimension: "Warrior",
+                text: "I stand up and fight for what I believe in, even when the odds are against me.",
             },
 
             // Connect with others ------------------------------------------
@@ -168,6 +203,11 @@ defineBlock("archetypes", [
                 dimension: "Realist",
                 text: "I try to stay unpretentious and down-to-earth.",
             },
+            {
+                key: "Archetype_Realist_3",
+                dimension: "Realist",
+                text: "I feel a kinship with ordinary people who are just getting by.",
+            },
 
             // Jester (the Fool): joy, humour, playfulness, freedom, lightness,
             // irreverence, living in the moment. Wants to enjoy life and
@@ -183,6 +223,11 @@ defineBlock("archetypes", [
                 dimension: "Jester",
                 text: "I love bringing playfulness, laughter, and lightness into any situation I am in.",
             },
+            {
+                key: "Archetype_Jester_3",
+                dimension: "Jester",
+                text: "I find it hard to take anything too seriously for long.",
+            },
 
             // Lover: passion, intimacy, commitment, enthusiasm, appreciation,
             // sensuality, connection, beauty. Wants bliss and union with what
@@ -197,6 +242,11 @@ defineBlock("archetypes", [
                 key: "Archetype_Lover_2",
                 dimension: "Lover",
                 text: "Closeness, intimacy, and passion are where I find the most meaning in life.",
+            },
+            {
+                key: "Archetype_Lover_3",
+                dimension: "Lover",
+                text: "I savour beauty and pleasure wherever I find them — in people, places or things.",
             },
 
             // Provide structure --------------------------------------------
@@ -215,6 +265,11 @@ defineBlock("archetypes", [
                 dimension: "Creator",
                 text: "Beauty, originality, and self-expression matter more to me than practicality or convention.",
             },
+            {
+                key: "Archetype_Creator_3",
+                dimension: "Creator",
+                text: "I feel a need to make something that will outlast me.",
+            },
 
             // Ruler: leadership, responsibility, order, control, sovereignty,
             // prosperity, taking charge. Wants a prosperous and orderly
@@ -230,6 +285,11 @@ defineBlock("archetypes", [
                 dimension: "Ruler",
                 text: "I naturally step up to bring order and direction when things are chaotic.",
             },
+            {
+                key: "Archetype_Ruler_3",
+                dimension: "Ruler",
+                text: "I like to have clear control over how things are run.",
+            },
 
             // Caregiver: compassion, generosity, nurturing, service,
             // sacrifice, protection, altruism. Wants to help and protect
@@ -244,6 +304,11 @@ defineBlock("archetypes", [
                 key: "Archetype_Caregiver_2",
                 dimension: "Caregiver",
                 text: "I feel responsible for easing other people's suffering.",
+            },
+            {
+                key: "Archetype_Caregiver_3",
+                dimension: "Caregiver",
+                text: "I readily put other people's needs before my own.",
             },
         ],
     },

@@ -190,7 +190,7 @@
     font-size: clamp(30px, 6vw, 46px);
     font-weight: 400;
     letter-spacing: -0.02em;
-    margin: 12px 0 10px;
+    margin: 12px 0 8px;
     color: var(--gold-pale);
     text-shadow: 0 0 60px rgba(217, 164, 65, 0.45);
 }
@@ -199,10 +199,17 @@
     margin-bottom: 26px;
 }
 
-/* The level screen is the title and nothing else — what it opened follows
-   underneath it. */
-.level .level__title:last-child {
-    margin-bottom: 0;
+/* What the level is called, under the title: the level screen is the title
+   and this line, and what it opened follows underneath — unnamed, when it is
+   one section, since this line has named it. */
+.level__name {
+    margin: 0;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    opacity: 0.8;
 }
 
 /* The way on, at the bottom of everything the level opened: it arrives last,
@@ -224,14 +231,82 @@
     pointer-events: none;
 }
 
+/* A taste of the level the way on leads to, above the button: the figures the
+   next level will open, blurred as in a locked panel, at a smaller size than a
+   result that has been earned. It arrives with the button, as part of the way
+   on, and is never sealed or sprayed open — it is nothing that was won. */
+.level__next {
+    justify-self: stretch;
+    text-align: left;
+}
+
+/* "Next", large, and the level it means under it. */
+.level__next-head {
+    text-align: center;
+}
+
+.level__next-word {
+    margin: 0;
+    font-family: var(--serif);
+    font-size: clamp(26px, 5vw, 38px);
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    color: var(--gold-pale);
+    text-shadow: 0 0 50px rgba(217, 164, 65, 0.35);
+}
+
+.level__next-title {
+    margin: 4px 0 0;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    opacity: 0.8;
+}
+
+/* The count of answers still owed stands over the middle of each figure. */
+.level__next .result__body {
+    position: relative;
+}
+
+.level__next .result {
+    padding: 18px clamp(16px, 3vw, 24px) 20px;
+}
+
+.level__next .result__chart {
+    max-width: 300px;
+}
+
+.level__next .result__chart--wide {
+    max-width: 440px;
+}
+
 /* ------------------------------- results -------------------------------- */
 
+/* One questionnaire's reading, as a card on the water: its name across the
+   top in its own colour, the figure, and a row a dimension underneath. */
 .result {
     position: relative;
-    margin-top: 40px;
-    padding-top: 26px;
-    border-top: 1px solid var(--line);
+    margin-top: 20px;
+    padding: 24px clamp(18px, 3vw, 28px) 26px;
+    border-radius: 20px;
+    border: 1px solid var(--line);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01)), var(--surface);
+    box-shadow: 0 30px 70px -50px rgba(0, 0, 0, 0.9);
     transition: opacity 0.7s ease, transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), filter 0.7s ease;
+}
+
+/* In a panel the first card sits straight under the bar. */
+.panel__body .result:first-child {
+    margin-top: 0;
+}
+
+/* Everything inside a sealed card that would animate — a bar drawing itself,
+   a point popping in, a shape fading up — is held at its first frame until the
+   seal comes off, so that it is seen happening rather than found done. */
+.result--sealed * {
+    animation-play-state: paused;
 }
 
 /* Held shut until the level opens it. What is behind the seal is drawn and
@@ -252,9 +327,9 @@
 .result--opening::after {
     content: "";
     position: absolute;
-    inset: -8px;
+    inset: 0;
     pointer-events: none;
-    border-radius: 18px;
+    border-radius: 20px;
     background: linear-gradient(100deg, transparent 40%, rgba(255, 245, 220, 0.12) 50%, transparent 60%);
     transform: translateX(-100%);
     animation: sheen 1.3s cubic-bezier(0.4, 0, 0.2, 1) both;
@@ -273,17 +348,56 @@
 }
 
 .result__name {
-    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 20px;
+    font-size: 11.5px;
     font-weight: 700;
-    letter-spacing: 0.2em;
+    letter-spacing: 0.22em;
     text-transform: uppercase;
     color: var(--muted);
-    margin: 0 0 18px;
+}
+
+/* The colour the section's figure is drawn in, and a hairline running off to
+   the right of the name. */
+.result__dot {
+    flex: none;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--chart, var(--gold));
+    box-shadow: 0 0 10px var(--chart, var(--gold));
+}
+
+.result__name::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--line), transparent);
 }
 
 .result__body {
     display: grid;
     gap: 20px;
+}
+
+/* The only section of its level goes unnamed: the level has named it. */
+.result--lone .result__name {
+    display: none;
+}
+
+/* A section whose figure is cards of its own has no card round it, and no
+   edge for the opening's light to burn along. */
+.result--bare {
+    padding: 0;
+    border: 0;
+    background: none;
+    box-shadow: none;
+}
+
+.result--bare.result--opening::after {
+    display: none;
 }
 
 /* The chart sits above the rows it summarises, centred on the section. */
@@ -304,37 +418,81 @@
     max-width: 660px;
 }
 
-/* One dimension's reading is a lead, a bar, a prediction and the vote on it,
-   set close together; the gap between two of them has to be wider than
-   anything inside one, or the block reads as a list of loose lines rather than
-   as one reading after another. */
+/* One dimension's reading: its name and where it stands on one line, the bar
+   under them, then the prediction and the vote on it. Rows are parted by a
+   hairline rather than by air, so a card of five still reads as one card. */
 .rows {
     display: grid;
-    gap: 30px;
 }
 
-.row__lead {
+.row {
+    padding: 18px 0 20px;
+    border-top: 1px solid var(--line);
+}
+
+.row:last-child {
+    padding-bottom: 4px;
+}
+
+.row__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px 14px;
+}
+
+.row__name {
+    display: flex;
+    align-items: center;
+    gap: 9px;
     margin: 0;
-    font-size: 15px;
+    font-size: 15.5px;
+    font-weight: 650;
     color: var(--text);
 }
 
-.row__lead b {
-    font-weight: 600;
+.row__name::before {
+    content: "";
+    flex: none;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--chart);
+    box-shadow: 0 0 8px var(--chart);
+}
+
+/* Where it stands against other people, as a tag in the dimension's colour. */
+.row__stand {
+    margin: 0;
+    padding: 3px 11px;
+    border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--chart) 32%, transparent);
+    background: color-mix(in srgb, var(--chart) 14%, transparent);
+    font-size: 12px;
+    color: var(--muted);
+    white-space: nowrap;
+}
+
+.row__stand b {
+    font-weight: 700;
+    color: var(--text);
 }
 
 .row__reading {
-    margin: 3px 0 0;
+    margin: 12px 0 0;
     font-size: 14px;
     font-style: italic;
     color: var(--muted);
 }
 
-/* Does the prediction land? */
+/* Does the prediction land? Two halves of one pill. */
 .votes {
-    display: flex;
-    gap: 6px;
-    margin-top: 8px;
+    display: inline-flex;
+    margin-top: 10px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    overflow: hidden;
 }
 
 .vote {
@@ -342,22 +500,25 @@
     font-size: 11.5px;
     color: var(--muted);
     background: transparent;
-    border: 1px solid var(--line);
-    border-radius: 999px;
-    padding: 3px 12px;
+    border: 0;
+    padding: 4px 14px;
     cursor: pointer;
-    transition: color 0.15s, border-color 0.15s, background 0.15s;
+    transition: color 0.15s, background 0.15s;
+}
+
+.vote + .vote {
+    border-left: 1px solid var(--line);
 }
 
 .vote:hover {
     color: var(--text);
-    border-color: rgba(255, 255, 255, 0.32);
+    background: rgba(255, 255, 255, 0.06);
 }
 
+/* Picked, in a wash of the colour the reading was drawn in. */
 .vote--picked {
-    color: var(--bg);
-    background: var(--muted);
-    border-color: var(--muted);
+    color: var(--text);
+    background: color-mix(in srgb, var(--chart, #ffffff) 30%, transparent);
     font-weight: 600;
 }
 
@@ -377,6 +538,8 @@
 /* What a locked level is worth finishing for, shown but not readable: the
    dimensions are named, everything that has to be earned is blurred. */
 .taste {
+    display: grid;
+    gap: 12px;
     margin: 0 0 8px;
     padding: 16px 20px;
     border-radius: 14px;
@@ -391,15 +554,35 @@
     font-weight: 600;
 }
 
+/* How far through the level is, drawn under the words. */
+.taste__meter {
+    height: 4px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    overflow: hidden;
+}
+
+.taste__meter i {
+    display: block;
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--accent-2), var(--gold));
+    transform-origin: left;
+    animation: grow 0.9s 0.1s var(--ease) both;
+}
+
 .blank {
     filter: blur(4.5px);
     opacity: 0.7;
     user-select: none;
 }
 
-/* Every locked figure blurs the same way, a chart and a row of faces alike. */
+/* Every locked figure blurs the same way — a chart, a row of faces, the
+   temperament's plane and the sign's glyph alike. */
 .result--locked .result__chart svg,
-.result--locked .faces svg {
+.result--locked .faces svg,
+.result--locked .theory__figure,
+.result--locked .theory__glyph {
     filter: blur(5px);
     opacity: 0.5;
 }
@@ -594,6 +777,165 @@
     font-style: italic;
     color: var(--muted);
     text-align: center;
+}
+
+/* --------------------------- two old theories --------------------------- */
+
+/* Level 1's figure: two sentences, then two readings older than any
+   questionnaire side by side — the star sign, and the temperament as a point
+   on Eysenck's plane with Galen's four humours a corner each — each saying in
+   a few words what it predicts, with the vote on that underneath. The section
+   round them is bare (`.result--bare`): the two cards are boxes enough. */
+.theories {
+    display: grid;
+    gap: 18px;
+    margin: 4px 0 8px;
+}
+
+.theories__intro {
+    margin: 0 auto;
+    max-width: 62ch;
+    text-align: center;
+    font-size: 15px;
+    line-height: 1.55;
+    color: var(--muted);
+}
+
+.theories__pair {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+@media (max-width: 560px) {
+    .theories__pair {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* One of the two: what is predicting, its figure, its name, the words it
+   predicts, and the vote on them. */
+.theory {
+    display: grid;
+    justify-items: center;
+    align-content: start;
+    gap: 4px;
+    padding: 18px 16px 16px;
+    border-radius: 16px;
+    border: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.025);
+    text-align: center;
+}
+
+.theory__kind {
+    margin: 0 0 6px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.theory__figure {
+    width: 100%;
+    max-width: 210px;
+    height: auto;
+}
+
+/* The sign's glyph stands where the temperament has its plane, at a size that
+   reads as a figure rather than a character. */
+.theory__glyph {
+    margin: 0;
+    height: 210px;
+    display: grid;
+    place-items: center;
+    font-size: 96px;
+    line-height: 1;
+    color: var(--chart);
+    text-shadow: 0 0 50px color-mix(in srgb, var(--chart) 60%, transparent);
+}
+
+.theory__name {
+    margin: 6px 0 0;
+    font-family: var(--serif);
+    font-size: clamp(24px, 3.4vw, 30px);
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    color: var(--gold-pale);
+    text-shadow: 0 0 40px rgba(217, 164, 65, 0.35);
+}
+
+/* The words it predicts, one to a line: the list sits in the middle of the
+   card, the words line up down its left. */
+.theory__keys {
+    margin: 8px 0 4px;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 3px;
+    justify-self: center;
+    text-align: left;
+    font-size: 14px;
+    color: var(--text);
+}
+
+.theory__keys li::before {
+    content: "·";
+    margin-right: 8px;
+    color: var(--chart);
+    font-weight: 700;
+}
+
+/* Why a card has no words to give. */
+.theory__why {
+    margin: 8px 0 0;
+    font-size: 12.5px;
+    font-style: italic;
+    color: var(--muted);
+}
+
+/* Eysenck's plane: four cells, the lit one the temperament, the point the
+   person, the axes named at their ends. */
+.quadrant__cell {
+    fill: rgba(255, 255, 255, 0.03);
+    stroke: var(--line);
+    stroke-width: 1;
+}
+
+.quadrant__cell--lit {
+    fill: color-mix(in srgb, var(--chart) 22%, transparent);
+    stroke: color-mix(in srgb, var(--chart) 60%, transparent);
+}
+
+.quadrant__name {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    fill: var(--muted);
+    opacity: 0.6;
+}
+
+.quadrant__name--lit {
+    fill: var(--text);
+    opacity: 1;
+}
+
+.quadrant__axis {
+    font-size: 8px;
+    font-style: italic;
+    fill: var(--muted);
+}
+
+.quadrant__halo {
+    fill: var(--chart);
+    opacity: 0.25;
+}
+
+.quadrant__you {
+    fill: var(--chart);
+    stroke: var(--gold-pale);
+    stroke-width: 1.5;
 }
 
 /* ---------------------------- the AI archetype --------------------------- */
@@ -855,24 +1197,32 @@
 /* ------------------------- where a score stands ------------------------- */
 
 .bar {
-    margin: 10px 0 2px;
-    max-width: 460px;
+    margin: 12px 0 0;
 }
 
 .bar__track {
     position: relative;
-    height: 7px;
+    height: 8px;
     border-radius: 999px;
-    background: rgba(255, 255, 255, 0.07);
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.1));
     overflow: visible;
 }
 
+/* The fill draws itself out from the left, and the mark lands on the end of
+   it once it is there. In a sealed card both wait for the seal. */
 .bar__fill {
     height: 100%;
     border-radius: 999px;
     background: linear-gradient(90deg, color-mix(in srgb, var(--chart) 40%, transparent), var(--chart));
     box-shadow: 0 0 16px -3px var(--chart);
-    transition: width 0.6s var(--ease);
+    transform-origin: left;
+    animation: grow 0.9s 0.1s var(--ease) both;
+}
+
+@keyframes grow {
+    from {
+        transform: scaleX(0);
+    }
 }
 
 /* The middle of the population, which the reading is relative to. */
@@ -896,6 +1246,7 @@
     background: var(--chart);
     border: 2px solid var(--bg);
     box-shadow: 0 0 14px -1px var(--chart);
+    animation: reveal 0.5s 0.85s cubic-bezier(0.2, 1.4, 0.4, 1) both;
 }
 
 .bar__scale {
@@ -1046,6 +1397,13 @@
     .result,
     .level__foot {
         transition: none;
+    }
+
+    /* The bars are simply there, at their length. */
+    .bar__fill,
+    .bar__you,
+    .taste__meter i {
+        animation: none;
     }
 
     .curtain--out .curtain__splash,

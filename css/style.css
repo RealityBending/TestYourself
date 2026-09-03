@@ -206,10 +206,12 @@ body::after {
     color: var(--gold);
 }
 
-/* Everything else the test carries with it, stood on end down the right: the
-   way into each level and into the panels, and the descent running down the
-   edge the page sits against. The page is padded clear of the whole of it —
-   with a little extra for the level buttons, which sit out over the line. */
+/* Everything else the test carries with it, stood on end down the right,
+   dressed as a dive gauge: the readout at the head of it, the line down the
+   edge the page sits against with a mark every kilometre, the levels on it as
+   rings that fill as they are answered, and the two panels as an icon each at
+   the foot. The page is padded clear of the whole of it — with a little extra
+   for the level rings, which sit out over the line. */
 .sidebar {
     position: fixed;
     top: var(--banner);
@@ -220,8 +222,7 @@ body::after {
     display: flex;
     flex-direction: column;
     align-items: center;
-    /* No padding at the top: the line starts where the banner ends. */
-    padding: 0 0 22px;
+    padding: 0 0 12px;
     border-left: 1px solid rgba(255, 255, 255, 0.06);
 }
 
@@ -243,25 +244,77 @@ body[data-screen="card"] {
     padding: 0;
 }
 
+/* The readout: how deep, in figures that do not jitter as they climb. It is
+   laid over the top of the gauge, to the right of the line, rather than stacked
+   above it: the line has to start where the banner ends, with no gap, and the
+   first stop is never high enough to run into the words. */
+.sidebar__gauge {
+    position: absolute;
+    top: 12px;
+    left: 16px;
+    right: 0;
+    z-index: 1;
+    display: grid;
+    justify-items: center;
+    gap: 1px;
+    text-align: center;
+    cursor: default;
+    pointer-events: none;
+}
+
+.sidebar__gauge-word {
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    text-indent: 0.3em;
+    text-transform: uppercase;
+    color: rgba(210, 216, 231, 0.5);
+}
+
+.sidebar__depth {
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    color: var(--accent-2);
+    text-shadow: 0 0 18px rgba(34, 211, 238, 0.55);
+}
+
 /* The line and everything pinned to it share these bounds, so a level sits at
-   the height its share of the run puts it. */
-/* The last level sits at the very bottom of the line, so the line stops well
-   short of the links below it. */
+   the height its share of the run puts it. The last level sits at the very
+   bottom of the line, so the line stops well short of the links below it. */
 .sidebar__descent {
     position: relative;
     flex: 1;
     width: 100%;
-    margin-bottom: 42px;
+    margin: 0 0 30px;
 }
 
 .sidebar__line {
     position: absolute;
-    left: -2px;
+    left: -1px;
     top: 0;
     bottom: 0;
-    width: 3px;
+    width: 2px;
     border-radius: 999px;
     background: rgba(255, 255, 255, 0.1);
+}
+
+/* A mark every kilometre, ticked off to the right of the line the way a gauge
+   is graduated. The line is linear in metres, so the marks are evenly spaced;
+   how far apart is `--km`, written on by the script from the depth of the
+   deepest water, so the number lives in one place. */
+.sidebar__line::before {
+    content: "";
+    position: absolute;
+    left: 5px;
+    top: 0;
+    bottom: 0;
+    width: 5px;
+    background: repeating-linear-gradient(180deg, rgba(255, 255, 255, 0.22) 0 1px, transparent 1px var(--km, 9.06%));
+    opacity: 0.8;
 }
 
 .sidebar__fill {
@@ -269,40 +322,46 @@ body[data-screen="card"] {
     left: 0;
     right: 0;
     top: 0;
-    height: 0;
+    height: var(--reach, 0%);
     border-radius: 999px;
     background: linear-gradient(180deg, var(--accent-2), var(--accent));
-    box-shadow: 0 0 16px 1px rgba(124, 92, 255, 0.65);
+    box-shadow: 0 0 14px 1px rgba(124, 92, 255, 0.6);
     transition: height 0.6s var(--ease);
 }
 
-/* The point the descent has reached. */
-.sidebar__fill::after {
+/* You are here: the bead at the end of the fill, and the ring that beats out
+   of it like a sounding. */
+.sidebar__fill::after,
+.sidebar__fill::before {
     content: "";
     position: absolute;
     left: 50%;
-    bottom: -5px;
-    width: 11px;
-    height: 11px;
-    margin-left: -5.5px;
+    bottom: -4px;
+    width: 9px;
+    height: 9px;
+    margin-left: -4.5px;
     border-radius: 50%;
-    background: var(--accent-2);
-    box-shadow: 0 0 16px 2px var(--accent-2);
 }
 
-/* How far down that point is, in metres, riding along beside it. */
-.sidebar__depth {
-    position: absolute;
-    left: 22px;
-    top: 0;
-    transform: translateY(-50%);
-    font-size: 9.5px;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-    font-variant-numeric: tabular-nums;
-    white-space: nowrap;
-    color: var(--accent-2);
-    transition: top 0.6s var(--ease);
+.sidebar__fill::after {
+    background: #ffffff;
+    box-shadow: 0 0 0 2px var(--accent-2), 0 0 16px 3px var(--accent-2);
+}
+
+.sidebar__fill::before {
+    border: 1.5px solid var(--accent-2);
+    animation: sounding 2.6s ease-out infinite;
+}
+
+@keyframes sounding {
+    from {
+        transform: scale(1);
+        opacity: 0.9;
+    }
+    to {
+        transform: scale(4);
+        opacity: 0;
+    }
 }
 
 .sidebar__levels {
@@ -310,123 +369,285 @@ body[data-screen="card"] {
     inset: 0;
 }
 
+/* How much of a level is answered is a share, and the ring round its stop is
+   drawn from it. Registering it is what lets the ring *sweep* to a new share
+   rather than jump: an unregistered custom property cannot be transitioned. */
+@property --share {
+    syntax: "<number>";
+    inherits: true;
+    initial-value: 0;
+}
+
 /* A level, sitting on the line at the point it is finished: passing it is
-   finishing it, and pressing it opens what it holds. */
+   finishing it, and pressing it opens what it holds. A bead in the level's own
+   colour (`--tint`, written on by the script), lit from the upper left by one
+   radial gradient and nothing else, with the number on it; the ring round it is
+   how far through it is, and its colour is its state — the level's own while
+   it is being answered, gold once it is earned. A level still ahead is the
+   same bead, dimmed. */
 .sidebar__level {
+    --share: 0;
+    --tint: var(--accent);
+    --ring: var(--tint);
     position: absolute;
     left: 0;
+    top: var(--at, 100%);
     display: grid;
-    place-content: center;
-    width: 46px;
-    height: 46px;
+    place-items: center;
+    width: 38px;
+    height: 38px;
     padding: 0;
     transform: translate(-50%, -50%);
     border-radius: 50%;
-    border: 1px solid var(--line);
-    background: rgba(6, 10, 20, 0.92);
-    color: var(--muted);
+    border: 1px solid color-mix(in srgb, var(--tint) 70%, #ffffff 18%);
+    background: radial-gradient(
+        circle at 34% 30%,
+        color-mix(in srgb, var(--tint) 74%, #ffffff 26%),
+        var(--tint) 46%,
+        color-mix(in srgb, var(--tint) 62%, #000000 38%) 100%
+    );
+    box-shadow: 0 6px 16px -8px var(--tint);
+    color: #ffffff;
     font: inherit;
-    line-height: 1.1;
-    text-align: center;
+    font-size: 13.5px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
     cursor: pointer;
-    transition: color 0.15s, border-color 0.15s, background 0.15s, box-shadow 0.15s, transform 0.15s;
+    /* Dimmed until the descent reaches it. */
+    filter: saturate(0.45) brightness(0.78);
+    transition: --share 0.6s var(--ease), filter 0.3s, border-color 0.2s, box-shadow 0.2s, transform 0.2s;
 }
 
 .sidebar__level:hover,
 .sidebar__level:focus-visible {
-    color: var(--text);
-    border-color: rgba(255, 255, 255, 0.45);
-    transform: translate(-50%, -50%) scale(1.06);
+    filter: none;
+    border-color: color-mix(in srgb, var(--tint) 65%, #ffffff 35%);
+    box-shadow: 0 8px 22px -6px var(--tint);
+    transform: translate(-50%, -50%) scale(1.1);
 }
 
-.sidebar__level-word {
-    font-size: 7px;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    opacity: 0.7;
+.sidebar__level:focus-visible {
+    outline: 2px solid var(--tint);
+    outline-offset: 5px;
 }
 
 .sidebar__level-number {
-    font-size: 16px;
-    font-weight: 700;
+    position: relative;
+    text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
 }
 
-/* Finished, and worth the gold. */
+/* The ring: a conic sweep of the level's share, cut to a band by the mask. */
+.sidebar__level-ring {
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    background: conic-gradient(var(--ring) calc(var(--share) * 1%), transparent 0);
+    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2px));
+    mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2px));
+    pointer-events: none;
+}
+
+/* The one being answered now: lit, and breathing. */
+.sidebar__level--current {
+    filter: none;
+    animation: current 3s ease-in-out infinite;
+}
+
+@keyframes current {
+    50% {
+        box-shadow: 0 0 26px -2px var(--tint);
+    }
+}
+
+/* Finished, and worth the gold: the ring closes in gold, the edge takes it,
+   and a tick appears on the shoulder. */
 .sidebar__level--unlocked {
-    color: var(--gold-pale);
-    border-color: rgba(217, 164, 65, 0.55);
-    box-shadow: 0 0 22px -5px rgba(217, 164, 65, 0.9);
+    --ring: var(--gold);
+    filter: none;
+    border-color: rgba(217, 164, 65, 0.8);
+    box-shadow: 0 0 22px -6px rgba(217, 164, 65, 0.85);
 }
 
-.sidebar__level--unlocked:hover {
-    border-color: rgba(217, 164, 65, 0.9);
+.sidebar__level-badge {
+    position: absolute;
+    right: -5px;
+    top: -5px;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: var(--gold);
+    border: 2px solid #0a0e19;
+    display: grid;
+    place-items: center;
+    transform: scale(0);
+    transition: transform 0.3s cubic-bezier(0.2, 1.4, 0.4, 1);
+}
+
+.sidebar__level-badge svg {
+    width: 9px;
+    height: 9px;
+    fill: none;
+    stroke: #1a1206;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.sidebar__level--unlocked .sidebar__level-badge {
+    transform: scale(1);
 }
 
 /* Lit while the panel it opened is showing. */
 .sidebar__level--open {
-    color: var(--text);
-    background: rgba(255, 255, 255, 0.14);
-    border-color: rgba(255, 255, 255, 0.5);
+    filter: none;
+    border-color: rgba(255, 255, 255, 0.7);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--tint) 35%, transparent), 0 0 26px -6px var(--tint);
+    transform: translate(-50%, -50%) scale(1.1);
 }
 
-/* How much of the level is answered, out of the way until it is asked for. It
-   opens into the page, the side the bar is not on. */
-.sidebar__level-label {
+/* The card that opens beside a stop when it is hovered: which level, what it
+   is about, how deep it is finished at, how far through it is, and whether it
+   can be read yet. Out of the way until asked for, it opens into the page, the
+   side the bar is not on, with a point back at the stop it is about. */
+.sidebar__level-card {
     position: absolute;
-    right: 56px;
+    right: calc(100% + 18px);
     top: 50%;
-    padding: 4px 11px;
-    border-radius: 999px;
-    border: 1px solid var(--line);
-    background: rgba(14, 18, 30, 0.95);
+    width: 184px;
+    display: grid;
+    gap: 5px;
+    padding: 12px 14px 13px;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: linear-gradient(180deg, color-mix(in srgb, var(--tint) 22%, transparent), transparent 70%), rgba(12, 16, 28, 0.97);
+    box-shadow: 0 24px 60px -28px rgba(0, 0, 0, 0.95);
     color: var(--muted);
-    font-size: 11px;
-    letter-spacing: 0.06em;
-    white-space: nowrap;
+    text-align: left;
+    white-space: normal;
     pointer-events: none;
     opacity: 0;
-    transform: translate(8px, -50%);
-    transition: opacity 0.18s ease, transform 0.18s ease;
+    transform: translate(10px, -50%) scale(0.96);
+    transform-origin: right center;
+    transition: opacity 0.18s ease, transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.sidebar__level:hover .sidebar__level-label,
-.sidebar__level:focus-visible .sidebar__level-label {
+.sidebar__level-card::after {
+    content: "";
+    position: absolute;
+    right: -5px;
+    top: 50%;
+    width: 8px;
+    height: 8px;
+    margin-top: -4px;
+    transform: rotate(45deg);
+    background: #0d111d;
+    border: inherit;
+    border-left: 0;
+    border-bottom: 0;
+}
+
+.sidebar__level:hover .sidebar__level-card,
+.sidebar__level:focus-visible .sidebar__level-card {
     opacity: 1;
-    transform: translate(0, -50%);
+    transform: translate(0, -50%) scale(1);
 }
 
+.sidebar__level-card-eyebrow {
+    font-size: 8.5px;
+    font-weight: 700;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: color-mix(in srgb, var(--tint) 65%, #ffffff 35%);
+}
+
+.sidebar__level-card-title {
+    font-family: var(--serif);
+    font-size: 17px;
+    font-weight: 400;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    color: var(--text);
+}
+
+.sidebar__level-card-depth {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    opacity: 0.75;
+}
+
+/* How far through, drawn — the same share the ring round the stop sweeps. */
+.sidebar__level-card-meter {
+    height: 4px;
+    margin-top: 3px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    overflow: hidden;
+}
+
+.sidebar__level-card-meter i {
+    display: block;
+    height: 100%;
+    width: calc(var(--share) * 1%);
+    border-radius: 999px;
+    background: var(--ring);
+}
+
+.sidebar__level-card-note {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--muted);
+}
+
+/* The two panels, at the foot: an icon and a word each. */
 .sidebar__links {
     display: grid;
-    gap: 8px;
-    width: 100%;
-    padding: 0 8px;
+    gap: 4px;
 }
 
 .sidebar__link {
+    display: grid;
+    justify-items: center;
+    gap: 4px;
+    width: 62px;
+    padding: 8px 0 7px;
     font: inherit;
-    font-size: 10px;
-    letter-spacing: 0.08em;
-    color: var(--muted);
+    font-size: 8.5px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-indent: 0.16em;
+    text-transform: uppercase;
+    color: rgba(210, 216, 231, 0.7);
     background: transparent;
-    border: 1px solid var(--line);
-    border-radius: 999px;
-    padding: 7px 4px;
+    border: 1px solid transparent;
+    border-radius: 12px;
     cursor: pointer;
-    white-space: nowrap;
     transition: color 0.15s, border-color 0.15s, background 0.15s;
 }
 
-.sidebar__link:hover {
+.sidebar__link svg {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.sidebar__link:hover,
+.sidebar__link:focus-visible {
     color: var(--text);
-    border-color: rgba(255, 255, 255, 0.35);
+    border-color: var(--line);
     background: rgba(255, 255, 255, 0.05);
 }
 
 .sidebar__link--open {
     color: var(--text);
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.45);
+    background: rgba(124, 92, 255, 0.2);
+    border-color: rgba(124, 92, 255, 0.55);
 }
 
 /* ------------------------------- screens -------------------------------- */
@@ -598,6 +819,31 @@ body[data-screen="card"] {
     font-size: 23px;
     font-weight: 400;
     letter-spacing: -0.01em;
+}
+
+/* A title with a line under it — where in the water a level was finished, or
+   how much of it is still to answer. */
+.panel__head {
+    flex: 1;
+    min-width: 0;
+}
+
+.panel__head .panel__title {
+    flex: none;
+}
+
+.panel__sub {
+    margin: 3px 0 0;
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+    opacity: 0.75;
+}
+
+.panel__sub:empty {
+    display: none;
 }
 
 .panel__close {
@@ -1249,35 +1495,170 @@ h1 {
 }
 
 @media (max-width: 760px) {
-    /* Too little width to give a hundred pixels of it away: the sidebar keeps
-       what it needs and everything on it comes in a size. */
+    /* Too little width to give a hundred pixels of it away: the gauge lies
+       along the foot of the screen instead, and `--sidebar` is its height. The
+       same pieces in the same order — the readout, then the line with the
+       levels on it, then the two icons — turned to run left to right, which is
+       why the fill and the stops are placed by `--reach` and `--at` rather
+       than by an edge: here they are read along the other axis. */
     :root {
-        --sidebar: 62px;
+        --sidebar: 60px;
     }
 
-    .sidebar__level {
-        width: 38px;
-        height: 38px;
+    .sidebar {
+        top: auto;
+        left: 0;
+        width: auto;
+        height: var(--sidebar);
+        flex-direction: row;
+        padding: 0 8px 0 14px;
+        border-left: 0;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
     }
 
-    .sidebar__level-number {
-        font-size: 14px;
+    body {
+        padding: var(--banner) 0 var(--sidebar);
     }
 
-    .sidebar__level-label {
-        right: 48px;
+    /* The panels stop short of the gauge along the foot instead of the bar
+       down the side. */
+    .overlay {
+        inset: var(--banner) 0 var(--sidebar) 0;
+    }
+
+    .sidebar__gauge {
+        position: static;
+        margin: 0;
+        gap: 0;
+        justify-items: start;
+        text-align: left;
+    }
+
+    .sidebar__gauge-word {
+        display: none;
     }
 
     .sidebar__depth {
-        left: 13px;
-        font-size: 8px;
-        letter-spacing: 0;
+        font-size: 13px;
+    }
+
+    /* The last stop sits at the very end of the line, so the line stops well
+       short of the icons after it. */
+    .sidebar__descent {
+        width: auto;
+        height: 100%;
+        margin: 0 20px 0 16px;
+    }
+
+    .sidebar__line {
+        left: 0;
+        right: 0;
+        top: 50%;
+        bottom: auto;
+        width: auto;
+        height: 2px;
+        margin-top: -1px;
+    }
+
+    /* The kilometre marks hang under the line. */
+    .sidebar__line::before {
+        left: 0;
+        right: 0;
+        top: 5px;
+        bottom: auto;
+        width: auto;
+        height: 5px;
+        background: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.22) 0 1px, transparent 1px var(--km, 9.06%));
+    }
+
+    .sidebar__fill {
+        top: 0;
+        bottom: 0;
+        right: auto;
+        width: var(--reach, 0%);
+        height: auto;
+        transition: width 0.6s var(--ease);
+    }
+
+    .sidebar__fill::after,
+    .sidebar__fill::before {
+        left: auto;
+        right: -4px;
+        top: 50%;
+        bottom: auto;
+        margin: -4.5px 0 0;
+    }
+
+    .sidebar__level {
+        top: 50%;
+        left: var(--at, 100%);
+        width: 26px;
+        height: 26px;
+        font-size: 11px;
+    }
+
+    .sidebar__level-ring {
+        inset: -3px;
+    }
+
+    /* The card opens upwards, over the line, and points down at its stop. */
+    .sidebar__level-card {
+        right: auto;
+        left: 50%;
+        top: auto;
+        bottom: calc(100% + 16px);
+        width: 190px;
+        transform: translate(-50%, 8px) scale(0.96);
+        transform-origin: center bottom;
+    }
+
+    .sidebar__level-card::after {
+        right: auto;
+        left: 50%;
+        top: auto;
+        bottom: -5px;
+        margin: 0 0 0 -4px;
+        border-left: 0;
+        border-top: 0;
+        border-bottom: inherit;
+    }
+
+    .sidebar__level:hover .sidebar__level-card,
+    .sidebar__level:focus-visible .sidebar__level-card {
+        transform: translate(-50%, 0) scale(1);
+    }
+
+    .sidebar__level-badge {
+        width: 12px;
+        height: 12px;
+        right: -4px;
+        top: -4px;
+    }
+
+    .sidebar__level-badge svg {
+        width: 7px;
+        height: 7px;
+    }
+
+    /* Icons alone: the word under each would not fit. */
+    .sidebar__links {
+        display: flex;
+        gap: 0;
     }
 
     .sidebar__link {
-        font-size: 9px;
-        letter-spacing: 0.02em;
-        padding: 7px 2px;
+        width: 36px;
+        padding: 6px 0;
+    }
+
+    /* The line under a panel's title has less room beside the close button. */
+    .panel__sub {
+        font-size: 9.5px;
+        letter-spacing: 0.1em;
+    }
+
+    .sidebar__link span {
+        display: none;
     }
 
     /* Less room to give away, so the panels keep a thinner edge. */
@@ -1299,6 +1680,30 @@ h1 {
         font-size: 8px;
         letter-spacing: 0.1em;
         text-indent: 0.1em;
+    }
+}
+
+/* A wide but short window — a laptop with the browser not full height — has
+   the gauge down the side with too little of it to go round: the stops come
+   in a size and the words under the icons go. */
+@media (min-width: 761px) and (max-height: 640px) {
+    .sidebar__gauge-word,
+    .sidebar__link span {
+        display: none;
+    }
+
+    .sidebar__descent {
+        margin: 0 0 22px;
+    }
+
+    .sidebar__level {
+        width: 28px;
+        height: 28px;
+        font-size: 11px;
+    }
+
+    .sidebar__level-ring {
+        inset: -3px;
     }
 }
 
@@ -1361,9 +1766,15 @@ h1 {
     .panel,
     .overlay__scrim,
     .sidebar__fill,
-    .sidebar__depth,
+    .sidebar__level,
     body::before {
         transition: none;
+    }
+
+    /* The gauge holds still: no sounding off the bead, no breathing stop. */
+    .sidebar__fill::before,
+    .sidebar__level--current {
+        animation: none;
     }
 
     .option:hover,

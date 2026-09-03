@@ -22,6 +22,7 @@ function makeResults(engine) {
     const percentile = engine.percentile
     const tercile = engine.tercile
     const levelProgress = engine.levelProgress
+    const answer = engine.answer
     const showScreen = engine.showScreen
     const burst = engine.burst
     const still = engine.still
@@ -41,8 +42,11 @@ function makeResults(engine) {
     // dimension with no `norms` is not one of them: there is nothing to place
     // it against, so it earns no percentile, no standing and no prediction,
     // and a bare number is worse than silence to the person who gave it.
-    // Writing the norms is what puts a scale into the results.
+    // Writing the norms is what puts a scale into the results — unless the
+    // questionnaire is written `results: false`, which keeps its norms (for
+    // analysis, or for a figure elsewhere) and reads nothing back on its level.
     function dimensionsOf(name) {
+        if (QUESTIONNAIRES[name].results === false) return []
         return dimensionsIn(name).filter(normOf)
     }
 
@@ -505,17 +509,21 @@ function makeResults(engine) {
 
     /* ------------------------------ faces --------------------------------- */
 
-    // Mood, Strain and Health read better as one glance each than as another
+    // Mood, Stress and Health read better as one glance each than as another
     // row of numbers, so together they close level 3 with a face apiece: sad
     // at one end of the scale, pleased at the other, on a ring that fills the
-    // same way a MINT organ's does. Mood and Health are composites rather than
-    // dimensions of their own — Mood because the PHQ-4's Anxiety and
-    // Depression items have to stay apart for `total()` to read the way they
-    // are written, Health because the SSS-8's four domains are real
-    // dimensions of their own too — so each is read against a norm, and given
-    // a general reading of its own, written here rather than in `content/`:
-    // invented exactly as every other norm in this app is, in the same
-    // `{ mean, sd, interpretations }` shape `normOf` already returns for one.
+    // same way a MINT organ's does. Mood is a composite rather than a
+    // dimension of its own — the PHQ-4's Anxiety and Depression items have to
+    // stay apart for `total()` to read the way they are written — and Health
+    // is the self-rated health single item from level 1, which carries no
+    // norms in `content/` because it earns no row there; so each is read
+    // against a norm written here instead, in the same `{ mean, sd,
+    // interpretations }` shape `normOf` already returns for one. MOOD_NORM is
+    // invented like every other placeholder in this app. HEALTH_NORM is
+    // *approximate* rather than invented: read off the shape of the published
+    // five-category self-rated health distributions of general populations
+    // (roughly a fifth "excellent", a third "very good", a third "good", the
+    // rest "fair" or "poor"), not fitted to any sample.
     const MOOD_NORM = {
         mean: 1.9,
         sd: 1.6,
@@ -526,12 +534,12 @@ function makeResults(engine) {
         },
     }
     const HEALTH_NORM = {
-        mean: 0.9,
-        sd: 0.8,
+        mean: 3.6,
+        sd: 1.0,
         interpretations: {
-            low: "your body has been quiet this week, with little in the way of pain, stomach trouble, breathlessness or fatigue.",
-            mid: "you noticed the odd ache, upset stomach or tired stretch this week, about as often as most people do.",
-            high: "your body has been making itself felt this week — pain, stomach trouble, breathlessness or fatigue turning up more than most people report, and worth a doctor's attention if it keeps up.",
+            low: "you rate your physical health lower than most people rate theirs — worth a word with a doctor if it has been that way for a while.",
+            mid: "you rate your physical health about where most people put theirs.",
+            high: "you rate your physical health better than most people rate theirs.",
         },
     }
 
@@ -561,39 +569,48 @@ function makeResults(engine) {
         return { key: "Mood", exists: exists, value: value, lowest: 0, highest: 12, worse: "high", norm: MOOD_NORM }
     }
 
-    function strainFace() {
-        const question = known("Strain") && dimensions["Strain"][0]
+    function stressFace() {
+        const question = known("Stress") && dimensions["Stress"][0]
         return {
-            key: "Strain",
+            key: "Stress",
             exists: !!question,
-            value: question ? score("Strain") : undefined,
+            value: question ? score("Stress") : undefined,
             lowest: question ? question.lowest : 0,
             highest: question ? question.highest : 1,
             worse: "high",
-            norm: question ? normOf("Strain") : null,
+            norm: question ? normOf("Stress") : null,
         }
     }
 
+    // Health is one answer given on level 1 — "In general, would you say your
+    // health is", poor to excellent — read back here, where the rest of how
+    // the person has been is. Higher is the happier end, so this is the one
+    // face not flipped.
     function healthFace() {
-        const names = ["Pain", "Gastrointestinal", "Cardiopulmonary", "Fatigue"]
-        const exists = names.every(known)
-        const scores = exists ? names.map(score) : []
-        const value = exists && scores.every((one) => one !== undefined)
-            ? scores.reduce((sum, one) => sum + one, 0) / scores.length
-            : undefined
-        return { key: "Health", exists: exists, value: value, lowest: 0, highest: 4, worse: "high", norm: HEALTH_NORM }
+        const question = known("General Health") && dimensions["General Health"][0]
+        return {
+            key: "Health",
+            exists: !!question,
+            value: question ? score("General Health") : undefined,
+            lowest: question ? question.lowest : 1,
+            highest: question ? question.highest : 5,
+            worse: "low",
+            norm: HEALTH_NORM,
+        }
     }
 
-    // Mood, Strain and Health close level 3 as one section rather than three:
-    // the PHQ-4, the Dissociation questionnaire (Strain, Sleep) and the SSS-8
-    // each keep their items, their scoring and their place in the run, but
-    // read back as this row of three instead of a chart and rows apiece.
-    // `MOOD_HEALTH` is the readings, in the order they are shown; `RUN` still
-    // carries all three questionnaire keys, so `renderResults` uses
-    // `MOOD_HEALTH_OF` to find whichever of them comes first and render the
-    // section there, skipping the other two where they would otherwise fall.
-    const MOOD_HEALTH = [moodFace, strainFace, healthFace]
-    const MOOD_HEALTH_OF = ["phq4", "Dissociation", "sss8"]
+    // Mood, Stress and Health close level 3 as one section rather than as rows:
+    // the PHQ-4 and the Dissociation questionnaire (Stress, Sleep) each keep
+    // their items, their scoring and their place in the run, but read back as
+    // this row of faces instead of a chart and rows apiece — and the Health
+    // face reaches back to level 1 for its answer. `MOOD_HEALTH` is the
+    // readings, in the order they are shown; `RUN` still carries both
+    // questionnaire keys, so `renderResults` uses `MOOD_HEALTH_OF` to find
+    // whichever of them comes first and render the section there, skipping
+    // the other where it would otherwise fall. (The SSS-8 used to be the third
+    // name here; it is commented out in `content/block_health.js`.)
+    const MOOD_HEALTH = [moodFace, stressFace, healthFace]
+    const MOOD_HEALTH_OF = ["phq4", "Dissociation"]
 
     // Whichever of the three comes first in the run is where the one section
     // renders; the run never changes, so it is found once.
@@ -751,6 +768,325 @@ function makeResults(engine) {
         return wrap
     }
 
+    /* --------------------------- two old theories ------------------------- */
+
+    // Level 1 closes on two readings older than any questionnaire, side by
+    // side, each saying what it predicts of the person in a few words. The
+    // star sign is read from the month of birth and which side of that month's
+    // cusp the day fell (`DayBirth`, in `content/block_demographics1.js`)
+    // — from the birthday and nothing else. The temperament is Galen's four
+    // humours on the two axes Eysenck laid them over — extraversion and
+    // stability — which happen to be the two FIPI dimensions this level scores
+    // against norms, so it is worked out from the answers. Each takes the same
+    // agree/disagree every prediction gets, and that pair of votes is the
+    // point of putting them together: a horoscope agreed with as readily as a
+    // reading drawn from what somebody actually said is the Barnum effect,
+    // caught in the act. The section is the whole of the FIPI's reading — its
+    // two dimensions earn no rows of their own underneath.
+    const OLD_THEORIES_OF = "fipi"
+    const TEMPERAMENT_KEY = "Temperament" // the agree/disagree on the temperament's prediction, filed as `Temperament`
+    const STARS_KEY = "Star Sign" // the agree/disagree on the sign's prediction, filed as `StarSign`
+    const TEMPERAMENT_ON = ["Extraversion", "Emotional Stability"] // across, then up
+
+    // The four, by which side of the average the two standings fall, each with
+    // the words the tradition gives it.
+    const TEMPERAMENTS = {
+        sanguine: { name: "Sanguine", keys: ["warm", "sociable", "easy-going", "quick to recover"] },
+        choleric: { name: "Choleric", keys: ["driven", "quick-tempered", "decisive", "restless"] },
+        phlegmatic: { name: "Phlegmatic", keys: ["calm", "steady", "unflappable", "private"] },
+        melancholic: { name: "Melancholic", keys: ["thoughtful", "sensitive", "inward", "exacting"] },
+    }
+
+    // The twelve, in cusp order from the sign January opens in: month m's first
+    // part is SIGNS[m - 1] and its second part SIGNS[m % 12]. `keys` are the
+    // words astrology gives the sign; `expects` is the same stereotype written
+    // on the FIPI's five dimensions, so that a later level can check the stars
+    // against what was measured — nothing reads it yet.
+    const SIGNS = [
+        {
+            name: "Capricorn",
+            glyph: "♑",
+            keys: ["disciplined", "patient", "ambitious", "reserved"],
+            expects: { Conscientiousness: "high", Extraversion: "low" },
+        },
+        {
+            name: "Aquarius",
+            glyph: "♒",
+            keys: ["original", "independent", "idealistic", "detached"],
+            expects: { Openness: "high", Agreeableness: "low" },
+        },
+        {
+            name: "Pisces",
+            glyph: "♓",
+            keys: ["dreamy", "compassionate", "intuitive", "easily hurt"],
+            expects: { Agreeableness: "high", "Emotional Stability": "low", Openness: "high" },
+        },
+        {
+            name: "Aries",
+            glyph: "♈",
+            keys: ["bold", "impatient", "competitive", "quick to move on"],
+            expects: { Extraversion: "high", Agreeableness: "low", Conscientiousness: "low" },
+        },
+        {
+            name: "Taurus",
+            glyph: "♉",
+            keys: ["steady", "sensual", "stubborn", "reliable"],
+            expects: { Conscientiousness: "high", Openness: "low" },
+        },
+        {
+            name: "Gemini",
+            glyph: "♊",
+            keys: ["curious", "quick-witted", "talkative", "changeable"],
+            expects: { Extraversion: "high", Openness: "high", Conscientiousness: "low" },
+        },
+        {
+            name: "Cancer",
+            glyph: "♋",
+            keys: ["loyal", "protective", "tender", "guarded"],
+            expects: { Agreeableness: "high", "Emotional Stability": "low" },
+        },
+        {
+            name: "Leo",
+            glyph: "♌",
+            keys: ["confident", "generous", "proud", "made for the spotlight"],
+            expects: { Extraversion: "high", "Emotional Stability": "high" },
+        },
+        {
+            name: "Virgo",
+            glyph: "♍",
+            keys: ["precise", "modest", "self-critical", "a worrier"],
+            expects: { Conscientiousness: "high", "Emotional Stability": "low", Extraversion: "low" },
+        },
+        {
+            name: "Libra",
+            glyph: "♎",
+            keys: ["charming", "fair-minded", "peace-seeking", "indecisive"],
+            expects: { Agreeableness: "high", Extraversion: "high" },
+        },
+        {
+            name: "Scorpio",
+            glyph: "♏",
+            keys: ["intense", "private", "unforgiving", "all or nothing"],
+            expects: { Extraversion: "low", Agreeableness: "low", "Emotional Stability": "low" },
+        },
+        {
+            name: "Sagittarius",
+            glyph: "♐",
+            keys: ["restless", "optimistic", "frank", "light-hearted"],
+            expects: { Extraversion: "high", Openness: "high", "Emotional Stability": "high" },
+        },
+    ]
+
+    // Where the two standings fall, as shares of people below — the same
+    // percentile a row reads — or nothing while either is unscored. Locked,
+    // the same shape from the stand-in figures, meaning nothing.
+    function temperamentAt(tease) {
+        const at = TEMPERAMENT_ON.map((dimension) => {
+            if (!known(dimension)) return undefined
+            const norm = normOf(dimension)
+            const value = tease ? teaseValue(dimension) : score(dimension)
+            return norm && value !== undefined ? percentile(value, norm) : undefined
+        })
+        return at.some((one) => one === undefined) ? undefined : at
+    }
+
+    // Outgoing or reserved, steady or reactive: the side of the average each
+    // standing falls on names the quadrant.
+    function temperamentOf(at) {
+        const outgoing = at[0] >= 0.5
+        const steady = at[1] >= 0.5
+        return TEMPERAMENTS[outgoing ? (steady ? "sanguine" : "choleric") : steady ? "phlegmatic" : "melancholic"]
+    }
+
+    // The sign, if the half of the month was given; the two it could be, if
+    // only the month was; nothing without even that.
+    function starSign() {
+        const month = answer("MonthBirth")
+        if (!month) return undefined
+        const half = answer("DayBirth")
+        const first = SIGNS[month - 1]
+        const second = SIGNS[month % 12]
+        if (half === 1) return { sign: first }
+        if (half === 2) return { sign: second }
+        return { between: [first, second] }
+    }
+
+    // Eysenck's plane: extraversion across, stability up, the four humours one
+    // to a corner, and the person as a point in it. The lit cell is the
+    // temperament; the words are the only ones in it, since the point says
+    // where and the card underneath says what.
+    const QUADRANT = 200 // viewBox side
+    const QUADRANT_INSET = 22 // room for the axis words
+
+    function drawQuadrant(figure, at) {
+        figure.setAttribute("viewBox", "0 0 " + QUADRANT + " " + QUADRANT)
+        figure.classList.add("quadrant")
+
+        const span = QUADRANT - 2 * QUADRANT_INSET
+        const half = span / 2
+        const x = QUADRANT_INSET + at[0] * span
+        const y = QUADRANT_INSET + (1 - at[1]) * span
+        const outgoing = at[0] >= 0.5
+        const steady = at[1] >= 0.5
+        const cells = [
+            { name: "Phlegmatic", right: false, top: true },
+            { name: "Sanguine", right: true, top: true },
+            { name: "Melancholic", right: false, top: false },
+            { name: "Choleric", right: true, top: false },
+        ]
+
+        for (const cell of cells) {
+            const lit = cell.right === outgoing && cell.top === steady
+            const cx = QUADRANT_INSET + (cell.right ? half : 0)
+            const cy = QUADRANT_INSET + (cell.top ? 0 : half)
+            figure.appendChild(
+                draw("rect", {
+                    class: "quadrant__cell" + (lit ? " quadrant__cell--lit" : ""),
+                    x: cx,
+                    y: cy,
+                    width: half,
+                    height: half,
+                    rx: 6,
+                }),
+            )
+            const label = draw("text", {
+                class: "quadrant__name" + (lit ? " quadrant__name--lit" : ""),
+                x: cx + half / 2,
+                y: cy + half / 2 + 3,
+                "text-anchor": "middle",
+            })
+            label.textContent = cell.name
+            figure.appendChild(label)
+        }
+
+        // The two axes, named at their ends: across under the plane, up beside it.
+        const across = [
+            { text: "reserved", x: QUADRANT_INSET, anchor: "start" },
+            { text: "outgoing", x: QUADRANT - QUADRANT_INSET, anchor: "end" },
+        ]
+        for (const one of across) {
+            const label = draw("text", { class: "quadrant__axis", x: one.x, y: QUADRANT - 7, "text-anchor": one.anchor })
+            label.textContent = one.text
+            figure.appendChild(label)
+        }
+        const up = [
+            { text: "steady", y: QUADRANT_INSET, anchor: "end" },
+            { text: "reactive", y: QUADRANT - QUADRANT_INSET, anchor: "start" },
+        ]
+        for (const one of up) {
+            const label = draw("text", {
+                class: "quadrant__axis",
+                "text-anchor": one.anchor,
+                transform: "translate(13 " + one.y + ") rotate(-90)",
+            })
+            label.textContent = one.text
+            figure.appendChild(label)
+        }
+
+        figure.appendChild(draw("circle", { class: "quadrant__halo", cx: x, cy: y, r: 11 }))
+        figure.appendChild(draw("circle", { class: "quadrant__you", cx: x, cy: y, r: 5 }))
+    }
+
+    // One of the two cards: what is predicting, its figure, its name, the
+    // words it predicts and the vote on them. Locked, the name and the words
+    // are blurred and there are no buttons, like every other teased figure. A
+    // card with no words to give — a sign that could be one of two — gets a
+    // line saying why, and nothing to vote on.
+    function theoryCard(kind, figure, name, keys, why, key, locked) {
+        const card = document.createElement("div")
+        card.className = "theory"
+
+        const piece = (className, text, blank) => {
+            const line = document.createElement("p")
+            line.className = className + (blank && locked ? " blank" : "")
+            line.textContent = text
+            card.appendChild(line)
+        }
+
+        piece("theory__kind", kind)
+        card.appendChild(figure)
+        piece("theory__name", name, true)
+
+        if (keys) {
+            const list = document.createElement("ul")
+            list.className = "theory__keys" + (locked ? " blank" : "")
+            for (const word of keys) {
+                const item = document.createElement("li")
+                item.textContent = word
+                list.appendChild(item)
+            }
+            card.appendChild(list)
+            if (!locked) card.appendChild(voteButtons(key))
+        } else {
+            piece("theory__why", why)
+        }
+
+        return card
+    }
+
+    // Two sentences saying what the pair is, then the pair: the stars first,
+    // then the temperament. The star card can only be drawn when a month was
+    // given; without the half of the month it names the two signs it could be
+    // and predicts nothing.
+    function renderOldTheories(locked) {
+        const holder = document.createElement("div")
+        holder.className = "theories"
+
+        const intro = document.createElement("p")
+        intro.className = "theories__intro"
+        intro.textContent =
+            "We start by going back to two of the oldest ways of describing a person: the sign you were born under, and the four " +
+            "temperaments of the ancient physicians. Below is what each one predicts about you — complete the test to see whether it holds true."
+        holder.appendChild(intro)
+
+        const pair = document.createElement("div")
+        pair.className = "theories__pair"
+        holder.appendChild(pair)
+
+        const stars = locked ? { sign: SIGNS[0] } : starSign()
+        if (stars) {
+            const glyph = document.createElement("p")
+            glyph.className = "theory__glyph"
+            glyph.setAttribute("aria-hidden", "true")
+            // The zodiac characters default to their emoji faces on most
+            // systems; the text-presentation selector after each asks for
+            // the plain glyph, drawn in the card's colour like everything else.
+            const plain = (sign) => sign.glyph + "\uFE0E"
+            glyph.textContent = stars.sign ? plain(stars.sign) : plain(stars.between[0]) + " " + plain(stars.between[1])
+            pair.appendChild(
+                stars.sign
+                    ? theoryCard("Your star sign predicts", glyph, stars.sign.name, stars.sign.keys, "", STARS_KEY, locked)
+                    : theoryCard(
+                          "Your star sign predicts",
+                          glyph,
+                          stars.between[0].name + " or " + stars.between[1].name,
+                          undefined,
+                          "Without the day, the stars can't say which.",
+                          STARS_KEY,
+                          locked,
+                      ),
+            )
+        }
+
+        const at = temperamentAt(locked)
+        const type = at ? temperamentOf(at) : undefined
+        if (type) {
+            const figure = document.createElementNS(SVG, "svg")
+            figure.setAttribute("role", "img")
+            figure.setAttribute(
+                "aria-label",
+                locked
+                    ? "Blurred preview of your temperament, still locked"
+                    : "Your temperament: " + type.name + ", on the plane of extraversion and stability",
+            )
+            figure.classList.add("theory__figure")
+            drawQuadrant(figure, at)
+            pair.appendChild(theoryCard("Your temperament predicts", figure, type.name, type.keys, "", TEMPERAMENT_KEY, locked))
+        }
+
+        return holder
+    }
+
     /* --------------------------- the AI archetype -------------------------- */
 
     // The BAIT closes its level as neither rows nor rings but as one of three
@@ -774,7 +1110,7 @@ function makeResults(engine) {
     // `share` of each is a PLACEHOLDER, invented like every other norm in this
     // app, pending the cluster sizes being read off the pooled samples.
     const ARCHETYPE_OF = "bait"
-    const ARCHETYPE_KEY = "AI Archetype" // what the agree/disagree on it is filed under
+    const ARCHETYPE_KEY = "AI Archetype" // the agree/disagree on it, filed as `AIArchetype`
 
     // The dimensions somebody is placed on, and the order `at` is written in.
     const ARCHETYPE_ON = ["AI Realism", "AI Enthusiasm", "AI Apprehension"]
@@ -889,7 +1225,7 @@ function makeResults(engine) {
     // reason the MINT's organ colours do: they are how the figure is drawn,
     // not anything that was asked.
     const WHEEL_OF = "archetypes"
-    const WHEEL_KEY = "Archetype" // what the agree/disagree on it is filed under
+    const WHEEL_KEY = "Archetype" // the agree/disagree on it, filed as `Archetype`
     const WHEEL_MOST = 3 // archetypes that may tie for the lead before it is called even
 
     const WHEEL = [
@@ -982,7 +1318,7 @@ function makeResults(engine) {
     }
 
     // The archetypes tied for the highest score, or nothing at all while any
-    // of them is still unanswered. A wheel of two-item scales ties often
+    // of them is still unanswered. A wheel of short scales ties often
     // enough that picking one of them and calling it the answer would be
     // inventing a winner, so a tie is shown as a tie.
     function leading() {
@@ -1147,7 +1483,7 @@ function makeResults(engine) {
     // norms, so a level says nothing about them and neither does this. The
     // PHQ-4 and SSS-8 domains are only ever read folded into the Mood and
     // Health faces, which are composites rather than dimensions and so have no
-    // axis to take; Strain, the third face, is a real dimension and keeps its.
+    // axis to take; Stress, the third face, is a real dimension and keeps its.
     // The BAIT's three facets are read back as one archetype and the twelve
     // archetypes as one wheel, each a figure of its own that this web would
     // only repeat — twelve axes at a time, which is what made it unreadable.
@@ -1157,9 +1493,10 @@ function makeResults(engine) {
     // here in the same breath and nothing has to be kept in step by hand.
     //
     // A questionnaire can also take itself off the web with `profile: false`,
-    // written in `content/` beside its name: the HEXACO does, because the Big
-    // Five already stand for personality here and six more axes would crowd
-    // everything else.
+    // written in `content/` beside its name: the FIPI does, being a two-row
+    // sketch whose ground the HEXACO covers in full on level 4, and the
+    // HiTOP-BR does, because symptom spectra on one polygon with Sociability
+    // and Bodily Awareness read as more of the same kind of thing.
     function onProfile(dimension) {
         const name = dimensions[dimension][0].questionnaire
         if (name === ARCHETYPE_OF || name === WHEEL_OF) return false
@@ -1482,33 +1819,86 @@ function makeResults(engine) {
         return reading.charAt(0).toUpperCase() + reading.slice(1)
     }
 
-    // Agree / disagree on a prediction. Pressing the chosen one again clears it.
-    function voteButtons(dimension) {
+    // The name a vote is filed under in the saved file: the reading's own name
+    // with the spaces and the punctuation taken out of it, so that every key
+    // in the file — items and feedback alike — is one word, and nothing
+    // reading it has to quote a column name. "Bodily Awareness" is filed as
+    // `BodilyAwareness`, "AI Archetype" as `AIArchetype`.
+    function filed(name) {
+        return name.replace(/[^A-Za-z0-9]+(.)?/g, (all, next) => (next ? next.toUpperCase() : ""))
+    }
+
+    // One pick out of a few, filed in `feedback` under a key. Pressing the
+    // chosen one again puts it back to nothing — `null` rather than gone,
+    // since every key of `feedback` is written whether it was answered or not.
+    // The agree/disagree under every prediction is this with two choices.
+    function pickButtons(name, choices) {
+        const key = filed(name)
         const votes = document.createElement("div")
         votes.className = "votes"
 
-        for (const vote of ["agree", "disagree"]) {
+        const show = () => {
+            for (const button of votes.children) {
+                const picked = feedback[key] === button.dataset.pick
+                button.classList.toggle("vote--picked", picked)
+                button.setAttribute("aria-pressed", picked ? "true" : "false")
+            }
+        }
+
+        for (const choice of choices) {
             const button = document.createElement("button")
             button.type = "button"
-            button.className = "vote" + (feedback[dimension] === vote ? " vote--picked" : "")
-            button.textContent = vote === "agree" ? "Agree" : "Disagree"
-            button.setAttribute("aria-pressed", feedback[dimension] === vote ? "true" : "false")
-
+            button.className = "vote"
+            button.dataset.pick = choice.value
+            button.textContent = choice.label
             button.addEventListener("click", () => {
-                if (feedback[dimension] === vote) delete feedback[dimension]
-                else feedback[dimension] = vote
-
-                for (const other of votes.children) {
-                    const picked = feedback[dimension] === (other.textContent === "Agree" ? "agree" : "disagree")
-                    other.classList.toggle("vote--picked", picked)
-                    other.setAttribute("aria-pressed", picked ? "true" : "false")
-                }
+                feedback[key] = feedback[key] === choice.value ? null : choice.value
+                show()
             })
-
             votes.appendChild(button)
         }
 
+        show()
         return votes
+    }
+
+    const VOTES = [
+        { value: "agree", label: "Agree" },
+        { value: "disagree", label: "Disagree" },
+    ]
+
+    function voteButtons(dimension) {
+        return pickButtons(dimension, VOTES)
+    }
+
+    // The colour a dimension is drawn in, wherever it is drawn — or nothing, for
+    // one the run does not hold.
+    function colourOf(dimension) {
+        return known(dimension) ? dimensions[dimension][0].color : undefined
+    }
+
+    // The name across the top of a section, with the colour its figure is drawn
+    // in beside it. The colour is written onto the section itself, so the dot,
+    // and anything in the card without a colour of its own, read in it.
+    function nameSection(section, label, colour) {
+        section.style.setProperty("--chart", colour || "var(--gold)")
+
+        const heading = document.createElement("h2")
+        heading.className = "result__name"
+        heading.innerHTML = '<i class="result__dot" aria-hidden="true"></i><span></span>'
+        heading.lastChild.textContent = label
+        section.appendChild(heading)
+    }
+
+    // One row's first line: the dimension's name, and where it stands against
+    // other people as a tag beside it.
+    function rowHead(dimension, standing) {
+        const head = document.createElement("div")
+        head.className = "row__head"
+        head.innerHTML = '<p class="row__name"></p><p class="row__stand"></p>'
+        head.firstChild.textContent = dimension
+        head.lastChild.innerHTML = standing
+        return head
     }
 
     // Where a score sits in the population, drawn: the bar runs from the bottom
@@ -1517,7 +1907,6 @@ function makeResults(engine) {
     function percentileBar(dimension, share) {
         const bar = document.createElement("div")
         bar.className = "bar"
-        bar.style.setProperty("--chart", dimensions[dimension][0].color || "var(--accent)")
         bar.innerHTML =
             '<div class="bar__track"><div class="bar__fill" style="width:' +
             share +
@@ -1542,16 +1931,9 @@ function makeResults(engine) {
             const reading = norm.interpretations && norm.interpretations[tercile(standing.proportion)]
             const row = document.createElement("div")
             row.className = "row"
+            row.style.setProperty("--chart", colourOf(dimension) || "var(--accent)")
 
-            row.innerHTML =
-                '<p class="row__lead">Your score of <b>' +
-                dimension +
-                "</b> is " +
-                standing.direction +
-                " than <b>" +
-                standing.share +
-                "%</b> of people.</p>"
-
+            row.appendChild(rowHead(dimension, sentence(standing.direction) + " than <b>" + standing.share + "%</b> of people"))
             row.appendChild(percentileBar(dimension, standing.centile))
 
             if (reading) {
@@ -1579,11 +1961,11 @@ function makeResults(engine) {
             const norm = normOf(dimension)
             const row = document.createElement("div")
             row.className = "row"
+            row.style.setProperty("--chart", colourOf(dimension) || "var(--accent)")
 
-            row.innerHTML =
-                '<p class="row__lead">Your score of <b>' +
-                dimension +
-                '</b> is <span class="blank">higher than 00% of people</span>.</p>'
+            const head = rowHead(dimension, "Higher than <b>00%</b> of people")
+            head.lastChild.classList.add("blank")
+            row.appendChild(head)
 
             // The bar a finished level would show, standing at nothing.
             if (norm) {
@@ -1614,14 +1996,21 @@ function makeResults(engine) {
         if (locked) {
             const progress = levelProgress(level)
             const left = progress.size - progress.answered
-            const note = document.createElement("p")
+            const note = document.createElement("div")
             note.className = "taste"
-            note.innerHTML = "<b>" + left + " more answer" + (left === 1 ? "" : "s") + "</b> unlocks this"
+            note.innerHTML =
+                "<span><b>" +
+                left +
+                " more answer" +
+                (left === 1 ? "" : "s") +
+                '</b> unlocks this</span><span class="taste__meter" aria-hidden="true"><i style="width:' +
+                progress.share +
+                '%"></i></span>'
             into.appendChild(note)
         }
 
         for (const name of RUN) {
-            // Mood, Strain and Health are three questionnaires' worth of
+            // Mood, Stress and Health are three questionnaires' worth of
             // items — the PHQ-4, the Dissociation questionnaire, the SSS-8 —
             // but one section, rendered once in place of whichever of the
             // three is first in the run and skipped where the other two would
@@ -1640,10 +2029,7 @@ function makeResults(engine) {
                 const section = document.createElement("section")
                 section.className = "result" + (locked ? " result--locked" : "")
 
-                const heading = document.createElement("h2")
-                heading.className = "result__name"
-                heading.textContent = "Mood & Health"
-                section.appendChild(heading)
+                nameSection(section, "Mood & Health", colourOf("Stress"))
 
                 const body = document.createElement("div")
                 body.className = "result__body"
@@ -1666,10 +2052,7 @@ function makeResults(engine) {
                 const section = document.createElement("section")
                 section.className = "result" + (locked ? " result--locked" : "")
 
-                const heading = document.createElement("h2")
-                heading.className = "result__name"
-                heading.textContent = QUESTIONNAIRES[name].name || name
-                section.appendChild(heading)
+                nameSection(section, QUESTIONNAIRES[name].name || name, colourOf(ARCHETYPE_ON[0]))
 
                 const body = document.createElement("div")
                 body.className = "result__body"
@@ -1692,10 +2075,7 @@ function makeResults(engine) {
                 const section = document.createElement("section")
                 section.className = "result" + (locked ? " result--locked" : "")
 
-                const heading = document.createElement("h2")
-                heading.className = "result__name"
-                heading.textContent = QUESTIONNAIRES[name].name || name
-                section.appendChild(heading)
+                nameSection(section, QUESTIONNAIRES[name].name || name)
 
                 const body = document.createElement("div")
                 body.className = "result__body"
@@ -1716,11 +2096,11 @@ function makeResults(engine) {
             const label = QUESTIONNAIRES[name].name || name
             const section = document.createElement("section")
             section.className = "result" + (locked ? " result--locked" : "")
+            // The two theories are two cards already; a card round the pair
+            // would be a box in a box.
+            if (name === OLD_THEORIES_OF) section.classList.add("result--bare")
 
-            const heading = document.createElement("h2")
-            heading.className = "result__name"
-            heading.textContent = label
-            section.appendChild(heading)
+            nameSection(section, label, colourOf(shown[0]))
 
             const body = document.createElement("div")
             body.className = "result__body"
@@ -1763,14 +2143,68 @@ function makeResults(engine) {
                 }
             }
 
+            // The FIPI's whole reading is the two old theories — the star
+            // sign, and the temperament read off its two normed dimensions —
+            // so, like the MINT, it takes no rows underneath.
+            if (name === OLD_THEORIES_OF) body.appendChild(renderOldTheories(locked))
+
             // The body says everything the MINT has to say on its own, votes
-            // and all; every other questionnaire reads a row at a time under
-            // its chart.
-            if (name !== SOMA) body.appendChild(locked ? lockedRows(shown) : resultRows(shown))
+            // and all, and the two theories say everything the FIPI has to;
+            // every other questionnaire reads a row at a time under its chart.
+            if (name !== SOMA && name !== OLD_THEORIES_OF) body.appendChild(locked ? lockedRows(shown) : resultRows(shown))
 
             section.appendChild(body)
             into.appendChild(section)
         }
+
+        markLone(into)
+    }
+
+    // A taste of the level after this one, for the foot of a finished level:
+    // "Next", the level's name, and the blurred figures it will open, each with
+    // how many answers stand between here and it written across its middle. It
+    // is the same locked rendering a stop's panel shows, with the rows and the
+    // note taken out — a blurred figure is the hook, and ten blurred rows under
+    // it only look like a page that failed to load. A questionnaire with no
+    // figure of its own is left out for the same reason, since stripped of its
+    // rows it would be an empty card. Nothing readable is drawn: the figures
+    // come from `teaseValue`, carry no tooltip and take no pointer events,
+    // exactly as in a locked panel.
+    function renderTeaser(into, level, title) {
+        renderResults(into, level, true)
+
+        for (const extra of into.querySelectorAll(".rows, .taste, .result__lock")) extra.remove()
+        for (const section of into.querySelectorAll(".result")) {
+            if (!section.querySelector(".result__body").children.length) section.remove()
+        }
+
+        // The count stands where the locked panel's badge did, over every
+        // figure of the level rather than only the charts.
+        const progress = levelProgress(level)
+        const left = progress.size - progress.answered
+        for (const body of into.querySelectorAll(".result__body")) {
+            const badge = document.createElement("span")
+            badge.className = "result__lock"
+            badge.textContent = left + " more answer" + (left === 1 ? "" : "s") + " to unlock"
+            body.appendChild(badge)
+        }
+
+        const head = document.createElement("div")
+        head.className = "level__next-head"
+        head.innerHTML = '<p class="level__next-word">Next</p><p class="level__next-title"></p>'
+        head.lastChild.textContent = title
+        into.insertBefore(head, into.firstChild)
+
+        markLone(into)
+        into.hidden = !into.querySelector(".result")
+    }
+
+    // A level that opens one section only does not name it: the level's own
+    // name already has, over the top of it. A level of two or more keeps a
+    // name on each, since there the names are what tell them apart.
+    function markLone(into) {
+        const sections = into.querySelectorAll(".result")
+        for (const section of sections) section.classList.toggle("result--lone", sections.length === 1)
     }
 
     /* -------------------------- opening what was won ---------------------- */
@@ -1851,9 +2285,71 @@ function makeResults(engine) {
         drawSpider(chart, PROFILE, true)
     }
 
+    /* ---------------------------- what was voted on ----------------------- */
+
+    // Every key an agree/disagree can be filed under, in the order the results
+    // read in. It is here so that the saved file can carry the whole set with a
+    // `null` against the ones nobody voted on: a run that stopped at level 2
+    // and one that went to the end then have the same shape, and an analysis
+    // does not have to know which keys to expect.
+    //
+    // It is derived the way `renderResults` decides what to draw, and reads as
+    // that dispatch does: the sections that stand in for a questionnaire name
+    // their own key, and everywhere else a vote follows a prediction, so the
+    // keys are the dimensions whose norms carry a reading to agree with.
+    function feedbackKeys() {
+        const keys = []
+        const add = (name) => {
+            const key = filed(name)
+            if (keys.indexOf(key) === -1) keys.push(key)
+        }
+
+        for (const name of RUN) {
+            if (MOOD_HEALTH_OF.indexOf(name) !== -1) {
+                if (name !== MOOD_HEALTH_FIRST) continue
+                for (const build of MOOD_HEALTH) {
+                    const spec = build()
+                    if (spec.norm && spec.norm.interpretations) add(spec.key)
+                }
+                continue
+            }
+
+            if (name === ARCHETYPE_OF) {
+                add(ARCHETYPE_KEY)
+                continue
+            }
+
+            if (name === WHEEL_OF) {
+                add(WHEEL_KEY)
+                continue
+            }
+
+            // The FIPI's reading is the two theories and no rows, so its two
+            // votes are theirs rather than any dimension's.
+            if (name === OLD_THEORIES_OF) {
+                add(STARS_KEY)
+                add(TEMPERAMENT_KEY)
+                continue
+            }
+
+            for (const dimension of dimensionsOf(name)) {
+                const norm = normOf(dimension)
+                if (norm.interpretations) add(dimension)
+            }
+        }
+
+        return keys
+    }
+
+    // Written in at the start rather than at the end: the object handed over is
+    // the one the file is made of, so the keys are all there from the first
+    // answer, and voting only ever replaces a null.
+    for (const key of feedbackKeys()) if (feedback[key] === undefined) feedback[key] = null
+
     return {
         renderExample: renderExample,
         renderResults: renderResults,
+        renderTeaser: renderTeaser,
         sealSections: sealSections,
         openSections: openSections,
         renderProfile: renderProfile,

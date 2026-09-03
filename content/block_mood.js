@@ -5,7 +5,7 @@ defineBlock("mood", [
         text:
             "<h2>Now, how you have been.</h2>" +
             "<p>What follows is about the last few weeks rather than about you in general: your mood, how you " +
-            "have been sleeping, and some experiences related to difficult memories and unusual feelings.</p>" +
+            "have been sleeping, and how difficult memories have been sitting with you.</p>" +
             "<p>These are ordinary parts of human experience. What differs between people is how often they come " +
             "and how much they weigh.</p>" +
             "<p><em>Answer for the last few weeks as they actually were, not for how you usually are.</em></p>",
@@ -71,7 +71,7 @@ defineBlock("mood", [
 
     {
         key: "Dissociation",
-        name: "Strain",
+        name: "Stress",
         instructions: "",
         // Put on the same 5-option response format as the PHQ-4 — "in among
         // one another" in spirit if not literally the same questionnaire —
@@ -93,15 +93,16 @@ defineBlock("mood", [
             hovercolors: ["#22c55e", "#ef4444"],
         },
 
-        // The CDS-2 and PCL-2 measure two different things — detachment from
-        // one's surroundings, and the return of difficult memories — but nothing
-        // downstream reads them apart from each other, so they are pooled into
-        // one dimension rather than reported as two. "Strain" is the name this
-        // section has always carried; the score behind it just used to be split
-        // in half.
+        // Stress is the PCL-2 — the return of difficult memories — read as one
+        // dimension. Until September 2026 the CDS-2 (detachment from one's
+        // surroundings) was pooled into it too, under the name "Strain"; the
+        // CDS-2 is commented out below, its ground now covered by the HiTOP-BR's
+        // Unusual Experiences on this same level, and "Stress" is the plain
+        // name for what the PCL-2 picks up. The questionnaire key is still
+        // `Dissociation`, so saved files line up.
         // PLACEHOLDER norms, invented. Not from any published sample.
         norms: {
-            Strain: {
+            Stress: {
                 mean: 1.0,
                 sd: 1.0,
                 interpretations: {
@@ -123,31 +124,37 @@ defineBlock("mood", [
 
         items: [
             // CDS-2 ================================================================
-            // The 2-item version of the Cambridge Depersonalisation Scale
-            // (Michal et al., 2011). The two items found to discriminate best
-            // between patients with and without clinically significant
-            // depersonalisation/derealisation.
-            {
-                key: "CSD2_Depersonalisation_1",
-                dimension: "Strain",
-                text: "<small>Over the last 2 weeks, how often have you been bothered by this experience:</small><br /><em>My surroundings feel detached or unreal, as if there was a veil between me and the outside world</em>",
-            },
-            {
-                key: "CSD2_Depersonalisation_2",
-                dimension: "Strain",
-                text: "<small>Over the last 2 weeks, how often have you been bothered by this experience:</small><br /><em>Out of the blue, I feel strange, as if I were not real or as if I were cut off from the world</em>",
-            },
+            // COMMENTED OUT (September 2026): two of the HiTOP-BR items asked on
+            // this level ("I felt like I was outside of my body", "I felt that
+            // things around me were not real") are the same content over twelve
+            // months, so the two-week window was all these added. Kept whole so
+            // they can be put back by uncommenting; they would rejoin the Stress
+            // dimension as written.
+            // // The 2-item version of the Cambridge Depersonalisation Scale
+            // // (Michal et al., 2011). The two items found to discriminate best
+            // // between patients with and without clinically significant
+            // // depersonalisation/derealisation.
+            // {
+            //     key: "CSD2_Depersonalisation_1",
+            //     dimension: "Stress",
+            //     text: "<small>Over the last 2 weeks, how often have you been bothered by this experience:</small><br /><em>My surroundings feel detached or unreal, as if there was a veil between me and the outside world</em>",
+            // },
+            // {
+            //     key: "CSD2_Depersonalisation_2",
+            //     dimension: "Stress",
+            //     text: "<small>Over the last 2 weeks, how often have you been bothered by this experience:</small><br /><em>Out of the blue, I feel strange, as if I were not real or as if I were cut off from the world</em>",
+            // },
 
             // PCL-2 ================================================================
             // A 2-item abbreviation of the PTSD Checklist (Bliese et al., 2008).
             {
                 key: "PCL2_Trauma_1",
-                dimension: "Strain",
+                dimension: "Stress",
                 text: "<small>Over the last 2 weeks, how often have you been bothered by this experience:</small><br /><em>Repeated, disturbing memories of a stressful experience</em>",
             },
             {
                 key: "PCL2_Trauma_2",
-                dimension: "Strain",
+                dimension: "Stress",
                 text: "<small>Over the last 2 weeks, how often have you been bothered by this experience:</small><br /><em>Feeling upset when something reminded you of a stressful experience</em>",
             },
 

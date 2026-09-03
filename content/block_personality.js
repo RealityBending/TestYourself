@@ -4,9 +4,10 @@ defineBlock("personality", [
         key: "Briefing_Traits",
         text:
             "<h2>Now, who you are — closer up.</h2>" +
-            "<p>The first level sketched your personality in five strokes. The next stretch draws it properly: eighteen " +
-            "statements going over the same ground from more angles, and adding a sixth trait the classic five " +
-            "leave out — <b>honesty and humility</b>: how far you can be bought, flattered or impressed by status.</p>" +
+            "<p>The first level sketched your personality in five strokes. This one goes over the same ground from " +
+            "more angles, in twenty-eight short statements about how you tend to act, and adds the trait the classic " +
+            "five leave out — <b>honesty and humility</b>: how far you can be bought, flattered or impressed by " +
+            "status. All six come back to you as one chart at the end of the level.</p>" +
             "<p>The statements are quick and plain. Go with the first answer that fits.</p>" +
             "<p><em>Rate how well each one describes you as you generally are, not on your best day or your worst.</em></p>",
     },
@@ -164,21 +165,30 @@ defineBlock("personality", [
     // are reverse-keyed. Item keys name the facet, and the comment beside
     // each item gives its HEXACO-100 number.
     //
-    // "(HEXACO)" on every dimension because a dimension is one name across
-    // the whole run: Extraversion, Agreeableness, Conscientiousness and
-    // Openness are already the FIPI's names on level 1, on a scale this does
-    // not share, and the HEXACO's versions are not the same constructs — its
-    // Agreeableness holds patience and forgiveness, its Emotionality is not
-    // Neuroticism.
+    // THE DOMAINS CARRY PLAIN NAMES (September 2026), for two reasons at once.
+    // A dimension is one name across the whole run, and Extraversion,
+    // Agreeableness, Conscientiousness and Openness are already the FIPI's
+    // names on level 1, on a scale this does not share — so the four that
+    // collide used to carry a "(HEXACO)" tag, which on a chart for the public
+    // read as jargon. And the HEXACO's versions are not the Big Five's
+    // constructs anyway: its Agreeableness is patience, forgiveness and
+    // gentleness, its Openness is curiosity, aesthetics and unconventionality,
+    // its Emotionality is fear, worry and dependence rather than the reverse
+    // of calm. So the six are named for what the items actually ask:
+    //
+    //     Honesty-Humility   (as published)
+    //     Emotionality       (as published — nothing on the FIPI to collide with)
+    //     Sociability        for eXtraversion
+    //     Patience           for Agreeableness
+    //     Diligence          for Conscientiousness
+    //     Curiosity          for Openness to Experience
+    //
+    // The item keys still name the HEXACO facet, so the mapping back is exact.
 
     {
         key: "hexaco18",
-        name: "HEXACO",
+        name: "Character",
         instructions: "Please indicate how much you agree or disagree with this statement",
-        // Kept off the whole-run profile web: the Big Five already stand for
-        // personality there, and six more axes would crowd the rest. The chart
-        // on this level is where these are read.
-        profile: false,
         format: {
             options: [
                 { value: 1, text: "Strongly disagree" },
@@ -190,9 +200,14 @@ defineBlock("personality", [
             color: "#c026d3",
         },
 
+        // THE FULL PORTRAIT IS FED BACK HERE (September 2026): all six domains,
+        // as a spider chart with a row apiece, and all six take axes on the
+        // whole-run web. The FIPI on level 1 is the two-row sketch — Extraversion
+        // and Emotional Stability — that this fills in; its other three norms
+        // are commented out there rather than here.
         // PLACEHOLDER norms, invented. Not from any published sample.
         norms: {
-            "Honesty-Humility (HEXACO)": {
+            "Honesty-Humility": {
                 mean: 3.6,
                 sd: 0.7,
                 interpretations: {
@@ -201,7 +216,7 @@ defineBlock("personality", [
                     high: "you deal straight, want no fuss made of your standing, and are hard to impress with money.",
                 },
             },
-            "Emotionality (HEXACO)": {
+            "Emotionality": {
                 mean: 3.2,
                 sd: 0.7,
                 interpretations: {
@@ -210,7 +225,7 @@ defineBlock("personality", [
                     high: "you feel fear and worry keenly, and when something hurts you want somebody there.",
                 },
             },
-            "Extraversion (HEXACO)": {
+            "Sociability": {
                 mean: 3.3,
                 sd: 0.7,
                 interpretations: {
@@ -219,7 +234,7 @@ defineBlock("personality", [
                     high: "you feel liked, say what you think in a meeting, and carry more energy than most of the people around you.",
                 },
             },
-            "Agreeableness (HEXACO)": {
+            "Patience": {
                 mean: 3.1,
                 sd: 0.6,
                 interpretations: {
@@ -228,7 +243,7 @@ defineBlock("personality", [
                     high: "you forgive readily, take people's faults in your stride, and keep your temper when provoked.",
                 },
             },
-            "Conscientiousness (HEXACO)": {
+            "Diligence": {
                 mean: 3.5,
                 sd: 0.7,
                 interpretations: {
@@ -237,7 +252,7 @@ defineBlock("personality", [
                     high: "you see goals through, think before you act, and keep your work in order.",
                 },
             },
-            "Openness (HEXACO)": {
+            "Curiosity": {
                 mean: 3.5,
                 sd: 0.7,
                 interpretations: {
@@ -252,18 +267,18 @@ defineBlock("personality", [
             // Honesty-Humility
             {
                 key: "HEXACO_Sincerity", // 78
-                dimension: "Honesty-Humility (HEXACO)",
+                dimension: "Honesty-Humility",
                 text: "I wouldn't pretend to like someone just to get that person to do favors for me.",
             },
             {
                 key: "HEXACO_GreedAvoidance", // 66 R
-                dimension: "Honesty-Humility (HEXACO)",
+                dimension: "Honesty-Humility",
                 text: "I would like to be seen driving around in a very expensive car.",
                 reverse: true,
             },
             {
                 key: "HEXACO_Modesty", // 96 R
-                dimension: "Honesty-Humility (HEXACO)",
+                dimension: "Honesty-Humility",
                 text: "I want people to know that I am an important person of high status.",
                 reverse: true,
             },
@@ -271,37 +286,37 @@ defineBlock("personality", [
             // Emotionality
             {
                 key: "HEXACO_Fearfulness", // 77 R
-                dimension: "Emotionality (HEXACO)",
+                dimension: "Emotionality",
                 text: "Even in an emergency I wouldn't feel like panicking.",
                 reverse: true,
             },
             {
                 key: "HEXACO_Dependence", // 17
-                dimension: "Emotionality (HEXACO)",
+                dimension: "Emotionality",
                 text: "When I suffer from a painful experience, I need someone to make me feel comfortable.",
             },
             {
                 key: "HEXACO_Anxiety", // 11
-                dimension: "Emotionality (HEXACO)",
+                dimension: "Emotionality",
                 text: "I sometimes can't help worrying about little things.",
             },
 
             // Extraversion — all three keyed towards the low pole
             {
                 key: "HEXACO_SocialSelfEsteem", // 52 R
-                dimension: "Extraversion (HEXACO)",
+                dimension: "Sociability",
                 text: "I feel that I am an unpopular person.",
                 reverse: true,
             },
             {
                 key: "HEXACO_SocialBoldness", // 10 R
-                dimension: "Extraversion (HEXACO)",
+                dimension: "Sociability",
                 text: "I rarely express my opinions in group meetings.",
                 reverse: true,
             },
             {
                 key: "HEXACO_Liveliness", // 94 R
-                dimension: "Extraversion (HEXACO)",
+                dimension: "Sociability",
                 text: "Most people are more upbeat and dynamic than I generally am.",
                 reverse: true,
             },
@@ -309,17 +324,17 @@ defineBlock("personality", [
             // Agreeableness
             {
                 key: "HEXACO_Forgiveness", // 3
-                dimension: "Agreeableness (HEXACO)",
+                dimension: "Patience",
                 text: "I rarely hold a grudge, even against people who have badly wronged me.",
             },
             {
                 key: "HEXACO_Gentleness", // 33
-                dimension: "Agreeableness (HEXACO)",
+                dimension: "Patience",
                 text: "I generally accept people's faults without complaining about them.",
             },
             {
                 key: "HEXACO_Patience", // 93 R
-                dimension: "Agreeableness (HEXACO)",
+                dimension: "Patience",
                 text: "I find it hard to keep my temper when people insult me.",
                 reverse: true,
             },
@@ -327,19 +342,19 @@ defineBlock("personality", [
             // Conscientiousness — all three keyed towards the low pole
             {
                 key: "HEXACO_Diligence", // 56 R
-                dimension: "Conscientiousness (HEXACO)",
+                dimension: "Diligence",
                 text: "Often when I set a goal, I end up quitting without having reached it.",
                 reverse: true,
             },
             {
                 key: "HEXACO_Prudence", // 44 R
-                dimension: "Conscientiousness (HEXACO)",
+                dimension: "Diligence",
                 text: "I make a lot of mistakes because I don't think before I act.",
                 reverse: true,
             },
             {
                 key: "HEXACO_Organization", // 74 R
-                dimension: "Conscientiousness (HEXACO)",
+                dimension: "Diligence",
                 text: "When working, I sometimes have difficulties due to being disorganized.",
                 reverse: true,
             },
@@ -347,197 +362,109 @@ defineBlock("personality", [
             // Openness to Experience
             {
                 key: "HEXACO_Unconventionality", // 19 R
-                dimension: "Openness (HEXACO)",
+                dimension: "Curiosity",
                 text: "I think that paying attention to radical ideas is a waste of time.",
                 reverse: true,
             },
             {
                 key: "HEXACO_AestheticAppreciation", // 49
-                dimension: "Openness (HEXACO)",
+                dimension: "Curiosity",
                 text: "If I had the opportunity, I would like to attend a classical music concert.",
             },
             {
                 key: "HEXACO_Creativity", // 37
-                dimension: "Openness (HEXACO)",
+                dimension: "Curiosity",
                 text: "I would enjoy creating a work of art, such as a novel, a song, or a painting.",
             },
-        ],
-    },
 
-    {
-        type: "briefing",
-        key: "Briefing_Spectra",
-        text:
-            "<h2>Now, the last year.</h2>" +
-            "<p>Back to the calendar. The last stretch asked how you generally are; the next widens the frame from the " +
-            "few weeks of the previous level to the <b>last twelve months</b>, and asks about the kind of experiences " +
-            "psychology has spent a century sorting into categories — and lately into spectra, which is how they are " +
-            "asked here: not whether you have something, but how much of each of several things has been true of " +
-            "you.</p>" +
-            "<p>Some statements will describe you well and some not at all. Every one of them describes somebody, " +
-            "and most describe more people than admit to it.</p>" +
-            "<p><em>Think of the significant times in the last twelve months when a statement applied to you, and say " +
-            "how well it described you then.</em></p>",
-    },
-
-    // HiTOP-BR =============================================================
-    // The Brief Report form of the Hierarchical Taxonomy of Psychopathology
-    // self-report (Simms et al., 2026, "Assessment of the HiTOP Model:
-    // Introducing the HiTOP-SR and HiTOP-BR", under review at Assessment), as
-    // shipped in the {hitop} R package (github.com/jmgirard/hitop,
-    // data-raw/hitopbr_items.csv): 45 statements about the last twelve months
-    // on a 4-point scale, no reversed items, scored as the mean of each of six
-    // spectra. Item keys follow the package's own item numbers, HBR_01 to
-    // HBR_45, so a saved file can be handed straight to score_hitopbr() with
-    // the items in instrument order; their membership below is the package's
-    // (which corrected item 36 to Internalizing after the development
-    // workbook). Two more scales cut across the six — the Externalizing
-    // superspectrum (items 1, 13, 15, 16, 25, 32, 34, 35, 40, 45) and the
-    // p-factor (1, 6, 11, 14, 22, 23, 25, 28, 31, 32, 35, 37) — and an item
-    // here carries one dimension, so both are left to analysis time, the way
-    // the SSS-8's sum is.
-    //
-    // The 1-4 coding is kept rather than shifted to 0-3 because the norms
-    // below are written in it.
-
-    {
-        key: "hitopbr",
-        name: "Psychopathology",
-        instructions:
-            "Consider whether there have been significant times during the <b>last 12 months</b> during which this " +
-            "statement applied to you, and choose the option that best describes how well it described you during " +
-            "that period.",
-        format: {
-            options: [
-                { value: 1, text: "Not at all" },
-                { value: 2, text: "A little" },
-                { value: 3, text: "Moderately" },
-                { value: 4, text: "A lot" },
-            ],
-            vertical: true,
-            color: "#be123c",
-            hovercolors: ["#22c55e", "#ef4444"],
-        },
-
-        // NOT placeholders, for once: the means and SDs are the spectrum
-        // scores of the HiTOP-BR's Development Sample 2 — N = 780 Prolific
-        // participants stratified by sex and age towards the US population —
-        // as printed in Table 1 of Simms et al. (2026) and transcribed in the
-        // {hitop} package (data-raw/hitopbr_table1.R). It is a development
-        // sample and not a norming sample, and every spectrum piles up near
-        // its floor of 1 (Thought Disorder's mean is 1.26), so the normal
-        // percentile these are read through is coarse at the low end: a run of
-        // "Not at all" comes out around the 30th percentile, not the 1st. The
-        // interpretations are ours.
-        norms: {
-            Somatoform: {
-                mean: 1.82,
-                sd: 0.71,
-                interpretations: {
-                    low: "your body has mostly kept quiet this year: few unexplained aches, and little worry about what a symptom might mean.",
-                    mid: "you have had your share of bodily complaints and the odd worry about your health, about as often as most people report.",
-                    high: "you have been bothered by bodily symptoms, and by worry about what they mean, more than most people report — a heavy thing to carry, and not on its own a sign of anything in particular.",
-                },
-            },
-            Internalizing: {
-                mean: 1.85,
-                sd: 0.77,
-                interpretations: {
-                    low: "anxiety, low mood and self-reproach have troubled you less this year than they do most people.",
-                    mid: "worry, low moods and difficult memories have reached you about as often as they reach most people.",
-                    high: "you have been weighed on by anxiety, intense moods or harsh feelings about yourself more than most people report — common under strain, and not a diagnosis of anything.",
-                },
-            },
-            "Thought Disorder": {
-                mean: 1.26,
-                sd: 0.46,
-                interpretations: {
-                    low: "the line between what is real and what is imagined has held firm for you this year, as it does for most people.",
-                    mid: "you have had the occasional moment where a perception or a fantasy felt more real than it should, about as often as most people report.",
-                    high: "you have had more moments than most people report where perceptions, fantasies or your own body felt unreal or out of place — experiences far more widespread than is usually admitted, and saying nothing on their own.",
-                },
-            },
-            Detachment: {
-                mean: 2.13,
-                sd: 0.88,
-                interpretations: {
-                    low: "you have wanted company and closeness this year more than most people do, and found little appeal in being left alone.",
-                    mid: "you have moved between wanting company and wanting to be left to yourself, much as most people do.",
-                    high: "you have preferred your own company, and kept close relationships at arm's length, more than most people report.",
-                },
-            },
-            Disinhibition: {
-                mean: 1.65,
-                sd: 0.6,
-                interpretations: {
-                    low: "you have planned, kept to time and thought before acting this year more reliably than most people.",
-                    mid: "you have kept things broadly in order, with the odd missed deadline or snap decision, about as often as most people.",
-                    high: "deadlines, plans and impulses have got away from you this year more often than most people report.",
-                },
-            },
-            Antagonism: {
-                mean: 1.42,
-                sd: 0.45,
-                interpretations: {
-                    low: "you have had little appetite this year for power, attention or getting the better of other people.",
-                    mid: "you have wanted your share of attention and influence, and taken the odd shortcut to get it, about as much as most people.",
-                    high: "you have wanted power, attention or an edge over other people more than most people admit to — a trait that reads very differently depending on where it is pointed.",
-                },
-            },
-        },
-
-        items: [
-            { key: "HBR_01", dimension: "Antagonism", text: "I found it easy to deceive others." },
-            { key: "HBR_02", dimension: "Antagonism", text: "I deserved special treatment." },
-            { key: "HBR_03", dimension: "Thought Disorder", text: "I saw things that were not really there." },
-            { key: "HBR_04", dimension: "Thought Disorder", text: "My fantasies felt very real to me." },
-            { key: "HBR_05", dimension: "Antagonism", text: "I liked having power." },
-            { key: "HBR_06", dimension: "Somatoform", text: "I felt something was wrong with my body." },
-            { key: "HBR_07", dimension: "Detachment", text: "When I had the chance, I chose to be alone rather than with other people." },
-            { key: "HBR_08", dimension: "Internalizing", text: "My moods were intense and unpredictable." },
-            { key: "HBR_09", dimension: "Internalizing", text: "My mind was flooded with troubling images of a bad experience." },
-            { key: "HBR_10", dimension: "Somatoform", text: "I had pains in several parts of my body." },
-            { key: "HBR_11", dimension: "Thought Disorder", text: "I felt like I was outside of my body." },
-            { key: "HBR_12", dimension: "Detachment", text: "I was happiest when I was alone." },
-            { key: "HBR_13", dimension: "Antagonism", text: "I found it easy to manipulate others." },
+            // KSE-G ------------------------------------------------------
+            // The Social Desirability-Gamma Short Scale (Kemper, Beierlein,
+            // Bensch, Kovaleva & Rammstedt, 2014): six items isolating the
+            // Gamma factor of socially desirable responding — conscious
+            // impression management, after Paulhus — as two facets of three,
+            // exaggerating positive qualities (PQ+) and minimising negative
+            // ones (NQ−). Dealt in among the HEXACO items on purpose: they
+            // are "I…" statements of the same length and register, and a
+            // questionnaire is the unit of shuffling, so being items of this
+            // one is what puts them in among its items rather than in a
+            // block of their own that would announce what it was. The
+            // KSE-G's own 5-point scale runs "doesn't apply at all" to
+            // "applies completely"; here they take the HEXACO's 5-point
+            // agreement scale, which is the price of blending in.
+            //
+            // Scored as two dimensions so the facets can be read apart at
+            // analysis time (the KSE-G total is their mean). The NQ− items
+            // are reverse-keyed, so on both a higher score is a more
+            // flattering self-presentation. NO NORMS, on purpose: this is
+            // measured about the participant, not for them, and is fed back
+            // nowhere — a social-desirability score handed back would only
+            // teach the next answer.
             {
-                key: "HBR_14",
-                dimension: "Somatoform",
-                text:
-                    "I was bothered by several bodily symptoms (e.g., headache, fatigue or stomach problems) for which " +
-                    "there was no clear or sufficient medical explanation.",
+                key: "KSEG_PQ_1",
+                dimension: "Social Desirability (PQ+)",
+                text: "In an argument, I always remain objective and stick to the facts.",
             },
-            { key: "HBR_15", dimension: "Disinhibition", text: "I had trouble planning and keeping to schedules." },
-            { key: "HBR_16", dimension: "Disinhibition", text: "I lost things that I needed." },
-            { key: "HBR_17", dimension: "Somatoform", text: "I was frustrated with having to convince others I had a real illness." },
-            { key: "HBR_18", dimension: "Internalizing", text: "Even when I was very careful, I worried whether I had done something correctly." },
-            { key: "HBR_19", dimension: "Somatoform", text: "Reading articles about disease made me worry about my health." },
-            { key: "HBR_20", dimension: "Disinhibition", text: "I paid my bills late or missed other important deadlines." },
-            { key: "HBR_21", dimension: "Somatoform", text: "I could feel changes in my body." },
-            { key: "HBR_22", dimension: "Internalizing", text: "I was disgusted with myself." },
-            { key: "HBR_23", dimension: "Internalizing", text: "I felt on guard and on edge." },
-            { key: "HBR_24", dimension: "Disinhibition", text: "I was a messy person." },
-            { key: "HBR_25", dimension: "Antagonism", text: "I did things to get others to notice me." },
-            { key: "HBR_26", dimension: "Somatoform", text: "I noticed small changes to how my body feels." },
-            { key: "HBR_27", dimension: "Antagonism", text: "Things went best when I told others what to do." },
-            { key: "HBR_28", dimension: "Thought Disorder", text: "I heard things that no one else could hear." },
-            { key: "HBR_29", dimension: "Disinhibition", text: "I was never on time." },
-            { key: "HBR_30", dimension: "Detachment", text: "I had no interest in romantic relationships." },
-            { key: "HBR_31", dimension: "Detachment", text: "Romantic relationships seemed like a hassle to me." },
-            { key: "HBR_32", dimension: "Disinhibition", text: "I said things without thinking." },
-            { key: "HBR_33", dimension: "Antagonism", text: "People told me I was coldhearted." },
-            { key: "HBR_34", dimension: "Disinhibition", text: "I made decisions quickly without thinking them through." },
-            { key: "HBR_35", dimension: "Disinhibition", text: "I quit tasks that became too challenging." },
-            { key: "HBR_36", dimension: "Internalizing", text: "I had a hard time asserting myself to others." },
-            { key: "HBR_37", dimension: "Detachment", text: "I felt that I did not want to be in a close relationship." },
-            { key: "HBR_38", dimension: "Thought Disorder", text: "I had trouble telling whether something really happened or I just imagined it." },
-            { key: "HBR_39", dimension: "Thought Disorder", text: "I felt that things around me were not real." },
-            { key: "HBR_40", dimension: "Antagonism", text: "I liked attracting the attention of others." },
-            { key: "HBR_41", dimension: "Somatoform", text: "I was afraid that I might suffer from a serious illness." },
-            { key: "HBR_42", dimension: "Internalizing", text: "I thought a lot about death." },
-            { key: "HBR_43", dimension: "Disinhibition", text: "I bought much more than I needed." },
-            { key: "HBR_44", dimension: "Internalizing", text: "I was overwhelmed by anxiety." },
-            { key: "HBR_45", dimension: "Antagonism", text: "I expected to get treated better than others." },
+            {
+                key: "KSEG_PQ_2",
+                dimension: "Social Desirability (PQ+)",
+                text: "Even if I am feeling stressed, I am always friendly and polite to others.",
+            },
+            {
+                key: "KSEG_PQ_3",
+                dimension: "Social Desirability (PQ+)",
+                text: "When talking to someone, I always listen carefully to what the other person says.",
+            },
+            {
+                key: "KSEG_NQ_1",
+                dimension: "Social Desirability (NQ−)",
+                text: "It has happened that I have taken advantage of someone in the past.",
+                reverse: true,
+            },
+            {
+                key: "KSEG_NQ_2",
+                dimension: "Social Desirability (NQ−)",
+                text: "I have occasionally thrown litter away in the countryside or on to the road.",
+                reverse: true,
+            },
+            {
+                key: "KSEG_NQ_3",
+                dimension: "Social Desirability (NQ−)",
+                text: "Sometimes I only help people if I expect to get something in return.",
+                reverse: true,
+            },
+
+            // BSDS -------------------------------------------------------
+            // The Brief Social Desirability Scale (Haghighat, 2007): four
+            // yes/no questions written to catch defensiveness and impression
+            // management at almost no cost in time, here turned into "I…"
+            // statements on the HEXACO's agreement scale so they could be dealt
+            // in beside the KSE-G. COMMENTED OUT (September 2026): its fourth
+            // item is the KSE-G's first NQ− item almost word for word, and the
+            // KSE-G alone covers the ground; consistency indices come from
+            // elsewhere (the reversed HEXACO and MINT items). Kept so it can be
+            // put back by uncommenting.
+            // {
+            //     key: "BSDS_1",
+            //     dimension: "Social Desirability (BSDS)",
+            //     text: "I always practise what I preach.",
+            // },
+            // {
+            //     key: "BSDS_2",
+            //     dimension: "Social Desirability (BSDS)",
+            //     text: "I am always willing to admit it when I make a mistake.",
+            // },
+            // {
+            //     key: "BSDS_3",
+            //     dimension: "Social Desirability (BSDS)",
+            //     text: "I sometimes feel a little bit jealous of the good luck of others.",
+            //     reverse: true,
+            // },
+            // {
+            //     key: "BSDS_4",
+            //     dimension: "Social Desirability (BSDS)",
+            //     text: "I have taken advantage of someone at some point.",
+            //     reverse: true,
+            // },
         ],
     },
 ])

@@ -20,6 +20,10 @@ defineBlock("fast", [
         key: "fipi",
         name: "Personality",
         instructions: "Please indicate the extent to which you agree or disagree with that statement",
+        // A first sketch, not the portrait: the HEXACO on level 4 draws the same
+        // ground in full and takes the axes on the whole-run web, so this stays
+        // off it.
+        profile: false,
         format: {
             options: [1, 2, 3, 4, 5, 6, 7],
             anchors: ["Strongly disagree", "Strongly agree"],
@@ -27,6 +31,16 @@ defineBlock("fast", [
             hovercolors: ["#ef4444", "#22c55e"],
         },
 
+        // ONLY TWO OF THE FIVE ARE FED BACK (September 2026): Extraversion, the
+        // trait everybody recognises, and Emotional Stability, the one the
+        // HEXACO has no counterpart for (its Emotionality is fear, worry and
+        // dependence, not calm). The other three have their norms commented
+        // out, which is the whole of the mechanism — asked, scored and saved,
+        // but no row — because the HEXACO on level 4 reads Agreeableness,
+        // Conscientiousness and Openness back in full, as Patience, Diligence
+        // and Curiosity. Two rows and no chart: `drawSpider` wants three axes,
+        // and "fipi" is out of CHARTS in app.js. Uncomment the three and put
+        // it back there for the five-axis chart.
         // PLACEHOLDER norms, invented. Not from any published sample.
         norms: {
             Extraversion: {
@@ -38,24 +52,24 @@ defineBlock("fast", [
                     high: "you seek out company and conversation, and gain energy from being around other people.",
                 },
             },
-            Agreeableness: {
-                mean: 5.2,
-                sd: 1.1,
-                interpretations: {
-                    low: "you are direct and sceptical, and are comfortable holding a position others disagree with.",
-                    mid: "you cooperate readily, while keeping an eye on your own interests.",
-                    high: "you give people the benefit of the doubt, and put a good deal of weight on keeping the peace.",
-                },
-            },
-            Conscientiousness: {
-                mean: 5.0,
-                sd: 1.3,
-                interpretations: {
-                    low: "you work in bursts, and stay open to changing a plan rather than following it to the letter.",
-                    mid: "you keep on top of what matters without being especially rigid about how.",
-                    high: "you plan ahead, follow through, and are unusually reliable with commitments.",
-                },
-            },
+            // Agreeableness: {
+            //     mean: 5.2,
+            //     sd: 1.1,
+            //     interpretations: {
+            //         low: "you are direct and sceptical, and are comfortable holding a position others disagree with.",
+            //         mid: "you cooperate readily, while keeping an eye on your own interests.",
+            //         high: "you give people the benefit of the doubt, and put a good deal of weight on keeping the peace.",
+            //     },
+            // },
+            // Conscientiousness: {
+            //     mean: 5.0,
+            //     sd: 1.3,
+            //     interpretations: {
+            //         low: "you work in bursts, and stay open to changing a plan rather than following it to the letter.",
+            //         mid: "you keep on top of what matters without being especially rigid about how.",
+            //         high: "you plan ahead, follow through, and are unusually reliable with commitments.",
+            //     },
+            // },
             "Emotional Stability": {
                 mean: 4.4,
                 sd: 1.4,
@@ -65,15 +79,15 @@ defineBlock("fast", [
                     high: "you stay steady under pressure, and recover quickly when things go wrong.",
                 },
             },
-            Openness: {
-                mean: 5.3,
-                sd: 1.2,
-                interpretations: {
-                    low: "you prefer the familiar and the practical to the abstract or the experimental.",
-                    mid: "you enjoy new ideas in moderation, while keeping a foot in the tried and tested.",
-                    high: "you are drawn to new ideas, and enjoy the abstract, the creative and the unfamiliar.",
-                },
-            },
+            // Openness: {
+            //     mean: 5.3,
+            //     sd: 1.2,
+            //     interpretations: {
+            //         low: "you prefer the familiar and the practical to the abstract or the experimental.",
+            //         mid: "you enjoy new ideas in moderation, while keeping a foot in the tried and tested.",
+            //         high: "you are drawn to new ideas, and enjoy the abstract, the creative and the unfamiliar.",
+            //     },
+            // },
         },
         items: [
             {
@@ -125,9 +139,14 @@ defineBlock("fast", [
             },
 
             // Single-Item Self-Rated Health (SRH / GSRH; DeSalvo et al., 2006).
-            // Lightly reframed to mention "physical" and "bodily".
+            // Lightly reframed to mention "physical" and "bodily". The one single
+            // with a dimension besides Life Satisfaction: the Health face on
+            // level 3 reads it (results.js, `healthFace`), against a norm
+            // written there, since the SSS-8 that used to feed that face is
+            // commented out. No norms here, so it earns no row of its own.
             {
                 key: "SRH_GeneralHealth",
+                dimension: "General Health",
                 instructions: "Please rate your general physical health and bodily well-being.",
                 format: {
                     options: [1, 2, 3, 4, 5],

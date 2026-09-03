@@ -7,7 +7,9 @@
    FOUR LISTS, each knowing only the one under it:
 
      TIMELINE            the levels, asked top to bottom
-       level             the blocks of that level, in order
+       level             the blocks of that level, in order — and a `name`,
+                         which is what the gauge, the level screen and the
+                         results panel call it
          block           its entries: briefings and questionnaires, in order
            questionnaire its items
 
@@ -36,6 +38,8 @@
              name: "Interoception",      // what the results screen calls it
              profile: false,             // optional: keep its dimensions off the
                                          // whole-run profile web and card
+             results: false,             // optional: keep its norms but open no
+                                         // section on its level — fed back nowhere
              instructions: "shown under every item of this one (HTML)",
              format: { … },              // the scale, below
              norms: {                    // no norms, no results: a dimension
@@ -142,12 +146,16 @@ function shuffle(arr) {
 // which is what the closing level is for — the last question is asked after
 // the final results have been read rather than instead of them. Keep it last,
 // and keep it alone.
+//
+// A level's `name` is what the gauge's hover card, the results panel and the
+// level screen call it. Its colour on the gauge is not written here: the stops
+// run through one gradient down the line, by position (app.js, `levelColour`).
 const TIMELINE = [
-    { blocks: ["demographics1", "fast"] },
-    { blocks: ["demographics2", "mint"] },
-    { blocks: ["demographics3", shuffle(["mood", "health"])].flat() },
-    { blocks: ["personality"] },
-    { blocks: ["bait"] },
-    { blocks: ["archetypes"] },
-    { blocks: ["closing"] },
+    { name: "Personality", blocks: ["demographics1", "fast"] },
+    { name: "Interoception", blocks: ["demographics2", "mint"] },
+    { name: "Mood & Health", blocks: ["demographics3", shuffle(["mood", "health"]), "hitop"].flat() },
+    { name: "Character", blocks: ["personality"] },
+    { name: "Attitudes to AI", blocks: ["bait"] },
+    { name: "Archetypes", blocks: ["archetypes"] },
+    { name: "Closing", blocks: ["closing"] },
 ]

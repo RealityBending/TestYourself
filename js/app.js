@@ -10,7 +10,10 @@
 ;(function () {
     "use strict"
 
-    const CHARTS = ["fipi", "hexaco18", "hitopbr"] // questionnaires that get a spider chart of their own
+    // Questionnaires that get a spider chart of their own. The FIPI is not
+    // among them: only two of its five dimensions carry norms, and a spider
+    // wants three axes, so it reads back as two rows.
+    const CHARTS = ["hexaco18", "hitopbr"]
     const ADVANCE_DELAY = 330 // ms between answering and the next item
     const TURN = 180 // ms of that spent fading the answered item out
 
@@ -241,7 +244,11 @@
 
     const responses = {} // key -> value, what the scoring reads
     const log = {} // key -> when it was shown, when it was answered, with what
-    const feedback = {} // dimension -> "agree" | "disagree", from the results rows
+    // Every reading that can be agreed with -> "agree" | "disagree" | null,
+    // from the results rows. `makeResults` fills in the keys — it is the only
+    // thing that knows which readings there are — and every one of them is
+    // written into the saved file, null until somebody votes on it.
+    const feedback = {}
     const levelTimes = {} // level -> when its last remaining item was answered
     const timeStart = new Date().toISOString()
 
@@ -351,6 +358,17 @@
         }
     }
 
+    // An item may word itself from an answer already given: `text`, on the item
+    // or on one of its options, may be a function of the answers rather than a
+    // string. It is read through here wherever the words are put on screen or
+    // into the file, so one item can be asked several ways — the part of the
+    // month, worded from the month — without being several items with several
+    // keys. The accessor it is handed is read-only: wording a question is not
+    // answering one.
+    function worded(text) {
+        return typeof text === "function" ? text((key) => responses[key]) : text
+    }
+
     // An answer as it was read on screen: "Male", not 1, and "-3" where that is
     // what the circle had on it. A saved file should be legible without the
     // codebook beside it. An option with nothing written on it — a plain
@@ -362,7 +380,8 @@
         if (Array.isArray(value)) return value.map((one) => said(question, one))
         const option = question.options.find((one) => one.value === value)
         if (!option) return value
-        return option.text !== null ? option.text : option.label || value
+        const label = worded(option.text)
+        return label !== null ? label : option.label || value
     }
 
     /* --------------------------- quality control -------------------------- */
@@ -623,7 +642,8 @@
         button.type = "button"
         button.className = "option" + (option.small ? " option--small" : "")
         button.dataset.value = String(option.value)
-        button.textContent = option.text === null ? option.label || String(option.value) : option.text
+        const label = worded(option.text)
+        button.textContent = label === null ? option.label || String(option.value) : label
         button.setAttribute("role", role)
         button.setAttribute("aria-checked", "false")
         button.addEventListener("click", press)
@@ -634,7 +654,7 @@
     // format gives them. A Likert scale and a list of countries come through
     // here alike — what differs is the writing on the buttons.
     function renderChoice(question, wrap) {
-        const labelled = question.options.some((o) => o.text !== null)
+        const labelled = question.options.some((o) => worded(o.text) !== null)
 
         // A row of circles is only as wide as its circles, so the scale draws
         // its anchors in against them rather than against its own edges — five
@@ -957,7 +977,7 @@
         // The options of the item before it would otherwise still be sitting in
         // the screen behind it, answerable by anything that finds them.
         $("options").innerHTML = ""
-        $("briefing-body").innerHTML = question.text
+        $("briefing-body").innerHTML = worded(question.text)
     }
 
     function renderQuestion() {
@@ -978,7 +998,7 @@
         } else {
             // The item is HTML: a question may carry its own stem, with the thing
             // actually being asked set apart inside it. It comes from content/.
-            $("text").innerHTML = question.text
+            $("text").innerHTML = worded(question.text)
             $("instructions").innerHTML = question.instructions || ""
 
             renderScale(question)
@@ -1030,6 +1050,43 @@
     // are" that is worth watching go up.
     const DEEPEST = 11034 // metres, the Challenger Deep
 
+    // The depth a level is finished at. The line is divided equally between the
+    // scored levels, so it is that level's share of the deepest water there is.
+    function levelDepth(level) {
+        return Math.round(((scoredLevels.indexOf(level) + 1) / scoredLevels.length) * DEEPEST)
+    }
+
+    // A depth written the way the gauge writes it.
+    function sounding(depth) {
+        return depth.toLocaleString("en-GB") + " m"
+    }
+
+    // What the timeline calls a level.
+    function levelName(level) {
+        return TIMELINE[level - 1].name || ""
+    }
+
+    // The stops run through one gradient down the gauge — cyan at the surface,
+    // through blue and violet, to red at the bottom — so a level's colour is
+    // where it falls in the descent and nothing about what it asks. The first
+    // scored level takes the first colour and the last the last, whatever the
+    // count between them.
+    const GAUGE_COLOURS = ["#0891b2", "#1d4ed8", "#6d28d9", "#be185d"]
+
+    function levelColour(level) {
+        const at = scoredLevels.indexOf(level)
+        const share = scoredLevels.length > 1 ? at / (scoredLevels.length - 1) : 0
+        const step = share * (GAUGE_COLOURS.length - 1)
+        const from = Math.min(Math.floor(step), GAUGE_COLOURS.length - 2)
+        return mix(GAUGE_COLOURS[from], GAUGE_COLOURS[from + 1], step - from)
+    }
+
+    // "Level 4 · Traits & Symptoms" — how a level is written wherever it is named.
+    function levelTitle(level) {
+        const name = levelName(level)
+        return "Level " + level + (name ? " · " + name : "")
+    }
+
     // The line is divided equally between the levels, so a level sits at the
     // same point on it however many items it holds: what a long level buys is a
     // slower stretch of water rather than a longer piece of line. A level with
@@ -1080,6 +1137,10 @@
     function buildSidebar() {
         const wrap = $("levels")
 
+        // The kilometre marks down the line: how far apart they are is the
+        // stylesheet's to draw and this file's to know.
+        $("descent-line").style.setProperty("--km", (1000 / DEEPEST) * 100 + "%")
+
         scoredLevels.forEach((level, at) => {
             const button = document.createElement("button")
 
@@ -1088,11 +1149,32 @@
             // again by the level it holds.
             button.dataset.level = level
             button.className = "sidebar__level"
-            button.style.top = ((at + 1) / scoredLevels.length) * 100 + "%"
+            // Where on the line it sits, as a share of it: the stylesheet decides
+            // which way the line runs, down the side or along the foot.
+            button.style.setProperty("--at", ((at + 1) / scoredLevels.length) * 100 + "%")
+            // The number is all that is written on it; the ring round it and
+            // the card that opens beside it are filled in by renderSidebar.
+            // The stop is lit in its level's colour.
+            button.style.setProperty("--tint", levelColour(level))
+            button.setAttribute("aria-label", levelTitle(level))
             button.innerHTML =
-                '<span class="sidebar__level-word">Level</span><span class="sidebar__level-number">' +
+                '<span class="sidebar__level-ring" aria-hidden="true"></span>' +
+                '<span class="sidebar__level-number">' +
                 level +
-                '</span><span class="sidebar__level-label"></span>'
+                "</span>" +
+                '<span class="sidebar__level-badge" aria-hidden="true">' +
+                '<svg viewBox="0 0 12 12"><path d="M2.5 6.2l2.3 2.3 4.7-5" /></svg></span>' +
+                '<span class="sidebar__level-card" aria-hidden="true">' +
+                '<span class="sidebar__level-card-eyebrow">Level ' +
+                level +
+                "</span>" +
+                '<b class="sidebar__level-card-title"></b>' +
+                '<span class="sidebar__level-card-depth"></span>' +
+                '<span class="sidebar__level-card-meter"><i></i></span>' +
+                '<span class="sidebar__level-card-note"></span>' +
+                "</span>"
+            button.querySelector(".sidebar__level-card-title").textContent = levelName(level) || "Level " + level
+            button.querySelector(".sidebar__level-card-depth").textContent = sounding(levelDepth(level))
 
             // The button that opened it closes it again: a level is a thing on
             // the line that is either open or shut, not a link that only leads
@@ -1111,19 +1193,32 @@
         const soFar = depth()
         renderDepth(soFar)
 
-        const share = soFar.share * 100
-        $("descent-fill").style.height = share + "%"
-        $("depth").style.top = share + "%"
+        // How far along the line the fill reaches, whichever way it runs.
+        $("descent-fill").style.setProperty("--reach", soFar.share * 100 + "%")
+
+        // The first level not yet finished is the one being answered.
+        let current = null
 
         for (const button of $("levels").children) {
             const level = Number(button.dataset.level)
             const progress = levelProgress(level)
             const showing = panel === "results" && openLevel === level
+            const now = current === null && !progress.unlocked
+            if (now) current = level
 
+            // The ring round the stop sweeps to the level's share.
+            button.style.setProperty("--share", progress.share)
             button.classList.toggle("sidebar__level--unlocked", progress.unlocked)
+            button.classList.toggle("sidebar__level--current", now)
             button.classList.toggle("sidebar__level--open", showing)
-            button.title = progress.unlocked ? "See the results of level " + level : "See a taste of level " + level + ", still locked"
-            button.querySelector(".sidebar__level-label").textContent = "Level " + level + " · " + progress.share + "%"
+            // The card says where the level stands: finished and readable,
+            // under way, or still ahead. The meter on it reads `--share` off
+            // the button.
+            button.querySelector(".sidebar__level-card-note").textContent = progress.unlocked
+                ? "Unlocked · press to read"
+                : now
+                  ? progress.answered + " of " + progress.size + " answered"
+                  : "Locked · " + progress.size + " question" + (progress.size === 1 ? "" : "s") + " ahead"
             button.setAttribute("aria-expanded", showing ? "true" : "false")
         }
     }
@@ -1170,10 +1265,14 @@
     // `sealed`, not `locked`: that name already means "ignore input while
     // advancing" everywhere else in this file, and this is a different lock.
     function openResults(level) {
-        const sealed = !levelProgress(level).unlocked
+        const progress = levelProgress(level)
+        const sealed = !progress.unlocked
         openLevel = level
         fromLevel(level)
-        $("results-title").textContent = "Level " + level + (sealed ? " — locked" : "")
+        $("results-title").textContent = levelTitle(level)
+        $("results-sub").textContent = sealed
+            ? "Locked · " + progress.answered + " of " + progress.size + " answered"
+            : "Reached at " + sounding(levelDepth(level))
         results.renderResults($("results-body"), level, sealed)
         openPanel("results")
     }
@@ -1292,7 +1391,7 @@
         let lifted = false
 
         $("curtain-title").textContent = "Level " + level + " complete"
-        $("curtain-depth").textContent = metres() + " down"
+        $("curtain-depth").textContent = sounding(levelDepth(level)) + " down"
 
         layer.classList.remove("curtain--out")
         layer.hidden = false
@@ -1329,8 +1428,17 @@
     function completeLevel(level) {
         levelShowing = level
         $("level-title").textContent = "Level " + level + " unlocked"
+        $("level-name").textContent = levelName(level)
 
         results.renderResults($("level-results"), level, false)
+
+        // The way on carries a blurred taste of the level it leads to, when
+        // there is one with something to open: the closing level scores
+        // nothing, so the last scored level is followed by nothing here.
+        const next = scoredLevels[scoredLevels.indexOf(level) + 1]
+        if (next) results.renderTeaser($("level-next"), next, levelTitle(next))
+        else $("level-next").hidden = true
+
         results.sealSections($("level-results"), $("level-foot"))
         renderSidebar()
 
@@ -1602,6 +1710,9 @@
         percentile: percentile,
         tercile: tercile,
         levelProgress: levelProgress,
+        // One answer as given, read-only: what the star sign on level 1 is
+        // read from. Scores stay the way results.js reads the rest.
+        answer: (key) => responses[key],
         showScreen: showScreen,
         burst: burst,
         still: still,
