@@ -50,14 +50,6 @@ function makeResults(engine) {
         return dimensionsIn(name).filter(normOf)
     }
 
-    const SVG = "http://www.w3.org/2000/svg"
-
-    function draw(shape, attributes) {
-        const element = document.createElementNS(SVG, shape)
-        for (const name of Object.keys(attributes)) element.setAttribute(name, attributes[name])
-        return element
-    }
-
     function normOf(dimension) {
         const norms = QUESTIONNAIRES[dimensions[dimension][0].questionnaire].norms
         return norms && norms[dimension]
@@ -213,7 +205,7 @@ function makeResults(engine) {
                 draw("polygon", {
                     class: "chart__average",
                     points: average.map((spot) => spot.join(",")).join(" "),
-                })
+                }),
             )
         }
 
@@ -228,7 +220,7 @@ function makeResults(engine) {
                     class: "chart__area",
                     points: found.map((one) => one.spot.join(",")).join(" "),
                     style: shape,
-                })
+                }),
             )
         } else {
             const spots = {}
@@ -249,7 +241,7 @@ function makeResults(engine) {
                         x2: spots[next][0],
                         y2: spots[next][1],
                         style: shape,
-                    })
+                    }),
                 )
             }
         }
@@ -296,9 +288,7 @@ function makeResults(engine) {
     // ring filled to where the score sits on its own scale, and a locked level
     // draws the same body from `teaseValue`, blurred like everything else.
     const BRAIN = {
-        body:
-            "M-30 2 C-30 -18, -16 -30, 0 -30 C16 -30, 30 -18, 30 2 C30 15, 21 25, 8 26" +
-            " L8 37 L-8 37 L-8 26 C-21 25, -30 15, -30 2 Z",
+        body: "M-30 2 C-30 -18, -16 -30, 0 -30 C16 -30, 30 -18, 30 2 C30 15, 21 25, 8 26" + " L8 37 L-8 37 L-8 26 C-21 25, -30 15, -30 2 Z",
         folds: ["M0 -30 L0 26", "M-17 -17 C-6 -11, -6 -1, -17 5", "M17 -17 C6 -11, 6 -1, 17 5"],
     }
 
@@ -435,7 +425,7 @@ function makeResults(engine) {
                     "stroke-dasharray": round.toFixed(1),
                     "stroke-dashoffset": (round * (1 - reachOf(dimension, value))).toFixed(1),
                     transform: "rotate(-90 150 " + y + ")",
-                })
+                }),
             )
         }
 
@@ -482,7 +472,7 @@ function makeResults(engine) {
                     y1: CORD_TOP,
                     x2: 150,
                     y2: CORD_TOP + run * reachOf(dimension, value),
-                })
+                }),
             )
         }
 
@@ -621,18 +611,6 @@ function makeResults(engine) {
     // places the code names a questionnaire.
     const SOMA = "mint"
 
-    // The same red-to-green mix `app.js` uses on a scale's own hover colours,
-    // kept here rather than borrowed — the seam runs one way, so neither file
-    // reaches across it for a helper this small.
-    function mix(from, to, proportion) {
-        const channels = [1, 3, 5].map((at) => {
-            const start = parseInt(from.substr(at, 2), 16)
-            const end = parseInt(to.substr(at, 2), 16)
-            return Math.round(start + (end - start) * proportion)
-        })
-        return "rgb(" + channels.join(", ") + ")"
-    }
-
     const FACE_RADIUS = 48
     const FACE_CENTRE = 60
 
@@ -650,15 +628,17 @@ function makeResults(engine) {
         const angle = 2 * Math.PI * meanHappy - Math.PI / 2
         const cx = FACE_CENTRE
         const cy = FACE_CENTRE - 5
-        svg.appendChild(
-            draw("line", {
-                class: "face__mean",
-                x1: cx + Math.cos(angle) * (FACE_RADIUS - 9),
-                y1: cy + Math.sin(angle) * (FACE_RADIUS - 9),
-                x2: cx + Math.cos(angle) * (FACE_RADIUS + 9),
-                y2: cy + Math.sin(angle) * (FACE_RADIUS + 9),
-            })
-        ).appendChild(draw("title", {})).textContent = "The average person"
+        svg
+            .appendChild(
+                draw("line", {
+                    class: "face__mean",
+                    x1: cx + Math.cos(angle) * (FACE_RADIUS - 9),
+                    y1: cy + Math.sin(angle) * (FACE_RADIUS - 9),
+                    x2: cx + Math.cos(angle) * (FACE_RADIUS + 9),
+                    y2: cy + Math.sin(angle) * (FACE_RADIUS + 9),
+                }),
+            )
+            .appendChild(draw("title", {})).textContent = "The average person"
     }
 
     function drawFace(svg, happy, meanHappy, colour) {
@@ -680,7 +660,7 @@ function makeResults(engine) {
                 "stroke-dasharray": round.toFixed(1),
                 "stroke-dashoffset": (round * (1 - happy)).toFixed(1),
                 transform: "rotate(-90 " + cx + " " + cy + ")",
-            })
+            }),
         )
 
         if (meanHappy !== null) faceMean(svg, meanHappy)
@@ -750,8 +730,7 @@ function makeResults(engine) {
                 // A general read of what that tends to mean, the same way a
                 // soma organ or a dimension's own row gets one — and the same
                 // pair of buttons every other prediction is voted on with.
-                const told =
-                    spec.norm && spec.norm.interpretations && standing && spec.norm.interpretations[tercile(standing.proportion)]
+                const told = spec.norm && spec.norm.interpretations && standing && spec.norm.interpretations[tercile(standing.proportion)]
                 if (told) {
                     const reading = document.createElement("p")
                     reading.className = "face__told"
@@ -773,7 +752,7 @@ function makeResults(engine) {
     // Level 1 closes on two readings older than any questionnaire, side by
     // side, each saying what it predicts of the person in a few words. The
     // star sign is read from the month of birth and which side of that month's
-    // cusp the day fell (`DayBirth`, in `content/block_demographics1.js`)
+    // cusp the day fell (`BirthDay`, in `content/block_demographics1.js`)
     // — from the birthday and nothing else. The temperament is Galen's four
     // humours on the two axes Eysenck laid them over — extraversion and
     // stability — which happen to be the two FIPI dimensions this level scores
@@ -901,9 +880,9 @@ function makeResults(engine) {
     // The sign, if the half of the month was given; the two it could be, if
     // only the month was; nothing without even that.
     function starSign() {
-        const month = answer("MonthBirth")
+        const month = answer("BirthMonth")
         if (!month) return undefined
-        const half = answer("DayBirth")
+        const half = answer("BirthDay")
         const first = SIGNS[month - 1]
         const second = SIGNS[month % 12]
         if (half === 1) return { sign: first }
@@ -1036,7 +1015,7 @@ function makeResults(engine) {
         intro.className = "theories__intro"
         intro.textContent =
             "We start by going back to two of the oldest ways of describing a person: the sign you were born under, and the four " +
-            "temperaments of the ancient physicians. Below is what each one predicts about you — complete the test to see whether it holds true."
+            "temperaments of the ancient physicians. Based on your responses, here is what ancient oracles or physicians would say about you. Complete the test to see if it agrees with modern assessments."
         holder.appendChild(intro)
 
         const pair = document.createElement("div")
@@ -1232,27 +1211,32 @@ function makeResults(engine) {
         {
             dimension: "Idealist",
             colour: "#79bc43",
-            reading: "you meet the world expecting it to come good, and that trust keeps you at a thing long after other people have written it off.",
+            reading:
+                "you meet the world expecting it to come good, and that trust keeps you at a thing long after other people have written it off.",
         },
         {
             dimension: "Sage",
             colour: "#40a75b",
-            reading: "you would rather know than be comfortable, and you will go looking for what is actually true even when it is not what anybody wants said.",
+            reading:
+                "you would rather know than be comfortable, and you will go looking for what is actually true even when it is not what anybody wants said.",
         },
         {
             dimension: "Seeker",
             colour: "#009a93",
-            reading: "what pulls you is the next horizon rather than the safe harbour, and you have learnt more about yourself from leaving than from staying.",
+            reading:
+                "what pulls you is the next horizon rather than the safe harbour, and you have learnt more about yourself from leaving than from staying.",
         },
         {
             dimension: "Revolutionary",
             colour: "#009fe3",
-            reading: "you can let a thing end — where others patch and preserve, you clear the ground, on the understanding that nothing new grows in an occupied space.",
+            reading:
+                "you can let a thing end — where others patch and preserve, you clear the ground, on the understanding that nothing new grows in an occupied space.",
         },
         {
             dimension: "Magician",
             colour: "#3b429f",
-            reading: "you work on how a situation is seen rather than on the situation itself, having found that shifting the frame tends to shift the outcome with it.",
+            reading:
+                "you work on how a situation is seen rather than on the situation itself, having found that shifting the frame tends to shift the outcome with it.",
         },
         {
             dimension: "Warrior",
@@ -1262,7 +1246,8 @@ function makeResults(engine) {
         {
             dimension: "Realist",
             colour: "#9e299a",
-            reading: "you have no wish to stand above anybody, and you are usually the steady, unpretentious one in the room rather than the loud one.",
+            reading:
+                "you have no wish to stand above anybody, and you are usually the steady, unpretentious one in the room rather than the loud one.",
         },
         {
             dimension: "Jester",
@@ -1272,7 +1257,8 @@ function makeResults(engine) {
         {
             dimension: "Lover",
             colour: "#ea3f35",
-            reading: "you measure a life by its closeness, and intimacy is where the meaning is for you rather than a reward for having found it elsewhere.",
+            reading:
+                "you measure a life by its closeness, and intimacy is where the meaning is for you rather than a reward for having found it elsewhere.",
         },
         {
             dimension: "Creator",
@@ -1282,12 +1268,14 @@ function makeResults(engine) {
         {
             dimension: "Ruler",
             colour: "#fab913",
-            reading: "you are at your best holding the shape of things, and order is less a constraint you put up with than something you build.",
+            reading:
+                "you are at your best holding the shape of things, and order is less a constraint you put up with than something you build.",
         },
         {
             dimension: "Caregiver",
             colour: "#e8d21a",
-            reading: "you notice who is struggling before they say so and cannot quite leave it there, which is a gift worth asking who returns.",
+            reading:
+                "you notice who is struggling before they say so and cannot quite leave it there, which is a gift worth asking who returns.",
         },
     ]
 
@@ -1312,8 +1300,23 @@ function makeResults(engine) {
         const [x1, y1] = wheelPoint(angle - half, distance)
         const [x2, y2] = wheelPoint(angle + half, distance)
         return (
-            "M" + WHEEL_CX + " " + WHEEL_CY + " L" + x1.toFixed(1) + " " + y1.toFixed(1) +
-            " A" + distance.toFixed(1) + " " + distance.toFixed(1) + " 0 0 1 " + x2.toFixed(1) + " " + y2.toFixed(1) + " Z"
+            "M" +
+            WHEEL_CX +
+            " " +
+            WHEEL_CY +
+            " L" +
+            x1.toFixed(1) +
+            " " +
+            y1.toFixed(1) +
+            " A" +
+            distance.toFixed(1) +
+            " " +
+            distance.toFixed(1) +
+            " 0 0 1 " +
+            x2.toFixed(1) +
+            " " +
+            y2.toFixed(1) +
+            " Z"
         )
     }
 
@@ -1426,7 +1429,7 @@ function makeResults(engine) {
             "aria-label",
             locked
                 ? "Blurred preview of your archetype wheel, still locked"
-                : "Your twelve archetypes, each a petal of a wheel filled to how strongly it describes you"
+                : "Your twelve archetypes, each a petal of a wheel filled to how strongly it describes you",
         )
         chart.appendChild(figure)
         holder.appendChild(chart)
@@ -1456,7 +1459,9 @@ function makeResults(engine) {
             piece("wheel__lead", "Your wheel is an even one")
             piece(
                 "wheel__told",
-                sentence("no one story stands out above the rest: you carry these in much the same measure, which is its own kind of answer.")
+                sentence(
+                    "no one story stands out above the rest: you carry these in much the same measure, which is its own kind of answer.",
+                ),
             )
         } else {
             piece("wheel__lead", top.length > 1 ? "You lead with these, in equal measure" : "You lead with")
@@ -1595,7 +1600,7 @@ function makeResults(engine) {
         for (let ring = 1; ring <= 3; ring++) {
             trace(
                 PROFILE.map((_, position) => spot(position, (radius * ring) / 3)),
-                true
+                true,
             )
             c.stroke()
         }
@@ -1617,7 +1622,7 @@ function makeResults(engine) {
             c.lineWidth = 2
             trace(
                 PROFILE.map((dimension, position) => spot(position, reachOf(dimension, normOf(dimension).mean) * radius)),
-                true
+                true,
             )
             c.stroke()
             c.setLineDash([])
@@ -1681,7 +1686,7 @@ function makeResults(engine) {
                 [72, 596],
                 [96, 596],
             ],
-            false
+            false,
         )
         c.stroke()
         c.fillStyle = "#868fa6"
@@ -1695,7 +1700,7 @@ function makeResults(engine) {
                 [166, 596],
                 [190, 596],
             ],
-            false
+            false,
         )
         c.stroke()
         c.setLineDash([])
@@ -1803,10 +1808,7 @@ function makeResults(engine) {
         into.querySelector(".profile__note").textContent =
             drawn.found === PROFILE.length
                 ? "All " + PROFILE.length + " dimensions revealed."
-                : drawn.found +
-                  " of " +
-                  PROFILE.length +
-                  " dimensions revealed — keep answering to fill in the rest."
+                : drawn.found + " of " + PROFILE.length + " dimensions revealed — keep answering to fill in the rest."
 
         renderShare(into)
     }
@@ -2123,7 +2125,7 @@ function makeResults(engine) {
                         ? "Blurred preview of your " + label.toLowerCase() + ", still locked"
                         : charted
                           ? "Spider chart of your " + label.toLowerCase() + " dimensions"
-                          : "Your interoception: awareness in the head, visceroception in the chest, clarity between them"
+                          : "Your interoception: awareness in the head, visceroception in the chest, clarity between them",
                 )
                 chart.appendChild(figure)
                 body.appendChild(chart)

@@ -7,11 +7,11 @@ defineBlock("mint", [
         type: "briefing",
         key: "Briefing_Interoception",
         text:
-            "<h2>Now, your body.</h2>" +
+            "<h2>Now, let's talk about your body.</h2>" +
             "<p>The questions that follow are about your body and the sensations that come from inside it: your " +
-            "breath, your heartbeat, your stomach, your genitals, your skin. What you feel, how clearly you feel it, and how " +
+            "breath, your heartbeats, your stomach, your genitals, your skin. What you feel, how clearly you feel it, and how " +
             "much of it matters to you.</p>" +
-            "<p>Some of them are blunt, and some will feel strange to be asked. But they might reveal something about you.</p>" +
+            "<p>Some of them are blunt, and some will feel strange to be asked. But they are important to understand you.</p>" +
             "<p><em>Notice what is true of you, rather than what sounds right.</em></p>",
     },
 
@@ -31,33 +31,46 @@ defineBlock("mint", [
             hovercolors: ["#ef4444", "#22c55e"],
         },
 
-        // PLACEHOLDER norms, invented. Not from any published sample.
+        // NOT placeholders: the means and SDs of 1,683 people who have already
+        // answered these 33 items, pooled from the four studies that have asked
+        // them — InteroceptionScale studies 1 and 2, FakeArt and FakeChat — and
+        // scored exactly the way the app scores them, each dimension the mean of
+        // its facets with Clarity turned over. `norms/make_norms.R` is what works
+        // them out and prints them in this shape; re-run it rather than retyping
+        // these, and read the mapping table in it before touching study 1, whose
+        // columns are named for a pilot's constructs rather than for these items.
+        //
+        // They are a pooled convenience sample of online studies and not a norming
+        // sample of anybody in particular: the four samples agree closely on
+        // Awareness and Sensitivity and less so on Clarity (3.07, 3.10, 3.51,
+        // 3.13), and the SDs carry the spread between studies as well as within
+        // them. Real numbers from real people, and still not a population.
         norms: {
             "Bodily Awareness": {
-                mean: 3.9,
-                sd: 1.1,
+                mean: 4.23,
+                sd: 0.87,
                 interpretations: {
-                    low: "you tend to notice what your body is doing only after it's already happened, and its signals often catch you by surprise.",
-                    mid: "you notice the clearer signals your body sends, but subtler ones tend to slip by, or you catch them only afterwards.",
-                    high: "you tend to sense what your body is about to do before it happens, and rarely feel caught off guard by its state.",
+                    low: "You may not pay much attention to what your body is doing in the moment. Physical changes can sometimes go unnoticed until they become obvious or have already passed. For example, you might only realise that you were tense, relaxed, hungry, or needed the toilet once the feeling becomes hard to ignore.",
+                    mid: "You tend to notice the clearer signals your body sends, while subtler sensations can sometimes pass you by. For example, you may easily notice that you are very hungry or relaxed, but be less aware of the small changes that happen before you get to that point.",
+                    high: "You tend to be very aware of what is happening in your body, and often notice physical sensations as they arise. For example, you may pick up quickly on small changes in your level of relaxation, hunger, bodily sensations, or sexual arousal.",
                 },
             },
             "Bodily Sensitivity": {
-                mean: 3.3,
-                sd: 1.2,
+                mean: 3.12,
+                sd: 1.28,
                 interpretations: {
-                    low: "your heart, breathing and stomach mostly go about their business without much of it reaching your attention, especially at rest.",
-                    mid: "you notice your body's stronger signals, but subtler shifts in your heart, breathing or stomach tend to pass you by.",
-                    high: "you notice even subtle shifts in your heart, breathing and stomach, including when your body is calm.",
+                    low: "Your body's small fluctuations often stay in the background unless they become stronger. You might not notice a small change in your breathing or heartbeat, for example, until it becomes quite pronounced.",
+                    mid: "You notice many of the changes happening in your body, especially when they are noticeable, but the smallest shifts can sometimes escape your attention. You might notice that your heart is beating faster after climbing stairs, for instance, without necessarily noticing smaller changes while sitting quietly.",
+                    high: "You tend to be highly tuned in to subtle changes in your body. Small shifts in your breathing, heartbeat, or stomach can stand out to you, even when you are sitting quietly or otherwise feel calm.",
                 },
             },
             "Bodily Clarity": {
-                mean: 3.4,
-                sd: 1.1,
+                mean: 3.17,
+                sd: 0.91,
                 interpretations: {
-                    low: "your body's sensations often arrive without a clear cause: you can feel something happening without knowing what it means.",
-                    mid: "you can usually make sense of what your body is telling you, though some sensations stay hard to place.",
-                    high: "your body's signals tend to come through clearly, and you rarely feel unsure about what they mean.",
+                    low: 'Your body\'s signals can sometimes be difficult to read or make sense of. You might notice that something feels different without being sure whether you are hungry, thirsty, tense, tired, need the toilet, or simply feeling "off".',
+                    mid: "You can usually make sense of what your body is telling you, although some sensations can still be difficult to interpret. Most of the time you can tell what you need physically, but occasionally your body's signals may leave you unsure.",
+                    high: "Your body's signals tend to feel clear and easy to interpret. You usually have a good sense of what you are feeling physically and what your body needs. For example, recognising when you are hungry, thirsty, tense, tired, or need to use the toilet.",
                 },
             },
         },

@@ -64,16 +64,6 @@
         return a
     }
 
-    // A colour `proportion` of the way from one #rrggbb to another.
-    function mix(from, to, proportion) {
-        const channels = [1, 3, 5].map((at) => {
-            const start = parseInt(from.substr(at, 2), 16)
-            const end = parseInt(to.substr(at, 2), 16)
-            return Math.round(start + (end - start) * proportion)
-        })
-        return "rgb(" + channels.join(", ") + ")"
-    }
-
     /* ---------------------------- build the run -------------------------- */
 
     // An item's own entry wins over the questionnaire-wide default.
@@ -752,13 +742,6 @@
     // below it, so what is filled and the number written over it are the same
     // fact said twice, and neither can drift from the other.
     const CURVE = { width: 640, height: 200, floor: 156, peak: 34, reach: 3, samples: 160 }
-    const SVG = "http://www.w3.org/2000/svg"
-
-    function draw(shape, attributes) {
-        const element = document.createElementNS(SVG, shape)
-        for (const name of Object.keys(attributes)) element.setAttribute(name, attributes[name])
-        return element
-    }
 
     function renderCurve(question, wrap) {
         wrap.classList.add("options--curve")

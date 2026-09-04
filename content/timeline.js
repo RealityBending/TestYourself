@@ -151,10 +151,10 @@ function shuffle(arr) {
 // level screen call it. Its colour on the gauge is not written here: the stops
 // run through one gradient down the line, by position (app.js, `levelColour`).
 const TIMELINE = [
-    { name: "Personality", blocks: ["demographics1", "fast"] },
+    { name: "General", blocks: ["demographics1", "fipi", "singles"] },
     { name: "Interoception", blocks: ["demographics2", "mint"] },
     { name: "Mood & Health", blocks: ["demographics3", shuffle(["mood", "health"]), "hitop"].flat() },
-    { name: "Character", blocks: ["personality"] },
+    { name: "Character", blocks: ["hexaco"] },
     { name: "Attitudes to AI", blocks: ["bait"] },
     { name: "Archetypes", blocks: ["archetypes"] },
     { name: "Closing", blocks: ["closing"] },

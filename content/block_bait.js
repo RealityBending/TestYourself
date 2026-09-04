@@ -1,13 +1,11 @@
 defineBlock("bait", [
     {
         type: "briefing",
-        key: "Briefing_AI",
+        key: "Briefing_BAIT",
         text:
-            "<h2>Now, the machines.</h2>" +
-            "<p>You have answered for yourself, for your body, for your last few weeks and for your last year. The questions that follow " +
-            "are about something outside of you: <b>artificial intelligence</b> — what you believe it can produce, and " +
-            "what you make of it.</p>" +
-            "<p><em>Answer for AI as it exists today, not for what it might become.</em></p>",
+            "<h2>Next, what do you think about the new age we are entering.</h2>" +
+            "<p>The questions that follow are about your relationship with <b>artificial intelligence</b>" +
+            " which actually say something about our humanity.</p>",
     },
 
     // BAIT =================================================================
@@ -83,6 +81,7 @@ defineBlock("bait", [
                         { value: 2, text: "A few times per week" },
                         { value: 3, text: "Once a day" },
                         { value: 4, text: "A few times per day" },
+                        { value: 5, text: "A lot of times every day" },
                     ],
                     vertical: true,
                     color: "#06b6d4",
@@ -107,7 +106,10 @@ defineBlock("bait", [
                 text: "Technology allows the creation of environments that seem just as real as reality",
             },
             { key: "BAIT_TextRealistic", text: "AI assistants can write texts that are indistinguishable from those written by humans" },
-            { key: "BAIT_TextIssues", text: "Documents and paragraphs written by AI usually read differently compared to Human productions" },
+            {
+                key: "BAIT_TextIssues",
+                text: "Documents and paragraphs written by AI usually read differently compared to Human productions",
+            },
 
             // Attitudes — the two 2-item facets of the BAIT-8.
             { key: "BAIT_Dangerous", dimension: "AI Apprehension", text: "AI is dangerous" },
@@ -125,7 +127,10 @@ defineBlock("bait", [
             // another look).
             { key: "BAIT_ImageDistinctionEasy", text: "I can easily distinguish between real and AI-generated images" },
             { key: "BAIT_ImageDistinctionBad", text: "I am bad at telling if images are real or AI-generated" },
-            { key: "BAIT_TextDifferentiation", text: "I often find it challenging to differentiate between AI-generated and human-written text" },
+            {
+                key: "BAIT_TextDifferentiation",
+                text: "I often find it challenging to differentiate between AI-generated and human-written text",
+            },
             { key: "BAIT_ContentDetection", text: "I can accurately detect subtle differences between AI from human-created content" },
 
             // Bias — human-superiority beliefs. The two art items carry the
@@ -146,7 +151,11 @@ defineBlock("bait", [
             { key: "BAIT_TrustHuman", text: "I am more likely to trust content when I know it is created by a human rather than AI" },
 
             // The 2.2 attention check: all the way to the right is 6.
-            { key: "BAIT_AttentionCheck", check: 6, text: "I can show that I am Human and not an AI by answering all the way to the right" },
+            {
+                key: "BAIT_AttentionCheck",
+                check: 6,
+                text: "I can show that I am Human and not an AI by answering all the way to the right",
+            },
         ],
     },
 ])

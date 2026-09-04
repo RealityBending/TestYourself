@@ -5,7 +5,8 @@ a second copy — write here and nowhere else, or the two will drift.
 
 Single-page survey app. No build, no dependencies, no framework, no tests.
 `index.html` loads the content first (`content/timeline.js`, then a
-`content/block_*.js` per block of questions), then `js/results.js` (reads
+`content/block_*.js` per block of questions), then `js/draw.js` (three
+stateless drawing helpers both files below it use), then `js/results.js` (reads
 scores back), then `js/app.js` (the engine) — and
 three stylesheets in cascade order: `css/style.css` → `css/intro.css` →
 `css/results.css`. Nothing is a module: each file adds to the globals the next
@@ -26,6 +27,7 @@ A change usually needs one file out of one of them.
 | `content/timeline.js` | **The frame the rest of `content/` is written into, and what is asked when.** `TIMELINE` is one entry per level, in order, naming that level's blocks — moving a block is moving its name from one line to another, and a block named nowhere here is never asked. Each level also carries a `name`: what the gauge's hover card, the results panel and the level screen call it (`levelName`, `levelTitle` in `app.js`). Its colour on the gauge is not content — the stops run through one gradient by position (`levelColour`). Also `defineBlock()` and the `QUESTIONNAIRES` / `BLOCKS` the block files fill, and, at the head of the file, an annotated skeleton of every field a block may carry. **Read that before editing anything in `content/`**; it says what the fields are, and this file says why. |
 | `content/block_*.js` | Every question, scale, colour and norm, **split by block** — one stretch of the run that moves as a piece — so the file to open is the thing being changed rather than the position it happens to be asked in. **Content changes go here and nowhere else.** Each is one `defineBlock("name", [ … ])` over an ordered list of entries: briefings and questionnaires, each carrying its own `key`. |
 | `content/block_UNUSED.js` | Questionnaires written but not asked, commented out, waiting on whatever they want before they can go in. Nothing in it defines a block, so nothing in it can be reached. |
+| `js/draw.js` | Three helpers that draw rather than decide — `SVG`, `draw()` (an SVG element with its attributes on it) and `mix()` (a colour between two others) — held in common by the two files below it. It reads nothing and keeps nothing, which is the whole reason it can sit under both of them; **nothing else belongs in it**, and a helper only moves down here because `app.js` and `results.js` both want it. Not an IIFE: it takes those three names in the globals every file on the page shares, so nothing in `content/` may take them too. |
 | `js/app.js` | The engine, one IIFE, in labelled sections: build the run → branching → scoring → rendering an item → the rail → panels → particles → finishing a level → flow → results → the way in → wiring. |
 | `js/results.js` | `makeResults(engine)`, a factory returning the handful of functions `app.js` calls. Spider charts, the interoception body, the mood faces, the AI archetype, the archetype wheel, PHQ-4 severity, the card, the results sections, the staged opening of a finished level, and the example web the landing page hangs behind its case. Reads scores; records nothing but the agree/disagree `feedback` on a prediction — and, at the moment it is built, the full set of keys that feedback can be filed under (`feedbackKeys`). |
 | `css/style.css` | The shell: tokens on `:root`, the water, the banner and the sidebar the descent runs down (a dive gauge — down the right on a wide screen, along the foot on a phone), screens, panels, buttons, the survey, particles. Also the animations the other two sheets share (`fade`, `rise`). |
@@ -33,6 +35,7 @@ A change usually needs one file out of one of them.
 | `css/results.css` | The water that breaks on a finished level, the level screen, results sections, charts, the interoception body, bars, the profile, card. |
 | `index.html` | Static skeleton, and the load order above. Screens and panels are markup; everything inside them is filled in by the scripts via `$(id)`. The favicon is an inline SVG data URI in the head — three waves going down, in the descent's three colours. |
 | `assets/` | The logos on the hero and the consent form. Referenced from `index.html` only — no stylesheet or script reaches for a file. |
+| `norms/` | A workbench, not part of the page: `make_norms.R` prints, ready to paste, every set of norms in the app that is *not* invented. Two sections, independent of each other so that a missing package or a dropped connection costs you one and not both — the HiTOP-BR's development-sample means and SDs out of the {hitop} R package, and the MINT's worked out from the raw answers of the studies that have asked it, pulled from their repositories and scored the way `content/block_mint.js` scores them. It prints the two number lines and never the `interpretations` beside them, which are the app's own prose. Nothing on the page reaches for it, and R is not a dependency of anything that runs. |
 | `README.md` | The author's own notes: the aim, an **Includes** list of everything the test currently asks, and a long list of questionnaire ideas that are *not* in it. Not documentation, but the Includes list has to be true — see the convention below. |
 
 **The seam.** `app.js` builds an `engine` object — the run, the scores, and the
@@ -68,23 +71,23 @@ while the rest move around it.
 The whole of the run's order follows from that one rule, and answers most
 questions about it before they are asked. Two instruments meant to be asked in
 among each other go in **one** questionnaire, because being one questionnaire
-is what makes them one shuffled run — which is why the six single-item scales
-of the `fast` block are one `singles` questionnaire rather than six, and why
+is what makes them one shuffled run — which is why the eight single-item
+scales of the `singles` block are one questionnaire rather than eight, and why
 the FIPI beside them stays a run of five that nothing is ever dealt into. Two
 meant to stay apart go in two. And a briefing, being an entry of the block
 rather than of any questionnaire, can never be crossed by anything.
 
-**What is asked, and where.** Seven levels, six of them scored, out of twelve
-blocks (the `personality` block holds the HEXACO with the KSE-G dealt into it,
+**What is asked, and where.** Seven levels, six of them scored, out of thirteen
+blocks (the `hexaco` block holds the HEXACO with the KSE-G dealt into it,
 and the commented-out Mini-IPIP6 and BSDS) — so this table is the map of `content/timeline.js` and of the folder
 around it at once:
 
 | | |
 |---|---|
-| Level 1 | `demographics1` (age, month of birth and — branching off the month — which side of that month's zodiac cusp the day fell, one `DayBirth` item wording itself from the month; gender and what branches off it), `fast` (a briefing, then `fipi`, then `singles`) → Personality. `fipi` is read back as **two old theories and nothing else**: the star sign and the temperament side by side (see **Two old theories**, below), no rows. Extraversion and Emotional Stability keep their norms because the temperament is read off them; the other three are commented out, since the HEXACO on level 4 draws the same ground in full — so it is out of `CHARTS` (a spider wants three axes) and off the whole-run web (`profile: false`) |
+| Level 1 | `demographics1` (age, month of birth and — branching off the month — which side of that month's zodiac cusp the day fell, one `BirthDay` item wording itself from the month; gender and what branches off it), `fipi` (the briefing that opens the whole test, then the five items) and `singles` → General. `fipi` is read back as **two old theories and nothing else**: the star sign and the temperament side by side (see **Two old theories**, below), no rows. Extraversion and Emotional Stability keep their norms because the temperament is read off them; the other three are commented out, since the HEXACO on level 4 draws the same ground in full — so it is out of `CHARTS` (a spider wants three axes) and off the whole-run web (`profile: false`) |
 | Level 2 | `demographics2` (education, discipline, student, ethnicity, country), `mint` (a briefing, then the items) → Interoception |
-| Level 3 | `demographics3` (household financial comfort, MacArthur subjective social status), then `mood` and `health` in a random order, then `hitop`. `mood` is a briefing, then `phq4` and `Dissociation` (PCL-2 as the Stress dimension, SQS asked and scored but shown nowhere; the CDS-2 that used to be pooled into Stress sits commented out in the same file) and `health` is a briefing, then the list of psychiatric diagnoses and treatments (`psychiatric`, asked and saved but scored and fed back nowhere; the SSS-8 and the somatic medical history sit commented out in the same file). `phq4` and `Dissociation` read back together as one "Mood & Health" section: Mood, Stress, Health — the Health face reading the self-rated health single from level 1. Then `hitop`: a briefing (widening from the last few weeks to the last year, and saying what follows is asked as spectra rather than categories) and the HiTOP-BR (`hitopbr`), 45 statements about the last twelve months on a 4-point scale, scored as six spectra — and **fed back nowhere** (`results: false`, September 2026): it had a spider chart with a row per spectrum, dropped so that the level reads as one section, Mood & Health. **The spectra carry plainer names than the HiTOP's own** — Bodily Complaints, Emotional Distress, Unusual Experiences, Social Withdrawal, Impulsivity, Dominance, for Somatoform, Internalizing, Thought Disorder, Detachment, Disinhibition, Antagonism — one for one, so nothing about the scoring changes; the mapping is written above the norms in the block file. The one questionnaire whose norms are **not** invented — they are the development-sample means and SDs of Simms et al. (2026) — kept for analysis, and written `profile: false` too, so the six stay off the whole-run web. Item keys are the {hitop} package's own (`HBR_01`…`HBR_45`) so a saved file scores with `score_hitopbr()` as it is. It lived in `block_personality.js` until September 2026 |
-| Level 4 | `personality` → Character: a briefing, then the HEX-ACO-18 (`hexaco18`, 18 items, the HEXACO on its own 5-point scale, named "Character" on screen). **Read back in full**, as a spider chart with a row per domain, and its six domains take axes on the whole-run web. The domains carry **plain names** — Honesty-Humility and Emotionality as published, then Sociability, Patience, Diligence and Curiosity for eXtraversion, Agreeableness, Conscientiousness and Openness — because a dimension is one name across the run and the FIPI has the Big Five words on level 1, and because the HEXACO's constructs are not the Big Five's anyway (its Agreeableness is patience and forgiveness); the mapping is written above the questionnaire in the block file, and the item keys still name the facet. The Mini-IPIP6 (`ipip6`) sits commented out in the same file, dropped for the HEXACO. **Dealt in among the HEXACO's items is the KSE-G** (`KSEG_PQ_1`…`KSEG_NQ_3`), six social-desirability statements scored as "Social Desirability (PQ+)" and "(NQ−)", the latter reverse-keyed, there to blend in — which is why they are items of that questionnaire rather than a questionnaire of their own — without norms and fed back nowhere, since a social-desirability score handed back would only teach the next answer. The BSDS sits commented out beside them, one of its items being the KSE-G's almost word for word |
+| Level 3 | `demographics3` (household financial comfort, MacArthur subjective social status), then `mood` and `health` in a random order, then `hitop`. `mood` is a briefing, then `phq4` and `Dissociation` (PCL-2 as the Stress dimension, SQS asked and scored but shown nowhere; the CDS-2 that used to be pooled into Stress sits commented out in the same file) and `health` is a briefing, then the list of psychiatric diagnoses and treatments (`psychiatric`, asked and saved but scored and fed back nowhere; the SSS-8 and the somatic medical history sit commented out in the same file). `phq4` and `Dissociation` read back together as one "Mood & Health" section: Mood, Stress, Health — the Health face reading the self-rated health single from level 1. Then `hitop`: a briefing (widening from the last few weeks to the last year, and saying what follows is asked as spectra rather than categories) and the HiTOP-BR (`hitopbr`), 45 statements about the last twelve months on a 4-point scale, scored as six spectra — and **fed back nowhere** (`results: false`, September 2026): it had a spider chart with a row per spectrum, dropped so that the level reads as one section, Mood & Health. **The spectra carry plainer names than the HiTOP's own** — Bodily Complaints, Emotional Distress, Unusual Experiences, Social Withdrawal, Impulsivity, Dominance, for Somatoform, Internalizing, Thought Disorder, Detachment, Disinhibition, Antagonism — one for one, so nothing about the scoring changes; the mapping is written above the norms in the block file. The one questionnaire whose norms are **not** invented — they are the development-sample means and SDs of Simms et al. (2026) — kept for analysis, and written `profile: false` too, so the six stay off the whole-run web. Item keys are the {hitop} package's own (`HBR_01`…`HBR_45`) so a saved file scores with `score_hitopbr()` as it is. It lived in `block_hexaco.js` — then `block_personality.js` — until September 2026 |
+| Level 4 | `hexaco` → Character: a briefing, then the HEX-ACO-18 (`hexaco18`, 18 items, the HEXACO on its own 5-point scale, named "Character" on screen). **Read back in full**, as a spider chart with a row per domain, and its six domains take axes on the whole-run web. The domains carry **plain names** — Honesty-Humility and Emotionality as published, then Sociability, Patience, Diligence and Curiosity for eXtraversion, Agreeableness, Conscientiousness and Openness — because a dimension is one name across the run and the FIPI has the Big Five words on level 1, and because the HEXACO's constructs are not the Big Five's anyway (its Agreeableness is patience and forgiveness); the mapping is written above the questionnaire in the block file, and the item keys still name the facet. The Mini-IPIP6 (`ipip6`) sits commented out in the same file, dropped for the HEXACO. **Dealt in among the HEXACO's items is the KSE-G** (`KSEG_PQ_1`…`KSEG_NQ_3`), six social-desirability statements scored as "Social Desirability (PQ+)" and "(NQ−)", the latter reverse-keyed, there to blend in — which is why they are items of that questionnaire rather than a questionnaire of their own — without norms and fed back nowhere, since a social-desirability score handed back would only teach the next answer. The BSDS sits commented out beside them, one of its items being the KSE-G's almost word for word |
 | Level 5 | `bait` — a briefing, the AI knowledge and usage singles, then the shuffled BAIT statements (the union of the 2.1B and 2.2 administrations, under the harmonised item names of the pooled validation, plus its attention check). Scored as the BAIT-8 — AI Realism, AI Enthusiasm, AI Apprehension — and read back as one of three archetypes (see below) |
 | Level 6 | `archetypes` — a briefing, then the **Open Source Archetype Indicator – Pearson-Marr (OSAI-PM)**: twelve three-item scales after Pearson and Marr's twelve-archetype framework (Idealist, Sage, Seeker, Revolutionary, Magician, Warrior, Realist, Jester, Lover, Creator, Ruler, Caregiver), an open paraphrase written from public descriptions of the framework rather than from the PMAI's items, to be validated independently of it. The only scored questionnaire in the app **written without norms on purpose**, and the only one fed back anyway: read back as a wheel (see below) |
 | Level 7 | `closing` — nothing scored in it, so it opens no results |
@@ -93,7 +96,7 @@ around it at once:
 The demographics of a level are written `shuffle: false` and come first in it;
 everything else on that level is shuffled in behind them. A follow-up to an
 answer (`…Other`, `GenderIdentity`) is written directly after the item it
-branches from. The one-item scales of the `fast` block — narcissism, health,
+branches from. The one-item scales of the `singles` block — narcissism, health,
 stress, self-esteem, self-efficacy, life satisfaction and the two
 self-placements — are written as one `singles` questionnaire and not as eight,
 so that they are asked in among one another; none of them is a sixth item on
@@ -134,8 +137,8 @@ briefing's body, an option button's label, and `said()`, which is what puts the
 words in the saved file — so a function and a string are interchangeable
 everywhere and nothing else in the engine knows the difference. It exists so
 that one item can be asked several ways without being several items with several
-keys: `DayBirth` asks which part of the month somebody was born in, and the two
-halves it offers are that month's own zodiac cusp, read out of `MonthBirth`. An
+keys: `BirthDay` asks which part of the month somebody was born in, and the two
+halves it offers are that month's own zodiac cusp, read out of `BirthMonth`. An
 item worded from an answer should carry the `showIf` that waits on it, so it can
 never be drawn before the answer it words itself from is there. Wording a
 question is not answering one — the accessor only reads.
@@ -167,12 +170,14 @@ it there. `typeOf()` throws if one is found among a questionnaire's `items`,
 since that used to be where they lived and there it would render as a scale with
 nothing on it. The engine forces `shuffle: false`, and the run is shuffled around
 it rather than through it. Eight are asked, one at the head of each of the
-`fast` block (warning that the questions get stranger further down), the `mint`
+`fipi` block (warning that the questions get stranger further down — the frame
+for the whole run rather than for the five items alone, which is why the two
+are one block), the `mint`
 block (turning from questions about you to questions about your body), the
 `mood` and `health` blocks (each turning from you in general to the last few
-weeks), two in the `personality` block (one at its head, turning from the five
-strokes of level 1 to a fuller drawing of the same traits, and one before the
-HiTOP-BR, widening from the last few weeks to the last year and saying that
+weeks), the `hexaco` block (turning from the five strokes of level 1 to a
+fuller drawing of the same traits), the `hitop` block (widening from the last
+few weeks to the last year, and saying that
 what follows is asked as spectra rather than as categories), the `bait` block (turning from you to what you make of AI), and the
 `archetypes` block (turning from AI back to the self, as a story).
 
@@ -306,7 +311,7 @@ Stress is a real dimension with norms in `content/`. Mood is not: the PHQ-4's
 Anxiety and Depression have to stay apart, as items, for `total()` to read the
 way they are written, so Mood is worked out from `total()` of both. Health is
 a dimension ("General Health", the self-rated health single item of level 1,
-`SRH_GeneralHealth` in `content/block_fast.js`) but one written without norms,
+`SRH_GeneralHealth` in `content/block_singles.js`) but one written without norms,
 since a row of its own on level 1 is not wanted. Mood and Health are therefore
 read against norms written in `results.js` itself (`MOOD_NORM`, `HEALTH_NORM`
 — each in the same `{ mean, sd, interpretations }` shape a written-in-`content/`
@@ -423,8 +428,8 @@ that finishing it is how to see whether either holds. Each card is a
 heading — "Your star sign predicts", "Your temperament predicts" — a figure, a
 name, a few keywords and the ordinary agree/disagree (`"Star Sign"`,
 `"Temperament"`). The **star sign** is read from the birth month and which side
-of that month's cusp the day fell (`starSign`, from `MonthBirth` and
-`DayBirth` through `engine.answer`), so it comes from the birthday and
+of that month's cusp the day fell (`starSign`, from `BirthMonth` and
+`BirthDay` through `engine.answer`), so it comes from the birthday and
 from nothing the person said about themselves. `SIGNS` is the twelve in cusp
 order from the sign January opens in (month *m*'s first part is `SIGNS[m-1]`,
 its second `SIGNS[m % 12]`), each with the words astrology gives it and, in
@@ -766,6 +771,21 @@ unanswered has not been failed. Only items actually asked count, so checks
 answered for the run by test mode are not among them. Nothing here is shown to
 anybody, and no score, norm or interpretation goes near it.
 
+**Every scored level but the first carries one check**, shuffled in among the
+items of its longest questionnaire — the MINT (level 2), the HiTOP-BR (3), the
+HEXACO (4), the BAIT (5) and the archetypes (6) — and each is keyed by the
+questionnaire's prefix with `_AttentionCheck` after it, except the HiTOP-BR's,
+which is `HiTOP_AttentionCheck` rather than `HBR_…` so that `score_hitopbr()`
+cannot take it for an item. **The answer a check asks for is put away from where
+a straightliner lands on that scale**: the HiTOP-BR is skewed to its floor, so
+its check asks for "A lot"; the HEXACO's asks for "Strongly disagree", since
+somebody agreeing their way down a personality questionnaire would pass one
+written for the top; the archetypes' names a circle off either end (2). The
+MINT's asks for the extreme left, which is 0 under either of its two writings
+(the labels change, the values do not), and the BAIT's for the extreme right,
+as published. Level 1 has none: the `singles` would be its only host, and
+nothing is dealt into the FIPI's run of five.
+
 **Test mode.** `?testMode=true` walks the run in miniature, so that every chart,
 level and reading can be reached quickly: every questionnaire keeps
 `TEST_KEPT` (1) item, chosen at random, and `thinRun()` answers the rest at
@@ -796,12 +816,16 @@ before the study runs.**
   and new ones should be rare.
 - Anything that reads a score goes in `results.js`, anything that walks the run
   in `app.js`. If a change wants both, it probably wants a new member on the
-  `engine` object rather than a second copy of the state.
+  `engine` object rather than a second copy of the state — unless it reads
+  *neither*, in which case it goes in `js/draw.js`, under both of them.
 - Keep it dependency-free and buildless.
 - One folder each for the questions (`content/`), the code (`js/`) and the look
   (`css/`). Nothing else belongs at the root but `index.html`, `assets/`, the
-  notes, and `literature/` — a git-ignored shelf of reference PDFs behind the
-  ideas list in `README.md`, which no part of the app reaches for.
+  notes, `literature/` — a git-ignored shelf of reference PDFs behind the
+  ideas list in `README.md` — and `norms/`, a workbench of scripts that work
+  out numbers to paste *into* `content/`. Neither is reached for by any part of
+  the app: the page loads no R and no PDF, and the buildless rule is about what
+  the browser needs, not about what the author may keep beside it.
 - **Adding, removing or renaming anything in `content/` means updating the
   Includes list in `README.md` in the same breath.** It is the only summary of
   what the test asks that anybody reads without opening the files, so a stale
@@ -843,13 +867,14 @@ before the study runs.**
   `BodilyAwareness`, "AI Archetype" as `AIArchetype` — so that every key in
   the saved file, items and feedback alike, is one word. Files written before
   September 2026 carry the names with the spaces still in them.
-- **`DayBirth` words itself from the month.** One item and one key, whose
+- **`BirthDay` words itself from the month.** One item and one key, whose
   question and two option labels are functions rather than strings, so the
   split falls on that month's own zodiac cusp ("1st to 18th" / "19th to 29th"
   in February, "1st to 22nd" / "23rd to 31st" in July). It was twelve keys,
-  `DayBirth_1`…`DayBirth_12`, one per month, until September 2026 — a file
-  from before then has one of them filled and eleven null, and wants
-  coalescing at analysis time. The sign is read from month and half together,
+  `DayBirth_1`…`DayBirth_12`, one per month, until September 2026, and the
+  month was `MonthBirth` — a file from before then has one of the twelve
+  filled and eleven null, under the old names, and wants coalescing and
+  renaming at analysis time. The sign is read from month and half together,
   never from a day, which is not asked, on purpose.
 - **"Block" also means two things.** A *block* is one file of questions in
   `content/`, named in the timeline. A *results* block is a `.result` section,
@@ -874,10 +899,18 @@ before the study runs.**
   a block with a tag but no name in `TIMELINE` exists and is never asked, which
   is the difference between forgetting one and leaving one out.
 - **All `norms` in `content/` are invented placeholders**, flagged as such in
-  comments, **with one exception**: the HiTOP-BR's in `content/block_hitop.js`
-  are the development-sample means and SDs printed in Table 1 of Simms et al.
-  (2026), by way of the {hitop} R package — a development sample, not a norming
-  one, and skewed towards its floor, which the comment beside them says. Never
+  comments, **with two exceptions**, and both are the output of
+  `norms/make_norms.R` — which is where they should be re-read from rather than
+  retyped. The HiTOP-BR's in `content/block_hitop.js` are the
+  development-sample means and SDs printed in Table 1 of Simms et al. (2026),
+  by way of the {hitop} R package — a development sample, not a norming one,
+  and skewed towards its floor, which the comment beside them says; the script
+  stops rather than guess if the package renames a scale, since the six carry
+  plain names in `content/` and the mapping lives in both files at once. The
+  MINT's in `content/block_mint.js` are the pooled answers of 1,683 people
+  across the four studies that have asked those 33 items (September 2026) —
+  a convenience sample of online studies rather than a population, which the
+  comment beside them says too. Never
   present the rest as real, and keep the flags when editing. The
   `archetypes` block has none at all, and that is deliberate rather than
   unfinished — writing twelve would be twelve more invented numbers, and the
@@ -947,11 +980,16 @@ before the study runs.**
   (`flex-direction: column-reverse`). `.scale--circles.scale--vertical` keeps
   the narrow column the ladder metaphor wants; a labelled vertical scale keeps
   the full width its buttons are otherwise given.
-- **`draw()` exists twice, in `app.js` and in `results.js` — and so does
-  `mix()`.** Same lines, same meaning — an SVG element with attributes, and a
-  colour a share of the way between two others — but the seam runs one way, so
-  neither file can borrow the other's. Keep each pair identical or leave them
-  alone.
+- **`draw()`, `mix()` and `SVG` are `js/draw.js`, not either file that uses
+  them.** They used to exist twice, once in `app.js` and once in
+  `results.js`, with a note here saying to keep the two copies identical: the
+  seam runs one way, so neither file can borrow the other's. The way out was
+  neither — a third file *below both*, which is what `js/draw.js` is. It works
+  only because those three read no state; anything that reads the run still
+  belongs in `app.js` and anything that reads a score in `results.js`, and
+  splitting either of those the same way would mean handing the new file a bag
+  of a dozen shared members, which is a bigger interface than the engine seam
+  itself.
 - **`drawSpider`/`drawSoma` add their classes rather than setting them.** The
   same `<svg>` is found again by a class of its own (`.profile__web`), so
   writing `class` outright makes the second render of a profile throw.

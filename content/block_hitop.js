@@ -1,7 +1,8 @@
 // The HiTOP-BR, a block of its own so that it moves as a piece: asked at the
 // end of level 3, after the mood and health questionnaires, since its
 // briefing widens the frame from the last few weeks to the last year and has
-// to follow them. It lived in block_personality.js until September 2026.
+// to follow them. It lived in `block_hexaco.js` — then `block_personality.js`
+// — until September 2026.
 defineBlock("hitop", [
     {
         type: "briefing",
@@ -206,6 +207,15 @@ defineBlock("hitop", [
             { key: "HBR_43", dimension: "Impulsivity", text: "I bought much more than I needed." },
             { key: "HBR_44", dimension: "Emotional Distress", text: "I was overwhelmed by anxiety." },
             { key: "HBR_45", dimension: "Dominance", text: "I expected to get treated better than others." },
+            // The attention check. The scale is skewed towards its floor, so a
+            // straightliner answering "Not at all" to everything would pass a
+            // check written for that end: this one asks for the top of it, 4.
+            // Not an `HBR_` key, so `score_hitopbr()` cannot mistake it for an item.
+            {
+                key: "HiTOP_AttentionCheck",
+                check: 4,
+                text: "I read each of these statements carefully, and will answer \"A lot\" to this one.",
+            },
         ],
     },
 ])

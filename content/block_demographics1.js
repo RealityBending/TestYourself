@@ -21,7 +21,7 @@ const CUSPS = [
 // and is never reached — the item waits on the month — but a question that
 // words itself should not be able to throw while being drawn.
 function cuspOf(answer) {
-    return CUSPS[(answer("MonthBirth") || 1) - 1]
+    return CUSPS[(answer("BirthMonth") || 1) - 1]
 }
 
 function ordinal(day) {
@@ -60,7 +60,7 @@ defineBlock("demographics1", [
                 },
             },
             {
-                key: "MonthBirth",
+                key: "BirthMonth",
                 text: "In which month were you born?",
                 format: {
                     options: [
@@ -88,16 +88,16 @@ defineBlock("demographics1", [
             // straddles two signs and the boundary falls between the 19th and
             // the 23rd. So the dates differ month by month, which is what the
             // worded question and options are for: **one item and one key**,
-            // reading the month back out of `MonthBirth` to say which two
+            // reading the month back out of `BirthMonth` to say which two
             // halves it is offering. The results read the sign from
-            // `MonthBirth` and this together; "I'd rather not say" leaves it
+            // `BirthMonth` and this together; "I'd rather not say" leaves it
             // as "one of two".
             {
-                key: "DayBirth",
+                key: "BirthDay",
                 text: (answer) => "Which part of " + cuspOf(answer)[0] + "?",
                 // Any month at all, so the item still waits on the answer it
                 // words itself from rather than trusting the run's order.
-                showIf: { key: "MonthBirth", is: CUSPS.map((cusp, at) => at + 1) },
+                showIf: { key: "BirthMonth", is: CUSPS.map((cusp, at) => at + 1) },
                 format: {
                     options: [
                         { value: 1, text: (answer) => "1st to " + ordinal(cuspOf(answer)[1] - 1) },

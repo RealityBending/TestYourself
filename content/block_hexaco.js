@@ -1,4 +1,4 @@
-defineBlock("personality", [
+defineBlock("hexaco", [
     {
         type: "briefing",
         key: "Briefing_Traits",
@@ -465,6 +465,16 @@ defineBlock("personality", [
             //     text: "I have taken advantage of someone at some point.",
             //     reverse: true,
             // },
+
+            // The attention check, dealt in among the rest like the KSE-G. It
+            // asks for the bottom of the scale, 1, since somebody agreeing
+            // their way down a personality questionnaire would pass one
+            // written for the top.
+            {
+                key: "HEXACO_AttentionCheck",
+                check: 1,
+                text: "To show that I am reading these statements, I will answer \"Strongly disagree\" to this one.",
+            },
         ],
     },
 ])
