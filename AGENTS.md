@@ -39,7 +39,7 @@ showcase of stand-in figures the landing page cycles (`renderShowcase`). Reads s
 | `index.html` | Static skeleton, and the load order above. Screens and panels are markup; everything inside them is filled in by the scripts via `$(id)`. The favicon is an inline SVG data URI in the head — three waves going down, in the descent's three colours. |
 | `assets/` | The logos on the hero and the consent form. Referenced from `index.html` only — no stylesheet or script reaches for a file. |
 | `norms/` | A workbench, not part of the page: `make_norms.R` prints, ready to paste, every set of norms in the app that is *not* invented. Two sections, independent of each other so that a missing package or a dropped connection costs you one and not both — the HiTOP-BR's development-sample means and SDs out of the {hitop} R package, and the MINT's worked out from the raw answers of the studies that have asked it, pulled from their repositories and scored the way `content/block_mint.js` scores them. It prints the two number lines and never the `interpretations` beside them, which are the app's own prose. Nothing on the page reaches for it, and R is not a dependency of anything that runs. |
-| `README.md` | The author's own notes: the aim, an **Includes** list of everything the test currently asks, and a long list of questionnaire ideas that are *not* in it. Not documentation, but the Includes list has to be true — see the convention below. |
+| `README.md` | The author's own notes: the aim, an **Includes** table of everything the test currently asks (level, questionnaire and reference, dimensions — and nothing else), and a long list of questionnaire ideas that are *not* in it. Not documentation, but the Includes table has to be true — see the convention below. |
 
 **The seam.** `app.js` builds an `engine` object — the run, the scores, and the
 two pieces of chrome (`showScreen`, `burst`) a result arrives with — and hands
@@ -945,14 +945,16 @@ before the study runs.**
   the app: the page loads no R and no PDF, and the buildless rule is about what
   the browser needs, not about what the author may keep beside it.
 - **Adding, removing or renaming anything in `content/` means updating the
-  Includes list in `README.md` in the same breath.** It is the only summary of
+  Includes table in `README.md` in the same breath.** It is the only summary of
   what the test asks that anybody reads without opening the files, so a stale
   one is worse than none: it is what the author, and anybody asking what is in
-  the study, will go by. Keep it in the shape it is already in — a bullet per
-  level, a line per questionnaire, the abbreviation in brackets — and keep the
-  counts at the foot of it right. A block written but named on no level of the
-  timeline stays on the list, marked as not asked, so that it is not written
-  twice.
+  the study, will go by. Keep it in the shape it is already in (September
+  2026) — one table, three columns: the level, the questionnaire with its
+  abbreviation and reference (or "not validated", or "custom items"), and the
+  dimensions as a bulleted list — and nothing else: no prose, no counts, no
+  notes on how a scale is fed back, which is what this file is for. A block
+  written but named on no level of the timeline stays in the table with
+  "Not asked" for its level, so that it is not written twice.
 
 ## Gotchas
 
