@@ -85,8 +85,7 @@
 
                     <p class="hero__sub">The Science-based Assessment of Deep Personality</p>
                     <p class="hero__meta">
-                        Research-grade measures <i aria-hidden="true">·</i> immediate results <i aria-hidden="true">·</i> entirely
-                        anonymous
+                        Research-grade measures <i aria-hidden="true">·</i> immediate results <i aria-hidden="true">·</i> entirely anonymous
                     </p>
 
                     <a class="hero__cue" href="#gate"><span>Scroll to descend</span><i aria-hidden="true"></i></a>
@@ -102,30 +101,33 @@
                 <!-- Why it is worth the twelve minutes, before the form that
                      has to be read to get past it. -->
                 <section class="why">
-                    <!-- The shape of a finished profile, out of focus behind the
-                         case for making one. It is drawn from the same stand-in
-                         figures a locked level is, so it is nobody's result. -->
-                    <div class="why__web" aria-hidden="true"><svg id="why-web"></svg></div>
+                    <div class="why__case">
+                        <p class="gate__step">Why do this</p>
+                        <h2 class="why__heading">Know thyself.</h2>
+                        <p class="why__lede">
+                            We know surprisingly little about ourselves, and rarely stop to think about it. This test is a chance to spend a
+                            few minutes looking inward, to consider how you think, feel and behave, and to see how that compares with other
+                            people.
+                        </p>
 
-                    <p class="gate__step">Why do this</p>
-                    <h2 class="why__heading">Know thyself.</h2>
-                    <p class="why__lede">
-                        We know surprisingly little about ourselves, and rarely stop to think about it. This test is a chance to spend a
-                        few minutes looking inward, to consider how you think, feel and behave, and to see how that compares with other
-                        people.
-                    </p>
+                        <ul class="why__points">
+                            <li>
+                                <b>You get told what it means.</b> Every level you finish opens a chart, and a reading of where you sit
+                                compared with other people.
+                            </li>
+                            <li><b>Measured, not guessed.</b> The questionnaires are validated instruments, and the scores are real.</li>
+                            <li><b>Anonymous.</b> We collect no IP addresses, cookies or personal information.</li>
+                        </ul>
+                    </div>
 
-                    <ul class="why__points">
-                        <li>
-                            <b>You get told what it means.</b> Every level you finish opens a chart, and a reading of where you sit
-                            compared with other people.
-                        </li>
-                        <li><b>Measured, not guessed.</b> The questionnaires are validated instruments, and the scores are real.</li>
-                        <li>
-                            <b>Anonymous.</b> We collect no IP addresses, cookies or personal information. Your answers help us
-                            understand human nature a little better, and nothing in them can be traced back to you.
-                        </li>
-                    </ul>
+                    <!-- A taste of the far end: the figures the levels close on,
+                         one at a time, drawn from the same stand-ins a locked
+                         level is, so none of them is anybody's result. Filled
+                         and cycled by `showcase()` in app.js. -->
+                    <div class="why__show" aria-hidden="true">
+                        <div class="why__frame" id="why-frame"></div>
+                        <p class="why__caption">Examples of feedback you will get</p>
+                    </div>
                 </section>
 
                 <div class="gate" id="gate">
@@ -371,8 +373,8 @@
                      renderProfile is the one that gets the web. -->
                 <div class="panel__body">
                     <p class="lede">
-                        The main dimensions from each level, on one web. A point appears once you have answered every question that
-                        feeds it.
+                        The main dimensions from each level, on one web. A point appears once you have answered every question that feeds
+                        it.
                     </p>
 
                     <div class="profile" id="profile-panel">
@@ -432,11 +434,11 @@
         <script src="content/block_UNUSED.js"></script>
         <script src="js/draw.js"></script>
         <script src="js/figures/soma.js"></script>
-        <script src="js/figures/faces.js"></script>
         <script src="js/figures/theories.js"></script>
         <script src="js/figures/archetype.js"></script>
         <script src="js/figures/wheel.js"></script>
         <script src="js/figures/sea.js"></script>
+        <script src="js/figures/climb.js"></script>
         <script src="js/results.js"></script>
         <script src="js/app.js"></script>
     </body>

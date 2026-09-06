@@ -1304,6 +1304,15 @@ h1 {
     padding: 13px 20px;
 }
 
+/* A labelled scale with a column per option is a row, weakest on the left,
+   and its buttons read as points on a scale rather than entries in a list. */
+.options--row .option {
+    text-align: center;
+    padding: 13px 10px;
+    font-size: 14px;
+    line-height: 1.3;
+}
+
 /* A way out of the question rather than an answer to it: set apart, and
    quieter than the answers above it. */
 .options--labelled .option--small {

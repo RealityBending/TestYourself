@@ -73,9 +73,9 @@ if (!requireNamespace("hitop", quietly = TRUE)) {
   # order, which is the order they are written in that file.
   renamed <- c(
     "Somatoform" = "Bodily Complaints",
-    "Internalizing" = "Emotional Distress",
+    "Internalizing" = "Emotional Intensity",
     "Thought Disorder" = "Unusual Experiences",
-    "Detachment" = "Social Withdrawal",
+    "Detachment" = "Solitude",
     "Disinhibition" = "Impulsivity",
     "Antagonism" = "Dominance"
   )
@@ -417,6 +417,25 @@ if (length(pooled) == 0) {
 #   scores <- hitop::score_hitopbr(answers, items = 1:45, append = FALSE)
 #   round(sapply(scores, mean, na.rm = TRUE), 2)
 #   round(sapply(scores, stats::sd, na.rm = TRUE), 2)
+#
+# TO DO — QUANTILES RATHER THAN A MEAN AND AN SD (September 2026). The app
+# turns a HiTOP-BR score into a standing through a normal curve, and these
+# spectra are nothing like normal: they pile up at the floor, so a run of
+# "Not at all" lands near the 30th percentile and the whole low end is read
+# coarsely. The climb figure (js/figures/climb.js) is drawn from those
+# standings, so this matters on screen. The better norm is a table of
+# empirical quantiles per spectrum — say the 1st to the 99th — read by
+# interpolation. `hitopbr_devstats` carries means and SDs only; if the
+# package or the paper's supplement ever ships the development sample's
+# quantiles or raw scores, print them here in that shape:
+#
+#   round(sapply(scores, stats::quantile, probs = seq(0.01, 0.99, 0.01), na.rm = TRUE), 2)
+#
+# and once this study's own answers are in, the same line on them. Reading a
+# quantile table is not written yet: `norms` in content/ take `{ mean, sd }`
+# and `percentile()` in app.js is the normal CDF, so the engine wants a
+# `quantiles: [...]` form beside `mean`/`sd` and a lookup in `percentile()`
+# that prefers it when present. AGENTS.md carries the same note.
 #
 # Those columns come out named `hbr_` plus the scale's camelCase name, not the
 # app's dimension names, so `renamed` above is still what maps one to the other.

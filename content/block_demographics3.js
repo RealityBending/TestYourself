@@ -9,7 +9,7 @@ defineBlock("demographics3", [
             // Subjective Financial Well-Being (European Social Survey / OECD standard):
             // Validated 4- or 5-point ordinal indicator of financial strain vs. comfort.
             {
-                key: "FinancialComfort",
+                key: "Demographics_FinancialComfort",
                 text: "Which of these descriptions comes closest to how you feel about your household's financial situation today?",
                 format: {
                     options: [
@@ -27,7 +27,7 @@ defineBlock("demographics3", [
             // MSSS =================================================================
             // MacArthur Scale of Subjective Social Status (Adler et al., 2000):
             {
-                key: "MSSS_SocialStatus",
+                key: "Demographics_MSSS_SocialStatus",
                 text:
                     "Think of the ladder below as showing where people stand relative to other people in your country. At the top are people who have the most money, the most " +
                     "education and the most respected jobs. At the bottom are people who have the least money, the least " +

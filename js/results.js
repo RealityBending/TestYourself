@@ -7,7 +7,8 @@
    The figures a level closes on each live in js/figures/, one factory apiece,
    handed `shared` below and nothing else; this file holds what they have in
    common — reading a score against its norm, the spider chart, the votes, the
-   sections, the staged opening, the profile and the card.
+   sections, the staged opening, the profile and the card — and the showcase
+   of stand-in figures the landing page cycles.
    ========================================================================= */
 
 function makeResults(engine) {
@@ -224,15 +225,15 @@ function makeResults(engine) {
     }
 
     const soma = makeSoma(shared)
-    const faces = makeFaces(shared)
     const theories = makeTheories(shared)
     const archetype = makeArchetype(shared)
     const wheel = makeWheel(shared)
     const sea = makeSea(shared)
+    const climb = makeClimb(shared)
 
-    // Mood & Health is one section for two questionnaires, rendered where the
+    // The climb is one section for two questionnaires, rendered where the
     // first of them falls in the run and skipped where the other would.
-    const MOOD_HEALTH_FIRST = RUN.find((one) => faces.MOOD_HEALTH_OF.indexOf(one) !== -1)
+    const CLIMB_FIRST = RUN.find((one) => climb.CLIMB_OF.indexOf(one) !== -1)
 
     /* ---------------------------- spider chart ---------------------------- */
 
@@ -448,11 +449,10 @@ function makeResults(engine) {
         }
 
         for (const name of RUN) {
-            if (faces.MOOD_HEALTH_OF.indexOf(name) !== -1) {
-                if (name !== MOOD_HEALTH_FIRST || !faces.MOOD_HEALTH_OF.some((one) => onLevel(dimensionsOf(one), level))) continue
-                const specs = faces.MOOD_HEALTH.map((build) => build())
-                if (!locked && specs.every((spec) => spec.value === undefined)) continue
-                openSection(into, "Mood & Health", colourOf("Anxiety"), locked).body.appendChild(faces.renderFaces(specs, locked))
+            if (climb.CLIMB_OF.indexOf(name) !== -1) {
+                if (name !== CLIMB_FIRST || !climb.CLIMB_OF.some((one) => onLevel(dimensionsOf(one), level))) continue
+                if (!locked && !climb.climbed()) continue
+                openSection(into, "The Last Year", colourOf("Emotional Intensity") || colourOf("Anxiety"), locked).body.appendChild(climb.renderClimb(locked))
                 continue
             }
 
@@ -605,13 +605,12 @@ function makeResults(engine) {
 
     // The web carries what a level's results name under its own name: a
     // dimension with norms, unless its questionnaire is read back as one
-    // figure (the archetype, the wheel), is written `profile: false`, or is a
-    // Mood & Health questionnaire whose dimension is not itself a face.
+    // figure (the archetype, the wheel, the climb) or is written
+    // `profile: false`.
     function onProfile(dimension) {
         const name = dimensions[dimension][0].questionnaire
-        if (name === archetype.ARCHETYPE_OF || name === wheel.WHEEL_OF) return false
+        if (name === archetype.ARCHETYPE_OF || name === wheel.WHEEL_OF || climb.CLIMB_OF.indexOf(name) !== -1) return false
         if (QUESTIONNAIRES[name].profile === false) return false
-        if (faces.MOOD_HEALTH_OF.indexOf(name) !== -1) return faces.MOOD_HEALTH.some((build) => build().key === dimension)
         return !!normOf(dimension)
     }
 
@@ -867,10 +866,37 @@ function makeResults(engine) {
         renderShare(into)
     }
 
-    // The whole web with nobody on it, for the landing page to hang behind its
-    // case: the same tease a locked level is drawn from.
-    function renderExample(chart) {
-        drawSpider(chart, PROFILE, true)
+    // A taste of the far end, for the landing page: the figures the levels
+    // close on, each drawn from the same stand-ins a locked level is drawn
+    // from, so every one is nobody's result — and unblurred, since a figure
+    // with nothing earned in it has nothing to hide. Each is the figure alone,
+    // without the standings and readings that only mean something once
+    // earned. Returns the figures, uncaptioned — the page says "examples of
+    // feedback" once, over all of them; app.js cycles them.
+    function renderShowcase() {
+        const slides = []
+        const slide = (figure) => {
+            if (figure) slides.push(figure)
+        }
+        const fresh = () => document.createElementNS(SVG, "svg")
+
+        const web = fresh()
+        drawSpider(web, PROFILE, true)
+        slide(web)
+
+        if (known("Bodily Awareness")) {
+            const body = fresh()
+            soma.drawSoma(body, true)
+            slide(body)
+        }
+        // The climb's bar chart rather than its hill: the hill wants its bars
+        // beside it to be read, and the bars stand on their own. The
+        // temperament plane rather than the sea, which is too much picture for
+        // a frame this size.
+        if (known("Emotional Intensity")) slide(climb.renderBars(true))
+        if (known("Extraversion")) slide(theories.renderOldTheories(true).querySelector("svg.theory__figure"))
+        if (known("Sage")) slide(wheel.renderWheel(true).querySelector("svg"))
+        return slides
     }
 
     /* ---------------------------- what was voted on ----------------------- */
@@ -888,12 +914,8 @@ function makeResults(engine) {
         }
 
         for (const name of RUN) {
-            if (faces.MOOD_HEALTH_OF.indexOf(name) !== -1) {
-                if (name !== MOOD_HEALTH_FIRST) continue
-                for (const build of faces.MOOD_HEALTH) {
-                    const spec = build()
-                    if (spec.norm && spec.norm.interpretations) add(spec.key)
-                }
+            if (climb.CLIMB_OF.indexOf(name) !== -1) {
+                if (name === CLIMB_FIRST) add(climb.CLIMB_KEY)
             } else if (name === archetype.ARCHETYPE_OF) add(archetype.ARCHETYPE_KEY)
             else if (name === wheel.WHEEL_OF) add(wheel.WHEEL_KEY)
             else if (name === sea.SEA) add(sea.SEA_KEY)
@@ -912,7 +934,7 @@ function makeResults(engine) {
     for (const key of feedbackKeys()) if (feedback[key] === undefined) feedback[key] = null
 
     return {
-        renderExample: renderExample,
+        renderShowcase: renderShowcase,
         renderResults: renderResults,
         renderTeaser: renderTeaser,
         sealSections: sealSections,

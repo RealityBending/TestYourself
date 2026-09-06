@@ -1,4 +1,10 @@
 /* =========================================================================
+   NOT LOADED (September 2026). The level these faces closed is read back as
+   the climb (climb.js) instead, and this file has no <script> tag in
+   index.html. Kept whole so the faces can be put back by giving it its tag,
+   a makeFaces(shared) call in makeResults and its branches in renderResults,
+   onProfile and feedbackKeys — the shape the climb took over from it.
+
    Mood and Health (and Stress, while the PCL-2 is asked), as a row of faces: sad at one end of a scale,
    pleased at the other, on a ring that fills the way a soma organ's does. The
    PHQ-4 and the sleep questionnaire keep their items and scoring and

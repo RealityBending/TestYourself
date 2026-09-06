@@ -132,9 +132,9 @@ function makeTheories(shared) {
     // The sign if the half of the month was given, the two it could be if only
     // the month was, nothing without even that.
     function starSign() {
-        const month = answer("BirthMonth")
+        const month = answer("Demographics_BirthMonth")
         if (!month) return undefined
-        const half = answer("BirthDay")
+        const half = answer("Demographics_BirthDay")
         const first = SIGNS[month - 1]
         const second = SIGNS[month % 12]
         if (half === 1) return { sign: first }
@@ -255,9 +255,11 @@ function makeTheories(shared) {
 
         const intro = document.createElement("p")
         intro.className = "theories__intro"
-        intro.textContent =
+        // Written as HTML — the words are the file's own — so the line break
+        // before the last sentence is a break and not four characters.
+        intro.innerHTML =
             "Two of the oldest ways of describing a person were the sign you were born under, and the " +
-            "four temperaments of the ancient Greeks. Based on your answers so far, here is what an astrologer and a early physician " +
+            "four temperaments of the ancient Greeks. Based on your answers so far, here is what an astrologer and an early physician " +
             "would have said about you.<br />Finish the test and see how well either of them holds up!"
         holder.appendChild(intro)
 

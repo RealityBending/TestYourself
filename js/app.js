@@ -660,6 +660,9 @@
         $("scale").classList.toggle("scale--vertical", !!question.vertical)
 
         wrap.classList.toggle("options--labelled", labelled)
+        // Labelled options given a column each are a Likert scale set in a row
+        // rather than a list, and read centred like the circles do.
+        wrap.classList.toggle("options--row", labelled && question.columns === question.options.length)
         wrap.classList.toggle("options--wide", !labelled && question.options.length > 7)
         // Labelled options stack unless the item asks for columns; circles
         // always get one column each.
@@ -1799,6 +1802,34 @@
 
     window.addEventListener("scroll", sinkHero, { passive: true })
 
+    const SHOWCASE_BEAT = 2600 // ms a landing-page figure holds before the next fades in
+
+    // The landing page's taste of the far end: the figures the levels close
+    // on, one at a time in one frame, each drawn from stand-ins, cycling only
+    // while the intro is up and the tab is looked at. Under
+    // prefers-reduced-motion the first one stays.
+    function showcase() {
+        const frame = $("why-frame")
+        const slides = results.renderShowcase()
+        if (!slides.length) return
+
+        slides.forEach((figure, at) => {
+            const holder = document.createElement("div")
+            holder.className = "why__slide" + (at === 0 ? " why__slide--on" : "")
+            holder.appendChild(figure)
+            frame.appendChild(holder)
+        })
+        if (still() || slides.length < 2) return
+
+        let at = 0
+        setInterval(() => {
+            if (screen !== "intro" || document.hidden) return
+            frame.children[at].classList.remove("why__slide--on")
+            at = (at + 1) % slides.length
+            frame.children[at].classList.add("why__slide--on")
+        }, SHOWCASE_BEAT)
+    }
+
     /* --------------------------- the way in ------------------------------ */
 
     // The line the test is named after, held on screen once before the first
@@ -1905,7 +1936,7 @@
 
     buildSidebar()
     renderSidebar()
-    results.renderExample($("why-web")) // the shape of a finished profile, behind the case for making one
+    showcase() // a taste of the far end, beside the case for making one
 
     // A shared card is the whole page when there is one: the test is still
     // underneath it, waiting behind "Take the test yourself".

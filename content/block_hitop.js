@@ -44,16 +44,15 @@ defineBlock("hitop", [
     {
         key: "hitopbr",
         name: "Symptoms & Maladaptive Traits",
-        // Asked, scored and saved, and fed back nowhere (September 2026): the
-        // six spectra earned a spider chart and a row each on this level, and
-        // it was dropped so that the level reads as one section — Mood &
-        // Health — rather than as faces above a chart of symptoms. The norms
-        // stay, being the one real set in the app and what an analysis will
-        // want; `results: false` is what keeps them from opening a section,
-        // and `profile: false` keeps the six off the whole-run web and card,
-        // where on one polygon with Openness and Bodily Awareness they would
-        // read as more of the same kind of thing, which they are not.
-        results: false,
+        // Read back as the climb (js/figures/climb.js, September 2026): three
+        // of the six spectra — Emotional Intensity, Solitude and
+        // Bodily Complaints — each drive one thing about a hill, with the
+        // PHQ-4's fortnight as the weather over it. No rows, no chart: the six
+        // earned a spider chart and a row each once, and read as verdicts. The
+        // other three are asked, scored and saved and read nowhere. `profile:
+        // false` keeps all six off the whole-run web and card, where on one
+        // polygon with Openness and Bodily Awareness they would read as more of
+        // the same kind of thing, which they are not.
         profile: false,
         instructions:
             "Consider whether there have been significant times during the <b>last 12 months</b> during which this " +
@@ -66,7 +65,9 @@ defineBlock("hitop", [
                 { value: 3, text: "Moderately" },
                 { value: 4, text: "A lot" },
             ],
-            vertical: true,
+            // One row, like the PHQ-4 before it; it stood on end until
+            // September 2026.
+            columns: 4,
             color: "#be123c",
             hovercolors: ["#22c55e", "#ef4444"],
         },
@@ -79,8 +80,9 @@ defineBlock("hitop", [
         // sample and not a norming sample, and every spectrum piles up near
         // its floor of 1 (Unusual Experiences' mean is 1.26), so the normal
         // percentile these are read through is coarse at the low end: a run of
-        // "Not at all" comes out around the 30th percentile, not the 1st. The
-        // interpretations are ours.
+        // "Not at all" comes out around the 30th percentile, not the 1st.
+        // TO DO: read them through empirical quantiles instead — see the note
+        // at the foot of norms/make_norms.R. The interpretations are ours.
         //
         // THE SPECTRA ARE RENAMED FOR THE PUBLIC (September 2026). The HiTOP's
         // own names are clinical jargon, and two of them ("Thought Disorder",
@@ -91,9 +93,9 @@ defineBlock("hitop", [
         // nothing of the names:
         //
         //     Somatoform        → Bodily Complaints
-        //     Internalizing     → Emotional Distress
+        //     Internalizing     → Emotional Intensity
         //     Thought Disorder  → Unusual Experiences
-        //     Detachment        → Social Withdrawal
+        //     Detachment        → Solitude
         //     Disinhibition     → Impulsivity
         //     Antagonism        → Dominance
         //
@@ -109,7 +111,7 @@ defineBlock("hitop", [
                     high: "you have been bothered by bodily symptoms, and by worry about what they mean, more than most people report. That is tiring to carry, and not on its own a sign of anything in particular.",
                 },
             },
-            "Emotional Distress": {
+            "Emotional Intensity": {
                 mean: 1.85,
                 sd: 0.77,
                 interpretations: {
@@ -127,7 +129,7 @@ defineBlock("hitop", [
                     high: "you have had more moments than most people report where a daydream, a sensation or your own body felt unreal or out of place. Such experiences are far more common than people admit, and mean nothing on their own.",
                 },
             },
-            "Social Withdrawal": {
+            "Solitude": {
                 mean: 2.13,
                 sd: 0.88,
                 interpretations: {
@@ -163,12 +165,12 @@ defineBlock("hitop", [
             { key: "HITOP_04", dimension: "Unusual Experiences", text: "My fantasies felt very real to me." },
             { key: "HITOP_05", dimension: "Dominance", text: "I liked having power." },
             { key: "HITOP_06", dimension: "Bodily Complaints", text: "I felt something was wrong with my body." },
-            { key: "HITOP_07", dimension: "Social Withdrawal", text: "When I had the chance, I chose to be alone rather than with other people." },
-            { key: "HITOP_08", dimension: "Emotional Distress", text: "My moods were intense and unpredictable." },
-            { key: "HITOP_09", dimension: "Emotional Distress", text: "My mind was flooded with troubling images of a bad experience." },
+            { key: "HITOP_07", dimension: "Solitude", text: "When I had the chance, I chose to be alone rather than with other people." },
+            { key: "HITOP_08", dimension: "Emotional Intensity", text: "My moods were intense and unpredictable." },
+            { key: "HITOP_09", dimension: "Emotional Intensity", text: "My mind was flooded with troubling images of a bad experience." },
             { key: "HITOP_10", dimension: "Bodily Complaints", text: "I had pains in several parts of my body." },
             { key: "HITOP_11", dimension: "Unusual Experiences", text: "I felt like I was outside of my body." },
-            { key: "HITOP_12", dimension: "Social Withdrawal", text: "I was happiest when I was alone." },
+            { key: "HITOP_12", dimension: "Solitude", text: "I was happiest when I was alone." },
             { key: "HITOP_13", dimension: "Dominance", text: "I found it easy to manipulate others." },
             {
                 key: "HITOP_14",
@@ -180,33 +182,33 @@ defineBlock("hitop", [
             { key: "HITOP_15", dimension: "Impulsivity", text: "I had trouble planning and keeping to schedules." },
             { key: "HITOP_16", dimension: "Impulsivity", text: "I lost things that I needed." },
             { key: "HITOP_17", dimension: "Bodily Complaints", text: "I was frustrated with having to convince others I had a real illness." },
-            { key: "HITOP_18", dimension: "Emotional Distress", text: "Even when I was very careful, I worried whether I had done something correctly." },
+            { key: "HITOP_18", dimension: "Emotional Intensity", text: "Even when I was very careful, I worried whether I had done something correctly." },
             { key: "HITOP_19", dimension: "Bodily Complaints", text: "Reading articles about disease made me worry about my health." },
             { key: "HITOP_20", dimension: "Impulsivity", text: "I paid my bills late or missed other important deadlines." },
             { key: "HITOP_21", dimension: "Bodily Complaints", text: "I could feel changes in my body." },
-            { key: "HITOP_22", dimension: "Emotional Distress", text: "I was disgusted with myself." },
-            { key: "HITOP_23", dimension: "Emotional Distress", text: "I felt on guard and on edge." },
+            { key: "HITOP_22", dimension: "Emotional Intensity", text: "I was disgusted with myself." },
+            { key: "HITOP_23", dimension: "Emotional Intensity", text: "I felt on guard and on edge." },
             { key: "HITOP_24", dimension: "Impulsivity", text: "I was a messy person." },
             { key: "HITOP_25", dimension: "Dominance", text: "I did things to get others to notice me." },
             { key: "HITOP_26", dimension: "Bodily Complaints", text: "I noticed small changes to how my body feels." },
             { key: "HITOP_27", dimension: "Dominance", text: "Things went best when I told others what to do." },
             { key: "HITOP_28", dimension: "Unusual Experiences", text: "I heard things that no one else could hear." },
             { key: "HITOP_29", dimension: "Impulsivity", text: "I was never on time." },
-            { key: "HITOP_30", dimension: "Social Withdrawal", text: "I had no interest in romantic relationships." },
-            { key: "HITOP_31", dimension: "Social Withdrawal", text: "Romantic relationships seemed like a hassle to me." },
+            { key: "HITOP_30", dimension: "Solitude", text: "I had no interest in romantic relationships." },
+            { key: "HITOP_31", dimension: "Solitude", text: "Romantic relationships seemed like a hassle to me." },
             { key: "HITOP_32", dimension: "Impulsivity", text: "I said things without thinking." },
             { key: "HITOP_33", dimension: "Dominance", text: "People told me I was coldhearted." },
             { key: "HITOP_34", dimension: "Impulsivity", text: "I made decisions quickly without thinking them through." },
             { key: "HITOP_35", dimension: "Impulsivity", text: "I quit tasks that became too challenging." },
-            { key: "HITOP_36", dimension: "Emotional Distress", text: "I had a hard time asserting myself to others." },
-            { key: "HITOP_37", dimension: "Social Withdrawal", text: "I felt that I did not want to be in a close relationship." },
+            { key: "HITOP_36", dimension: "Emotional Intensity", text: "I had a hard time asserting myself to others." },
+            { key: "HITOP_37", dimension: "Solitude", text: "I felt that I did not want to be in a close relationship." },
             { key: "HITOP_38", dimension: "Unusual Experiences", text: "I had trouble telling whether something really happened or I just imagined it." },
             { key: "HITOP_39", dimension: "Unusual Experiences", text: "I felt that things around me were not real." },
             { key: "HITOP_40", dimension: "Dominance", text: "I liked attracting the attention of others." },
             { key: "HITOP_41", dimension: "Bodily Complaints", text: "I was afraid that I might suffer from a serious illness." },
-            { key: "HITOP_42", dimension: "Emotional Distress", text: "I thought a lot about death." },
+            { key: "HITOP_42", dimension: "Emotional Intensity", text: "I thought a lot about death." },
             { key: "HITOP_43", dimension: "Impulsivity", text: "I bought much more than I needed." },
-            { key: "HITOP_44", dimension: "Emotional Distress", text: "I was overwhelmed by anxiety." },
+            { key: "HITOP_44", dimension: "Emotional Intensity", text: "I was overwhelmed by anxiety." },
             { key: "HITOP_45", dimension: "Dominance", text: "I expected to get treated better than others." },
             // The attention check. The scale is skewed towards its floor, so a
             // straightliner answering "Not at all" to everything would pass a

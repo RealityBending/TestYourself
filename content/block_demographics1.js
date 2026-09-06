@@ -17,7 +17,7 @@ const CUSPS = [
 // and is never reached — the item waits on the month — but a question that
 // words itself should not be able to throw while being drawn.
 function cuspOf(answer) {
-    return CUSPS[(answer("BirthMonth") || 1) - 1]
+    return CUSPS[(answer("Demographics_BirthMonth") || 1) - 1]
 }
 
 function ordinal(day) {
@@ -26,6 +26,10 @@ function ordinal(day) {
     return day + end
 }
 
+// Every demographic item, in this block and the two after it, is keyed
+// `Demographics_…` (September 2026; the keys were bare before), so a saved
+// file sorts them together and nothing of a questionnaire's own can collide
+// with them. The questionnaire keys stay lower-case `demographics1`…`3`.
 defineBlock("demographics1", [
     {
         // No dimensions, no scoring, no results.
@@ -45,7 +49,7 @@ defineBlock("demographics1", [
         items: [
             // Age =================================================================
             {
-                key: "Age",
+                key: "Demographics_Age",
                 text: "How old are you?",
                 format: {
                     input: "number",
@@ -56,7 +60,7 @@ defineBlock("demographics1", [
                 },
             },
             {
-                key: "BirthMonth",
+                key: "Demographics_BirthMonth",
                 text: "In which month were you born?",
                 format: {
                     options: [
@@ -89,11 +93,11 @@ defineBlock("demographics1", [
             // `BirthMonth` and this together; "I'd rather not say" leaves it
             // as "one of two".
             {
-                key: "BirthDay",
+                key: "Demographics_BirthDay",
                 text: (answer) => "Which part of " + cuspOf(answer)[0] + "?",
                 // Any month at all, so the item still waits on the answer it
                 // words itself from rather than trusting the run's order.
-                showIf: { key: "BirthMonth", is: CUSPS.map((cusp, at) => at + 1) },
+                showIf: { key: "Demographics_BirthMonth", is: CUSPS.map((cusp, at) => at + 1) },
                 format: {
                     options: [
                         { value: 1, text: (answer) => "1st to " + ordinal(cuspOf(answer)[1] - 1) },
@@ -105,7 +109,7 @@ defineBlock("demographics1", [
             },
             // Gender =================================================================
             {
-                key: "Gender",
+                key: "Demographics_Gender",
                 text: "I am...",
                 format: {
                     options: [
@@ -118,14 +122,14 @@ defineBlock("demographics1", [
             },
 
             {
-                key: "GenderBirth",
+                key: "Demographics_GenderBirth",
                 text: "I was born...",
-                showIf: { key: "Gender", is: 3 },
+                showIf: { key: "Demographics_Gender", is: 3 },
             },
             {
-                key: "GenderIdentity",
+                key: "Demographics_GenderIdentity",
                 text: "But I identify as...",
-                showIf: { key: "Gender", is: 3 },
+                showIf: { key: "Demographics_Gender", is: 3 },
                 format: {
                     input: "text",
                     max: 60,

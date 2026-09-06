@@ -614,7 +614,8 @@
 /* The head, the chest, and the cord that carries what one says to the other.
    Each ring is filled to where the score sits on its own scale. */
 .soma,
-.sea {
+.sea,
+.climb {
     width: 100%;
     height: auto;
 }
@@ -641,7 +642,8 @@
 
 /* The scene itself: rounded like its clip, and standing a little off the
    card. */
-.sea {
+.sea,
+.climb {
     display: block;
     border-radius: 12px;
     box-shadow: 0 30px 60px -36px rgba(0, 0, 0, 0.95);
@@ -844,6 +846,200 @@
     .seaview__keys,
     .seaview__ends {
         grid-template-columns: 1fr;
+    }
+}
+
+/* ------------------------- the last year, as a climb --------------------- */
+
+/* The section on the sea's pattern: a title, the person's own hill at the
+   width of the card, the four channels as a bar chart under it, a note, the
+   two ends of all four bars, and one question — each piece arriving a beat
+   after the one above it. */
+.climbview__head {
+    margin: 0 0 18px;
+    text-align: center;
+    animation: rise 0.8s var(--ease) both;
+}
+
+.climbview__title {
+    margin: 0;
+    font-family: var(--serif);
+    font-size: clamp(24px, 3.6vw, 32px);
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    color: var(--gold-pale);
+    text-shadow: 0 0 40px rgba(217, 164, 65, 0.35);
+}
+
+.climbview__stage {
+    animation: fade 1s var(--ease) 0.15s both;
+}
+
+/* The four channels as a bar chart: a column apiece, filled from the foot to
+   the value the scene is drawn from, in a colour of its own, named under it.
+   What each does to the scene is said in the tooltip on hover or focus,
+   which is why the columns take focus. */
+.climbview__bars {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+    max-width: 560px;
+    margin: 22px auto 0;
+    animation: rise 0.8s var(--ease) 0.4s both;
+}
+
+.climbview__col {
+    display: grid;
+    justify-items: center;
+    gap: 9px;
+    border-radius: 12px;
+    outline: none;
+    cursor: help;
+}
+
+.climbview__col:focus-visible .climbview__track {
+    box-shadow: 0 0 0 2px var(--key);
+}
+
+.climbview__track {
+    position: relative;
+    display: block;
+    width: 100%;
+    max-width: 64px;
+    height: 120px;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.04);
+    overflow: hidden;
+}
+
+.climbview__fill {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: block;
+    border-radius: 9px 9px 0 0;
+    background: linear-gradient(180deg, var(--key), color-mix(in srgb, var(--key) 45%, transparent));
+    box-shadow: 0 0 14px -2px var(--key);
+    transform-origin: bottom;
+    animation: climb-fill 0.9s 0.6s var(--ease) both;
+}
+
+@keyframes climb-fill {
+    from {
+        transform: scaleY(0);
+    }
+    to {
+        transform: scaleY(1);
+    }
+}
+
+.climbview__name {
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    text-align: center;
+    line-height: 1.35;
+    color: var(--text);
+}
+
+.climbview__note {
+    max-width: 660px;
+    margin: 18px auto 0;
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: var(--muted);
+    animation: rise 0.8s var(--ease) 0.3s both;
+}
+
+.climbview__others {
+    max-width: 660px;
+    margin: 28px auto 0;
+    animation: rise 0.8s var(--ease) 0.55s both;
+}
+
+.climbview__aside {
+    margin: 0 0 6px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.climbview__others .climbview__note {
+    margin: 0 0 14px;
+    animation: none;
+}
+
+.climbview__ends {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.climbview__end {
+    margin: 0;
+}
+
+.climbview__end figcaption {
+    margin-top: 9px;
+    text-align: center;
+    font-size: 12px;
+    line-height: 1.4;
+    color: var(--muted);
+}
+
+.climbview__end figcaption b {
+    display: block;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.climbview__vote {
+    display: grid;
+    justify-items: center;
+    gap: 10px;
+    margin-top: 26px;
+    animation: rise 0.8s var(--ease) 0.75s both;
+}
+
+.climbview__ask {
+    margin: 0;
+    font-size: 14px;
+    font-style: italic;
+    color: var(--text);
+}
+
+/* The clouds drift, each to a beat and phase the script writes in. A sealed
+   card holds them at the first frame. */
+.climb__cloud {
+    animation: climb-drift 24s ease-in-out infinite alternate;
+}
+
+@keyframes climb-drift {
+    from {
+        translate: -14px 0;
+    }
+    to {
+        translate: 14px 0;
+    }
+}
+
+@media (max-width: 560px) {
+    .climbview__ends {
+        grid-template-columns: 1fr;
+    }
+
+    .climbview__bars {
+        gap: 8px;
+    }
+
+    .climbview__name {
+        font-size: 9.5px;
+        letter-spacing: 0.08em;
     }
 }
 
@@ -1391,7 +1587,9 @@
     background: #161a29;
     color: var(--text);
     font-size: 13px;
-    white-space: nowrap;
+    line-height: 1.45;
+    max-width: 320px;
+    text-align: center;
     pointer-events: none;
     opacity: 0;
     transition: opacity 0.12s;
@@ -1654,7 +1852,15 @@
     .seaview__keys,
     .seaview__bar i,
     .seaview__others,
-    .seaview__vote {
+    .seaview__vote,
+    .climb__cloud,
+    .climbview__stage,
+    .climbview__head,
+    .climbview__note,
+    .climbview__bars,
+    .climbview__fill,
+    .climbview__others,
+    .climbview__vote {
         animation: none;
     }
 

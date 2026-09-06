@@ -11,11 +11,14 @@
 // before the narrower ones — is why the PI-18 is written first.
 //
 // Item texts are verbatim from the Primals Inventories administration
-// instructions (Clifton, updated February 2021), American spelling and all;
-// the keys are Clifton's own suggested labels under a version prefix, so that
-// a saved file maps one-for-one onto his published scoring code (an `x` on the
-// end of a label is his mark for a reverse-scored item, kept for that reason
-// even though `reverse: true` beside it is what the engine reads).
+// instructions (Clifton, updated February 2021), American spelling and all.
+// The keys name the primal and count within it — `PI_Safe_1`, `PI_Alive_4` —
+// the way every other scale's keys here do, and Clifton's own label for the
+// item (`sd1`, `am4`; an `x` on the end is his mark for a reverse-scored item)
+// rides beside each in a comment, so a saved file maps onto his published
+// scoring code with one renaming step. The keys were his labels themselves,
+// under a version prefix (`PI18_ed1`) and then under `PI_`, until September
+// 2026.
 defineBlock("primals", [
     {
         type: "briefing",
@@ -37,11 +40,12 @@ defineBlock("primals", [
     // Three dimensions are scored here and not four. The inventory's headline
     // primal, overall Good world belief, is not a fourth set of items but a
     // *composite* of these ones — all six Safe items, all seven Enticing
-    // items, and two of the five Alive items (`am1` and `am4`) — and an item
+    // items, and two of the five Alive items (`PI_Alive_1` and `PI_Alive_4`,
+    // Clifton's `am1` and `am4`) — and an item
     // in this engine carries one dimension. Rather than ask anything twice or
     // teach the engine a second way to score, Good is left to analysis time:
-    // every item it needs is in the saved file under Clifton's own labels, so
-    // his published code computes it unchanged. What is read back on screen is
+    // every item it needs is in the saved file, with Clifton's label beside
+    // each key here, so his published code computes it after a rename. What is read back on screen is
     // the three dimensions under Good, which is also exactly the three axes a
     // spider chart wants.
     //
@@ -109,47 +113,47 @@ defineBlock("primals", [
         },
 
         items: [
-            { key: "PI18_ed1", dimension: "Enticing", text: "In life, there's way more beauty than ugliness." },
+            { key: "PI_Enticing_1", dimension: "Enticing", text: "In life, there's way more beauty than ugliness." }, // ed1
             {
-                key: "PI18_am1",
+                key: "PI_Alive_1", // am1
                 dimension: "Alive",
                 text: "It often feels like events are happening in order to help me in some way.",
             },
-            { key: "PI18_sd1", dimension: "Safe", text: "I tend to see the world as pretty safe." },
-            { key: "PI18_am2", dimension: "Alive", text: "What happens in the world is meant to happen." },
+            { key: "PI_Safe_1", dimension: "Safe", text: "I tend to see the world as pretty safe." }, // sd1
+            { key: "PI_Alive_2", dimension: "Alive", text: "What happens in the world is meant to happen." }, // am2
             {
-                key: "PI18_ed2x",
+                key: "PI_Enticing_2", // ed2x
                 dimension: "Enticing",
                 text: "While some things are worth checking out or exploring further, most things probably aren't worth the effort.",
                 reverse: true,
             },
-            { key: "PI18_ed3x", dimension: "Enticing", text: "Most things in life are kind of boring.", reverse: true },
-            { key: "PI18_ed4", dimension: "Enticing", text: "The world is an abundant place with tons and tons to offer." },
+            { key: "PI_Enticing_3", dimension: "Enticing", text: "Most things in life are kind of boring.", reverse: true }, // ed3x
+            { key: "PI_Enticing_4", dimension: "Enticing", text: "The world is an abundant place with tons and tons to offer." }, // ed4
             {
-                key: "PI18_ed5",
+                key: "PI_Enticing_5", // ed5
                 dimension: "Enticing",
                 text: "No matter where we are or what the topic might be, the world is fascinating.",
             },
             {
-                key: "PI18_ed6x",
+                key: "PI_Enticing_6", // ed6x
                 dimension: "Enticing",
                 text: "The world is a somewhat dull place where plenty of things are not that interesting.",
                 reverse: true,
             },
-            { key: "PI18_sd2x", dimension: "Safe", text: "On the whole, the world is a dangerous place.", reverse: true },
+            { key: "PI_Safe_2", dimension: "Safe", text: "On the whole, the world is a dangerous place.", reverse: true }, // sd2x
             {
-                key: "PI18_sd3x",
+                key: "PI_Safe_3", // sd3x
                 dimension: "Safe",
                 text: "Instead of being cooperative, the world is a cut-throat and competitive place.",
                 reverse: true,
             },
-            { key: "PI18_am3x", dimension: "Alive", text: "Events seem to lack any cosmic or bigger purpose.", reverse: true },
-            { key: "PI18_sd4x", dimension: "Safe", text: "Most things have a habit of getting worse.", reverse: true },
-            { key: "PI18_am4", dimension: "Alive", text: "The universe needs me for something important." },
-            { key: "PI18_sd5", dimension: "Safe", text: "Most things in the world are good." },
-            { key: "PI18_am5", dimension: "Alive", text: "Everything happens for a reason and on purpose." },
-            { key: "PI18_sd6", dimension: "Safe", text: "Most things and situations are harmless and totally safe." },
-            { key: "PI18_ed7", dimension: "Enticing", text: "No matter where we are, incredible beauty is always around us." },
+            { key: "PI_Alive_3", dimension: "Alive", text: "Events seem to lack any cosmic or bigger purpose.", reverse: true }, // am3x
+            { key: "PI_Safe_4", dimension: "Safe", text: "Most things have a habit of getting worse.", reverse: true }, // sd4x
+            { key: "PI_Alive_4", dimension: "Alive", text: "The universe needs me for something important." }, // am4
+            { key: "PI_Safe_5", dimension: "Safe", text: "Most things in the world are good." }, // sd5
+            { key: "PI_Alive_5", dimension: "Alive", text: "Everything happens for a reason and on purpose." }, // am5
+            { key: "PI_Safe_6", dimension: "Safe", text: "Most things and situations are harmless and totally safe." }, // sd6
+            { key: "PI_Enticing_7", dimension: "Enticing", text: "No matter where we are, incredible beauty is always around us." }, // ed7
         ],
     },
 
@@ -258,57 +262,57 @@ defineBlock("primals", [
             // Acceptable (vs. unacceptable) — all but the last keyed towards
             // the unacceptable pole, as published.
             {
-                key: "PI99_au1x",
+                key: "PI_Acceptable_1", // au1x
                 dimension: "Acceptable",
                 text: "The world needs to be continually improved rather than accepted.",
                 reverse: true,
             },
             {
-                key: "PI99_au2x",
+                key: "PI_Acceptable_2", // au2x
                 dimension: "Acceptable",
                 text: "Most situations in life need to be improved, not accepted.",
                 reverse: true,
             },
             {
-                key: "PI99_au3x",
+                key: "PI_Acceptable_3", // au3x
                 dimension: "Acceptable",
                 text: "Rather than accepting things as they are, the world needs to be improved as much as possible.",
                 reverse: true,
             },
-            { key: "PI99_au4", dimension: "Acceptable", text: "It's usually better to accept a situation than try to change it." },
+            { key: "PI_Acceptable_4", dimension: "Acceptable", text: "It's usually better to accept a situation than try to change it." }, // au4
 
             // Changing (vs. static)
-            { key: "PI99_cs1", dimension: "Changing", text: "Everything feels like it's shifting and changing." },
-            { key: "PI99_cs2", dimension: "Changing", text: "I feel like everything changes all the time." },
-            { key: "PI99_cs3", dimension: "Changing", text: "Everything feels like a whirl of constant change." },
+            { key: "PI_Changing_1", dimension: "Changing", text: "Everything feels like it's shifting and changing." }, // cs1
+            { key: "PI_Changing_2", dimension: "Changing", text: "I feel like everything changes all the time." }, // cs2
+            { key: "PI_Changing_3", dimension: "Changing", text: "Everything feels like a whirl of constant change." }, // cs3
             {
-                key: "PI99_cs4x",
+                key: "PI_Changing_4", // cs4x
                 dimension: "Changing",
                 text: "The world is a place where most things stay pretty much the same.",
                 reverse: true,
             },
             {
-                key: "PI99_cs5",
+                key: "PI_Changing_5", // cs5
                 dimension: "Changing",
                 text: "Everything feels like it's constantly moving, changing, and up in the air.",
             },
 
             // Hierarchical (vs. nonhierarchical)
-            { key: "PI99_hn1", dimension: "Hierarchical", text: "Most things in the world could be ranked in order of importance." },
+            { key: "PI_Hierarchical_1", dimension: "Hierarchical", text: "Most things in the world could be ranked in order of importance." }, // hn1
             {
-                key: "PI99_hn2",
+                key: "PI_Hierarchical_2", // hn2
                 dimension: "Hierarchical",
                 text: "Humans, animals, plants, and pretty much everything else can be organized by how important or good they are.",
             },
             {
-                key: "PI99_hn3",
+                key: "PI_Hierarchical_3", // hn3
                 dimension: "Hierarchical",
                 text:
                     "Most things can be organized into hierarchies, rankings, or pecking orders that reflect true differences " +
                     "among things.",
             },
             {
-                key: "PI99_hn4x",
+                key: "PI_Hierarchical_4", // hn4x
                 dimension: "Hierarchical",
                 text:
                     "Most things aren't better or worse. It's hard to organize the world into hierarchies, rankings, or pecking " +
@@ -316,37 +320,37 @@ defineBlock("primals", [
                 reverse: true,
             },
             {
-                key: "PI99_hn5",
+                key: "PI_Hierarchical_5", // hn5
                 dimension: "Hierarchical",
                 text: "Things are rarely equal. Most plants and animals, and even people, are better or worse than one another.",
             },
 
             // Interconnected (vs. atomistic)
-            { key: "PI99_ia1", dimension: "Interconnected", text: "Every single thing is connected to everything else." },
-            { key: "PI99_ia2", dimension: "Interconnected", text: "The world is a place where everything is completely interconnected." },
+            { key: "PI_Interconnected_1", dimension: "Interconnected", text: "Every single thing is connected to everything else." }, // ia1
+            { key: "PI_Interconnected_2", dimension: "Interconnected", text: "The world is a place where everything is completely interconnected." }, // ia2
             {
-                key: "PI99_ia3",
+                key: "PI_Interconnected_3", // ia3
                 dimension: "Interconnected",
                 text: "Though things can appear separate and independent, they really aren't. Instead, all is one.",
             },
             {
-                key: "PI99_ia4x",
+                key: "PI_Interconnected_4", // ia4x
                 dimension: "Interconnected",
                 text: "Most things are basically unconnected and independent from each other.",
                 reverse: true,
             },
 
             // Understandable (vs. too hard to understand)
-            { key: "PI99_ut1", dimension: "Understandable", text: "Most everything is easy enough to understand." },
-            { key: "PI99_ut2", dimension: "Understandable", text: "The world is easy enough to understand." },
+            { key: "PI_Understandable_1", dimension: "Understandable", text: "Most everything is easy enough to understand." }, // ut1
+            { key: "PI_Understandable_2", dimension: "Understandable", text: "The world is easy enough to understand." }, // ut2
             {
-                key: "PI99_ut3x",
+                key: "PI_Understandable_3", // ut3x
                 dimension: "Understandable",
                 text: "Lots of things in the world are too confusing and difficult to understand.",
                 reverse: true,
             },
             {
-                key: "PI99_ut4x",
+                key: "PI_Understandable_4", // ut4x
                 dimension: "Understandable",
                 text: "The world is a confusing place where many skills and subjects are too hard to figure out.",
                 reverse: true,
@@ -358,7 +362,7 @@ defineBlock("primals", [
             // straightliner sits at, and off the agreeing side these items
             // otherwise pull towards.
             {
-                key: "Primals_AttentionCheck",
+                key: "PI_AttentionCheck",
                 check: 2,
                 text: 'Please mark this statement "slightly disagree."',
             },

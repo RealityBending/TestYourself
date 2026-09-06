@@ -30,15 +30,20 @@ defineBlock("mood", [
                 { value: 2, text: "More than half the days" },
                 { value: 3, text: "Nearly every day" },
             ],
-            vertical: true,
+            // One row, weakest on the left, like the numbered scales; it stood
+            // on end until September 2026.
+            columns: 5,
             color: "#7c5cff",
             hovercolors: ["#22c55e", "#ef4444"],
         },
 
-        // PLACEHOLDER norms, invented. Not from any published sample.
-        // No `interpretations` on purpose: Anxiety and Depression never earn a
-        // row of their own — the Mood face reads their sum against MOOD_NORM in
-        // results.js — so there is no tercile text for anything here to say.
+        // PLACEHOLDER norms, invented. Not from any published sample. Nothing
+        // reads them since September 2026: the climb (js/figures/climb.js)
+        // draws the fortnight's weather from the PHQ-4 total against the
+        // questionnaire's own bands, not against a norm, and the questionnaire
+        // is read as one figure, so these earn no row and no axis. They stay
+        // because norms are what put a questionnaire on its level's results at
+        // all (`dimensionsOf`). No `interpretations`: no row ever reads one.
         norms: {
             Anxiety: { mean: 1.0, sd: 0.9 },
             Depression: { mean: 0.9, sd: 0.9 },
@@ -78,6 +83,12 @@ defineBlock("mood", [
     {
         key: "sleep",
         name: "Sleep",
+        // Asked, scored and saved, and fed back nowhere: not a channel of the
+        // climb, and a row of its own is not wanted, so `results: false` keeps
+        // its norms from opening a section and `profile: false` keeps Sleep
+        // off the whole-run web and card.
+        results: false,
+        profile: false,
         instructions: "",
         format: {
             options: [
@@ -93,9 +104,8 @@ defineBlock("mood", [
         },
 
         // PLACEHOLDER norms, invented. Not from any published sample. Sleep's
-        // are read by nothing: this questionnaire is one of the Mood & Health
-        // pair, whose section is the faces, and Sleep is not a face. The
-        // Stress norms belong to the PCL-2 and are commented out with it.
+        // are read by nothing (`results: false` above). The Stress norms belong
+        // to the PCL-2 and are commented out with it.
         norms: {
             // Stress: {
             //     mean: 1.0,

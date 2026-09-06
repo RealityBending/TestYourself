@@ -19,7 +19,7 @@ defineBlock("closing", [
 
         items: [
             {
-                key: "Accuracy",
+                key: "Demographics_SurveyAccuracy",
                 text: "One last thing. Did you take the test seriously?<br /><small>(This won't impact your results, but will help us improve the test.)</small>",
             },
         ],

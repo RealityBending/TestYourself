@@ -23,7 +23,7 @@ defineBlock("demographics2", [
             // Counted upwards, so that the codes read as an order rather than
             // as a set of labels. "Other" is 0: it is outside the ladder.
             {
-                key: "Education",
+                key: "Demographics_Education",
                 text: "What is your highest completed education level?",
                 format: {
                     options: [
@@ -39,17 +39,17 @@ defineBlock("demographics2", [
                 },
             },
             {
-                key: "EducationOther",
+                key: "Demographics_EducationOther",
                 text: "Your highest completed education level is...",
-                showIf: { key: "Education", is: 0 },
+                showIf: { key: "Demographics_Education", is: 0 },
                 format: { input: "text", max: 60, placeholder: "Please specify", color: "#2f6f9f" },
             },
 
             // Only somebody who went to university has one to give.
             {
-                key: "Discipline",
+                key: "Demographics_Discipline",
                 text: "What is your discipline?",
-                showIf: { key: "Education", is: [3, 4, 5] },
+                showIf: { key: "Demographics_Education", is: [3, 4, 5] },
                 format: {
                     options: [
                         { value: 1, text: "Arts and Humanities" },
@@ -71,21 +71,21 @@ defineBlock("demographics2", [
                 },
             },
             {
-                key: "DisciplineOther",
+                key: "Demographics_DisciplineOther",
                 text: "Your discipline is...",
-                showIf: { key: "Discipline", is: 0 },
+                showIf: { key: "Demographics_Discipline", is: 0 },
                 format: { input: "text", max: 60, placeholder: "Please specify", color: "#2f6f9f" },
             },
 
             // Asked of the levels somebody may still be working through.
             {
-                key: "Student",
+                key: "Demographics_Student",
                 text: "Are you currently a student?",
-                showIf: { key: "Education", is: [2, 3, 4] },
+                showIf: { key: "Demographics_Education", is: [2, 3, 4] },
             },
 
             {
-                key: "Ethnicity",
+                key: "Demographics_Ethnicity",
                 text: "How would you describe your ethnicity?",
                 format: {
                     options: [
@@ -108,9 +108,9 @@ defineBlock("demographics2", [
                 },
             },
             {
-                key: "EthnicityOther",
+                key: "Demographics_EthnicityOther",
                 text: "You would describe your ethnicity as...",
-                showIf: { key: "Ethnicity", is: 0 },
+                showIf: { key: "Demographics_Ethnicity", is: 0 },
                 format: { input: "text", max: 60, placeholder: "Please specify", color: "#2f6f9f" },
             },
 
@@ -118,7 +118,7 @@ defineBlock("demographics2", [
             // of the world typed in: every country will not go on a screen, and
             // there is no dropdown here to put one in.
             {
-                key: "Country",
+                key: "Demographics_Country",
                 text: "In which country are you currently living?",
                 format: {
                     options: [
@@ -133,9 +133,9 @@ defineBlock("demographics2", [
                 },
             },
             {
-                key: "CountryOther",
+                key: "Demographics_CountryOther",
                 text: "You are currently living in...",
-                showIf: { key: "Country", is: 0 },
+                showIf: { key: "Demographics_Country", is: 0 },
                 format: { input: "text", max: 60, placeholder: "e.g., France", color: "#2f6f9f" },
             },
         ],

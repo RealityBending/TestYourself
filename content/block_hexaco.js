@@ -392,45 +392,40 @@ defineBlock("hexaco", [
             // "applies completely"; here they take the HEXACO's 5-point
             // agreement scale, which is the price of blending in.
             //
-            // Scored as two dimensions so the facets can be read apart at
-            // analysis time (the KSE-G total is their mean). The NQ− items
-            // are reverse-keyed, so on both a higher score is a more
-            // flattering self-presentation. NO NORMS, on purpose: this is
-            // measured about the participant, not for them, and is fed back
-            // nowhere — a social-desirability score handed back would only
-            // teach the next answer.
+            // NOT SCORED: no `dimension` on any of the six (September 2026;
+            // they were two, PQ+ and NQ−, which the engine averaged for
+            // nobody). Nothing on the page reads a social-desirability score,
+            // and a computed score is never saved, so the dimensions did
+            // nothing but count as scored. The keys say the facet, and the
+            // KSE-G total is taken at analysis time as the mean of the six
+            // with the three Negative items reversed, so that a higher score
+            // is a more flattering self-presentation. Fed back nowhere on
+            // purpose: this is measured about the participant, not for them,
+            // and a social-desirability score handed back would only teach
+            // the next answer.
             {
-                key: "KSEG_PQ_1",
-                dimension: "Social Desirability (PQ+)",
+                key: "KSEG_Positive1",
                 text: "In an argument, I always remain objective and stick to the facts.",
             },
             {
-                key: "KSEG_PQ_2",
-                dimension: "Social Desirability (PQ+)",
+                key: "KSEG_Positive2",
                 text: "Even if I am feeling stressed, I am always friendly and polite to others.",
             },
             {
-                key: "KSEG_PQ_3",
-                dimension: "Social Desirability (PQ+)",
+                key: "KSEG_Positive3",
                 text: "When talking to someone, I always listen carefully to what the other person says.",
             },
             {
-                key: "KSEG_NQ_1",
-                dimension: "Social Desirability (NQ−)",
+                key: "KSEG_Negative1",
                 text: "It has happened that I have taken advantage of someone in the past.",
-                reverse: true,
             },
             {
-                key: "KSEG_NQ_2",
-                dimension: "Social Desirability (NQ−)",
+                key: "KSEG_Negative2",
                 text: "I have occasionally thrown litter away in the countryside or on to the road.",
-                reverse: true,
             },
             {
-                key: "KSEG_NQ_3",
-                dimension: "Social Desirability (NQ−)",
+                key: "KSEG_Negative3",
                 text: "Sometimes I only help people if I expect to get something in return.",
-                reverse: true,
             },
 
             // BSDS -------------------------------------------------------

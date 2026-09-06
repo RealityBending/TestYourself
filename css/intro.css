@@ -187,27 +187,79 @@ body[data-screen="intro"] #app {
     }
 }
 
-/* The shape of a finished profile, hanging behind the case for making one:
-   wider than the words, out of focus, and dim enough to read them through. It
-   is a hint at what the far end of this looks like, not a result — the figures
-   on it are the stand-ins a locked level is drawn from. */
-.why__web {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    z-index: -1;
-    width: min(1020px, 128%);
-    transform: translate(-50%, -50%);
-    opacity: 0.3;
-    filter: blur(7px) saturate(1.2);
-    pointer-events: none;
-    mask-image: radial-gradient(68% 62% at 50% 50%, #000 42%, transparent 78%);
-    -webkit-mask-image: radial-gradient(68% 62% at 50% 50%, #000 42%, transparent 78%);
+/* A taste of the far end beside the case for making one: the figures the
+   levels close on, one at a time in one frame, cross-fading. They are drawn
+   from the stand-ins a locked level is drawn from and shown in focus, since a
+   figure with nothing earned in it has nothing to hide; what is left out is
+   every standing and reading, which only mean something once earned. */
+.why__show {
+    margin-top: 30px;
 }
 
-.why__web svg {
+.why__frame {
+    position: relative;
+    /* About as tall as the case beside it at the widths the two share a row. */
+    aspect-ratio: 4 / 3;
+    border-radius: 18px;
+    border: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.03);
+    box-shadow: 0 30px 80px -46px rgba(0, 0, 0, 0.9);
+    overflow: hidden;
+}
+
+.why__slide {
+    position: absolute;
+    inset: 16px;
+    display: grid;
+    place-items: center;
+    opacity: 0;
+    transition: opacity 1.1s var(--ease);
+    pointer-events: none;
+}
+
+.why__slide--on {
+    opacity: 1;
+}
+
+/* Every figure fits the frame whatever its own proportions; the stylesheet
+   rules that size a figure to its card are overruled here. */
+.why__slide svg {
     width: 100%;
-    height: auto;
+    height: 100%;
+    box-shadow: none;
+}
+
+/* The climb's bar chart, sized to the frame rather than to its card. */
+.why__slide .climbview__bars {
+    width: 100%;
+    max-width: 440px;
+    margin: 0;
+}
+
+.why__slide .climbview__track {
+    height: 190px;
+    max-width: 74px;
+}
+
+/* The body's stand-in standings ("higher than 00% of people") and readings
+   are not shown here: the rings and the names are the taste. */
+.why__slide .soma__reading,
+.why__slide .soma__told,
+.why__slide .soma__votes {
+    display: none;
+}
+
+.why__caption {
+    margin: 12px 0 0;
+    text-align: center;
+    font-size: 13px;
+    font-style: italic;
+    color: var(--muted);
+}
+
+/* The temperament plane is drawn small for its card; here it has the frame. */
+.why__slide .theory__figure {
+    max-width: none;
 }
 
 /* Why it is worth doing, between the quote and the form. */
@@ -621,5 +673,36 @@ body.sinking #screen-intro::after {
     .gaze--out .gaze__by,
     .gaze--out .gaze__skip {
         animation-name: vanish;
+    }
+}
+
+/* Last in the file on purpose: the shared rule for .creed, .why and .gate
+   above sets the column layout and the 760px width, and this has to come
+   after it to win. Two columns where there is room for them — the case and the figure side by
+   side — and stacked where there is not. */
+@media (min-width: 900px) {
+    /* The screen centres its children and sizes them to their content, and
+       two flex items sharing a basis of nothing would size that content to
+       nothing: the section has to claim its width outright. */
+    .why {
+        flex-direction: row;
+        align-items: center;
+        gap: 52px;
+        width: 100%;
+        max-width: 1080px;
+    }
+
+    .why__case {
+        flex: 1 1 44%;
+        min-width: 0;
+    }
+
+    .why__show {
+        flex: 1 1 56%;
+        min-width: 0;
+    }
+
+    .why__show {
+        margin-top: 0;
     }
 }
