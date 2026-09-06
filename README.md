@@ -6,7 +6,7 @@ The big dispositional characteristics survey.
 
 | Level | Questionnaire | Dimensions |
 |---|---|---|
-| 1 | Demographics (custom items) | • Age<br>• Birth month<br>• Zodiac cusp half<br>• Gender<br>• Sex assigned at birth<br>• Gender identity |
+| 1 | Demographics (custom items) | • Age<br>• Birth month<br>Gender |
 | 1 | Five-Item Personality Inventory (FIPI; Gosling et al., 2003) | • Extraversion<br>• Agreeableness<br>• Conscientiousness<br>• Emotional Stability<br>• Openness |
 | 1 | Single Item Narcissism Scale (SINS; Konrath et al., 2014) | • Narcissism |
 | 1 | Single-Item Self-Rated Health (SRH; DeSalvo et al., 2006) | • General health |
@@ -16,20 +16,19 @@ The big dispositional characteristics survey.
 | 1 | Meaning in Life Questionnaire, item 8 (MLQ; Steger et al., 2006) | • Search for meaning |
 | 1 | General Self-Efficacy Single-Item (GSE-SI; Di et al., 2023) | • Self-efficacy |
 | 1 | Single-Item Life Satisfaction Scale (SILS; Cheung & Lucas, 2014) | • Life satisfaction |
-| 1 | Self-placement in a room of 100 (not validated) | • Intelligence<br>• Attractiveness |
+| 1 | Self-placement items (not validated) | • Intelligence<br>• Attractiveness |
 | 2 | Demographics (custom items) | • Education<br>• Discipline<br>• Student status<br>• Ethnicity<br>• Country |
-| 2 | Multidimensional Interoceptive Traits questionnaire (MINT; Makowski et al.) | • Bodily Awareness<br>• Bodily Sensitivity<br>• Bodily Clarity |
-| 3 | Beliefs about Artificial Images Technology (BAIT; Makowski et al.) | • AI Realism<br>• AI Enthusiasm<br>• AI Apprehension<br>• AI knowledge, understanding and usage (single items) |
+| 2 | Multidimensional Interoceptive Traits questionnaire (MINT; Makowski et al.) | WIP |
+| 3 | Beliefs about Artificial Intelligence Technology (BAIT; Makowski et al.) | WIP |
 | 4 | Subjective financial well-being (ESS / OECD item) | • Household financial comfort |
 | 4 | MacArthur Scale of Subjective Social Status (Adler et al., 2000) | • Subjective social status |
 | 4 | Patient Health Questionnaire-4, refined 5-option version (PHQ-4; Kroenke et al., 2009; Makowski et al., 2025) | • Anxiety<br>• Depression |
 | 4 | Single-Item Sleep Quality Scale (SQS; Snyder et al., 2018) | • Sleep quality |
 | 4 | Psychiatric history (custom items) | • Current diagnoses<br>• Current treatments |
-| 4 | HiTOP Brief Report (HiTOP-BR; Simms et al., 2026) | • Bodily Complaints (Somatoform)<br>• Emotional Intensity (Internalizing)<br>• Unusual Experiences (Thought Disorder)<br>• Solitude (Detachment)<br>• Impulsivity (Disinhibition)<br>• Dominance (Antagonism) |
+| 4 | HiTOP Brief Report (HiTOP-BR; Simms et al., 2026) | • Somatoform<br>• Internalizing<br>• Thought Disorder<br>• Detachment<br>• Disinhibition<br>• Antagonism |
 | 5 | HEX-ACO-18 (Olaru & Jankowsky, 2022) | • Honesty-Humility<br>• Emotionality<br>• Sociability (eXtraversion)<br>• Patience (Agreeableness)<br>• Diligence (Conscientiousness)<br>• Curiosity (Openness) |
 | 5 | Social Desirability-Gamma Short Scale (KSE-G; Kemper et al., 2014) | • Exaggerating positive qualities<br>• Minimising negative qualities |
-| 6 | Primals Inventory-18 (PI-18; Clifton & Yaden, 2021) | • Safe<br>• Enticing<br>• Alive |
-| 6 | Primals Inventory-99, five tertiary scales (PI-99; Clifton et al., 2019) | • Acceptable<br>• Changing<br>• Hierarchical<br>• Interconnected<br>• Understandable |
+| 6 | Primals Inventory-18 (PI-18; Clifton & Yaden, 2021) + five tertiary scales (PI-99; Clifton et al., 2019) | • Safe<br>• Enticing<br>• Alive<br>• Acceptable, Changing, Hierarchical, Interconnected, Understandable |
 | 7 | Open Source Archetype Indicator – Pearson-Marr (OSAI-PM; not validated) | • Idealist<br>• Sage<br>• Seeker<br>• Revolutionary<br>• Magician<br>• Warrior<br>• Realist<br>• Jester<br>• Lover<br>• Creator<br>• Ruler<br>• Caregiver |
 
 ## Questionnaire Ideas
