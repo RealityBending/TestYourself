@@ -1781,7 +1781,7 @@
 
         $("start").disabled = false
         $("start").textContent = "Start the test"
-        $("consent-hint").textContent = testMode ? "Test mode — consent is not being taken." : "You have reached the end of the form."
+        $("consent-hint").textContent = testMode ? "Test mode: consent is not being taken." : "You have reached the end of the form."
         $("consent-hint").classList.add("consent__hint--read")
     }
 

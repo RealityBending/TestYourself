@@ -9,15 +9,14 @@ defineBlock("hitop", [
         key: "Briefing_Spectra",
         text:
             "<h2>Now, the last year.</h2>" +
-            "<p>The last few questions asked about the past couple of weeks; the next widen the frame to the " +
-            "<b>last twelve months</b>, and ask about the kind of experiences " +
-            "psychology has spent a century sorting into categories — and lately into spectra, which is how they are " +
-            "asked here: not whether you have something, but how much of each of several things has been true of " +
-            "you.</p>" +
+            "<p>The last few questions were about the past couple of weeks. The next ones widen the frame to the " +
+            "<b>last twelve months</b>. They ask about the kinds of experience psychology has spent a century " +
+            "sorting into diagnoses. Here they are asked as dimensions instead: not whether you have something, " +
+            "but how much of it has been true of you.</p>" +
             "<p>Some statements will describe you well and some not at all. Every one of them describes somebody, " +
-            "and most describe more people than admit to it.</p>" +
-            "<p><em>Think of the significant times in the last twelve months when a statement applied to you, and say " +
-            "how well it described you then.</em></p>",
+            "and most describe more people than would admit to it.</p>" +
+            "<p><em>Think of the times in the last twelve months when a statement applied to you, and say how well " +
+            "it described you then.</em></p>",
     },
 
     // HiTOP-BR =============================================================
@@ -27,9 +26,11 @@ defineBlock("hitop", [
     // shipped in the {hitop} R package (github.com/jmgirard/hitop,
     // data-raw/hitopbr_items.csv): 45 statements about the last twelve months
     // on a 4-point scale, no reversed items, scored as the mean of each of six
-    // spectra. Item keys follow the package's own item numbers, HBR_01 to
-    // HBR_45, so a saved file can be handed straight to score_hitopbr() with
-    // the items in instrument order; their membership below is the package's
+    // spectra. Item keys follow the package's own item numbers under the
+    // app's prefix, HITOP_01 to HITOP_45 (HBR_01 to HBR_45 until September
+    // 2026), so a saved file goes into score_hitopbr() once the columns are
+    // renamed HBR_nn, with the items in instrument order; their membership
+    // below is the package's
     // (which corrected item 36 to Internalizing after the development
     // workbook). Two more scales cut across the six — the Externalizing
     // superspectrum (items 1, 13, 15, 16, 25, 32, 34, 35, 40, 45) and the
@@ -86,8 +87,8 @@ defineBlock("hitop", [
         // "Antagonism") read as verdicts when handed back to the person who
         // answered. The dimensions here carry plainer names, and the mapping
         // is one-to-one so nothing about the scoring changes — the item keys
-        // are still HBR_01..HBR_45, and score_hitopbr() knows nothing of the
-        // names:
+        // still carry the package's item numbers, and score_hitopbr() knows
+        // nothing of the names:
         //
         //     Somatoform        → Bodily Complaints
         //     Internalizing     → Emotional Distress
@@ -105,7 +106,7 @@ defineBlock("hitop", [
                 interpretations: {
                     low: "your body has mostly kept quiet this year: few unexplained aches, and little worry about what a symptom might mean.",
                     mid: "you have had your share of aches, tiredness and the odd worry about your health, about as often as most people report.",
-                    high: "you have been bothered by bodily symptoms, and by worry about what they mean, more than most people report — tiring to carry, and not on its own a sign of anything in particular.",
+                    high: "you have been bothered by bodily symptoms, and by worry about what they mean, more than most people report. That is tiring to carry, and not on its own a sign of anything in particular.",
                 },
             },
             "Emotional Distress": {
@@ -114,7 +115,7 @@ defineBlock("hitop", [
                 interpretations: {
                     low: "worry, low mood and being hard on yourself have troubled you less this year than they do most people.",
                     mid: "worry, low moods and difficult memories have reached you about as often as they reach most people.",
-                    high: "you have been weighed on by worry, strong moods or hard feelings about yourself more than most people report — common under strain, and not a diagnosis of anything.",
+                    high: "you have been weighed down by worry, strong moods or hard feelings about yourself more than most people report. This is common under strain, and not a diagnosis of anything.",
                 },
             },
             "Unusual Experiences": {
@@ -123,7 +124,7 @@ defineBlock("hitop", [
                 interpretations: {
                     low: "the line between what is real and what is imagined has held firm for you this year, as it does for most people.",
                     mid: "you have had the occasional moment where a daydream, a sensation or a memory felt more real than it should, about as often as most people report.",
-                    high: "you have had more moments than most people report where a daydream, a sensation or your own body felt unreal or out of place — experiences far more widespread than is usually admitted, and saying nothing on their own.",
+                    high: "you have had more moments than most people report where a daydream, a sensation or your own body felt unreal or out of place. Such experiences are far more common than people admit, and mean nothing on their own.",
                 },
             },
             "Social Withdrawal": {
@@ -132,7 +133,7 @@ defineBlock("hitop", [
                 interpretations: {
                     low: "you have wanted company and closeness this year more than most people do, and found little appeal in being left alone.",
                     mid: "you have moved between wanting company and wanting to be left to yourself, much as most people do.",
-                    high: "you have preferred your own company, and kept close relationships at arm's length, more than most people report — which suits some people well, and wears on others.",
+                    high: "you have preferred your own company, and kept close relationships at arm's length, more than most people report. That suits some people well and wears on others.",
                 },
             },
             Impulsivity: {
@@ -150,69 +151,71 @@ defineBlock("hitop", [
                 interpretations: {
                     low: "you have had little appetite this year for being in charge, being noticed or getting the better of other people.",
                     mid: "you have wanted your share of attention and influence, and taken the odd shortcut to get it, about as much as most people.",
-                    high: "you have wanted to lead, to be noticed or to have an edge over other people more than most people admit to — a trait that reads very differently depending on where it is pointed.",
+                    high: "you have wanted to lead, to be noticed or to have an edge over other people more than most people admit to. Whether that is a good thing depends a lot on what it is aimed at.",
                 },
             },
         },
 
         items: [
-            { key: "HBR_01", dimension: "Dominance", text: "I found it easy to deceive others." },
-            { key: "HBR_02", dimension: "Dominance", text: "I deserved special treatment." },
-            { key: "HBR_03", dimension: "Unusual Experiences", text: "I saw things that were not really there." },
-            { key: "HBR_04", dimension: "Unusual Experiences", text: "My fantasies felt very real to me." },
-            { key: "HBR_05", dimension: "Dominance", text: "I liked having power." },
-            { key: "HBR_06", dimension: "Bodily Complaints", text: "I felt something was wrong with my body." },
-            { key: "HBR_07", dimension: "Social Withdrawal", text: "When I had the chance, I chose to be alone rather than with other people." },
-            { key: "HBR_08", dimension: "Emotional Distress", text: "My moods were intense and unpredictable." },
-            { key: "HBR_09", dimension: "Emotional Distress", text: "My mind was flooded with troubling images of a bad experience." },
-            { key: "HBR_10", dimension: "Bodily Complaints", text: "I had pains in several parts of my body." },
-            { key: "HBR_11", dimension: "Unusual Experiences", text: "I felt like I was outside of my body." },
-            { key: "HBR_12", dimension: "Social Withdrawal", text: "I was happiest when I was alone." },
-            { key: "HBR_13", dimension: "Dominance", text: "I found it easy to manipulate others." },
+            { key: "HITOP_01", dimension: "Dominance", text: "I found it easy to deceive others." },
+            { key: "HITOP_02", dimension: "Dominance", text: "I deserved special treatment." },
+            { key: "HITOP_03", dimension: "Unusual Experiences", text: "I saw things that were not really there." },
+            { key: "HITOP_04", dimension: "Unusual Experiences", text: "My fantasies felt very real to me." },
+            { key: "HITOP_05", dimension: "Dominance", text: "I liked having power." },
+            { key: "HITOP_06", dimension: "Bodily Complaints", text: "I felt something was wrong with my body." },
+            { key: "HITOP_07", dimension: "Social Withdrawal", text: "When I had the chance, I chose to be alone rather than with other people." },
+            { key: "HITOP_08", dimension: "Emotional Distress", text: "My moods were intense and unpredictable." },
+            { key: "HITOP_09", dimension: "Emotional Distress", text: "My mind was flooded with troubling images of a bad experience." },
+            { key: "HITOP_10", dimension: "Bodily Complaints", text: "I had pains in several parts of my body." },
+            { key: "HITOP_11", dimension: "Unusual Experiences", text: "I felt like I was outside of my body." },
+            { key: "HITOP_12", dimension: "Social Withdrawal", text: "I was happiest when I was alone." },
+            { key: "HITOP_13", dimension: "Dominance", text: "I found it easy to manipulate others." },
             {
-                key: "HBR_14",
+                key: "HITOP_14",
                 dimension: "Bodily Complaints",
                 text:
                     "I was bothered by several bodily symptoms (e.g., headache, fatigue or stomach problems) for which " +
                     "there was no clear or sufficient medical explanation.",
             },
-            { key: "HBR_15", dimension: "Impulsivity", text: "I had trouble planning and keeping to schedules." },
-            { key: "HBR_16", dimension: "Impulsivity", text: "I lost things that I needed." },
-            { key: "HBR_17", dimension: "Bodily Complaints", text: "I was frustrated with having to convince others I had a real illness." },
-            { key: "HBR_18", dimension: "Emotional Distress", text: "Even when I was very careful, I worried whether I had done something correctly." },
-            { key: "HBR_19", dimension: "Bodily Complaints", text: "Reading articles about disease made me worry about my health." },
-            { key: "HBR_20", dimension: "Impulsivity", text: "I paid my bills late or missed other important deadlines." },
-            { key: "HBR_21", dimension: "Bodily Complaints", text: "I could feel changes in my body." },
-            { key: "HBR_22", dimension: "Emotional Distress", text: "I was disgusted with myself." },
-            { key: "HBR_23", dimension: "Emotional Distress", text: "I felt on guard and on edge." },
-            { key: "HBR_24", dimension: "Impulsivity", text: "I was a messy person." },
-            { key: "HBR_25", dimension: "Dominance", text: "I did things to get others to notice me." },
-            { key: "HBR_26", dimension: "Bodily Complaints", text: "I noticed small changes to how my body feels." },
-            { key: "HBR_27", dimension: "Dominance", text: "Things went best when I told others what to do." },
-            { key: "HBR_28", dimension: "Unusual Experiences", text: "I heard things that no one else could hear." },
-            { key: "HBR_29", dimension: "Impulsivity", text: "I was never on time." },
-            { key: "HBR_30", dimension: "Social Withdrawal", text: "I had no interest in romantic relationships." },
-            { key: "HBR_31", dimension: "Social Withdrawal", text: "Romantic relationships seemed like a hassle to me." },
-            { key: "HBR_32", dimension: "Impulsivity", text: "I said things without thinking." },
-            { key: "HBR_33", dimension: "Dominance", text: "People told me I was coldhearted." },
-            { key: "HBR_34", dimension: "Impulsivity", text: "I made decisions quickly without thinking them through." },
-            { key: "HBR_35", dimension: "Impulsivity", text: "I quit tasks that became too challenging." },
-            { key: "HBR_36", dimension: "Emotional Distress", text: "I had a hard time asserting myself to others." },
-            { key: "HBR_37", dimension: "Social Withdrawal", text: "I felt that I did not want to be in a close relationship." },
-            { key: "HBR_38", dimension: "Unusual Experiences", text: "I had trouble telling whether something really happened or I just imagined it." },
-            { key: "HBR_39", dimension: "Unusual Experiences", text: "I felt that things around me were not real." },
-            { key: "HBR_40", dimension: "Dominance", text: "I liked attracting the attention of others." },
-            { key: "HBR_41", dimension: "Bodily Complaints", text: "I was afraid that I might suffer from a serious illness." },
-            { key: "HBR_42", dimension: "Emotional Distress", text: "I thought a lot about death." },
-            { key: "HBR_43", dimension: "Impulsivity", text: "I bought much more than I needed." },
-            { key: "HBR_44", dimension: "Emotional Distress", text: "I was overwhelmed by anxiety." },
-            { key: "HBR_45", dimension: "Dominance", text: "I expected to get treated better than others." },
+            { key: "HITOP_15", dimension: "Impulsivity", text: "I had trouble planning and keeping to schedules." },
+            { key: "HITOP_16", dimension: "Impulsivity", text: "I lost things that I needed." },
+            { key: "HITOP_17", dimension: "Bodily Complaints", text: "I was frustrated with having to convince others I had a real illness." },
+            { key: "HITOP_18", dimension: "Emotional Distress", text: "Even when I was very careful, I worried whether I had done something correctly." },
+            { key: "HITOP_19", dimension: "Bodily Complaints", text: "Reading articles about disease made me worry about my health." },
+            { key: "HITOP_20", dimension: "Impulsivity", text: "I paid my bills late or missed other important deadlines." },
+            { key: "HITOP_21", dimension: "Bodily Complaints", text: "I could feel changes in my body." },
+            { key: "HITOP_22", dimension: "Emotional Distress", text: "I was disgusted with myself." },
+            { key: "HITOP_23", dimension: "Emotional Distress", text: "I felt on guard and on edge." },
+            { key: "HITOP_24", dimension: "Impulsivity", text: "I was a messy person." },
+            { key: "HITOP_25", dimension: "Dominance", text: "I did things to get others to notice me." },
+            { key: "HITOP_26", dimension: "Bodily Complaints", text: "I noticed small changes to how my body feels." },
+            { key: "HITOP_27", dimension: "Dominance", text: "Things went best when I told others what to do." },
+            { key: "HITOP_28", dimension: "Unusual Experiences", text: "I heard things that no one else could hear." },
+            { key: "HITOP_29", dimension: "Impulsivity", text: "I was never on time." },
+            { key: "HITOP_30", dimension: "Social Withdrawal", text: "I had no interest in romantic relationships." },
+            { key: "HITOP_31", dimension: "Social Withdrawal", text: "Romantic relationships seemed like a hassle to me." },
+            { key: "HITOP_32", dimension: "Impulsivity", text: "I said things without thinking." },
+            { key: "HITOP_33", dimension: "Dominance", text: "People told me I was coldhearted." },
+            { key: "HITOP_34", dimension: "Impulsivity", text: "I made decisions quickly without thinking them through." },
+            { key: "HITOP_35", dimension: "Impulsivity", text: "I quit tasks that became too challenging." },
+            { key: "HITOP_36", dimension: "Emotional Distress", text: "I had a hard time asserting myself to others." },
+            { key: "HITOP_37", dimension: "Social Withdrawal", text: "I felt that I did not want to be in a close relationship." },
+            { key: "HITOP_38", dimension: "Unusual Experiences", text: "I had trouble telling whether something really happened or I just imagined it." },
+            { key: "HITOP_39", dimension: "Unusual Experiences", text: "I felt that things around me were not real." },
+            { key: "HITOP_40", dimension: "Dominance", text: "I liked attracting the attention of others." },
+            { key: "HITOP_41", dimension: "Bodily Complaints", text: "I was afraid that I might suffer from a serious illness." },
+            { key: "HITOP_42", dimension: "Emotional Distress", text: "I thought a lot about death." },
+            { key: "HITOP_43", dimension: "Impulsivity", text: "I bought much more than I needed." },
+            { key: "HITOP_44", dimension: "Emotional Distress", text: "I was overwhelmed by anxiety." },
+            { key: "HITOP_45", dimension: "Dominance", text: "I expected to get treated better than others." },
             // The attention check. The scale is skewed towards its floor, so a
             // straightliner answering "Not at all" to everything would pass a
             // check written for that end: this one asks for the top of it, 4.
-            // Not an `HBR_` key, so `score_hitopbr()` cannot mistake it for an item.
+            // Keyed like every other level's check, prefix and `_AttentionCheck`:
+            // no two-digit item pattern matches it, so `score_hitopbr()` cannot
+            // mistake it for an item once the columns are renamed.
             {
-                key: "HiTOP_AttentionCheck",
+                key: "HITOP_AttentionCheck",
                 check: 4,
                 text: "I read each of these statements carefully, and will answer \"A lot\" to this one.",
             },

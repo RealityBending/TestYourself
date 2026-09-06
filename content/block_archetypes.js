@@ -3,13 +3,9 @@ defineBlock("archetypes", [
         type: "briefing",
         key: "Briefing_Archetypes",
         text:
-            "<h2>Last, the story.</h2>" +
-            "<p>Long before anybody measured a personality, people described one another by the part they seemed to be " +
-            "playing: the sage, the warrior, the fool, the one who looks after everybody else. These are " +
-            "<b>archetypes</b> — the handful of shapes a life keeps being told in.</p>" +
-            "<p>What follows is twelve of them, three lines each. None is better than another, and most people carry " +
-            "several at once.</p>" +
-            "<p><em>Answer for the story you are actually in, not the one you would pick.</em></p>",
+            "<h2>Next, archetypes.</h2>" +
+            "<p>Long before anyone measured personality, people described each other with, and aspired to be, figures of literature of mythology.</p>" +
+            "<p><em>Let's see how your personality connects with them.</em></p>",
     },
 
     // OSAI-PM ==============================================================
@@ -170,7 +166,7 @@ defineBlock("archetypes", [
             {
                 key: "Archetype_Revolutionary_3",
                 dimension: "Revolutionary",
-                text: "I can accept the end of things — plans, roles, relationships — once their time has passed.",
+                text: "I can accept the end of things, such as plans, roles or relationships, once their time has passed.",
             },
 
             // Magician: transformation, healing, catalyst, vision, personal
@@ -300,7 +296,7 @@ defineBlock("archetypes", [
             {
                 key: "Archetype_Lover_3",
                 dimension: "Lover",
-                text: "I savour beauty and pleasure wherever I find them — in people, places or things.",
+                text: "I savour beauty and pleasure wherever I find them, in people, places or things.",
             },
 
             // Provide structure --------------------------------------------

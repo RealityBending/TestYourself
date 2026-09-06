@@ -4,7 +4,7 @@ defineBlock("bait", [
         key: "Briefing_BAIT",
         text:
             "<h2>Next, what do you think about the new age we are entering.</h2>" +
-            "<p>The questions that follow are about your relationship with <b>artificial intelligence</b>" +
+            "<p>The questions that follow are about your relationship with <b>artificial intelligence (AI)</b>" +
             " which actually say something about our humanity.</p>",
     },
 
@@ -14,9 +14,11 @@ defineBlock("bait", [
     // study 2 — the 12 core items plus the exploratory Expertise,
     // Discrimination and Bias blocks) and BAIT 2.2 (FakeArt / FakeFace3 — the
     // 12 core items plus two art items, the attention check, and the
-    // knowledge and usage singles). The two art items exist in both with
-    // slightly different wording; the 2.2 wording is used, being the main
-    // line. Item keys are the *harmonised* names established in the pooled
+    // knowledge and usage singles). The Expertise three are dropped: the
+    // opening singles ask what they asked, better, and asking it twice only
+    // buys three ways of saying the same thing. The two art items exist in
+    // both with slightly different wording; the 2.2 wording is used, being
+    // the main line. Item keys are the *harmonised* names established in the pooled
     // validation (BAIT/study1/analysis.qmd), so this data stacks onto the
     // eight earlier samples without renaming — and without inheriting the
     // BAIT_3/BAIT_4 label swap that runs through the 2.0/2.1 files.
@@ -56,8 +58,11 @@ defineBlock("bait", [
         },
 
         items: [
-            // The two singles are asked first, before the shuffled statements:
-            // what somebody says they know and use frames how the rest reads.
+            // The three singles are asked first, before the shuffled
+            // statements: what somebody says they know, understand and use
+            // frames how the rest reads. BAIT_Understanding is a key of its
+            // own rather than the old BAIT_UnderstandingAI, because it asks a
+            // narrower thing on a different scale and must not stack onto it.
             {
                 key: "BAIT_Knowledge",
                 shuffle: false,
@@ -66,6 +71,17 @@ defineBlock("bait", [
                 format: {
                     options: [0, 1, 2, 3, 4, 5, 6],
                     anchors: ["Not at all", "Expert"],
+                    color: "#06b6d4",
+                },
+            },
+            {
+                key: "BAIT_Understanding",
+                shuffle: false,
+                text: "How well do you understand the way modern AI systems actually work, technically?",
+                instructions: "For instance, how large language models (LLMs) and generative AI produce the text or images they do.",
+                format: {
+                    options: [0, 1, 2, 3, 4, 5, 6],
+                    anchors: ["Not at all", "In detail"],
                     color: "#06b6d4",
                 },
             },
@@ -111,20 +127,13 @@ defineBlock("bait", [
                 text: "Documents and paragraphs written by AI usually read differently compared to Human productions",
             },
 
-            // Attitudes — the two 2-item facets of the BAIT-8.
+            // Attitudes
             { key: "BAIT_Dangerous", dimension: "AI Apprehension", text: "AI is dangerous" },
             { key: "BAIT_Worry", dimension: "AI Apprehension", text: "I am worried about future uses of AI" },
             { key: "BAIT_Exciting", dimension: "AI Enthusiasm", text: "AI is exciting" },
             { key: "BAIT_Benefit", dimension: "AI Enthusiasm", text: "Much of society will benefit from a future full of AI" },
 
-            // Expertise (FictionEro study 2 only, carried forward here).
-            { key: "BAIT_ExpertAI", text: "I consider myself an expert in AI technology" },
-            { key: "BAIT_UnderstandingAI", text: "I have a good understanding of how AI works" },
-            { key: "BAIT_UserAI", text: "I use AI technology on a regular basis" },
-
-            // Discrimination — self-rated ability to tell AI from real
-            // (inert against behaviour in the pooled validation, kept for
-            // another look).
+            // Discrimination
             { key: "BAIT_ImageDistinctionEasy", text: "I can easily distinguish between real and AI-generated images" },
             { key: "BAIT_ImageDistinctionBad", text: "I am bad at telling if images are real or AI-generated" },
             {
@@ -133,9 +142,7 @@ defineBlock("bait", [
             },
             { key: "BAIT_ContentDetection", text: "I can accurately detect subtle differences between AI from human-created content" },
 
-            // Bias — human-superiority beliefs. The two art items carry the
-            // 2.2 wording; the harmonised names keep them stackable with the
-            // FictionEro 2 variants.
+            // Bias
             { key: "BAIT_UniqueHuman", text: "Human creators bring a unique perspective that AI cannot replicate" },
             { key: "BAIT_ArtAIBest", text: "AI-generated art can sometimes surpass human creativity and artistic value" },
             { key: "BAIT_ImpersonalAI", text: "AI-generated content often feels impersonal compared to human-generated media" },
@@ -150,7 +157,7 @@ defineBlock("bait", [
             },
             { key: "BAIT_TrustHuman", text: "I am more likely to trust content when I know it is created by a human rather than AI" },
 
-            // The 2.2 attention check: all the way to the right is 6.
+            // Attention check: all the way to the right is 6.
             {
                 key: "BAIT_AttentionCheck",
                 check: 6,

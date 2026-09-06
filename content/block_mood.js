@@ -3,12 +3,11 @@ defineBlock("mood", [
         type: "briefing",
         key: "Briefing_Mood",
         text:
-            "<h2>Now, how you have been.</h2>" +
-            "<p>What follows is about the last few weeks rather than about you in general: your mood, how you " +
-            "have been sleeping, and how difficult memories have been sitting with you.</p>" +
-            "<p>These are ordinary parts of human experience. What differs between people is how often they come " +
-            "and how much they weigh.</p>" +
-            "<p><em>Answer for the last few weeks as they actually were, not for how you usually are.</em></p>",
+            "<h2>Now, how you have been lately.</h2>" +
+            "<p>The next questions are about the last couple of weeks rather than about you in general: your mood, " +
+            "your sleep, and whether stressful memories have been bothering you.</p>" +
+            "<p>Everybody has some of this. What differs is how often it comes and how heavy it is.</p>" +
+            "<p><em>Answer for the last two weeks as they actually were, not for how you usually are.</em></p>",
     },
 
     // PHQ-4 ================================================================
@@ -69,17 +68,17 @@ defineBlock("mood", [
         ],
     },
 
+    // What is left of the questionnaire that held the CDS-2 and then the
+    // PCL-2: the sleep single item alone. It was keyed `Dissociation` until
+    // September 2026; the questionnaire key is saved nowhere, so nothing had
+    // to line up. The shared 5-option format stays as its default so that
+    // either commented-out scale would come back on it as written — an
+    // average across items answered on different scales would not mean
+    // anything — while the SQS carries a format of its own.
     {
-        key: "Dissociation",
-        name: "Stress",
+        key: "sleep",
+        name: "Sleep",
         instructions: "",
-        // Put on the same 5-option response format as the PHQ-4 — "in among
-        // one another" in spirit if not literally the same questionnaire —
-        // rather than the numbered circles the CDS-2 and PCL-2 arrive with.
-        // The shared scale is also what lets both feed one dimension below:
-        // an average across items answered on different scales would not
-        // mean anything, but an average across four answered on the same one
-        // does.
         format: {
             options: [
                 { value: 0, text: "Not at all" },
@@ -93,29 +92,25 @@ defineBlock("mood", [
             hovercolors: ["#22c55e", "#ef4444"],
         },
 
-        // Stress is the PCL-2 — the return of difficult memories — read as one
-        // dimension. Until September 2026 the CDS-2 (detachment from one's
-        // surroundings) was pooled into it too, under the name "Strain"; the
-        // CDS-2 is commented out below, its ground now covered by the HiTOP-BR's
-        // Unusual Experiences on this same level, and "Stress" is the plain
-        // name for what the PCL-2 picks up. The questionnaire key is still
-        // `Dissociation`, so saved files line up.
-        // PLACEHOLDER norms, invented. Not from any published sample.
+        // PLACEHOLDER norms, invented. Not from any published sample. Sleep's
+        // are read by nothing: this questionnaire is one of the Mood & Health
+        // pair, whose section is the faces, and Sleep is not a face. The
+        // Stress norms belong to the PCL-2 and are commented out with it.
         norms: {
-            Stress: {
-                mean: 1.0,
-                sd: 1.0,
-                interpretations: {
-                    low: "the world around you arrives solid and immediate, and difficult memories rarely intrude on your week.",
-                    mid: "the odd moment of feeling at one remove from things, or a memory that resurfaces, reaches you about as often as it does most people.",
-                    high: "you feel cut off from your surroundings, or unreal, and memories of stressful events return and are hard to put down, more often than most people report — a common enough experience under strain, and not a diagnosis of anything.",
-                },
-            },
+            // Stress: {
+            //     mean: 1.0,
+            //     sd: 1.0,
+            //     interpretations: {
+            //         low: "difficult memories have mostly left you alone over the last two weeks, and little has come back to trouble you.",
+            //         mid: "a stressful memory has come back to you now and then over the last two weeks, about as often as it does for most people.",
+            //         high: "memories of something stressful have come back to you, and upset you, more often over the last two weeks than most people report. That is common under strain, and it is not a diagnosis of anything.",
+            //     },
+            // },
             Sleep: {
                 mean: 6.3,
                 sd: 2.1,
                 interpretations: {
-                    low: "your sleep this week rated well below where most people put theirs — worth a closer look if it keeps up.",
+                    low: "your sleep this week rated well below where most people put theirs. Worth a closer look if it keeps up.",
                     mid: "your sleep this week landed about where most people's does.",
                     high: "your sleep this week has been better than most people report.",
                 },
@@ -147,26 +142,44 @@ defineBlock("mood", [
 
             // PCL-2 ================================================================
             // A 2-item abbreviation of the PTSD Checklist (Bliese et al., 2008).
-            {
-                key: "PCL2_Trauma_1",
-                dimension: "Stress",
-                text: "<small>Over the last 2 weeks, how often have you been bothered by this experience:</small><br /><em>Repeated, disturbing memories of a stressful experience</em>",
-            },
-            {
-                key: "PCL2_Trauma_2",
-                dimension: "Stress",
-                text: "<small>Over the last 2 weeks, how often have you been bothered by this experience:</small><br /><em>Feeling upset when something reminded you of a stressful experience</em>",
-            },
+            // COMMENTED OUT (September 2026): its first item is HiTOP-BR item 9
+            // ("My mind was flooded with troubling images of a bad experience")
+            // over two weeks instead of twelve months, the same duplication the
+            // CDS-2 was cut for, and "Stress" misnamed what it measures, which
+            // is trauma intrusion. It was the Stress dimension, the middle face
+            // of Mood & Health and an axis on the whole-run web; all three went
+            // with it, and the Stress face in js/figures/faces.js waits for it.
+            // Kept whole, with its norms above, so it can be put back by
+            // uncommenting both.
+            // {
+            //     key: "PCL2_Trauma_1",
+            //     dimension: "Stress",
+            //     text: "<small>Over the last 2 weeks, how often have you been bothered by this experience:</small><br /><em>Repeated, disturbing memories of a stressful experience</em>",
+            // },
+            // {
+            //     key: "PCL2_Trauma_2",
+            //     dimension: "Stress",
+            //     text: "<small>Over the last 2 weeks, how often have you been bothered by this experience:</small><br /><em>Feeling upset when something reminded you of a stressful experience</em>",
+            // },
 
             // SQS ================================================================
             // Single-Item Sleep Quality Scale (SQS; Snyder et al., 2018), kept
             // on its own 0-10 scale rather than the shared one above — sleep is
             // rated rather than recalled by frequency, so it is asked the way
-            // it was published rather than made to match its neighbours.
+            // it was published rather than made to match its neighbours. As
+            // published it is a discretised visual analogue scale in five
+            // bands (0 terrible, 1-3 poor, 4-6 fair, 7-9 good, 10 excellent)
+            // with a note on what "quality" covers; the circles carry the
+            // numbers and the two end anchors, so the bands and the note go in
+            // the instructions under the question.
             {
                 key: "SQS_SleepQuality",
                 dimension: "Sleep",
-                instructions: "Please consider your sleep over the past 7 days.",
+                instructions:
+                    "Think about the overall quality of your sleep: how many hours you slept, how easily you fell asleep, " +
+                    "how often you woke during the night (other than to go to the toilet), how often you woke earlier than " +
+                    "you had to, and how refreshing your sleep was. 0 is terrible, 1 to 3 poor, 4 to 6 fair, 7 to 9 good " +
+                    "and 10 excellent.",
                 format: {
                     options: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
                     anchors: ["Terrible", "Excellent"],

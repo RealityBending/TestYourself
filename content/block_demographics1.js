@@ -1,7 +1,3 @@
-// Month, the first day of the sign that begins in it, and the month's last
-// day. The cusps are the common tropical dates; a boundary can shift by a day
-// from one year to the next, which the "I'd rather not say" option absorbs
-// for anyone who knows they fall on one.
 const CUSPS = [
     ["January", 20, 31], // Capricorn → Aquarius
     ["February", 19, 29], // Aquarius → Pisces

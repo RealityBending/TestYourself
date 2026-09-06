@@ -1127,11 +1127,60 @@ h1 {
     grid-row: 2;
     display: flex;
     flex-direction: column-reverse;
+    align-items: center;
     width: 100%;
 }
 
+/* Stood on end, the circles are drawn as the rungs of a ladder — a rail
+   either side of the column and a stub of rung out of each circle to meet
+   it — since a ladder is what the item asked somebody to stand on, and a
+   bare column of numbers did not read as one. The rails are the column's own
+   pseudo-elements and the stubs the circles', so nothing is added to the
+   markup and a horizontal scale is untouched. */
+.scale--vertical.scale--circles .options {
+    position: relative;
+    gap: 10px;
+    padding: 12px 0;
+}
+
+.scale--vertical.scale--circles .options::before,
+.scale--vertical.scale--circles .options::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: calc(50% - 48px);
+    width: 3px;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.14);
+}
+
+.scale--vertical.scale--circles .options::after {
+    left: auto;
+    right: calc(50% - 48px);
+}
+
 .scale--vertical.scale--circles .options .option {
+    position: relative;
     width: 46px;
+}
+
+.scale--vertical.scale--circles .options .option::before,
+.scale--vertical.scale--circles .options .option::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: -24px;
+    width: 24px;
+    height: 2px;
+    margin-top: -1px;
+    background: rgba(255, 255, 255, 0.14);
+    pointer-events: none;
+}
+
+.scale--vertical.scale--circles .options .option::after {
+    left: auto;
+    right: -24px;
 }
 
 /* The circles have a size of their own and sit in the middle of whatever

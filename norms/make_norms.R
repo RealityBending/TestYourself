@@ -408,11 +408,12 @@ if (length(pooled) == 0) {
 # and every spectrum piles up near its floor of 1 — which is why the app's
 # comment says the percentiles it reads them through are coarse at the low end.
 # Once the study has run, the same figures can be worked out from its own
-# answers: the saved files carry the items under the package's own names
-# (`HBR_01`..`HBR_45`), in instrument order, so they go straight into
-# `score_hitopbr()`.
+# answers: the saved files carry the items under the package's own numbers
+# with the app's prefix (`HITOP_01`..`HITOP_45`; `HBR_nn` in files written
+# before September 2026), in instrument order, so they go into
+# `score_hitopbr()` once the columns are renamed `HBR_nn`.
 #
-#   answers <- ...                     # one row per participant, HBR_01..HBR_45
+#   answers <- ...                     # one row per participant, renamed to HBR_01..HBR_45
 #   scores <- hitop::score_hitopbr(answers, items = 1:45, append = FALSE)
 #   round(sapply(scores, mean, na.rm = TRUE), 2)
 #   round(sapply(scores, stats::sd, na.rm = TRUE), 2)

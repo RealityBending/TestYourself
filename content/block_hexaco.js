@@ -3,12 +3,12 @@ defineBlock("hexaco", [
         type: "briefing",
         key: "Briefing_Traits",
         text:
-            "<h2>Now, who you are — closer up.</h2>" +
-            "<p>The first level sketched your personality in five strokes. This one goes over the same ground from " +
-            "more angles, in twenty-eight short statements about how you tend to act, and adds the trait the classic " +
-            "five leave out — <b>honesty and humility</b>: how far you can be bought, flattered or impressed by " +
-            "status. All six come back to you as one chart at the end of the level.</p>" +
-            "<p>The statements are quick and plain. Go with the first answer that fits.</p>" +
+            "<h2>Now, a closer look at who you are.</h2>" +
+            "<p>Level 1 sketched your personality in five strokes. This level goes over the same ground in more " +
+            "detail, with short statements about how you tend to act, and adds a trait the classic five leave out: " +
+            "<b>honesty and humility</b>, or how far you can be bought, flattered or impressed by status. You get " +
+            "all six back as one chart at the end of the level.</p>" +
+            "<p>The statements are short and plain. Go with the first answer that fits.</p>" +
             "<p><em>Rate how well each one describes you as you generally are, not on your best day or your worst.</em></p>",
     },
 
@@ -211,9 +211,9 @@ defineBlock("hexaco", [
                 mean: 3.6,
                 sd: 0.7,
                 interpretations: {
-                    low: "you are comfortable using charm, status and the trappings of success to get where you are going.",
+                    low: "you are comfortable using charm and status to get where you are going, and you would enjoy the trappings of success.",
                     mid: "you neither chase status nor refuse it, and will flatter a little when it serves.",
-                    high: "you deal straight, want no fuss made of your standing, and are hard to impress with money.",
+                    high: "you deal straight with people, don't want a fuss made of your standing, and are hard to impress with money.",
                 },
             },
             "Emotionality": {
@@ -222,7 +222,7 @@ defineBlock("hexaco", [
                 interpretations: {
                     low: "you keep your head in an emergency, worry little, and would rather cope alone than lean on anybody.",
                     mid: "you worry and want comfort about as much as most people do, and steady yourself when it counts.",
-                    high: "you feel fear and worry keenly, and when something hurts you want somebody there.",
+                    high: "you worry easily and feel fear strongly, and when something hurts you want somebody there with you.",
                 },
             },
             "Sociability": {
@@ -256,7 +256,7 @@ defineBlock("hexaco", [
                 mean: 3.5,
                 sd: 0.7,
                 interpretations: {
-                    low: "radical ideas, concerts and making art are not where your interest lies.",
+                    low: "new ideas, the arts and making things are not really where your interests lie.",
                     mid: "you enjoy the arts and the odd unconventional idea, in moderation.",
                     high: "you are drawn to new and radical ideas, to art, and to making something of your own.",
                 },

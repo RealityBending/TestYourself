@@ -1,5 +1,5 @@
-// The single-item scales of level 1: eight of them, asked as ONE questionnaire
-// and not as eight, so that they are dealt in among one another rather than
+// The single-item scales of level 1: ten of them, asked as ONE questionnaire
+// and not as ten, so that they are dealt in among one another rather than
 // arriving in the order they happen to be written. None of them is a sixth
 // item on the FIPI, which would put it on a chart it does not belong on.
 //
@@ -75,6 +75,41 @@ defineBlock("singles", [
                     hovercolors: ["#ef4444", "#22c55e"],
                 },
                 text: "I have high self-esteem.",
+            },
+
+            // Self-Concept Clarity Scale (SCCS; Campbell et al., 1996), item 11
+            // of the twelve: the one statement of the construct itself in the
+            // positive, on the scale's own 5 points. Added September 2026 for
+            // the sense of knowing who one is, beside the meaning-in-life
+            // ideas in README.md. No norms, so it earns no row.
+            {
+                key: "SCCS_SelfConceptClarity",
+                instructions: "Please indicate the extent to which you agree or disagree with the statement.",
+                format: {
+                    options: [1, 2, 3, 4, 5],
+                    anchors: ["Strongly disagree", "Strongly agree"],
+                    color: "#7B1FA2",
+                    hovercolors: ["#ef4444", "#22c55e"],
+                },
+                text: "In general, I have a clear sense of who I am and what I am.",
+            },
+
+            // Search for meaning: item 8 of the Meaning in Life Questionnaire
+            // (MLQ; Steger et al., 2006), on the MLQ's own 7 points. One of the
+            // two items of its Search subscale that hold up best across the
+            // original and later validations (the ranking is in README.md);
+            // asked for the feeling of being without a purpose and looking
+            // for one. No norms, so it earns no row.
+            {
+                key: "MLQ_SearchForMeaning",
+                instructions: "Please indicate how true this statement is of you.",
+                format: {
+                    options: [1, 2, 3, 4, 5, 6, 7],
+                    anchors: ["Absolutely untrue", "Absolutely true"],
+                    color: "#7B1FA2",
+                    hovercolors: ["#22c55e", "#ef4444"],
+                },
+                text: "I am seeking a purpose or mission for my life.",
             },
 
             // General Self-Efficacy Single-Item (GSE-SI; Di et al., 2023)

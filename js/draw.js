@@ -22,12 +22,17 @@ function draw(shape, attributes) {
     return element
 }
 
-// A colour `proportion` of the way from one #rrggbb to another.
+// A colour `proportion` of the way from one colour to another.
 function mix(from, to, proportion) {
-    const channels = [1, 3, 5].map((at) => {
-        const start = parseInt(from.substr(at, 2), 16)
-        const end = parseInt(to.substr(at, 2), 16)
-        return Math.round(start + (end - start) * proportion)
-    })
-    return "rgb(" + channels.join(", ") + ")"
+    const start = channelsOf(from)
+    const end = channelsOf(to)
+    return "rgb(" + start.map((channel, i) => Math.round(channel + (end[i] - channel) * proportion)).join(", ") + ")"
+}
+
+// The three channels of a colour written either way `mix()` meets one: as
+// "#rrggbb" out of `content/`, or as the "rgb(r, g, b)" `mix()` itself gives
+// back — so a colour can be mixed twice over, a tint and then a darkening.
+function channelsOf(colour) {
+    if (colour[0] === "#") return [1, 3, 5].map((at) => parseInt(colour.substr(at, 2), 16))
+    return colour.match(/\d+/g).map(Number)
 }

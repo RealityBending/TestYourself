@@ -613,9 +613,238 @@
 
 /* The head, the chest, and the cord that carries what one says to the other.
    Each ring is filled to where the score sits on its own scale. */
-.soma {
+.soma,
+.sea {
     width: 100%;
     height: auto;
+}
+
+/* The world, as a section: a title over the picture, the person's own abyss
+   at the width of the card, what the picture is made of, the two ends of the
+   scales to hold it against, and one question — each piece arriving a beat
+   after the one above it. */
+.seaview__head {
+    margin: 0 0 18px;
+    text-align: center;
+    animation: rise 0.8s var(--ease) both;
+}
+
+.seaview__title {
+    margin: 0;
+    font-family: var(--serif);
+    font-size: clamp(26px, 4vw, 34px);
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    color: var(--gold-pale);
+    text-shadow: 0 0 40px rgba(217, 164, 65, 0.35);
+}
+
+/* The scene itself: rounded like its clip, and standing a little off the
+   card. */
+.sea {
+    display: block;
+    border-radius: 12px;
+    box-shadow: 0 30px 60px -36px rgba(0, 0, 0, 0.95);
+}
+
+.seaview {
+    animation: fade 1s var(--ease) 0.15s both;
+}
+
+/* Where the picture came from, and what the two small ones are: a plain
+   sentence at the width of the card. */
+.seaview__note {
+    max-width: 660px;
+    margin: 18px auto 0;
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: var(--muted);
+    animation: rise 0.8s var(--ease) 0.3s both;
+}
+
+/* What the picture is made of: one key a channel, lit in a colour of the
+   legend's own, with a bar under the name filled to where the score sits on
+   its own scale — the same reach the scene is drawn from. */
+.seaview__keys {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    max-width: 660px;
+    margin: 14px auto 0;
+    padding: 0;
+    list-style: none;
+    animation: rise 0.8s var(--ease) 0.4s both;
+}
+
+.seaview__key {
+    padding: 12px 14px 13px;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.03);
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: var(--muted);
+}
+
+.seaview__key b {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text);
+}
+
+.seaview__bar {
+    display: block;
+    height: 5px;
+    margin-bottom: 10px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    overflow: hidden;
+}
+
+.seaview__bar i {
+    display: block;
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, color-mix(in srgb, var(--key) 45%, transparent), var(--key));
+    box-shadow: 0 0 12px -2px var(--key);
+    transform-origin: left;
+    animation: grow 0.9s 0.6s var(--ease) both;
+}
+
+/* The two ends of the scales: the same abyss twice more, small, with what
+   each is a picture of written under it. */
+.seaview__others {
+    max-width: 660px;
+    margin: 28px auto 0;
+    animation: rise 0.8s var(--ease) 0.55s both;
+}
+
+.seaview__aside {
+    margin: 0 0 6px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.seaview__others .seaview__note {
+    margin: 0 0 14px;
+    animation: none;
+}
+
+.seaview__ends {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.seaview__end {
+    margin: 0;
+}
+
+.seaview__end figcaption {
+    margin-top: 9px;
+    text-align: center;
+    font-size: 12px;
+    line-height: 1.4;
+    color: var(--muted);
+}
+
+.seaview__end figcaption b {
+    display: block;
+    font-weight: 600;
+    color: var(--text);
+}
+
+/* The question, and the vote on it, centred under everything. */
+.seaview__vote {
+    display: grid;
+    justify-items: center;
+    gap: 10px;
+    margin-top: 26px;
+    animation: rise 0.8s var(--ease) 0.75s both;
+}
+
+.seaview__ask {
+    margin: 0;
+    font-size: 14px;
+    font-style: italic;
+    color: var(--text);
+}
+
+/* The water moves. Each creature sways about the place its answers put it,
+   to a beat and a phase of its own written in by the script; the motes
+   drift; the beam breathes; the coral leans. A sealed card holds all of it
+   at the first frame, so the scene is still until the level opens. */
+.sea__drift {
+    animation: sea-sway 6s ease-in-out infinite alternate;
+}
+
+@keyframes sea-sway {
+    from {
+        transform: translate(-3px, 1.5px);
+    }
+    to {
+        transform: translate(3px, -1.5px);
+    }
+}
+
+/* Arriving, the creatures come into the beam one after another. */
+.sea__creature {
+    animation: fade 0.9s var(--ease) both;
+}
+
+.sea__mote {
+    animation: sea-drift 9s ease-in-out infinite alternate;
+}
+
+@keyframes sea-drift {
+    from {
+        transform: translate(0, 3px);
+    }
+    to {
+        transform: translate(1.5px, -5px);
+    }
+}
+
+.sea__torch {
+    animation: sea-breathe 7s ease-in-out infinite alternate;
+}
+
+@keyframes sea-breathe {
+    from {
+        opacity: 0.7;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.sea__coral {
+    transform-box: fill-box;
+    transform-origin: 50% 100%;
+    animation: sea-lean 5s ease-in-out infinite alternate;
+}
+
+@keyframes sea-lean {
+    from {
+        transform: rotate(-2.5deg);
+    }
+    to {
+        transform: rotate(2.5deg);
+    }
+}
+
+@media (max-width: 560px) {
+    .seaview__keys,
+    .seaview__ends {
+        grid-template-columns: 1fr;
+    }
 }
 
 .soma__track,
@@ -703,8 +932,8 @@
 
 /* -------------------------- a reading, as a face ------------------------- */
 
-/* Mood, Strain and Health — the PHQ-4's distress, the CDS-2/PCL-2 pooled with
-   the SSS-8's four domains — read as a face apiece instead of a row: the same
+/* Mood and Health — the PHQ-4's distress and the self-rated health single
+   (and Stress, the PCL-2, while it is asked) — read as a face apiece instead of a row: the same
    ring a MINT organ fills, sad at one end and pleased at the other, coloured
    along the way, with one general reading of what that tends to mean and the
    same agree/disagree every other prediction gets. */
@@ -793,8 +1022,7 @@
 }
 
 .theories__intro {
-    margin: 0 auto;
-    max-width: 62ch;
+    margin: 0;
     text-align: center;
     font-size: 15px;
     line-height: 1.55;
@@ -865,10 +1093,18 @@
     text-shadow: 0 0 40px rgba(217, 164, 65, 0.35);
 }
 
+/* What the name goes on to predict, between it and the words themselves. */
+.theory__predicts {
+    margin: 10px 0 0;
+    font-size: 13px;
+    font-style: italic;
+    color: var(--muted);
+}
+
 /* The words it predicts, one to a line: the list sits in the middle of the
    card, the words line up down its left. */
 .theory__keys {
-    margin: 8px 0 4px;
+    margin: 6px 0 4px;
     padding: 0;
     list-style: none;
     display: grid;
@@ -1403,6 +1639,22 @@
     .bar__fill,
     .bar__you,
     .taste__meter i {
+        animation: none;
+    }
+
+    /* The water holds still, and the section is all there at once. */
+    .sea__drift,
+    .sea__creature,
+    .sea__mote,
+    .sea__torch,
+    .sea__coral,
+    .seaview,
+    .seaview__head,
+    .seaview__note,
+    .seaview__keys,
+    .seaview__bar i,
+    .seaview__others,
+    .seaview__vote {
         animation: none;
     }
 

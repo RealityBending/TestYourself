@@ -8,11 +8,12 @@ defineBlock("mint", [
         key: "Briefing_Interoception",
         text:
             "<h2>Now, let's talk about your body.</h2>" +
-            "<p>The questions that follow are about your body and the sensations that come from inside it: your " +
-            "breath, your heartbeats, your stomach, your genitals, your skin. What you feel, how clearly you feel it, and how " +
-            "much of it matters to you.</p>" +
-            "<p>Some of them are blunt, and some will feel strange to be asked. But they are important to understand you.</p>" +
-            "<p><em>Notice what is true of you, rather than what sounds right.</em></p>",
+            "<p>The next questions are about your body and what you feel going on inside it: your breathing, your " +
+            "heartbeat, your stomach, your genitals, your skin. What you notice, how clearly you notice it, and how " +
+            "easily you can tell what it means.</p>" +
+            "<p>Some of these are blunt, and a few may feel odd to be asked, but they are all important: how people sense " +
+            "their own body can say a lot about them.</p>" +
+            "<p><em>Think of what is actually true of you, not with what sounds right.</em></p>",
     },
 
     // MINT =================================================================

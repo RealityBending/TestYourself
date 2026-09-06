@@ -150,12 +150,19 @@ function shuffle(arr) {
 // A level's `name` is what the gauge's hover card, the results panel and the
 // level screen call it. Its colour on the gauge is not written here: the stops
 // run through one gradient down the line, by position (app.js, `levelColour`).
+//
+// !!! TEMPORARY, WHILE THE SEA IS BEING DRAWN: every level but the primals one
+// !!! is commented out, so that `?testMode=true` reaches it in a handful of
+// !!! clicks. PUT THEM BACK before running anything, or the study asks eight
+// !!! questions. Nothing else was changed to do this — a level the timeline
+// !!! does not name is simply never asked.
 const TIMELINE = [
     { name: "General", blocks: ["demographics1", "fipi", "singles"] },
     { name: "Interoception", blocks: ["demographics2", "mint"] },
+    { name: "Attitudes to AI", blocks: ["bait"] },
     { name: "Mood & Health", blocks: ["demographics3", shuffle(["mood", "health"]), "hitop"].flat() },
     { name: "Character", blocks: ["hexaco"] },
-    { name: "Attitudes to AI", blocks: ["bait"] },
     { name: "Archetypes", blocks: ["archetypes"] },
+    { name: "The World", blocks: ["primals"] },
     { name: "Closing", blocks: ["closing"] },
 ]
