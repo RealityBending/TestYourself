@@ -39,6 +39,7 @@ showcase of stand-in figures the landing page cycles (`renderShowcase`). Reads s
 | `index.html` | Static skeleton, and the load order above. Screens and panels are markup; everything inside them is filled in by the scripts via `$(id)`. The favicon is an inline SVG data URI in the head — three waves going down, in the descent's three colours. |
 | `assets/` | The logos on the hero and the consent form. Referenced from `index.html` only — no stylesheet or script reaches for a file. |
 | `norms/` | A workbench, not part of the page: `make_norms.R` prints, ready to paste, every set of norms in the app that is *not* invented. Two sections, independent of each other so that a missing package or a dropped connection costs you one and not both — the HiTOP-BR's development-sample means and SDs out of the {hitop} R package, and the MINT's worked out from the raw answers of the studies that have asked it, pulled from their repositories and scored the way `content/block_mint.js` scores them. It prints the two number lines and never the `interpretations` beside them, which are the app's own prose. Nothing on the page reaches for it, and R is not a dependency of anything that runs. |
+| `data/synthetic/` | A second workbench, not part of the page: runs of the test answered by Claude in a sampled persona, written in the exact shape `container()` saves so that an analysis reads them with the same code as a real run. `codebook.js` (bun or node) reads every item out of `content/` the way `app.js` flattens it, so the requests cannot drift from what is asked; `synthesize.py` samples the demographics from the items' own options, has the model write a biography and answer the rest under a JSON schema of the items' own values, passes the attention checks, prunes closed branches, and writes `out/synthetic-<code>.json` — participant code prefixed `synthetic-`, a `synthetic` field naming model, batch, seed and biography, null times, null votes. `work/` and `out/` are git-ignored. Its `FIGURE_VOTES` mirrors `feedbackKeys()` in `results.js` and has to move with it. Never sent to DataPipe, never pooled with participants; its `README.md` says why. |
 | `README.md` | The author's own notes: the aim, an **Includes** table of everything the test currently asks (level, questionnaire and reference, dimensions — and nothing else), and a long list of questionnaire ideas that are *not* in it. Not documentation, but the Includes table has to be true — see the convention below. |
 
 **The seam.** `app.js` builds an `engine` object — the run, the scores, and the
@@ -108,7 +109,7 @@ around it at once:
 | Level 5 | `hexaco` → Character: a briefing, then the HEX-ACO-18 (`hexaco18`, 18 items, the HEXACO on its own 5-point scale, named "Character" on screen). **Read back in full**, as a spider chart with a row per domain, and its six domains take axes on the whole-run web. The domains carry **plain names** — Honesty-Humility and Emotionality as published, then Sociability, Patience, Diligence and Curiosity for eXtraversion, Agreeableness, Conscientiousness and Openness — because a dimension is one name across the run and the FIPI has the Big Five words on level 1, and because the HEXACO's constructs are not the Big Five's anyway (its Agreeableness is patience and forgiveness); the mapping is written above the questionnaire in the block file, and the item keys still name the facet. The Mini-IPIP6 (`ipip6`) sits commented out in the same file, dropped for the HEXACO. **Dealt in among the HEXACO's items is the KSE-G** (`KSEG_Positive1`…`KSEG_Negative3`), six social-desirability statements — three exaggerating positive qualities, three minimising negative ones — there to blend in, which is why they are items of that questionnaire rather than a questionnaire of their own. They carry **no `dimension`** (September 2026; they were two, which the engine averaged for nobody): nothing reads a score off them, the total is taken at analysis time with the Negative three reversed, and one handed back would only teach the next answer. The BSDS sits commented out beside them, one of its items being the KSE-G's almost word for word |
 | Level 6 | `primals` — a briefing, then two questionnaires asked back to back on one scale: the **PI-18** (`pi18`, Clifton & Yaden, 2021), the validated short form of the 99-item Primals Inventory — eighteen statements about the character of the world on its own 0-5 agreement scale, seven reverse-keyed, **written in the fixed order the short form was validated in** (`shuffle: false`, the only questionnaire in the app that holds its own order), read back as **the sea** (see below) and nothing else — no rows, no standings, one vote on the picture; and the five **tertiary primals that cluster under none of those three** (`primals_tertiary` — Acceptable, Changing, Hierarchical, Interconnected, Understandable), 22 items taken whole from the PI-99, which is what the inventory's own instructions recommend for reaching them. The two are separate questionnaires because they are two instruments asked two ways, and because the broader primals are meant to precede the narrower ones. The inventory's headline primal, overall **Good** world belief, is *not* a fourth set of items but a composite of the PI-18's own (all six Safe, all seven Enticing, `PI_Alive_1` and `PI_Alive_4`) — an item here carries one dimension, so rather than ask anything twice or teach the engine a second way to score, Good is left to analysis time: the keys name the primal and count within it (`PI_Safe_1`) with Clifton's own label beside each in the block file, so his published code computes it from a saved file after one rename (the keys were his labels, `PI18_ed1` then `PI_ed1`, until September 2026). Safe, Enticing and Alive take axes on the whole-run web; the five neutral primals are written **both** `profile: false` and `results: false`, so they are asked, scored and saved and fed back nowhere — five percentile rows under the sea would be a second, plainer answer to the question the picture has just answered. The level is therefore one section, and `markLone` hides its name |
 | Level 7 | `archetypes` — a briefing, then the **Open Source Archetype Indicator – Pearson-Marr (OSAI-PM)**: twelve three-item scales after Pearson and Marr's twelve-archetype framework (Idealist, Sage, Seeker, Revolutionary, Magician, Warrior, Realist, Jester, Lover, Creator, Ruler, Caregiver), an open paraphrase written from public descriptions of the framework rather than from the PMAI's items, to be validated independently of it. The only scored questionnaire in the app **written without norms on purpose**, and the only one fed back anyway: read back as a wheel (see below) |
-| Level 8 | `closing` — nothing scored in it, so it opens no results |
+| Level 8 | `closing` — nothing scored in it, so it opens no results: whether the test was taken seriously, then `Closing_Comments`, a free-text box (`multiline`, `optional`) for anything the person wants to say, with a warning over it that what is written may be made public. Saved as given, `""` when skipped; nothing reads it back |
 | — | `gjs` sits in `content/block_UNUSED.js`, named on no level, so it is never asked; the `somatic` medical-history questionnaire sits commented out in `content/block_health.js` |
 
 The demographics of a level are written `shuffle: false` and come first in it;
@@ -144,9 +145,20 @@ answer that opened it changes, so a closed branch is indistinguishable in the
 saved file from one never reached (`response` and `timeOnset` both null).
 
 **The item itself.** `text` is written into the page as HTML, so a question may
-carry its own stem — the PHQ-4 items are "Over the last 2 weeks…<br /><em>the
-thing being asked</em>" — rather than leaning on `instructions` above them. It
-comes from the block file it is written in and nowhere else.
+carry more than the bare statement: a gloss on the word being asked about, set
+under it and quieter (`<small>`, which the stylesheet drops to 0.6em) — the
+FIPI's "That is: sociable, assertive…", the two curve items' definitions of
+*intelligent* and *attractive*, the BAIT's note on what counts as an AI tool.
+It comes from the block file it is written in and nowhere else.
+
+**The stem belongs over the box, not in it.** The lead-in that frames a whole
+questionnaire — "Over the last 2 weeks, how often have you been bothered by the
+following problem?" — is that questionnaire's `instructions`, which stands
+italic above the item and is re-read with every one of them. It was written
+into each PHQ-4 item until September 2026, which put the lead-in and the thing
+being asked in one box, on one card, unlike every other scale in the run; the
+commented-out CDS-2 and PCL-2 beside it still carry theirs and want the same
+move if they ever come back.
 
 **A question may word itself from an earlier answer.** `text`, on the item or
 on any one of its options, may be a **function** of the answers rather than a
@@ -243,10 +255,20 @@ share, so the place has to be found back from it.
 (`renderEntry`) instead of option buttons, taking what is in it on Enter or
 click: `"number"` once it is inside `min`/`max`, `"text"` as soon as it is not
 blank (`max` is its length). The global key handler ignores events from an
-`INPUT`, or digits would answer the item while being typed. A written answer is
+`INPUT` or a `TEXTAREA`, or digits would answer the item while being typed. A written answer is
 somebody's own words, so nothing may put it in a selector — the spray on
 answering comes out of the Continue button rather than out of
 `[data-value="…"]`.
+
+A text field may be written `multiline: true` (a `<textarea>` of several
+lines, `.entry--long`, with the button under it rather than beside it —
+Enter starts a new line, so Ctrl+Enter or Cmd+Enter is what takes it) and
+`optional: true` (a blank is an answer: the button reads "Skip" while the
+field is empty, and what is saved is an empty string rather than the null of
+an item never reached). The one item that is both is `Closing_Comments`, the
+last of the run — a box for free feedback, which nothing scores and nothing
+reads back, and which the item warns may be made public. `anyAnswer` fills
+it with "test" in test mode like any other text field.
 
 **Several answers at once.** A `"multi"` item (`renderMulti`) is a list to
 tick rather than a scale to pick a point on: the labelled buttons of a choice,
@@ -924,6 +946,22 @@ before the study runs.**
 - No semicolons, 4-space indent, ~130 col, double quotes. Match it.
 - Comments say *why*, in prose, above the thing. British spelling. Don't add
   comments that restate the code.
+- **An item carries no full stop.** What is written on the card is a statement
+  or a question, not a sentence of prose: it ends on its own last word, or on
+  the question mark or ellipsis it needs. The same goes for the one-line
+  `instructions` over it. Prose *inside* an item — a `<small>` gloss of a word,
+  a briefing's paragraphs, an interpretation — is punctuated normally, and so
+  is the second sentence of the handful of items that carry one. What was
+  swept in September 2026 was the terminal full stop and nothing else.
+- **No Oxford comma in the app's own words** — briefings, instructions,
+  interpretations, readings, the custom items, the pages of `index.html`: "the
+  questions, the code and the look". It is the British house style the notes
+  are already written in, and it was made consistent across the on-screen text
+  in September 2026. **Items lifted verbatim from a published instrument keep
+  the publisher's punctuation**, Oxford commas and all — the HEX-ACO-18's "a
+  novel, a song, or a painting" and four of the PI-99's tertiary items are the
+  exceptions, and are meant to stay exceptions. Comments and these notes are
+  not on screen and are not swept.
 - Prefer adding to `content/` over adding branches to the scripts. Questionnaire
   behaviour is data-driven; `CHARTS`, `SOMA`, `SEA`, `CLIMB_OF`,
   `ARCHETYPE_OF` and `WHEEL_OF` are the only places that name a questionnaire,
@@ -940,8 +978,9 @@ before the study runs.**
 - One folder each for the questions (`content/`), the code (`js/`) and the look
   (`css/`). Nothing else belongs at the root but `index.html`, `assets/`, the
   notes, `literature/` — a git-ignored shelf of reference PDFs behind the
-  ideas list in `README.md` — and `norms/`, a workbench of scripts that work
-  out numbers to paste *into* `content/`. Neither is reached for by any part of
+  ideas list in `README.md` — and two workbenches, `norms/`, scripts that work
+  out numbers to paste *into* `content/`, and `data/synthetic/`, scripts that
+  write model-answered runs *out of* it. None is reached for by any part of
   the app: the page loads no R and no PDF, and the buildless rule is about what
   the browser needs, not about what the author may keep beside it.
 - **Adding, removing or renaming anything in `content/` means updating the

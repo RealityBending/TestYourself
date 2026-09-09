@@ -3,9 +3,9 @@ defineBlock("mood", [
         type: "briefing",
         key: "Briefing_Mood",
         text:
-            "<h2>Now, how you have been lately.</h2>" +
+            "<h2>Now, how have you been lately?</h2>" +
             "<p>The next questions are about the last couple of weeks rather than about you in general: your mood, " +
-            "your sleep, and whether stressful memories have been bothering you.</p>" +
+            "your sleep and whether stressful memories have been bothering you.</p>" +
             "<p>Everybody has some of this. What differs is how often it comes and how heavy it is.</p>" +
             "<p><em>Answer for the last two weeks as they actually were, not for how you usually are.</em></p>",
     },
@@ -21,7 +21,7 @@ defineBlock("mood", [
     {
         key: "phq4",
         name: "Mood",
-        instructions: "",
+        instructions: "Over the last 2 weeks, how often have you been bothered by the following problem?",
         format: {
             options: [
                 { value: 0, text: "Not at all" },
@@ -53,22 +53,22 @@ defineBlock("mood", [
             {
                 key: "PHQ4_Anxiety_1",
                 dimension: "Anxiety",
-                text: "<small>Over the last 2 weeks, how often have you been bothered by this problem:</small><br /><em>Feeling nervous, anxious or on edge</em>",
+                text: "Feeling nervous, anxious or on edge",
             },
             {
                 key: "PHQ4_Anxiety_2",
                 dimension: "Anxiety",
-                text: "<small>Over the last 2 weeks, how often have you been bothered by this problem:</small><br /><em>Not being able to stop or control worrying</em>",
+                text: "Not being able to stop or control worrying",
             },
             {
                 key: "PHQ4_Depression_3",
                 dimension: "Depression",
-                text: "<small>Over the last 2 weeks, how often have you been bothered by this problem:</small><br /><em>Feeling down, depressed, or hopeless</em>",
+                text: "Feeling down, depressed or hopeless",
             },
             {
                 key: "PHQ4_Depression_4",
                 dimension: "Depression",
-                text: "<small>Over the last 2 weeks, how often have you been bothered by this problem:</small><br /><em>Little interest or pleasure in doing things</em>",
+                text: "Little interest or pleasure in doing things",
             },
         ],
     },
@@ -134,7 +134,9 @@ defineBlock("mood", [
             // things around me were not real") are the same content over twelve
             // months, so the two-week window was all these added. Kept whole so
             // they can be put back by uncommenting; they would rejoin the Stress
-            // dimension as written.
+            // dimension as written — though the stem written into each of them
+            // wants moving up into the questionnaire's `instructions`, the way
+            // the PHQ-4's was, so that the box holds the statement alone.
             // // The 2-item version of the Cambridge Depersonalisation Scale
             // // (Michal et al., 2011). The two items found to discriminate best
             // // between patients with and without clinically significant
@@ -188,7 +190,7 @@ defineBlock("mood", [
                 instructions:
                     "Think about the overall quality of your sleep: how many hours you slept, how easily you fell asleep, " +
                     "how often you woke during the night (other than to go to the toilet), how often you woke earlier than " +
-                    "you had to, and how refreshing your sleep was. 0 is terrible, 1 to 3 poor, 4 to 6 fair, 7 to 9 good " +
+                    "you had to and how refreshing your sleep was. 0 is terrible, 1 to 3 poor, 4 to 6 fair, 7 to 9 good " +
                     "and 10 excellent.",
                 format: {
                     options: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],

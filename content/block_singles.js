@@ -27,7 +27,7 @@ defineBlock("singles", [
                     color: "#673AB7",
                     hovercolors: ["#22c55e", "#ef4444"],
                 },
-                text: "I am a narcissist<br /><br /><small>Narcissist here means egotistical, self-focused and vain.</small>",
+                text: "I am a narcissist<br /><br /><small><b>Narcissist</b>, here, means egotistical, self-focused and vain.</small>",
             },
 
             // Single-Item Self-Rated Health (SRH / GSRH; DeSalvo et al., 2006).
@@ -39,14 +39,14 @@ defineBlock("singles", [
             {
                 key: "SRH_GeneralHealth",
                 dimension: "General Health",
-                instructions: "Please rate your general physical health and bodily well-being.",
+                instructions: "Please rate your general physical health and bodily well-being",
                 format: {
                     options: [1, 2, 3, 4, 5, 6, 7],
                     anchors: ["Poor", "Excellent"],
                     color: "#7B1FA2",
                     hovercolors: ["#ef4444", "#22c55e"],
                 },
-                text: "In general, would you say your health is...<br /><br /><small>Health here refers to your physical health.</small>",
+                text: "In general, would you say your health is...<br /><br /><small><b>Health</b>, here, refers to your physical health.</small>",
             },
 
             // Single-Item Measure of Stress Symptoms (Elo et al., 2003)
@@ -58,7 +58,7 @@ defineBlock("singles", [
                     color: "#7B1FA2",
                     hovercolors: ["#22c55e", "#ef4444"],
                 },
-                text: "Do you feel this kind of stress these days?<br /><br /><small>Stress here means a situation in which a person feels tense, restless, nervous or anxious or is unable to sleep at night because his/her mind is troubled all the time.</small>",
+                text: "Do you feel this kind of stress these days?<br /><br /><small><b>Stress</b>, here, means a situation in which a person feels tense, restless, nervous or anxious or is unable to sleep at night because his/her mind is troubled all the time.</small>",
             },
 
             // Single-Item Self-Esteem Scale (SISE; Robins, Hendin &
@@ -67,14 +67,14 @@ defineBlock("singles", [
             // reliability and more acquiescence bias.
             {
                 key: "SISE_SelfEsteem",
-                instructions: "Please indicate how true this statement is of you.",
+                instructions: "Please indicate how true this statement is of you",
                 format: {
                     options: [1, 2, 3, 4, 5, 6, 7],
                     anchors: ["Not very true of me", "Very true of me"],
                     color: "#7B1FA2",
                     hovercolors: ["#ef4444", "#22c55e"],
                 },
-                text: "I have high self-esteem.",
+                text: "I have high self-esteem",
             },
 
             // Self-Concept Clarity Scale (SCCS; Campbell et al., 1996), item 11
@@ -84,14 +84,14 @@ defineBlock("singles", [
             // ideas in README.md. No norms, so it earns no row.
             {
                 key: "SCCS_SelfConceptClarity",
-                instructions: "Please indicate the extent to which you agree or disagree with the statement.",
+                instructions: "Please indicate the extent to which you agree or disagree with this statement",
                 format: {
                     options: [1, 2, 3, 4, 5],
                     anchors: ["Strongly disagree", "Strongly agree"],
                     color: "#7B1FA2",
                     hovercolors: ["#ef4444", "#22c55e"],
                 },
-                text: "In general, I have a clear sense of who I am and what I am.",
+                text: "In general, I have a clear sense of who I am and what I am",
             },
 
             // Search for meaning: item 8 of the Meaning in Life Questionnaire
@@ -102,27 +102,27 @@ defineBlock("singles", [
             // for one. No norms, so it earns no row.
             {
                 key: "MLQ_SearchForMeaning",
-                instructions: "Please indicate how true this statement is of you.",
+                instructions: "Please indicate how true this statement is of you",
                 format: {
                     options: [1, 2, 3, 4, 5, 6, 7],
                     anchors: ["Absolutely untrue", "Absolutely true"],
                     color: "#7B1FA2",
                     hovercolors: ["#22c55e", "#ef4444"],
                 },
-                text: "I am seeking a purpose or mission for my life.",
+                text: "I am seeking a purpose or mission for my life",
             },
 
             // General Self-Efficacy Single-Item (GSE-SI; Di et al., 2023)
             {
                 key: "GSESI_TaskEfficacy",
-                instructions: "Please indicate the extent to which you agree or disagree with the statement.",
+                instructions: "Please indicate the extent to which you agree or disagree with this statement",
                 format: {
                     options: [1, 2, 3, 4, 5, 6, 7],
                     anchors: ["Strongly disagree", "Strongly agree"],
                     color: "#7B1FA2",
                     hovercolors: ["#ef4444", "#22c55e"],
                 },
-                text: "I am confident that I can perform effectively on many different tasks.",
+                text: "I am confident that I can perform effectively on many different tasks",
             },
 
             // Single-Item Life Satisfaction Scale (SILS; Cheung & Lucas, 2014; Jovanović & Lazić, 2020)
@@ -144,7 +144,7 @@ defineBlock("singles", [
                 type: "curve",
                 instructions: "In a room of 100 random people...",
                 format: { min: 0, max: 100, color: "#7B1FA2" },
-                text: "I am typically more intelligent than...<br /><br /><small>Intelligent here refers to reasoning, problem-solving, and how quickly you learn or understand things. It does not refer to emotional intelligence, social skills, wisdom, or creativity.</small>",
+                text: "I am typically more intelligent than...<br /><br /><small><b>Intelligent</b>, here, refers to reasoning, problem-solving and how quickly you learn or understand things. It does not refer to emotional intelligence, social skills, wisdom or creativity.</small>",
             },
 
             // Attractiveness
@@ -153,7 +153,7 @@ defineBlock("singles", [
                 type: "curve",
                 instructions: "In a room of 100 random people...",
                 format: { min: 0, max: 100, color: "#7B1FA2" },
-                text: "I am typically more attractive than...<br /><br /><small>Attractive here refers to your overall desirability as a romantic or sexual partner. Not just physical appearance, but also personality, charm, and other qualities that make someone appealing to others.</small>",
+                text: "I am typically more attractive than...<br /><br /><small><b>Attractive</b>, here, refers to your overall desirability as a romantic or sexual partner. Not just physical appearance, but also personality, charm and other qualities that make someone appealing to others.</small>",
             },
         ],
     },

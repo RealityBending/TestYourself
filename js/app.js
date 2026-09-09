@@ -163,6 +163,8 @@
                                 options: options,
                                 input: format.input,
                                 placeholder: format.placeholder,
+                                multiline: format.multiline,
+                                optional: format.optional,
                                 // A typed answer has no options, so its bounds are the scale.
                                 lowest: scale.length ? Math.min.apply(null, values) : format.min,
                                 highest: scale.length ? Math.max.apply(null, values) : format.max,
@@ -555,20 +557,27 @@
 
     // A question answered by typing rather than by choosing: the field, and the
     // button that takes what is in it. A number has to fall within the scale; an
-    // answer put in the person's own words only has to have something in it.
+    // answer put in the person's own words only has to have something in it —
+    // unless the item is `optional`, when a blank is an answer too (saved as an
+    // empty string) and the button says "Skip" while there is nothing in the
+    // field. A `multiline` field is a textarea rather than a line: Enter starts
+    // a new line in it, so Ctrl+Enter (Cmd on a Mac) is what takes it.
     function renderEntry(question, wrap) {
         const written = question.input === "text"
+        const long = written && question.multiline
         wrap.classList.add("options--entry")
+        if (long) wrap.classList.add("options--entry-long")
 
-        const field = document.createElement("input")
-        field.type = written ? "text" : "number"
+        const field = document.createElement(long ? "textarea" : "input")
+        if (!long) field.type = written ? "text" : "number"
         field.id = "entry"
-        field.className = "entry"
+        field.className = long ? "entry entry--long" : "entry"
         field.placeholder = question.placeholder || ""
         field.setAttribute("aria-labelledby", "text")
 
         if (written) {
             field.maxLength = question.highest || 80
+            if (long) field.rows = 6
         } else {
             field.inputMode = "numeric"
             field.min = question.lowest
@@ -587,7 +596,7 @@
         warning.setAttribute("role", "status")
 
         const given = () => {
-            if (written) return field.value.trim() || null
+            if (written) return field.value.trim() || (question.optional ? "" : null)
             const value = Number(field.value)
             const within = value >= question.lowest && value <= question.highest
             return field.value !== "" && Number.isFinite(value) && within ? value : null
@@ -600,6 +609,7 @@
                 written || !typed ? null : value < question.lowest ? question.tooLow : value > question.highest ? question.tooHigh : null
 
             go.disabled = given() === null
+            if (question.optional) go.textContent = field.value.trim() ? "Continue" : "Skip"
             warning.textContent = refused || ""
             warning.classList.toggle("warning--shown", Boolean(refused))
         }
@@ -612,9 +622,13 @@
 
         field.addEventListener("input", check)
         field.addEventListener("keydown", (e) => {
-            if (e.key === "Enter") take()
+            if (e.key !== "Enter") return
+            if (long && !(e.ctrlKey || e.metaKey)) return // a new line, not the answer
+            e.preventDefault()
+            take()
         })
         go.addEventListener("click", take)
+        check()
 
         wrap.appendChild(field)
         wrap.appendChild(go)
@@ -1413,7 +1427,7 @@
 
     function completeLevel(level) {
         levelShowing = level
-        $("level-title").textContent = "Level " + level + " unlocked"
+        $("level-title").textContent = "Level " + level + " Unlocked"
         $("level-name").textContent = levelName(level)
 
         results.renderResults($("level-results"), level, false)
@@ -1734,7 +1748,7 @@
         }
 
         // A field being typed into owns its own keys, digits and arrows alike.
-        if (screen !== "survey" || (e.target && e.target.tagName === "INPUT")) return
+        if (screen !== "survey" || (e.target && /^(INPUT|TEXTAREA)$/.test(e.target.tagName))) return
 
         const question = questions[index]
 

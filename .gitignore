@@ -50,3 +50,7 @@ rsconnect/
 
 # Reference PDFs behind the questionnaire ideas list - not part of the app
 literature/
+
+# Synthetic runs: regenerable work files and generated data, not part of the app
+data/synthetic/work/
+data/synthetic/out/

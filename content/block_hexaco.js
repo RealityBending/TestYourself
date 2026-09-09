@@ -107,50 +107,50 @@ defineBlock("hexaco", [
     //     },
     //
     //     items: [
-    //         { key: "IPIP6_Extraversion_1", dimension: "Extraversion (IPIP)", text: "I am the life of the party." },
-    //         { key: "IPIP6_Extraversion_2", dimension: "Extraversion (IPIP)", text: "I don't talk a lot.", reverse: true },
-    //         { key: "IPIP6_Extraversion_3", dimension: "Extraversion (IPIP)", text: "I keep in the background.", reverse: true },
-    //         { key: "IPIP6_Extraversion_4", dimension: "Extraversion (IPIP)", text: "I talk to a lot of different people at parties." },
+    //         { key: "IPIP6_Extraversion_1", dimension: "Extraversion (IPIP)", text: "I am the life of the party" },
+    //         { key: "IPIP6_Extraversion_2", dimension: "Extraversion (IPIP)", text: "I don't talk a lot", reverse: true },
+    //         { key: "IPIP6_Extraversion_3", dimension: "Extraversion (IPIP)", text: "I keep in the background", reverse: true },
+    //         { key: "IPIP6_Extraversion_4", dimension: "Extraversion (IPIP)", text: "I talk to a lot of different people at parties" },
     //
-    //         { key: "IPIP6_Agreeableness_1", dimension: "Agreeableness (IPIP)", text: "I sympathize with others' feelings." },
-    //         { key: "IPIP6_Agreeableness_2", dimension: "Agreeableness (IPIP)", text: "I am not interested in other people's problems.", reverse: true },
-    //         { key: "IPIP6_Agreeableness_3", dimension: "Agreeableness (IPIP)", text: "I feel others' emotions." },
-    //         { key: "IPIP6_Agreeableness_4", dimension: "Agreeableness (IPIP)", text: "I am not really interested in others.", reverse: true },
+    //         { key: "IPIP6_Agreeableness_1", dimension: "Agreeableness (IPIP)", text: "I sympathize with others' feelings" },
+    //         { key: "IPIP6_Agreeableness_2", dimension: "Agreeableness (IPIP)", text: "I am not interested in other people's problems", reverse: true },
+    //         { key: "IPIP6_Agreeableness_3", dimension: "Agreeableness (IPIP)", text: "I feel others' emotions" },
+    //         { key: "IPIP6_Agreeableness_4", dimension: "Agreeableness (IPIP)", text: "I am not really interested in others", reverse: true },
     //
-    //         { key: "IPIP6_Conscientiousness_1", dimension: "Conscientiousness (IPIP)", text: "I get chores done right away." },
-    //         { key: "IPIP6_Conscientiousness_2", dimension: "Conscientiousness (IPIP)", text: "I like order." },
-    //         { key: "IPIP6_Conscientiousness_3", dimension: "Conscientiousness (IPIP)", text: "I make a mess of things.", reverse: true },
+    //         { key: "IPIP6_Conscientiousness_1", dimension: "Conscientiousness (IPIP)", text: "I get chores done right away" },
+    //         { key: "IPIP6_Conscientiousness_2", dimension: "Conscientiousness (IPIP)", text: "I like order" },
+    //         { key: "IPIP6_Conscientiousness_3", dimension: "Conscientiousness (IPIP)", text: "I make a mess of things", reverse: true },
     //         {
     //             key: "IPIP6_Conscientiousness_4",
     //             dimension: "Conscientiousness (IPIP)",
-    //             text: "I often forget to put things back in their proper place.",
+    //             text: "I often forget to put things back in their proper place",
     //             reverse: true,
     //         },
     //
-    //         { key: "IPIP6_Neuroticism_1", dimension: "Neuroticism (IPIP)", text: "I have frequent mood swings." },
-    //         { key: "IPIP6_Neuroticism_2", dimension: "Neuroticism (IPIP)", text: "I am relaxed most of the time.", reverse: true },
-    //         { key: "IPIP6_Neuroticism_3", dimension: "Neuroticism (IPIP)", text: "I get upset easily." },
-    //         { key: "IPIP6_Neuroticism_4", dimension: "Neuroticism (IPIP)", text: "I seldom feel blue.", reverse: true },
+    //         { key: "IPIP6_Neuroticism_1", dimension: "Neuroticism (IPIP)", text: "I have frequent mood swings" },
+    //         { key: "IPIP6_Neuroticism_2", dimension: "Neuroticism (IPIP)", text: "I am relaxed most of the time", reverse: true },
+    //         { key: "IPIP6_Neuroticism_3", dimension: "Neuroticism (IPIP)", text: "I get upset easily" },
+    //         { key: "IPIP6_Neuroticism_4", dimension: "Neuroticism (IPIP)", text: "I seldom feel blue", reverse: true },
     //
-    //         { key: "IPIP6_Intellect_1", dimension: "Intellect (IPIP)", text: "I have a vivid imagination." },
-    //         { key: "IPIP6_Intellect_2", dimension: "Intellect (IPIP)", text: "I have difficulty understanding abstract ideas.", reverse: true },
-    //         { key: "IPIP6_Intellect_3", dimension: "Intellect (IPIP)", text: "I do not have a good imagination.", reverse: true },
-    //         { key: "IPIP6_Intellect_4", dimension: "Intellect (IPIP)", text: "I am not interested in abstract ideas.", reverse: true },
+    //         { key: "IPIP6_Intellect_1", dimension: "Intellect (IPIP)", text: "I have a vivid imagination" },
+    //         { key: "IPIP6_Intellect_2", dimension: "Intellect (IPIP)", text: "I have difficulty understanding abstract ideas", reverse: true },
+    //         { key: "IPIP6_Intellect_3", dimension: "Intellect (IPIP)", text: "I do not have a good imagination", reverse: true },
+    //         { key: "IPIP6_Intellect_4", dimension: "Intellect (IPIP)", text: "I am not interested in abstract ideas", reverse: true },
     //
     //         // All four are keyed towards the low pole: agreeing is the less
     //         // humble answer, so every one counts backwards.
-    //         { key: "IPIP6_HonestyHumility_1", dimension: "Honesty-Humility (IPIP)", text: "I feel entitled to more of everything.", reverse: true },
-    //         { key: "IPIP6_HonestyHumility_2", dimension: "Honesty-Humility (IPIP)", text: "I deserve more things in life.", reverse: true },
+    //         { key: "IPIP6_HonestyHumility_1", dimension: "Honesty-Humility (IPIP)", text: "I feel entitled to more of everything", reverse: true },
+    //         { key: "IPIP6_HonestyHumility_2", dimension: "Honesty-Humility (IPIP)", text: "I deserve more things in life", reverse: true },
     //         {
     //             key: "IPIP6_HonestyHumility_3",
     //             dimension: "Honesty-Humility (IPIP)",
-    //             text: "I would like to be seen driving around in a very expensive car.",
+    //             text: "I would like to be seen driving around in a very expensive car",
     //             reverse: true,
     //         },
     //         {
     //             key: "IPIP6_HonestyHumility_4",
     //             dimension: "Honesty-Humility (IPIP)",
-    //             text: "I would get a lot of pleasure from owning expensive luxury goods.",
+    //             text: "I would get a lot of pleasure from owning expensive luxury goods",
     //             reverse: true,
     //         },
     //     ],
@@ -213,14 +213,14 @@ defineBlock("hexaco", [
                 interpretations: {
                     low: "you are comfortable using charm and status to get where you are going, and you would enjoy the trappings of success.",
                     mid: "you neither chase status nor refuse it, and will flatter a little when it serves.",
-                    high: "you deal straight with people, don't want a fuss made of your standing, and are hard to impress with money.",
+                    high: "you deal straight with people, don't want a fuss made of your standing and are hard to impress with money.",
                 },
             },
             "Emotionality": {
                 mean: 3.2,
                 sd: 0.7,
                 interpretations: {
-                    low: "you keep your head in an emergency, worry little, and would rather cope alone than lean on anybody.",
+                    low: "you keep your head in an emergency, worry little and would rather cope alone than lean on anybody.",
                     mid: "you worry and want comfort about as much as most people do, and steady yourself when it counts.",
                     high: "you worry easily and feel fear strongly, and when something hurts you want somebody there with you.",
                 },
@@ -229,27 +229,27 @@ defineBlock("hexaco", [
                 mean: 3.3,
                 sd: 0.7,
                 interpretations: {
-                    low: "you doubt your standing with others, keep your opinions to yourself in a group, and run at a quieter pace than most.",
+                    low: "you doubt your standing with others, keep your opinions to yourself in a group and run at a quieter pace than most.",
                     mid: "you speak up when it matters and feel reasonably well liked, without being the liveliest in the room.",
-                    high: "you feel liked, say what you think in a meeting, and carry more energy than most of the people around you.",
+                    high: "you feel liked, say what you think in a meeting and carry more energy than most of the people around you.",
                 },
             },
             "Patience": {
                 mean: 3.1,
                 sd: 0.6,
                 interpretations: {
-                    low: "you hold a grudge, notice people's faults, and are quick to anger when insulted.",
+                    low: "you hold a grudge, notice people's faults and are quick to anger when insulted.",
                     mid: "you let some things go and not others, much as most people do.",
-                    high: "you forgive readily, take people's faults in your stride, and keep your temper when provoked.",
+                    high: "you forgive readily, take people's faults in your stride and keep your temper when provoked.",
                 },
             },
             "Diligence": {
                 mean: 3.5,
                 sd: 0.7,
                 interpretations: {
-                    low: "goals get abandoned, decisions get made on the spot, and disorder gets in the way of your work.",
+                    low: "goals get abandoned, decisions get made on the spot and disorder gets in the way of your work.",
                     mid: "you finish most of what you start, and think before acting more often than not.",
-                    high: "you see goals through, think before you act, and keep your work in order.",
+                    high: "you see goals through, think before you act and keep your work in order.",
                 },
             },
             "Curiosity": {
@@ -258,7 +258,7 @@ defineBlock("hexaco", [
                 interpretations: {
                     low: "new ideas, the arts and making things are not really where your interests lie.",
                     mid: "you enjoy the arts and the odd unconventional idea, in moderation.",
-                    high: "you are drawn to new and radical ideas, to art, and to making something of your own.",
+                    high: "you are drawn to new and radical ideas, to art and to making something of your own.",
                 },
             },
         },
@@ -268,18 +268,18 @@ defineBlock("hexaco", [
             {
                 key: "HEXACO_Sincerity", // 78
                 dimension: "Honesty-Humility",
-                text: "I wouldn't pretend to like someone just to get that person to do favors for me.",
+                text: "I wouldn't pretend to like someone just to get that person to do favors for me",
             },
             {
                 key: "HEXACO_GreedAvoidance", // 66 R
                 dimension: "Honesty-Humility",
-                text: "I would like to be seen driving around in a very expensive car.",
+                text: "I would like to be seen driving around in a very expensive car",
                 reverse: true,
             },
             {
                 key: "HEXACO_Modesty", // 96 R
                 dimension: "Honesty-Humility",
-                text: "I want people to know that I am an important person of high status.",
+                text: "I want people to know that I am an important person of high status",
                 reverse: true,
             },
 
@@ -287,37 +287,37 @@ defineBlock("hexaco", [
             {
                 key: "HEXACO_Fearfulness", // 77 R
                 dimension: "Emotionality",
-                text: "Even in an emergency I wouldn't feel like panicking.",
+                text: "Even in an emergency I wouldn't feel like panicking",
                 reverse: true,
             },
             {
                 key: "HEXACO_Dependence", // 17
                 dimension: "Emotionality",
-                text: "When I suffer from a painful experience, I need someone to make me feel comfortable.",
+                text: "When I suffer from a painful experience, I need someone to make me feel comfortable",
             },
             {
                 key: "HEXACO_Anxiety", // 11
                 dimension: "Emotionality",
-                text: "I sometimes can't help worrying about little things.",
+                text: "I sometimes can't help worrying about little things",
             },
 
             // Extraversion — all three keyed towards the low pole
             {
                 key: "HEXACO_SocialSelfEsteem", // 52 R
                 dimension: "Sociability",
-                text: "I feel that I am an unpopular person.",
+                text: "I feel that I am an unpopular person",
                 reverse: true,
             },
             {
                 key: "HEXACO_SocialBoldness", // 10 R
                 dimension: "Sociability",
-                text: "I rarely express my opinions in group meetings.",
+                text: "I rarely express my opinions in group meetings",
                 reverse: true,
             },
             {
                 key: "HEXACO_Liveliness", // 94 R
                 dimension: "Sociability",
-                text: "Most people are more upbeat and dynamic than I generally am.",
+                text: "Most people are more upbeat and dynamic than I generally am",
                 reverse: true,
             },
 
@@ -325,17 +325,17 @@ defineBlock("hexaco", [
             {
                 key: "HEXACO_Forgiveness", // 3
                 dimension: "Patience",
-                text: "I rarely hold a grudge, even against people who have badly wronged me.",
+                text: "I rarely hold a grudge, even against people who have badly wronged me",
             },
             {
                 key: "HEXACO_Gentleness", // 33
                 dimension: "Patience",
-                text: "I generally accept people's faults without complaining about them.",
+                text: "I generally accept people's faults without complaining about them",
             },
             {
                 key: "HEXACO_Patience", // 93 R
                 dimension: "Patience",
-                text: "I find it hard to keep my temper when people insult me.",
+                text: "I find it hard to keep my temper when people insult me",
                 reverse: true,
             },
 
@@ -343,19 +343,19 @@ defineBlock("hexaco", [
             {
                 key: "HEXACO_Diligence", // 56 R
                 dimension: "Diligence",
-                text: "Often when I set a goal, I end up quitting without having reached it.",
+                text: "Often when I set a goal, I end up quitting without having reached it",
                 reverse: true,
             },
             {
                 key: "HEXACO_Prudence", // 44 R
                 dimension: "Diligence",
-                text: "I make a lot of mistakes because I don't think before I act.",
+                text: "I make a lot of mistakes because I don't think before I act",
                 reverse: true,
             },
             {
                 key: "HEXACO_Organization", // 74 R
                 dimension: "Diligence",
-                text: "When working, I sometimes have difficulties due to being disorganized.",
+                text: "When working, I sometimes have difficulties due to being disorganized",
                 reverse: true,
             },
 
@@ -363,18 +363,18 @@ defineBlock("hexaco", [
             {
                 key: "HEXACO_Unconventionality", // 19 R
                 dimension: "Curiosity",
-                text: "I think that paying attention to radical ideas is a waste of time.",
+                text: "I think that paying attention to radical ideas is a waste of time",
                 reverse: true,
             },
             {
                 key: "HEXACO_AestheticAppreciation", // 49
                 dimension: "Curiosity",
-                text: "If I had the opportunity, I would like to attend a classical music concert.",
+                text: "If I had the opportunity, I would like to attend a classical music concert",
             },
             {
                 key: "HEXACO_Creativity", // 37
                 dimension: "Curiosity",
-                text: "I would enjoy creating a work of art, such as a novel, a song, or a painting.",
+                text: "I would enjoy creating a work of art, such as a novel, a song, or a painting",
             },
 
             // KSE-G ------------------------------------------------------
@@ -405,27 +405,27 @@ defineBlock("hexaco", [
             // the next answer.
             {
                 key: "KSEG_Positive1",
-                text: "In an argument, I always remain objective and stick to the facts.",
+                text: "In an argument, I always remain objective and stick to the facts",
             },
             {
                 key: "KSEG_Positive2",
-                text: "Even if I am feeling stressed, I am always friendly and polite to others.",
+                text: "Even if I am feeling stressed, I am always friendly and polite to others",
             },
             {
                 key: "KSEG_Positive3",
-                text: "When talking to someone, I always listen carefully to what the other person says.",
+                text: "When talking to someone, I always listen carefully to what the other person says",
             },
             {
                 key: "KSEG_Negative1",
-                text: "It has happened that I have taken advantage of someone in the past.",
+                text: "It has happened that I have taken advantage of someone in the past",
             },
             {
                 key: "KSEG_Negative2",
-                text: "I have occasionally thrown litter away in the countryside or on to the road.",
+                text: "I have occasionally thrown litter away in the countryside or on to the road",
             },
             {
                 key: "KSEG_Negative3",
-                text: "Sometimes I only help people if I expect to get something in return.",
+                text: "Sometimes I only help people if I expect to get something in return",
             },
 
             // BSDS -------------------------------------------------------
@@ -441,23 +441,23 @@ defineBlock("hexaco", [
             // {
             //     key: "BSDS_1",
             //     dimension: "Social Desirability (BSDS)",
-            //     text: "I always practise what I preach.",
+            //     text: "I always practise what I preach",
             // },
             // {
             //     key: "BSDS_2",
             //     dimension: "Social Desirability (BSDS)",
-            //     text: "I am always willing to admit it when I make a mistake.",
+            //     text: "I am always willing to admit it when I make a mistake",
             // },
             // {
             //     key: "BSDS_3",
             //     dimension: "Social Desirability (BSDS)",
-            //     text: "I sometimes feel a little bit jealous of the good luck of others.",
+            //     text: "I sometimes feel a little bit jealous of the good luck of others",
             //     reverse: true,
             // },
             // {
             //     key: "BSDS_4",
             //     dimension: "Social Desirability (BSDS)",
-            //     text: "I have taken advantage of someone at some point.",
+            //     text: "I have taken advantage of someone at some point",
             //     reverse: true,
             // },
 
@@ -468,7 +468,7 @@ defineBlock("hexaco", [
             {
                 key: "HEXACO_AttentionCheck",
                 check: 1,
-                text: "To show that I am reading these statements, I will answer \"Strongly disagree\" to this one.",
+                text: "To show that I am reading these statements, I will answer \"Strongly disagree\" to this one",
             },
         ],
     },

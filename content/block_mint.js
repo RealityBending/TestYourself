@@ -9,7 +9,7 @@ defineBlock("mint", [
         text:
             "<h2>Now, let's talk about your body.</h2>" +
             "<p>The next questions are about your body and what you feel going on inside it: your breathing, your " +
-            "heartbeat, your stomach, your genitals, your skin. What you notice, how clearly you notice it, and how " +
+            "heartbeat, your stomach, your genitals, your skin. What you notice, how clearly you notice it and how " +
             "easily you can tell what it means.</p>" +
             "<p>Some of these are blunt, and a few may feel odd to be asked, but they are all important: how people sense " +
             "their own body can say a lot about them.</p>" +
@@ -51,9 +51,9 @@ defineBlock("mint", [
                 mean: 4.23,
                 sd: 0.87,
                 interpretations: {
-                    low: "You may not pay much attention to what your body is doing in the moment. Physical changes can sometimes go unnoticed until they become obvious or have already passed. For example, you might only realise that you were tense, relaxed, hungry, or needed the toilet once the feeling becomes hard to ignore.",
+                    low: "You may not pay much attention to what your body is doing in the moment. Physical changes can sometimes go unnoticed until they become obvious or have already passed. For example, you might only realise that you were tense, relaxed, hungry or needed the toilet once the feeling becomes hard to ignore.",
                     mid: "You tend to notice the clearer signals your body sends, while subtler sensations can sometimes pass you by. For example, you may easily notice that you are very hungry or relaxed, but be less aware of the small changes that happen before you get to that point.",
-                    high: "You tend to be very aware of what is happening in your body, and often notice physical sensations as they arise. For example, you may pick up quickly on small changes in your level of relaxation, hunger, bodily sensations, or sexual arousal.",
+                    high: "You tend to be very aware of what is happening in your body, and often notice physical sensations as they arise. For example, you may pick up quickly on small changes in your level of relaxation, hunger, bodily sensations or sexual arousal.",
                 },
             },
             "Bodily Sensitivity": {
@@ -62,16 +62,16 @@ defineBlock("mint", [
                 interpretations: {
                     low: "Your body's small fluctuations often stay in the background unless they become stronger. You might not notice a small change in your breathing or heartbeat, for example, until it becomes quite pronounced.",
                     mid: "You notice many of the changes happening in your body, especially when they are noticeable, but the smallest shifts can sometimes escape your attention. You might notice that your heart is beating faster after climbing stairs, for instance, without necessarily noticing smaller changes while sitting quietly.",
-                    high: "You tend to be highly tuned in to subtle changes in your body. Small shifts in your breathing, heartbeat, or stomach can stand out to you, even when you are sitting quietly or otherwise feel calm.",
+                    high: "You tend to be highly tuned in to subtle changes in your body. Small shifts in your breathing, heartbeat or stomach can stand out to you, even when you are sitting quietly or otherwise feel calm.",
                 },
             },
             "Bodily Clarity": {
                 mean: 3.17,
                 sd: 0.91,
                 interpretations: {
-                    low: 'Your body\'s signals can sometimes be difficult to read or make sense of. You might notice that something feels different without being sure whether you are hungry, thirsty, tense, tired, need the toilet, or simply feeling "off".',
+                    low: 'Your body\'s signals can sometimes be difficult to read or make sense of. You might notice that something feels different without being sure whether you are hungry, thirsty, tense, tired, need the toilet or simply feeling "off".',
                     mid: "You can usually make sense of what your body is telling you, although some sensations can still be difficult to interpret. Most of the time you can tell what you need physically, but occasionally your body's signals may leave you unsure.",
-                    high: "Your body's signals tend to feel clear and easy to interpret. You usually have a good sense of what you are feeling physically and what your body needs. For example, recognising when you are hungry, thirsty, tense, tired, or need to use the toilet.",
+                    high: "Your body's signals tend to feel clear and easy to interpret. You usually have a good sense of what you are feeling physically and what your body needs. For example, recognising when you are hungry, thirsty, tense, tired or need to use the toilet.",
                 },
             },
         },

@@ -351,7 +351,7 @@ function makeClimb(shared) {
         const stage = figureHolder(
             locked
                 ? "Blurred preview of the hill your answers will draw"
-                : "The last year as a hill: how steep it is, who is on it with you, the pack on your back, and the weather over it",
+                : "The last year as a hill: how steep it is, who is on it with you, the pack on your back and the weather over it",
             "result__chart--wide climbview__stage",
             locked,
         )

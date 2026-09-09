@@ -549,7 +549,7 @@ function makeSea(shared) {
         const stage = figureHolder(
             locked
                 ? "Blurred preview of the world your answers will draw"
-                : "The bottom of the abyss as your answers draw it: what is down there with you, how much colour is in it, and how much of it is alive",
+                : "The bottom of the abyss as your answers draw it: what is down there with you, how much colour is in it and how much of it is alive",
             "result__chart--wide seaview",
             locked,
         )

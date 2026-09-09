@@ -4,7 +4,7 @@ defineBlock("archetypes", [
         key: "Briefing_Archetypes",
         text:
             "<h2>Next, archetypes.</h2>" +
-            "<p>Long before anyone measured personality, people described each other with, and aspired to be, figures of literature of mythology.</p>" +
+            "<p>Long before anyone measured personality, people described each other with, and aspired to be, figures of literature and mythology.</p>" +
             "<p><em>Let's see how your personality connects with them.</em></p>",
     },
 
@@ -79,17 +79,17 @@ defineBlock("archetypes", [
             {
                 key: "Archetype_Idealist_1",
                 dimension: "Idealist",
-                text: "Even when things look bad, I trust that they will ultimately work out for the best.",
+                text: "Even when things look bad, I trust that they will ultimately work out for the best",
             },
             {
                 key: "Archetype_Idealist_2",
                 dimension: "Idealist",
-                text: "I stay loyal to the people and places I have always belonged to.",
+                text: "I stay loyal to the people and places I have always belonged to",
             },
             {
                 key: "Archetype_Idealist_3",
                 dimension: "Idealist",
-                text: "I tend to assume that people mean well.",
+                text: "I tend to assume that people mean well",
             },
 
             // Sage: wisdom, truth, knowledge, objectivity, scepticism,
@@ -103,17 +103,17 @@ defineBlock("archetypes", [
             {
                 key: "Archetype_Sage_1",
                 dimension: "Sage",
-                text: "I am driven to understand the underlying truth of any situation, even if it is uncomfortable.",
+                text: "I am driven to understand the underlying truth of any situation, even if it is uncomfortable",
             },
             {
                 key: "Archetype_Sage_2",
                 dimension: "Sage",
-                text: "I question claims until I have seen the evidence for them.",
+                text: "I question claims until I have seen the evidence for them",
             },
             {
                 key: "Archetype_Sage_3",
                 dimension: "Sage",
-                text: "I look at my own life from a detached, objective distance.",
+                text: "I look at my own life from a detached, objective distance",
             },
 
             // Seeker (the Explorer): autonomy, independence, exploration,
@@ -127,17 +127,17 @@ defineBlock("archetypes", [
             {
                 key: "Archetype_Seeker_1",
                 dimension: "Seeker",
-                text: "I keep seeking out new experiences to find out who I really am.",
+                text: "I keep seeking out new experiences to find out who I really am",
             },
             {
                 key: "Archetype_Seeker_2",
                 dimension: "Seeker",
-                text: "I need the freedom to chart my own course in life.",
+                text: "I need the freedom to chart my own course in life",
             },
             {
                 key: "Archetype_Seeker_3",
                 dimension: "Seeker",
-                text: "I get restless whenever my life starts to feel settled and predictable.",
+                text: "I get restless whenever my life starts to feel settled and predictable",
             },
 
             // Leave a mark -------------------------------------------------
@@ -156,17 +156,17 @@ defineBlock("archetypes", [
             {
                 key: "Archetype_Revolutionary_1",
                 dimension: "Revolutionary",
-                text: "I am willing to dismantle what no longer serves me so that something new can emerge.",
+                text: "I am willing to dismantle what no longer serves me so that something new can emerge",
             },
             {
                 key: "Archetype_Revolutionary_2",
                 dimension: "Revolutionary",
-                text: "I would rather tear something down and start again than keep patching it.",
+                text: "I would rather tear something down and start again than keep patching it",
             },
             {
                 key: "Archetype_Revolutionary_3",
                 dimension: "Revolutionary",
-                text: "I can accept the end of things, such as plans, roles or relationships, once their time has passed.",
+                text: "I can accept the end of things, such as plans, roles or relationships, once their time has passed",
             },
 
             // Magician: transformation, healing, catalyst, vision, personal
@@ -183,17 +183,17 @@ defineBlock("archetypes", [
             {
                 key: "Archetype_Magician_1",
                 dimension: "Magician",
-                text: "When I change my own attitude, things around me tend to shift as well.",
+                text: "When I change my own attitude, things around me tend to shift as well",
             },
             {
                 key: "Archetype_Magician_2",
                 dimension: "Magician",
-                text: "When I want something around me to change, I start by working on myself.",
+                text: "When I want something around me to change, I start by working on myself",
             },
             {
                 key: "Archetype_Magician_3",
                 dimension: "Magician",
-                text: "I see myself as a catalyst: things tend to transform when I get involved.",
+                text: "I see myself as a catalyst: things tend to transform when I get involved",
             },
 
             // Warrior (the Hero): courage, discipline, determination,
@@ -208,17 +208,17 @@ defineBlock("archetypes", [
             {
                 key: "Archetype_Warrior_1",
                 dimension: "Warrior",
-                text: "I meet challenges head-on rather than avoiding them.",
+                text: "I meet challenges head-on rather than avoiding them",
             },
             {
                 key: "Archetype_Warrior_2",
                 dimension: "Warrior",
-                text: "I have the discipline to push through adversity until I achieve what I set out to do.",
+                text: "I have the discipline to push through adversity until I achieve what I set out to do",
             },
             {
                 key: "Archetype_Warrior_3",
                 dimension: "Warrior",
-                text: "When I compete, I am in it to win.",
+                text: "When I compete, I am in it to win",
             },
 
             // Connect with others ------------------------------------------
@@ -236,17 +236,17 @@ defineBlock("archetypes", [
             {
                 key: "Archetype_Realist_1",
                 dimension: "Realist",
-                text: "I take life as it comes, hard parts and all, rather than expecting it to be fair.",
+                text: "I take life as it comes, hard parts and all, rather than expecting it to be fair",
             },
             {
                 key: "Archetype_Realist_2",
                 dimension: "Realist",
-                text: "I know I cannot get through life without relying on other people.",
+                text: "I know I cannot get through life without relying on other people",
             },
             {
                 key: "Archetype_Realist_3",
                 dimension: "Realist",
-                text: "I feel a kinship with people who have known hard times.",
+                text: "I feel a kinship with people who have known hard times",
             },
 
             // Jester (the Fool): joy, humour, playfulness, freedom, lightness,
@@ -261,17 +261,17 @@ defineBlock("archetypes", [
             {
                 key: "Archetype_Jester_1",
                 dimension: "Jester",
-                text: "I get through hard times by finding what is funny in them.",
+                text: "I get through hard times by finding what is funny in them",
             },
             {
                 key: "Archetype_Jester_2",
                 dimension: "Jester",
-                text: "I love bringing playfulness, laughter, and lightness into any situation I am in.",
+                text: "I love bringing playfulness, laughter and lightness into any situation I am in",
             },
             {
                 key: "Archetype_Jester_3",
                 dimension: "Jester",
-                text: "Nothing is too sacred to joke about.",
+                text: "Nothing is too sacred to joke about",
             },
 
             // Lover: passion, intimacy, commitment, enthusiasm, appreciation,
@@ -286,17 +286,17 @@ defineBlock("archetypes", [
             {
                 key: "Archetype_Lover_1",
                 dimension: "Lover",
-                text: "I feel truly alive when I am deeply connected to someone or something I love.",
+                text: "I feel truly alive when I am deeply connected to someone or something I love",
             },
             {
                 key: "Archetype_Lover_2",
                 dimension: "Lover",
-                text: "When I care about something, I give myself to it completely.",
+                text: "When I care about something, I give myself to it completely",
             },
             {
                 key: "Archetype_Lover_3",
                 dimension: "Lover",
-                text: "I savour beauty and pleasure wherever I find them, in people, places or things.",
+                text: "I savour beauty and pleasure wherever I find them, in people, places or things",
             },
 
             // Provide structure --------------------------------------------
@@ -312,17 +312,17 @@ defineBlock("archetypes", [
             {
                 key: "Archetype_Creator_1",
                 dimension: "Creator",
-                text: "I feel most alive when I am inventing, designing, or bringing a new idea into the world.",
+                text: "I feel most alive when I am inventing, designing or bringing a new idea into the world",
             },
             {
                 key: "Archetype_Creator_2",
                 dimension: "Creator",
-                text: "I am always making something, whether anyone asked for it or not.",
+                text: "I am always making something, whether anyone asked for it or not",
             },
             {
                 key: "Archetype_Creator_3",
                 dimension: "Creator",
-                text: "I feel a need to make something that will outlast me.",
+                text: "I feel a need to make something that will outlast me",
             },
 
             // Ruler: leadership, responsibility, order, control, sovereignty,
@@ -335,17 +335,17 @@ defineBlock("archetypes", [
             {
                 key: "Archetype_Ruler_1",
                 dimension: "Ruler",
-                text: "I am at my best when I am in charge.",
+                text: "I am at my best when I am in charge",
             },
             {
                 key: "Archetype_Ruler_2",
                 dimension: "Ruler",
-                text: "I naturally step up to bring order and direction when things are chaotic.",
+                text: "I naturally step up to bring order and direction when things are chaotic",
             },
             {
                 key: "Archetype_Ruler_3",
                 dimension: "Ruler",
-                text: "I take responsibility for how things turn out for the people I lead.",
+                text: "I take responsibility for how things turn out for the people I lead",
             },
 
             // Caregiver: compassion, generosity, nurturing, service,
@@ -360,17 +360,17 @@ defineBlock("archetypes", [
             {
                 key: "Archetype_Caregiver_1",
                 dimension: "Caregiver",
-                text: "I feel most fulfilled when I am taking care of someone who needs my support.",
+                text: "I feel most fulfilled when I am taking care of someone who needs my support",
             },
             {
                 key: "Archetype_Caregiver_2",
                 dimension: "Caregiver",
-                text: "I feel responsible for easing other people's suffering.",
+                text: "I feel responsible for easing other people's suffering",
             },
             {
                 key: "Archetype_Caregiver_3",
                 dimension: "Caregiver",
-                text: "When I see someone struggling, I step in to help before they have to ask.",
+                text: "When I see someone struggling, I step in to help before they have to ask",
             },
 
             // The attention check. The circles carry their numbers, so it can
@@ -379,7 +379,7 @@ defineBlock("archetypes", [
             {
                 key: "Archetype_AttentionCheck",
                 check: 2,
-                text: "To show that I am reading these statements, I will answer 2 on this one.",
+                text: "To show that I am reading these statements, I will answer 2 on this one",
             },
         ],
     },

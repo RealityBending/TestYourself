@@ -3,9 +3,9 @@ defineBlock("bait", [
         type: "briefing",
         key: "Briefing_BAIT",
         text:
-            "<h2>Next, what do you think about the new age we are entering.</h2>" +
-            "<p>The questions that follow are about your relationship with <b>artificial intelligence (AI)</b>" +
-            " which actually say something about our humanity.</p>",
+            "<h2>Next, what do you make of the new age we are entering?</h2>" +
+            "<p>The questions that follow are about your relationship with <b>artificial intelligence (AI)</b>. " +
+            "What we make of thinking machines tends to say as much about us as it does about them.</p>",
     },
 
     // BAIT =================================================================
@@ -77,8 +77,10 @@ defineBlock("bait", [
             {
                 key: "BAIT_Understanding",
                 shuffle: false,
-                text: "How well do you understand the way modern AI systems actually work, technically?",
-                instructions: "For instance, how large language models (LLMs) and generative AI produce the text or images they do.",
+                text:
+                    "How well do you understand the way modern AI systems actually work, technically?<br /><br />" +
+                    "<small>For instance, how large language models (LLMs) and generative AI produce the text or images they do.</small>",
+                instructions: "",
                 format: {
                     options: [0, 1, 2, 3, 4, 5, 6],
                     anchors: ["Not at all", "In detail"],
@@ -88,8 +90,10 @@ defineBlock("bait", [
             {
                 key: "BAIT_Usage",
                 shuffle: false,
-                text: "How frequently do you use Artificial Intelligence (AI) tools or technologies in your daily life?",
-                instructions: "This includes tools like ChatGPT, image or art generators, and AI assistants.",
+                text:
+                    "How frequently do you use Artificial Intelligence (AI) tools or technologies in your daily life?<br /><br />" +
+                    "<small>This includes tools like ChatGPT, image or art generators and AI assistants.</small>",
+                instructions: "",
                 format: {
                     options: [
                         { value: 0, text: "Never" },

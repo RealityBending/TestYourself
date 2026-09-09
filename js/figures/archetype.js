@@ -44,7 +44,7 @@ function makeArchetype(shared) {
             at: { "AI Realism": -0.8, "AI Enthusiasm": -0.5, "AI Apprehension": 0.3 },
             reading:
                 "you are not much taken with AI, and not much impressed by it either. You doubt it can really do what it is " +
-                "said to, you expect the seams to show, and you are less excited about it than most people.",
+                "said to, you expect the seams to show and you are less excited about it than most people.",
         },
     ]
 

@@ -1362,6 +1362,22 @@ h1 {
     border-radius: 12px;
 }
 
+/* A long answer: the box takes the whole row and the button sits under it, to
+   the right, the way a note ends with the button that sends it. */
+.options--entry-long {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: end;
+}
+
+.entry--long {
+    justify-self: stretch;
+    min-height: 160px;
+    resize: vertical;
+    line-height: 1.5;
+    font-weight: 400;
+    text-align: left;
+}
+
 .entry::placeholder {
     color: var(--muted);
     font-weight: 400;

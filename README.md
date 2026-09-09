@@ -6,7 +6,7 @@ The big dispositional characteristics survey.
 
 | Level | Questionnaire | Dimensions |
 |---|---|---|
-| 1 | Demographics (custom items) | • Age<br>• Birth month<br>Gender |
+| 1 | Demographics (custom items) | • Age<br>• Birth month<br>• Gender |
 | 1 | Five-Item Personality Inventory (FIPI; Gosling et al., 2003) | • Extraversion<br>• Agreeableness<br>• Conscientiousness<br>• Emotional Stability<br>• Openness |
 | 1 | Single Item Narcissism Scale (SINS; Konrath et al., 2014) | • Narcissism |
 | 1 | Single-Item Self-Rated Health (SRH; DeSalvo et al., 2006) | • General health |
@@ -30,6 +30,7 @@ The big dispositional characteristics survey.
 | 5 | Social Desirability-Gamma Short Scale (KSE-G; Kemper et al., 2014) | • Exaggerating positive qualities<br>• Minimising negative qualities |
 | 6 | Primals Inventory-18 (PI-18; Clifton & Yaden, 2021) + five tertiary scales (PI-99; Clifton et al., 2019) | • Safe<br>• Enticing<br>• Alive<br>• Acceptable, Changing, Hierarchical, Interconnected, Understandable |
 | 7 | Open Source Archetype Indicator – Pearson-Marr (OSAI-PM; not validated) | • Idealist<br>• Sage<br>• Seeker<br>• Revolutionary<br>• Magician<br>• Warrior<br>• Realist<br>• Jester<br>• Lover<br>• Creator<br>• Ruler<br>• Caregiver |
+| 8 | Closing items (custom items) | • Seriousness of participation<br>• Free comments |
 
 ## Questionnaire Ideas
 

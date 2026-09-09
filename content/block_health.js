@@ -133,7 +133,7 @@ defineBlock("health", [
         name: "Psychiatric history",
         type: "multi",
         shuffle: false,
-        instructions: "Select every answer that applies, then continue.",
+        instructions: "Select every answer that applies, then continue",
         format: {
             options: [
                 { value: 1, text: "Addiction (e.g., alcohol, drugs, gambling)" },

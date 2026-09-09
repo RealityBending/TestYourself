@@ -91,6 +91,13 @@
      format: { input: "number", min: 18, max: 120, placeholder: "Age in years",
                tooLow: "You must be 18+ to take part", tooHigh: "…" }
      format: { input: "text", max: 60, placeholder: "In your own words" }
+     format: { input: "text", multiline: true, optional: true, max: 3000, placeholder: "…" }
+
+   A text field marked `multiline` is a box of several lines rather than one
+   (Enter starts a new line in it; Ctrl+Enter or the button takes it), and one
+   marked `optional` may be left blank — the button then reads "Skip" and the
+   answer is saved as an empty string, which is how a blank was chosen rather
+   than never reached.
 
    ...or, for `type: "curve"`, a stretch of a bell curve to place yourself on:
 
