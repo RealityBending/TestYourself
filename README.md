@@ -30,7 +30,18 @@ The big dispositional characteristics survey.
 | 5 | Social Desirability-Gamma Short Scale (KSE-G; Kemper et al., 2014) | • Exaggerating positive qualities<br>• Minimising negative qualities |
 | 6 | Primals Inventory-18 (PI-18; Clifton & Yaden, 2021) + five tertiary scales (PI-99; Clifton et al., 2019) | • Safe<br>• Enticing<br>• Alive<br>• Acceptable, Changing, Hierarchical, Interconnected, Understandable |
 | 7 | Open Source Archetype Indicator – Pearson-Marr (OSAI-PM; not validated) | • Idealist<br>• Sage<br>• Seeker<br>• Revolutionary<br>• Magician<br>• Warrior<br>• Realist<br>• Jester<br>• Lover<br>• Creator<br>• Ruler<br>• Caregiver |
-| 8 | Closing items (custom items) | • Seriousness of participation<br>• Free comments |
+| 8 | ICAR-16 Sample Test (ICAR16; Condon & Revelle, 2014; Young & Keith, 2020) | • Verbal Reasoning<br>• Letter Series<br>• Matrix Reasoning<br>• Spatial Rotation |
+| 9 | Closing items (custom items) | • Seriousness of participation<br>• Free comments |
+
+## Batteries
+
+A study may ask a subset of the blocks above: `?battery=<name>` in the link picks one of the presets in `content/timeline.js` (`?only=` and `?skip=` list blocks by hand, for testing). The closing items are always asked.
+
+| Battery | Blocks |
+|---|---|
+| *(none)* | Everything in the Includes table, in order |
+| `personality` | demographics1, fipi, singles, demographics2, hexaco, archetypes |
+| `ai` | demographics1, demographics2, bait |
 
 ## Questionnaire Ideas
 

@@ -54,10 +54,21 @@
                  { key: "Example_1", dimension: "A Dimension", text: "the question (HTML)" },
                  { key: "Example_2", dimension: "A Dimension", text: "…", reverse: true },
                  { key: "Example_3", text: "Answer 'Not at all' to this one", check: 0 },
+                 { key: "Example_5", dimension: "A Dimension", text: "…", correct: "9f2e4c1a" },
                  { key: "Example_4", text: "…", showIf: { key: "Example_1", is: [3, 4] } },
              ],
          },
      ])
+
+   An item with a right answer — a reasoning item rather than a rating — is
+   written `correct:`, and counts 1 or 0 into its dimension instead of the
+   value chosen. What is written is not the answer but `answerKey(key, value)`
+   of it: the key of the item and the value of the right option, hashed
+   together, so that the scoring key is not legible from the file (open the
+   page and call `answerKey("Example_5", 4)` in the console to make one). It
+   is obfuscation and not secrecy — the page has to be able to score, so
+   anybody reading the code can try the handful of options — but it keeps the
+   answers out of a search engine and off a casual reading of the source.
 
    `format`, `instructions`, `shuffle` and `type` are questionnaire-wide
    defaults that an item may override for itself; an item's own `format`
@@ -138,6 +149,20 @@ function defineBlock(name, entries) {
     BLOCKS[name] = entries
 }
 
+// The hash an item with a right answer carries in place of it: FNV-1a over
+// "<key>=<value>", as eight hex characters. The engine hashes the answer
+// given the same way and compares, so the right option is never written in
+// the file as itself. See the note at the head of this file.
+function answerKey(key, value) {
+    const text = key + "=" + String(value)
+    let hash = 0x811c9dc5
+    for (let i = 0; i < text.length; i++) {
+        hash ^= text.charCodeAt(i)
+        hash = Math.imul(hash, 0x01000193) >>> 0
+    }
+    return ("0000000" + hash.toString(16)).slice(-8)
+}
+
 // Fisher–Yates, in place: sorting by a coin flip is a biased shuffle, however
 // short the list. Used on the blocks of a level asked in a random order.
 function shuffle(arr) {
@@ -158,11 +183,13 @@ function shuffle(arr) {
 // level screen call it. Its colour on the gauge is not written here: the stops
 // run through one gradient down the line, by position (app.js, `levelColour`).
 //
-// !!! TEMPORARY, WHILE THE SEA IS BEING DRAWN: every level but the primals one
-// !!! is commented out, so that `?testMode=true` reaches it in a handful of
-// !!! clicks. PUT THEM BACK before running anything, or the study asks eight
-// !!! questions. Nothing else was changed to do this — a level the timeline
-// !!! does not name is simply never asked.
+// A level written `beneath: true` lies under the seabed rather than in the
+// water: the levels above it share the trench between them and reach its
+// floor together, and it goes on into the rock underneath (app.js, `BEDROCK`),
+// the water darkening into rock behind it and the gauge sounding "seabed +".
+// Leaving the last level in the water for it goes through the crossing line,
+// the way the quote closes over the way in. Write it on the last levels only.
+//
 const TIMELINE = [
     { name: "General", blocks: ["demographics1", "fipi", "singles"] },
     { name: "Interoception", blocks: ["demographics2", "mint"] },
@@ -171,5 +198,25 @@ const TIMELINE = [
     { name: "Character", blocks: ["hexaco"] },
     { name: "Archetypes", blocks: ["archetypes"] },
     { name: "The World", blocks: ["primals"] },
+    { name: "Reasoning", blocks: ["icar"], beneath: true },
     { name: "Closing", blocks: ["closing"] },
 ]
+
+// Batteries: named subsets of the timeline's blocks, for a study that wants
+// less than the whole run. A link with `?battery=<name>` asks the blocks
+// named here and nothing else, in the timeline's own order — app.js applies
+// the list and never reorders — so a study's battery is written in the
+// repository, under a version, rather than in a URL somebody pasted.
+// `?only=a,b` and `?skip=a,b` do the same by hand, for testing. `closing`
+// need not be written: it is always asked, since the run ends through it. A
+// link with no battery asks everything. The two below are examples, to be
+// edited or replaced when a study is designed.
+const BATTERIES = {
+    personality: ["demographics1", "fipi", "singles", "demographics2", "hexaco", "archetypes"],
+    ai: ["demographics1", "demographics2", "bait"],
+}
+
+// Blocks that come and go together, because one figure is drawn from both:
+// the climb reads the PHQ-4 out of `mood` and the HiTOP-BR out of `hitop`,
+// so asking either asks the other and skipping either skips both.
+const HELD_TOGETHER = [["mood", "hitop"]]

@@ -53,11 +53,16 @@ body {
     -webkit-font-smoothing: antialiased;
 }
 
-/* The abyss itself: sunlit water at the surface, near black at the bottom. The
-   column is several windows tall and `--descent` — 0 at the surface, 1 at the
-   end of the run — is how far down it the window is looking, so going on with
-   the test is going under. Fixed, so the page moves against it rather than
-   carrying it along. */
+/* The abyss itself: sunlit water at the surface, near black at the bottom of
+   the water — and under that the floor, a line of silt, and rock warming
+   towards what is under the crust. The column is several windows tall and
+   `--descent` — 0 at the surface, 1 at the end of the run — is how far down it
+   the window is looking, so going on with the test is going under. The water
+   ends at 79% of the column: the window sees 100/420 of it at a time, so the
+   floor rises into the bottom of the window as the last level in the water is
+   answered, crosses it as the level beneath begins, and by the end of the run
+   all but the top of the window is rock. Fixed, so the page moves against it
+   rather than carrying it along. */
 body::before {
     content: "";
     position: fixed;
@@ -74,15 +79,21 @@ body::before {
         linear-gradient(
             180deg,
             #3f92b8 0%,
-            #2c7ba4 6%,
-            #1b5c82 14%,
-            #124b6e 24%,
-            #0e3a57 38%,
-            #0a2740 54%,
-            #06192c 70%,
-            #030e1a 84%,
-            #01050c 94%,
-            #01030a 100%
+            #2c7ba4 5%,
+            #1b5c82 11%,
+            #124b6e 19%,
+            #0e3a57 30%,
+            #0a2740 43%,
+            #06192c 55%,
+            #030e1a 66%,
+            #01050c 74%,
+            #01030a 79%,
+            /* the floor: silt, then rock, then the heat under it */
+            #2b241c 79.4%,
+            #171310 80.4%,
+            #120d0b 86%,
+            #1a0c09 93%,
+            #2a0d08 100%
         );
 }
 
@@ -1024,6 +1035,32 @@ h1 {
     margin-top: 12px;
     font-style: italic;
     font-weight: 500;
+}
+
+/* A short series the item is about — the letters of a letter-series problem
+   — on a line of its own, spaced out to be read one at a time. */
+.text .series {
+    display: block;
+    margin-top: 14px;
+    font-family: var(--serif);
+    font-size: 1.25em;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-align: center;
+}
+
+/* A picture the item is about — the reasoning level's matrices and cubes,
+   black line on white — on a white plate under the words, at the width of
+   the card and no wider. */
+.text img {
+    display: block;
+    max-width: 100%;
+    max-height: 52svh;
+    margin: 16px auto 0;
+    padding: 10px;
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 10px 30px -18px rgba(0, 0, 0, 0.6);
 }
 
 @keyframes breathe {

@@ -539,6 +539,21 @@ body.sinking #screen-intro::after {
     animation: close 1.9s cubic-bezier(0.4, 0, 0.2, 1) both;
 }
 
+/* The same line on the way through the floor, leaving the last level in the
+   water for the one beneath: no eye — nothing looks back out of rock — and the
+   dark is warm, the heat under the crust rather than the cold of the water. */
+.gaze--rock {
+    background: radial-gradient(115% 85% at 50% 60%, #1c0a07 0%, #0a0403 55%, #000000 100%);
+}
+
+.gaze--rock .gaze__eye {
+    display: none;
+}
+
+.gaze--rock .gaze__line:last-child {
+    text-shadow: 0 0 60px rgba(224, 96, 48, 0.65), 0 0 26px rgba(217, 164, 65, 0.35);
+}
+
 @keyframes dissolve {
     to {
         opacity: 0;

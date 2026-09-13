@@ -1486,6 +1486,91 @@
     color: var(--muted);
 }
 
+/* --------------------------- the reasoning compass ------------------------ */
+
+/* The four kinds of reasoning are one figure and the reading under it, stacked
+   the way the wheel's is — the compass carries the whole section. */
+.compass__all {
+    display: grid;
+    justify-items: center;
+    gap: 3px;
+    text-align: center;
+}
+
+/* One kind's arm, in its own colour, as long as it came easily compared with
+   the other three. */
+.compass__arm {
+    fill: var(--chart);
+    fill-opacity: 0.55;
+    stroke: var(--chart);
+    stroke-width: 1.2;
+    stroke-linejoin: round;
+    cursor: pointer;
+    animation: fade 0.5s ease both;
+}
+
+.compass__arm:hover {
+    fill-opacity: 0.8;
+}
+
+/* The longest — the kind this person solved most of — is the one the reading
+   underneath is about, so it is picked out in the gold everything earned is
+   written in. */
+.compass__arm--leading {
+    fill-opacity: 0.85;
+    stroke: var(--gold-pale);
+    stroke-width: 1.6;
+    filter: drop-shadow(0 0 9px var(--chart));
+}
+
+.compass__lead {
+    margin: 10px 0 0;
+    font-size: 14px;
+    color: var(--muted);
+}
+
+.compass__name {
+    margin: 0;
+    font-family: var(--serif);
+    font-size: clamp(24px, 3.6vw, 32px);
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    color: var(--gold-pale);
+    text-shadow: 0 0 40px rgba(217, 164, 65, 0.35);
+}
+
+/* What leading with it tends to mean, in the same voice as every other
+   prediction; the kind furthest behind in a quieter line under it. */
+.compass__told,
+.compass__least {
+    margin: 6px 0 0;
+    max-width: 56ch;
+    font-size: 14px;
+    font-style: italic;
+    color: var(--muted);
+}
+
+.compass__least {
+    font-style: normal;
+    opacity: 0.8;
+}
+
+/* What the figure is and is not, then the one question on it. */
+.compass__note {
+    margin: 16px 0 0;
+    max-width: 58ch;
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: var(--muted);
+    opacity: 0.7;
+}
+
+.compass__ask {
+    margin: 14px 0 2px;
+    font-size: 14px;
+    color: var(--muted);
+}
+
 /* ----------------------------- spider chart ----------------------------- */
 
 .chart {

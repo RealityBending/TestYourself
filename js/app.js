@@ -48,6 +48,50 @@
     // or impossible one is a code of our own.
     const participant = (query.get("sub") || "").replace(/[^A-Za-z0-9_-]/g, "").slice(0, 32) || madeCode()
 
+    // Which blocks this run asks — its battery. Every block the timeline
+    // names, unless the link says otherwise: `?battery=<name>` picks a preset
+    // out of BATTERIES (content/timeline.js), which is what a study links
+    // with; `?only=a,b` asks exactly those blocks and `?skip=a,b` everything
+    // but those, for testing. Battery first, `only` over it, `skip` off it.
+    // The names are somebody else's text: only the characters a name is made
+    // of survive, and a name that is no block is dropped with a word in the
+    // console and nothing on screen — the participant never sees any of
+    // this. The timeline's order always holds. `closing` is never left out,
+    // since the run ends through it (the last level's results are opened
+    // from the item after them), and the blocks of HELD_TOGETHER come and go
+    // as one, since one figure is drawn from both.
+    function namesIn(param) {
+        return (query.get(param) || "").replace(/[^A-Za-z0-9_,-]/g, "").slice(0, 400).split(",").filter(Boolean)
+    }
+
+    const named = TIMELINE.flatMap((entry) => entry.blocks)
+    const wanted = namesIn("battery")[0] || null
+    const battery = wanted && BATTERIES[wanted] ? wanted : null
+    if (wanted && !battery) console.warn("No battery called " + wanted + " in content/timeline.js; asking the whole timeline")
+
+    const asked = new Set(battery ? BATTERIES[battery] : named)
+    const only = namesIn("only")
+    if (only.length) {
+        asked.clear()
+        for (const name of only) asked.add(name)
+    }
+    for (const group of HELD_TOGETHER) if (group.some((name) => asked.has(name))) for (const name of group) asked.add(name)
+    for (const name of namesIn("skip")) {
+        const group = HELD_TOGETHER.find((one) => one.indexOf(name) !== -1) || [name]
+        for (const one of group) asked.delete(one)
+    }
+    asked.add("closing")
+    for (const name of asked) if (named.indexOf(name) === -1) console.warn("No block called " + name + " on the timeline; ignored")
+
+    // The timeline as this run walks it: each level's blocks that are asked,
+    // and no level left with none. Everything below reads this and never
+    // TIMELINE, so a level's number is its place in *this* run — which is why
+    // the saved file carries the list of blocks beside the level numbers.
+    const PLAN = TIMELINE.map((entry) => Object.assign({}, entry, { blocks: entry.blocks.filter((name) => asked.has(name)) })).filter(
+        (entry) => entry.blocks.length,
+    )
+    const blocksAsked = PLAN.flatMap((entry) => entry.blocks)
+
     // The page is put back to the top underneath something that is covering
     // it. Moving smoothly there would be seen sliding about under the fade,
     // so these jumps are always instant whatever the stylesheet asks for.
@@ -92,14 +136,14 @@
     // level read in. A block the timeline does not name is never reached, which
     // is the whole of how one is kept out of the run.
     const RUN = []
-    const levels = TIMELINE.map((entry, at) => at + 1)
+    const levels = PLAN.map((entry, at) => at + 1)
 
     // Every item of every questionnaire, in the order written, each carrying
     // everything needed to show it — and the level and block it came from,
     // which are the timeline's answer rather than the content's.
     const authored = []
 
-    TIMELINE.forEach((entry, at) => {
+    PLAN.forEach((entry, at) => {
         const level = at + 1
 
         for (const name of entry.blocks) {
@@ -165,9 +209,11 @@
                                 placeholder: format.placeholder,
                                 multiline: format.multiline,
                                 optional: format.optional,
-                                // A typed answer has no options, so its bounds are the scale.
-                                lowest: scale.length ? Math.min.apply(null, values) : format.min,
-                                highest: scale.length ? Math.max.apply(null, values) : format.max,
+                                // A typed answer has no options, so its bounds are the scale;
+                                // an item with a right answer counts 1 or 0 whatever its
+                                // options are numbered, so those are its bounds.
+                                lowest: item.correct !== undefined ? 0 : scale.length ? Math.min.apply(null, values) : format.min,
+                                highest: item.correct !== undefined ? 1 : scale.length ? Math.max.apply(null, values) : format.max,
                                 custom: options.filter((one) => one.custom).map((one) => one.value),
                                 anchors: format.anchors,
                                 columns: format.columns,
@@ -178,6 +224,7 @@
                                 hovercolors: format.hovercolors,
                                 showIf: item.showIf,
                                 check: item.check,
+                                correct: item.correct,
                                 reverse: item.reverse,
                                 shuffle: setting(item, questionnaire, "shuffle"),
                             },
@@ -435,7 +482,9 @@
     function container() {
         // A test run answers most of itself, so the file says which it is
         // before it says anything else.
-        const file = { version: APP_VERSION, participant: participant, testMode: testMode, timeStart: timeStart }
+        // Then which blocks it asked, in order: a level number below is a
+        // place in this run's timeline, and cannot be read without the list.
+        const file = { version: APP_VERSION, participant: participant, testMode: testMode, battery: battery, blocks: blocksAsked, timeStart: timeStart }
 
         for (const level of levels) file["timeLevel" + level] = levelTimes[level] || null
 
@@ -489,6 +538,12 @@
         // holds the dimension unfinished rather than feeding its label — an
         // arbitrary number — into the average.
         if (question.custom.indexOf(answer) !== -1) return undefined
+        // An item with a right answer is worth 1 for it and 0 for anything
+        // else: the value chosen is only which option it was. The right one
+        // is written in content/ as a hash, and the answer is hashed the same
+        // way to compare (`answerKey`, timeline.js), so the key is not legible
+        // from the file.
+        if (question.correct !== undefined) return answerKey(question.key, answer) === question.correct ? 1 : 0
         return question.reverse ? question.lowest + question.highest - answer : answer
     }
 
@@ -1050,20 +1105,39 @@
     // are" that is worth watching go up.
     const DEEPEST = 11034 // metres, the Challenger Deep
 
-    // The depth a level is finished at. The line is divided equally between the
-    // scored levels, so it is that level's share of the deepest water there is.
+    // A level written `beneath: true` in the timeline lies under the seabed
+    // rather than in the water: the water levels share the trench between them
+    // and reach its floor together, and the beneath levels go on into the rock
+    // under it — `BEDROCK` metres of it, about the thickness of the oceanic
+    // crust — so a depth past the floor reads "seabed + 2,400 m".
+    const BEDROCK = 7000 // metres of rock the beneath levels go down through
+    const beneath = (level) => !!PLAN[level - 1].beneath
+    const waterLevels = scoredLevels.filter((level) => !beneath(level))
+    const rockLevels = scoredLevels.filter(beneath)
+    // The last level in the water when there is rock under it: the one whose
+    // way on goes through the floor.
+    const floorLevel = rockLevels.length && waterLevels.length ? waterLevels[waterLevels.length - 1] : null
+
+    // The depth a level is finished at. The water is divided equally between
+    // the water levels, so a level's floor is its share of the deepest water
+    // there is; the rock is divided the same way between the levels beneath.
     function levelDepth(level) {
-        return Math.round(((scoredLevels.indexOf(level) + 1) / scoredLevels.length) * DEEPEST)
+        if (beneath(level)) return DEEPEST + Math.round(((rockLevels.indexOf(level) + 1) / rockLevels.length) * BEDROCK)
+        return Math.round(((waterLevels.indexOf(level) + 1) / waterLevels.length) * DEEPEST)
     }
 
-    // A depth written the way the gauge writes it.
-    function sounding(depth) {
-        return depth.toLocaleString("en-GB") + " m"
+    // A depth written the way the gauge writes it: metres of water down to the
+    // floor, and past that metres of rock under the seabed. The gauge itself
+    // takes the `short` form, having no room for the word.
+    function sounding(depth, short) {
+        if (depth <= DEEPEST) return depth.toLocaleString("en-GB") + " m"
+        const rock = (depth - DEEPEST).toLocaleString("en-GB") + " m"
+        return short ? "+" + rock : "seabed + " + rock
     }
 
     // What the timeline calls a level.
     function levelName(level) {
-        return TIMELINE[level - 1].name || ""
+        return PLAN[level - 1].name || ""
     }
 
     // The stops run through one gradient down the gauge — cyan at the surface,
@@ -1103,15 +1177,31 @@
         return reached / scoredLevels.length
     }
 
+    // Metres reached: each water level is an equal stretch of the trench and
+    // each level beneath an equal stretch of the rock under it, filled as far
+    // as the level is answered. The share of the line above is not this — the
+    // line gives every scored level the same length, water or rock.
+    function metresReached() {
+        // A run with no water levels starts on the seabed, so its metres are
+        // rock from the first answer and sound as such.
+        let reached = waterLevels.length ? 0 : DEEPEST
+        for (const level of scoredLevels) {
+            const progress = levelProgress(level)
+            const filled = progress.size ? progress.answered / progress.size : 1
+            // A battery may hold levels of one kind only, so neither count divides on its own.
+            reached += filled * (beneath(level) ? BEDROCK / rockLevels.length : waterLevels.length ? DEEPEST / waterLevels.length : 0)
+        }
+        return Math.round(reached)
+    }
+
     function depth() {
         const asked = questions.filter((question) => !isBriefing(question) && shown(question))
         const answered = asked.filter((question) => responses[question.key] !== undefined).length
-        const share = descentShare()
-        return { answered: answered, size: asked.length, share: share, metres: Math.round(share * DEEPEST) }
+        return { answered: answered, size: asked.length, share: descentShare(), metres: metresReached() }
     }
 
     function metres() {
-        return depth().metres.toLocaleString("en-GB") + " m"
+        return sounding(depth().metres)
     }
 
     // The water darkens as the descent goes on: `--descent` is 0 at the surface
@@ -1125,7 +1215,7 @@
     // Handed the walk `renderSidebar` has already made rather than making its
     // own: `depth()` walks every question, and once an answer is enough.
     function renderDepth(soFar) {
-        $("depth").textContent = soFar.metres.toLocaleString("en-GB") + " m"
+        $("depth").textContent = sounding(soFar.metres, true)
         $("depth").title = soFar.answered + " of " + soFar.size + " questions answered"
         setDescent(soFar.share)
     }
@@ -1391,7 +1481,11 @@
         let lifted = false
 
         $("curtain-title").textContent = "Level " + level + " complete"
-        $("curtain-depth").textContent = sounding(levelDepth(level)) + " down"
+        // The floor is named when it is reached, since the way on from it is
+        // through it; under it the water is not what is being sounded.
+        $("curtain-depth").textContent = beneath(level)
+            ? sounding(levelDepth(level)) + " into the rock"
+            : sounding(levelDepth(level)) + " down" + (level === floorLevel ? " · the floor" : "")
 
         layer.classList.remove("curtain--out")
         layer.hidden = false
@@ -1438,6 +1532,8 @@
         const next = scoredLevels[scoredLevels.indexOf(level) + 1]
         if (next) results.renderTeaser($("level-next"), next, levelTitle(next))
         else $("level-next").hidden = true
+        // From the floor, the way on is down through it rather than on.
+        $("level-continue").textContent = level === floorLevel ? "Go beneath the floor →" : "Continue the test →"
 
         results.sealSections($("level-results"), $("level-foot"))
         renderSidebar()
@@ -1659,7 +1755,8 @@
     // so that it can be picked out and thrown away.
     function filename() {
         const began = timeStart.replace(/[-:]/g, "").slice(0, 15) // 20260902T141530
-        return (testMode ? "test-" : "responses-") + participant + "_" + began + ".json"
+        // A study's battery goes in the name too, so a deposit sorts by study.
+        return (testMode ? "test-" : "responses-") + (battery ? battery + "-" : "") + participant + "_" + began + ".json"
     }
 
     function save() {
@@ -1851,10 +1948,24 @@
     const GAZE_HOLD = 6600 // ms the quote is left up for
     const GAZE_FADE = 1900 // ms it takes to clear, the words going before the dark
 
-    function gaze(then) {
+    // The words the same layer closes over the page with on the way through
+    // the floor, leaving the last level in the water for the first beneath it.
+    const CROSSING = { lines: ["The water ends here.", "The descent does not."], by: "The floor · " + sounding(DEEPEST) }
+
+    // The quote written in the page (the Nietzsche line, on the way in) unless
+    // the caller brings `words` of its own — the crossing into the rock — which
+    // are written over it and stay: the way in comes first and only once.
+    function gaze(then, words) {
         const layer = $("gaze")
         const survey = $("screen-survey")
         let over = false
+
+        if (words) {
+            const lines = layer.querySelectorAll(".gaze__line")
+            words.lines.forEach((line, at) => (lines[at].textContent = line))
+            layer.querySelector(".gaze__by").textContent = words.by
+        }
+        layer.classList.toggle("gaze--rock", !!words)
 
         // The first item goes up behind the quote, while it is still opaque, so
         // that what the fade uncovers is the question and never the page the
@@ -1917,11 +2028,19 @@
     $("profile").addEventListener("click", () => (panel === "profile" ? closePanel() : openProfile()))
     $("raw").addEventListener("click", () => (panel === "raw" ? closePanel() : openRaw()))
     $("level-continue").addEventListener("click", () => {
+        const crossing = levelShowing === floorLevel
         suckLevel(levelShowing, () => {
-            locked = false // the item behind the level screen is being read again
-            showScreen("survey")
-            renderQuestion()
-            jump(0)
+            const resume = () => {
+                locked = false // the item behind the level screen is being read again
+                showScreen("survey")
+                renderQuestion()
+                jump(0)
+            }
+            // Leaving the floor goes down through it: the line closes over the
+            // page the way the quote did on the way in, and the first item of
+            // the level beneath comes up out of it.
+            if (crossing) gaze(resume, CROSSING)
+            else resume()
         })
     })
 

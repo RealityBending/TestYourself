@@ -25,19 +25,19 @@ A change usually needs one file out of one of them.
 
 | | |
 |---|---|
-| `content/timeline.js` | **The frame the rest of `content/` is written into, and what is asked when.** `TIMELINE` is one entry per level, in order, naming that level's blocks — moving a block is moving its name from one line to another, and a block named nowhere here is never asked. Each level also carries a `name`: what the gauge's hover card, the results panel and the level screen call it (`levelName`, `levelTitle` in `app.js`). Its colour on the gauge is not content — the stops run through one gradient by position (`levelColour`). Also `defineBlock()` and the `QUESTIONNAIRES` / `BLOCKS` the block files fill, and, at the head of the file, an annotated skeleton of every field a block may carry. **Read that before editing anything in `content/`**; it says what the fields are, and this file says why. |
+| `content/timeline.js` | **The frame the rest of `content/` is written into, and what is asked when.** Also `BATTERIES`, the named subsets a study may ask instead of the whole, and `HELD_TOGETHER`, the blocks that come and go as one (see **Batteries**). `TIMELINE` is one entry per level, in order, naming that level's blocks — moving a block is moving its name from one line to another, and a block named nowhere here is never asked. Each level also carries a `name`: what the gauge's hover card, the results panel and the level screen call it (`levelName`, `levelTitle` in `app.js`) — and may carry `beneath: true`, which puts it under the seabed rather than in the water (see **Beneath the floor**). Its colour on the gauge is not content — the stops run through one gradient by position (`levelColour`). Also `defineBlock()` and the `QUESTIONNAIRES` / `BLOCKS` the block files fill, `answerKey()` (the hash an item with a right answer carries in place of it — see **Right answers**, below), and, at the head of the file, an annotated skeleton of every field a block may carry. **Read that before editing anything in `content/`**; it says what the fields are, and this file says why. |
 | `content/block_*.js` | Every question, scale, colour and norm, **split by block** — one stretch of the run that moves as a piece — so the file to open is the thing being changed rather than the position it happens to be asked in. **Content changes go here and nowhere else.** Each is one `defineBlock("name", [ … ])` over an ordered list of entries: briefings and questionnaires, each carrying its own `key`. |
 | `content/block_UNUSED.js` | Questionnaires written but not asked, commented out, waiting on whatever they want before they can go in. Nothing in it defines a block, so nothing in it can be reached. |
 | `js/draw.js` | Three helpers that draw rather than decide — `SVG`, `draw()` (an SVG element with its attributes on it) and `mix()` (a colour between two others, reading either a `#rrggbb` out of `content/` or its own `rgb(…)` back, so a tint can be darkened in a second pass; `channelsOf()` is the reader, and the fourth name it takes) — held in common by the two files below it. It reads nothing and keeps nothing, which is the whole reason it can sit under both of them; **nothing else belongs in it**, and a helper only moves down here because `app.js` and `results.js` both want it. Not an IIFE: it takes those names in the globals every file on the page shares, so nothing in `content/` may take them too. |
 | `js/app.js` | The engine, one IIFE, in labelled sections: build the run → branching → scoring → rendering an item → the rail → panels → particles → finishing a level → flow → results → the way in → wiring. |
 | `js/results.js` | `makeResults(engine)`, a factory returning the handful of functions `app.js` calls. What every figure has in common — reading a score against its norm (`dimensionsOf`, `normOf`, `reachOf`, `standFrom`, `teaseValue`), the tooltip, the votes (`pickButtons`, `voteButtons`, `filed`), the holder a figure sits in (`figureHolder`) — then the spider chart, the results sections and their rows (`renderResults`, `renderTeaser`), the staged opening of a finished level, the profile and the card, and the
 showcase of stand-in figures the landing page cycles (`renderShowcase`). Reads scores; records nothing but the agree/disagree `feedback` on a prediction — and, at the moment it is built, the full set of keys that feedback can be filed under (`feedbackKeys`). |
-| `js/figures/*.js` | **The figures a level closes on, one file each**, every one a factory `makeX(shared)` called from `makeResults` and handed `shared` — the helpers above and nothing else — and returning what `renderResults` needs to place it: the questionnaire it stands in for, its feedback key, and its render function. `soma.js` (the MINT's body), `climb.js` (the last year as a hill), `theories.js` (the star sign and the temperament), `archetype.js` (the AI archetype), `wheel.js` (the twelve archetypes), `sea.js` (the world); `faces.js` (Mood & Health as faces) is on disk but has no tag and is not loaded. A figure reads scores only through `shared`; nothing in `content/`, `app.js` or another figure file is reachable from one, and the data a figure is read with (the twelve signs, the three archetypes, the wheel's colours and readings) lives in its own file, since it is how the figure is drawn and not anything asked. |
+| `js/figures/*.js` | **The figures a level closes on, one file each**, every one a factory `makeX(shared)` called from `makeResults` and handed `shared` — the helpers above and nothing else — and returning what `renderResults` needs to place it: the questionnaire it stands in for, its feedback key, and its render function. `soma.js` (the MINT's body), `climb.js` (the last year as a hill), `theories.js` (the star sign and the temperament), `archetype.js` (the AI archetype), `wheel.js` (the twelve archetypes), `sea.js` (the world), `reasoning.js` (the four kinds of reasoning as a compass); `faces.js` (Mood & Health as faces) is on disk but has no tag and is not loaded. A figure reads scores only through `shared`; nothing in `content/`, `app.js` or another figure file is reachable from one, and the data a figure is read with (the twelve signs, the three archetypes, the wheel's colours and readings) lives in its own file, since it is how the figure is drawn and not anything asked. |
 | `css/style.css` | The shell: tokens on `:root`, the water, the banner and the sidebar the descent runs down (a dive gauge — down the right on a wide screen, along the foot on a phone), screens, panels, buttons, the survey, particles. Also the animations the other two sheets share (`fade`, `rise`). |
 | `css/intro.css` | The landing screen only: hero, the case for doing this and the Jung line under it, consent form, and the Nietzsche quote on the way in. |
 | `css/results.css` | The water that breaks on a finished level, the level screen, results sections, charts, the interoception body, bars, the profile, card. |
 | `index.html` | Static skeleton, and the load order above. Screens and panels are markup; everything inside them is filled in by the scripts via `$(id)`. The favicon is an inline SVG data URI in the head — three waves going down, in the descent's three colours. |
-| `assets/` | The logos on the hero and the consent form. Referenced from `index.html` only — no stylesheet or script reaches for a file. |
+| `assets/` | The logos on the hero and the consent form, referenced from `index.html`, and `assets/icar/` — the eight pictures of the reasoning level's matrix and rotation items, referenced from `content/block_icar.js` as `<img>` in the items' own `text`, which is the one place a script reaches for a file. No stylesheet does. |
 | `norms/` | A workbench, not part of the page: `make_norms.R` prints, ready to paste, every set of norms in the app that is *not* invented. Two sections, independent of each other so that a missing package or a dropped connection costs you one and not both — the HiTOP-BR's development-sample means and SDs out of the {hitop} R package, and the MINT's worked out from the raw answers of the studies that have asked it, pulled from their repositories and scored the way `content/block_mint.js` scores them. It prints the two number lines and never the `interpretations` beside them, which are the app's own prose. Nothing on the page reaches for it, and R is not a dependency of anything that runs. |
 | `data/synthetic/` | A second workbench, not part of the page: runs of the test answered by Claude in a sampled persona, written in the exact shape `container()` saves so that an analysis reads them with the same code as a real run. `codebook.js` (bun or node) reads every item out of `content/` the way `app.js` flattens it, so the requests cannot drift from what is asked; `synthesize.py` samples the demographics from the items' own options, has the model write a biography and answer the rest under a JSON schema of the items' own values, passes the attention checks, prunes closed branches, and writes `out/synthetic-<code>.json` — participant code prefixed `synthetic-`, a `synthetic` field naming model, batch, seed and biography, null times, null votes. `work/` and `out/` are git-ignored. Its `FIGURE_VOTES` mirrors `feedbackKeys()` in `results.js` and has to move with it. Never sent to DataPipe, never pooled with participants; its `README.md` says why. |
 | `README.md` | The author's own notes: the aim, an **Includes** table of everything the test currently asks (level, questionnaire and reference, dimensions — and nothing else), and a long list of questionnaire ideas that are *not* in it. Not documentation, but the Includes table has to be true — see the convention below. |
@@ -95,7 +95,7 @@ the FIPI beside them stays a run of five that nothing is ever dealt into. Two
 meant to stay apart go in two. And a briefing, being an entry of the block
 rather than of any questionnaire, can never be crossed by anything.
 
-**What is asked, and where.** Eight levels, seven of them scored, out of fourteen
+**What is asked, and where.** Nine levels, eight of them scored, out of fifteen
 blocks (the `hexaco` block holds the HEXACO with the KSE-G dealt into it,
 and the commented-out Mini-IPIP6 and BSDS) — so this table is the map of `content/timeline.js` and of the folder
 around it at once:
@@ -109,7 +109,8 @@ around it at once:
 | Level 5 | `hexaco` → Character: a briefing, then the HEX-ACO-18 (`hexaco18`, 18 items, the HEXACO on its own 5-point scale, named "Character" on screen). **Read back in full**, as a spider chart with a row per domain, and its six domains take axes on the whole-run web. The domains carry **plain names** — Honesty-Humility and Emotionality as published, then Sociability, Patience, Diligence and Curiosity for eXtraversion, Agreeableness, Conscientiousness and Openness — because a dimension is one name across the run and the FIPI has the Big Five words on level 1, and because the HEXACO's constructs are not the Big Five's anyway (its Agreeableness is patience and forgiveness); the mapping is written above the questionnaire in the block file, and the item keys still name the facet. The Mini-IPIP6 (`ipip6`) sits commented out in the same file, dropped for the HEXACO. **Dealt in among the HEXACO's items is the KSE-G** (`KSEG_Positive1`…`KSEG_Negative3`), six social-desirability statements — three exaggerating positive qualities, three minimising negative ones — there to blend in, which is why they are items of that questionnaire rather than a questionnaire of their own. They carry **no `dimension`** (September 2026; they were two, which the engine averaged for nobody): nothing reads a score off them, the total is taken at analysis time with the Negative three reversed, and one handed back would only teach the next answer. The BSDS sits commented out beside them, one of its items being the KSE-G's almost word for word |
 | Level 6 | `primals` — a briefing, then two questionnaires asked back to back on one scale: the **PI-18** (`pi18`, Clifton & Yaden, 2021), the validated short form of the 99-item Primals Inventory — eighteen statements about the character of the world on its own 0-5 agreement scale, seven reverse-keyed, **written in the fixed order the short form was validated in** (`shuffle: false`, the only questionnaire in the app that holds its own order), read back as **the sea** (see below) and nothing else — no rows, no standings, one vote on the picture; and the five **tertiary primals that cluster under none of those three** (`primals_tertiary` — Acceptable, Changing, Hierarchical, Interconnected, Understandable), 22 items taken whole from the PI-99, which is what the inventory's own instructions recommend for reaching them. The two are separate questionnaires because they are two instruments asked two ways, and because the broader primals are meant to precede the narrower ones. The inventory's headline primal, overall **Good** world belief, is *not* a fourth set of items but a composite of the PI-18's own (all six Safe, all seven Enticing, `PI_Alive_1` and `PI_Alive_4`) — an item here carries one dimension, so rather than ask anything twice or teach the engine a second way to score, Good is left to analysis time: the keys name the primal and count within it (`PI_Safe_1`) with Clifton's own label beside each in the block file, so his published code computes it from a saved file after one rename (the keys were his labels, `PI18_ed1` then `PI_ed1`, until September 2026). Safe, Enticing and Alive take axes on the whole-run web; the five neutral primals are written **both** `profile: false` and `results: false`, so they are asked, scored and saved and fed back nowhere — five percentile rows under the sea would be a second, plainer answer to the question the picture has just answered. The level is therefore one section, and `markLone` hides its name |
 | Level 7 | `archetypes` — a briefing, then the **Open Source Archetype Indicator – Pearson-Marr (OSAI-PM)**: twelve three-item scales after Pearson and Marr's twelve-archetype framework (Idealist, Sage, Seeker, Revolutionary, Magician, Warrior, Realist, Jester, Lover, Creator, Ruler, Caregiver), an open paraphrase written from public descriptions of the framework rather than from the PMAI's items, to be validated independently of it. The only scored questionnaire in the app **written without norms on purpose**, and the only one fed back anyway: read back as a wheel (see below) |
-| Level 8 | `closing` — nothing scored in it, so it opens no results: whether the test was taken seriously, then `Closing_Comments`, a free-text box (`multiline`, `optional`) for anything the person wants to say, with a warning over it that what is written may be made public. Saved as given, `""` when skipped; nothing reads it back |
+| Level 8 | `icar` — a briefing (turning from what you are like to how you think), then the **ICAR-16 Sample Test** (`icar16`; Condon & Revelle, 2014; Young & Keith, 2020): sixteen problems with one right answer each, four of each of four kinds — verbal reasoning, letter series, matrix reasoning and three-dimensional rotation — keyed by the ICAR's own item numbers under the app's prefix (`ICAR_VR_04`, `ICAR_LN_07`, `ICAR_MR_45`, `ICAR_R3D_03`). Untimed and shuffled, as validated. **Scored right or wrong** (`correct:`, see **Right answers**), one dimension per kind, **no norms on purpose**, and read back as **the compass** (see below): the four kinds against each other, never a total and never a standing. The eight matrix and rotation items are one picture each — the figures out of Appendix A of the paper's supplement, `assets/icar/MR45.jpg` … `R3D08.jpg` — with a lettered button per candidate (two of a rotation item's eight are "none of the cubes" and "I do not know", lettered like the rest, as published). Stems and options are verbatim from that appendix (shelved as `literature/Condon_Revelle_2014_ICAR_supplement_SampleTest.pdf`), and the key is the `iq.keys` vector the {psych} package documents beside these items. The four take axes on the whole-run web (`profile: true`), each as its share of items right. No attention check: there is no straight line to catch on a right-answer test |
+| Level 9 | `closing` — nothing scored in it, so it opens no results: whether the test was taken seriously, then `Closing_Comments`, a free-text box (`multiline`, `optional`) for anything the person wants to say, with a warning over it that what is written may be made public. Saved as given, `""` when skipped; nothing reads it back |
 | — | `gjs` sits in `content/block_UNUSED.js`, named on no level, so it is never asked; the `somatic` medical-history questionnaire sits commented out in `content/block_health.js` |
 
 The demographics of a level are written `shuffle: false` and come first in it;
@@ -227,7 +228,8 @@ was answered goes through it. Test mode never stands one in for a person either
 — only the items of a questionnaire are thinned, and a briefing is not one of
 those. Leaving one goes through `advance()`, the same way out an answered item
 takes, so a briefing could end a level and the level would still break the same
-way.
+way. The count above is nine; the `icar` block's makes ten, turning from
+what you are like to how you think.
 
 **The curve.** A `"curve"` item (`renderCurve`) asks where somebody puts
 themselves in a room of a hundred, and is answered on a normal curve rather
@@ -318,6 +320,27 @@ and the only one there is meant to be: they carry no norms and are fed back
 anyway, because they are read against *each other* rather than against other
 people (see **The wheel**, below). Everything else follows the rule — a
 dimension with nothing to be placed against says nothing.
+
+**Right answers.** An item written `correct:` is a problem rather than a
+rating: `counted()` gives it 1 for the right option and 0 for any other,
+whatever the options are numbered, and the flattening sets its bounds to 0
+and 1 so a reach along it is a share of items right. It is a field beside
+`check:` rather than a use of it, or sixteen wrong answers would count as
+sixteen failed attention checks. What is written is **not the answer but a
+hash of it**: `answerKey(key, value)` in `content/timeline.js` (FNV-1a over
+`"<key>=<value>"`, eight hex characters), which the engine computes over the
+answer given and compares. The block file is public and unminified, so this
+is obfuscation, not secrecy — the page has to be able to score, and anybody
+reading the code can try the handful of options — but it keeps the sixteen
+right answers out of a search engine and off a casual reading of the source,
+which is the ICAR's own concern about its items. To write one, open the page
+and call `answerKey("ICAR_VR_04", 4)` in the console. The option values of
+such an item are its position in the published list, so the saved file's
+words and values both read back onto the published key. A picture item is an
+ordinary `"choice"` whose `text` carries the `<img>` — the ICAR draws the
+problem and its lettered candidates as one figure — with a lettered button
+per candidate; `.text img` in `style.css` puts it on a white plate, and
+`.text .series` sets a letter series on a line of its own.
 
 **Figures.** Most questionnaires get a spider chart (`CHARTS`). The MINT gets a
 body instead (`drawSoma`): bodily awareness in the head, bodily sensitivity in
@@ -535,6 +558,32 @@ rather than picking one, and past `WHEEL_MOST` of them the wheel is called an
 even one instead of crowning anybody. The twelve take no axes on the whole-run
 profile web or card: the wheel is how they are read back, and twelve more axes
 on the web only repeated it and crowded out everything else there.
+
+**The compass.** The ICAR-16 closes its level as neither rows nor a total
+but a compass (`renderReasoning`, `drawCompass`, in `js/figures/reasoning.js`):
+four arms out of one centre — words north, letters east, patterns south,
+shapes west — each in the colour its items were asked in, **each as long as
+that kind came easily relative to the other three**: the arms are shares of
+the person's own best (`shares`), so the longest always reaches the rim and
+the figure shows a shape and not a size. The longest is picked out in gold and
+named underneath ("Your reasoning is sharpest in"), every kind tied for the
+top is named (`leading`, the wheel's rule), the one furthest behind is named
+in a quieter line when there is exactly one and it is not also at the top
+(`trailing`), and four kinds level with each other is called an even
+reasoning rather than resolved. Then a note saying the figure compares the
+four with each other and with nobody else and is not an intelligence score,
+and one vote ("Does this match how you think?") filed under
+`REASONING_KEY`, which is `Reasoning`. Hovering an arm says what the kind is,
+never how many were right. `REASONING_OF` names the questionnaire; `ARMS` the
+four, with what leading with each tends to mean; `ready()` is every kind
+answered. **It is the second figure drawn without norms** and goes through
+`dimensionsIn` like the wheel, and it is deliberately more reticent than the
+wheel: no count on hover, no scale of its own, because the one number a
+person wants off a reasoning test is the one the level is written not to
+give. The four dimensions do take axes on the whole-run web, each as its
+share of items right, which is a reach and not a standing; the web draws no
+average person on those four axes (see **The profile**). Locked, a stand-in
+name and the figure from `teaseValue`, blurred, no buttons.
 
 **Two old theories.** The FIPI's section on level 1 is two readings older
 than any questionnaire, side by side, and nothing else (`renderOldTheories`,
@@ -772,8 +821,9 @@ The web does **not** draw every dimension the run scores. It draws `PROFILE`
 (in `results.js`, at the head of the card section): the dimensions a level's
 results name under their own name — a row under the personality chart, an
 organ of the body, a face. Currently that is the six HEXACO domains, the three
-MINT dimensions, and the PI-18's Safe, Enticing and Alive — twelve axes (Stress
-was the thirteenth while the PCL-2 was asked). The rule is derived rather than listed
+MINT dimensions, the PI-18's Safe, Enticing and Alive, and the ICAR-16's four
+kinds of reasoning — sixteen axes (Stress was one more while the PCL-2 was
+asked). The rule is derived rather than listed
 (`onProfile`): a dimension is on the web if it has norms, unless it belongs to a
 questionnaire read back as one figure — the BAIT (the archetype), the twelve
 archetypes (the wheel), and the PHQ-4 and HiTOP-BR (the climb) are left off;
@@ -785,7 +835,16 @@ the same kind of thing, which they are not; and the five neutral primals, for
 the mirror of that reason — believing the world changeable or hierarchical is
 not more or less of anything a person would want, and every other axis there
 runs from less of something to more of it) keeps its dimensions off it however
-many norms they carry. So a
+many norms they carry; and a questionnaire written `profile: true` (the
+ICAR-16) puts its dimensions on it *without* norms, each drawn as a reach
+along its own scale — a share of items right — which is the one opt-in, there
+because the compass names all four under their own names. **The average
+person is drawn where there is a mean and not where there is none**: closed
+when every axis has a norm, and otherwise as dashed segments between
+neighbouring axes that have one, leaving a gap across the reasoning's four
+rather than a line through them that would put an average where nobody has
+measured one — on the web (`drawSpider`) and on the card (`drawCard`) alike.
+So a
 scale that earns its norms takes an axis in the same breath, and a dimension
 folded into a composite (Anxiety, Depression) or shown without norms of its
 own (General Health, on a face) or nowhere (Sleep, Life Satisfaction) takes none. It used to carry all
@@ -818,8 +877,36 @@ has just said it, and the screen is the level's name and what it opened. (The oc
 tried beside the metres and taken out as clutter; the depth says it.) It is a
 reading of progress and nothing else — no answer, score or norm goes near it.
 
+**Beneath the floor.** A level written `beneath: true` in the timeline (the
+ICAR's, level 8) lies under the seabed. The water levels share the trench
+between them and reach its floor together, so the primals finish at the
+bottom of the Challenger Deep, and the levels beneath go on into `BEDROCK`
+metres of rock (7,000, about the thickness of the oceanic crust), shared the
+same way. `waterLevels`, `rockLevels` and `floorLevel` (the last level in the
+water, whose way on goes through it) are derived from the flag; `levelDepth`
+and `metresReached` read them, and `sounding()` writes a depth past the floor
+as "seabed + 2,400 m" (or "+2,400 m" in its `short` form, which is what the
+gauge's readout has room for). Four things follow from the one flag and
+nothing is written twice: the water column behind the page ends at 79% of its
+height in a line of silt and rock warming towards the mantle, placed so the
+floor rises into the bottom of the window through the last water level and
+the window is all but rock by the end (`body::before`, `style.css`); the
+curtain on finishing the floor level says "· the floor" and on finishing a
+level beneath says "into the rock"; the way on from the floor reads "Go
+beneath the floor" instead of "Continue the test"; and pressing it goes
+through **the crossing** — `gaze()` again, the layer that closes over the way
+in, handed `CROSSING` ("The water ends here. / The descent does not.", the
+floor's depth for a byline) and dressed `gaze--rock` (no eye, warm dark), so
+the first item beneath comes up out of it the way the first item of the run
+does. `gaze()` writes the words it is handed over the Nietzsche line in the
+markup and leaves them; the way in comes first and only once, so nothing
+reads them back. The descent *share* — the gauge line, `--descent` — still
+gives every scored level the same length, water or rock; only the metres
+change.
+
 **The water.** `body::before` is a column of water several windows tall —
-sunlit at the top, near black at the bottom — and `--descent` (0 at the surface,
+sunlit at the top, near black at the bottom of the water, and under that the
+floor and the rock (see **Beneath the floor**) — and `--descent` (0 at the surface,
 1 at the end of the run) is `background-position` down it, so going on with the
 test is going under and each level sits in visibly darker water. Only
 `renderDepth` writes it, from the same `descentShare()` the line is drawn from.
@@ -836,7 +923,9 @@ rather than a white film.
 **Saved data** is `container()`: `version` first — the app version that wrote
 the file, logged in `CHANGELOG.md`, so an export can always be matched back to
 the code that produced it — then `participant` and `testMode` — which run
-this is and whether it counts — then `timeStart`, a `timeLevel<N>` per level —
+this is and whether it counts — then `battery` and `blocks` — the preset the
+link named, or null, and the blocks this run asked in order, without which the
+level numbers that follow cannot be read (see **Batteries**) — then `timeStart`, a `timeLevel<N>` per level —
 when that level was last left with nothing outstanding, stamped in `answer()`
 rather than on the level screen, which the last level never shows — `formatMint`,
 `qualityControl`, then `items[]`
@@ -890,6 +979,42 @@ or a platform putting its own id on the end: it is somebody else's text, so only
 or impossible one is a code of our own. It is also the name of the downloaded
 file (`responses-<code>.json`).
 
+**Batteries.** A study need not ask the whole run. Which blocks a run asks is
+resolved once, at the top of `app.js`, from the link and nothing else, and
+the participant is shown nothing about it. `?battery=<name>` picks a preset
+out of `BATTERIES` in `content/timeline.js` — a block list under a name, so
+that a study's battery lives in the repository under a version rather than in
+a URL somebody pasted, which is what a recruitment link should carry.
+`?only=a,b` asks exactly those blocks and `?skip=a,b` everything but those,
+by hand, for testing. Battery first, `only` over it, `skip` off it. The names
+are somebody else's text: only `[A-Za-z0-9_,-]` survives, a name that is no
+block on the timeline is dropped with a `console.warn`, and an unknown battery
+name asks the whole timeline. **Two things are not the link's to decide.**
+`closing` is always asked, because the run ends through it: `advance()` ends
+the run when the last item has nothing after it, so the last *scored* level's
+results are opened from the item after them, and without `closing` they would
+never be shown. And the blocks of `HELD_TOGETHER` (in `content/timeline.js`)
+come and go as one — `mood` and `hitop`, since the climb is drawn from the
+PHQ-4 in one and the HiTOP-BR in the other and `climbed()` never comes true
+with half of them. The result is `PLAN`: the timeline with each level's
+blocks filtered and any level left empty dropped, and everything in `app.js`
+that read `TIMELINE` reads `PLAN` — the flatten walk, `levels`, `levelName`,
+`beneath` — so a level's number is its place in *this* run, numbering stays
+contiguous on the gauge, and the trench and the rock are divided between the
+levels actually asked (a battery of water levels alone, or of the rock level
+alone, divides by nothing — `metresReached` guards both). Nothing else
+changes by design: `scoredLevels`, `PROFILE`, `feedbackKeys()`, the showcase
+and the card all derive from what the run holds, so a smaller run has a
+smaller web and a smaller set of feedback keys, which an analysis must expect;
+the star card is skipped (`starSign()` returns nothing without the birthday,
+and `feedbackKeys` adds `StarSign` only when `demographics1` is in the run,
+`STARS_FROM`); the FIPI's opening briefing, which frames the whole run, goes
+with the `fipi` block, which is accepted. The saved file carries `battery`
+and `blocks`, and the DataPipe filename carries the battery name after its
+prefix, so a deposit sorts by study. A shared card link is built from the
+origin and path alone, so it never carries a battery and always reads against
+the whole run's profile.
+
 **Quality control.** `qualityControl` is a `level<N>` per level, saying how the
 level was answered rather than what it says, and three numbers is the whole of
 it: `responseTimeMean` and `responseTimeSD` in milliseconds — sample SD, null
@@ -902,7 +1027,7 @@ unanswered has not been failed. Only items actually asked count, so checks
 answered for the run by test mode are not among them. Nothing here is shown to
 anybody, and no score, norm or interpretation goes near it.
 
-**Every scored level but the first carries one check**, shuffled in among the
+**Every scored level but the first and the last carries one check**, shuffled in among the
 items of one of its questionnaires — the MINT (level 2), the BAIT (3), the
 HiTOP-BR (4), the HEXACO (5), the five tertiary primals (6) and the archetypes
 (7) — and each is keyed by the
@@ -920,7 +1045,9 @@ as Clifton words it — it asks for "slightly disagree", which is off both ends
 of the scale and off the agreeing side those items pull towards — and it sits
 in the tertiary questionnaire rather than the PI-18, whose validated fixed
 order is worth leaving intact. Level 1 has none: the `singles` would be its only host, and
-nothing is dealt into the FIPI's run of five.
+nothing is dealt into the FIPI's run of five. Level 8 has none either: a
+right-answer test has no straight line to catch, and a giveaway item would be
+one more thing to get right.
 
 **Test mode.** `?testMode=true` walks the run in miniature, so that every chart,
 level and reading can be reached quickly: every questionnaire keeps
@@ -964,7 +1091,7 @@ before the study runs.**
   not on screen and are not swept.
 - Prefer adding to `content/` over adding branches to the scripts. Questionnaire
   behaviour is data-driven; `CHARTS`, `SOMA`, `SEA`, `CLIMB_OF`,
-  `ARCHETYPE_OF` and `WHEEL_OF` are the only places that name a questionnaire,
+  `ARCHETYPE_OF`, `WHEEL_OF` and `REASONING_OF` are the only places that name a questionnaire,
   and new ones should be rare.
 - Anything that reads a score goes in `results.js` — or, if it is one figure's
   own, in that figure's file under `js/figures/` — and anything that walks the
@@ -1013,10 +1140,11 @@ before the study runs.**
   different figure, different feedback key (`AIArchetype` against
   `Archetype`, and both keys are load-bearing, since the agree/disagree
   collected under them has to keep stacking).
-- **Six feedback keys belong to no dimension.** `StarSign` and
+- **Seven feedback keys belong to no dimension.** `StarSign` and
   `Temperament` are the level-1 old-theories votes, `AIArchetype` the
-  level-3 one, `Year` the level-4 vote on the climb, `World` the level-6 vote
-  on the sea, and `Archetype` the level-7 one. All six are load-bearing: the
+  level-3 one, `Year` the level-4 vote on the climb, `World` the vote
+  on the sea, `Archetype` the one on the wheel, and `Reasoning` the level-8
+  vote on the compass. All seven are load-bearing: the
   feedback collected under them has to keep stacking. (Files from before the
   climb carry `Mood`, `Health` and, earlier, `Stress` instead of `Year`.)
   (An `"Old Theories"` forced choice between the two was built and taken
@@ -1083,7 +1211,11 @@ before the study runs.**
   present the rest as real, and keep the flags when editing. The
   `archetypes` block has none at all, and that is deliberate rather than
   unfinished — writing twelve would be twelve more invented numbers, and the
-  wheel does not want them. Don't "fix" it by adding some.
+  wheel does not want them. Don't "fix" it by adding some. Nor has the
+  `icar` block, for a different reason: the SAPA norms exist, and the
+  level is written not to read them — the compass compares the four kinds
+  with each other, and a percentile on intelligence is the one thing the
+  author decided this test would not hand back.
 - **The consent form in `index.html` is still placeholder wording** — the banner
   that said so has been taken off at the author's request, so nothing on screen
   flags it any more. It must be replaced with the approved text before the study
@@ -1094,6 +1226,11 @@ before the study runs.**
 - The PHQ-4 uses the refined 5-option version, so `0.5` is a valid response and
   sums are not always whole (`tidy()`).
 - Items with no `dimension` (attention checks) are skipped by all scoring.
+- **A level number means nothing without the run's block list.** `?battery=`,
+  `?only=` and `?skip=` drop blocks and then whole levels from `PLAN`, and
+  levels are numbered by their place in it, so level 3 of one study is not
+  level 3 of another. `blocks` in the saved file is the key; read `timeLevelN`
+  and `qualityControl.levelN` against it, never against the full timeline.
 - **`gjs` is out of the timeline, not out of `content/`.** It has a block file
   of its own, commented out, and is named on no level. It wants an employment
   item to hang a `showIf` on before it goes back in. (An escape option marked
@@ -1111,7 +1248,7 @@ before the study runs.**
 - `drawSpider` needs 3+ dimensions to draw a polygon; with fewer, or with some
   still unanswered, it joins neighbours with lines instead. Past eight of them
   it goes `many`: a bigger viewBox and smaller labels. The whole-run web is the
-  only thing that gets there, and at fifteen axes it still fits — the two-word
+  only thing that gets there, and at sixteen axes it still fits — the two-word
   names wrap onto a second line, which is what keeps the neighbours apart. If
   `PROFILE` grows much past that, the labels near the top and bottom of the rim
   start running into each other and want staggering again.
@@ -1122,7 +1259,16 @@ before the study runs.**
   the water takes `CURTAIN_COVER` to cover them, so it guards on
   `screen !== "survey"` *and* holds `locked` from the moment a level ends until
   "Continue the test" is pressed. Without both, the next item — including the
-  closing one — can be answered without ever having been seen.
+  closing one — can be answered without ever having been seen. **`passBriefing()`
+  holds under the same two conditions**, and so does the Enter/Space path into
+  it in the keydown handler (which returns off `screen !== "survey"` before it
+  gets there): a level whose first block is not a demographics one opens with
+  a briefing, so that is what waits behind the level screen, and a press on
+  `#briefing-go` while the curtain was crossing would pass it unread — the
+  first real item of the next level would be what waited instead, and the
+  briefing would be filed with a response time of almost nothing. A third
+  guard, `isBriefing()` on the current item, keeps the button from passing
+  anything that is not one.
 - **An animation filled `both` holds its last frame for as long as the element
   lives.** `sheen` ends with `opacity: 0` for exactly this reason: its last
   frame parks a band of light one full width to the right of the section, which

@@ -230,6 +230,7 @@ function makeResults(engine) {
     const wheel = makeWheel(shared)
     const sea = makeSea(shared)
     const climb = makeClimb(shared)
+    const reasoning = makeReasoning(shared)
 
     // The climb is one section for two questionnaires, rendered where the
     // first of them falls in the run and skipped where the other would.
@@ -287,16 +288,31 @@ function makeResults(engine) {
             chart.appendChild(label)
 
             const norm = normOf(dimension)
-            if (norm) average.push(pointAt(position, reachOf(dimension, norm.mean) * radius))
+            if (norm) average.push({ position: position, spot: pointAt(position, reachOf(dimension, norm.mean) * radius) })
 
             if (value === undefined) return
             found.push({ dimension: dimension, position: position, spot: pointAt(position, reachOf(dimension, value) * radius), colour: dimensions[dimension][0].color })
         })
 
-        // The average person, dashed, under everything else — only when there
-        // is a mean on every axis.
-        const compared = average.length === list.length && list.length > 2
-        if (compared) chart.appendChild(draw("polygon", { class: "chart__average", points: average.map((spot) => spot.join(",")).join(" ") }))
+        // The average person, dashed, under everything else: closed when there
+        // is a mean on every axis, and otherwise drawn between neighbouring
+        // axes that have one, leaving a gap across those that have none (the
+        // reasoning's four, which carry no norms) rather than a line through
+        // them that would put an average where nobody has measured one.
+        const compared = average.length > 2
+        if (average.length === list.length && list.length > 2) {
+            chart.appendChild(draw("polygon", { class: "chart__average", points: average.map((one) => one.spot.join(",")).join(" ") }))
+        } else if (compared) {
+            const means = {}
+            for (const one of average) means[one.position] = one.spot
+            for (let position = 0; position < list.length; position++) {
+                const next = (position + 1) % list.length
+                if (next === position || !means[position] || !means[next]) continue
+                chart.appendChild(
+                    draw("line", { class: "chart__average", x1: means[position][0], y1: means[position][1], x2: means[next][0], y2: means[next][1] }),
+                )
+            }
+        }
 
         // Complete, the shape closes; partial, only neighbours are joined, so a
         // locked dimension leaves a gap rather than a line across the middle.
@@ -472,6 +488,14 @@ function makeResults(engine) {
                 continue
             }
 
+            // So does the reasoning, which is read the same way: the four
+            // kinds against each other, and nobody else.
+            if (name === reasoning.REASONING_OF) {
+                if (!onLevel(dimensionsIn(name), level) || (!locked && !reasoning.ready())) continue
+                openSection(into, titleOf(name), undefined, locked).body.appendChild(reasoning.renderReasoning(locked))
+                continue
+            }
+
             const owned = dimensionsOf(name)
             const inLevel = owned.filter((dimension) => dimensions[dimension][0].level === level)
             const shown = locked ? inLevel : inLevel.filter((dimension) => score(dimension) !== undefined)
@@ -606,11 +630,14 @@ function makeResults(engine) {
     // The web carries what a level's results name under its own name: a
     // dimension with norms, unless its questionnaire is read back as one
     // figure (the archetype, the wheel, the climb) or is written
-    // `profile: false`.
+    // `profile: false` — or, written `profile: true`, a dimension without
+    // norms whose level names it anyway (the reasoning's four, each drawn as
+    // its share of items right, with no average person on its axis).
     function onProfile(dimension) {
         const name = dimensions[dimension][0].questionnaire
         if (name === archetype.ARCHETYPE_OF || name === wheel.WHEEL_OF || climb.CLIMB_OF.indexOf(name) !== -1) return false
         if (QUESTIONNAIRES[name].profile === false) return false
+        if (QUESTIONNAIRES[name].profile === true) return true
         return !!normOf(dimension)
     }
 
@@ -701,16 +728,29 @@ function makeResults(engine) {
             c.stroke()
         })
 
-        // The average person only when there is a mean on every axis: half a
-        // comparison is worse than none.
-        if (PROFILE.every((dimension) => normOf(dimension))) {
-            c.setLineDash([6, 5])
-            c.strokeStyle = "#767c92"
-            c.lineWidth = 2
-            trace(PROFILE.map((dimension, position) => spot(position, reachOf(dimension, normOf(dimension).mean) * radius)), true)
+        // The average person: closed when there is a mean on every axis, and
+        // otherwise between neighbouring axes that have one, with a gap across
+        // those that have none — the same as the web above the buttons.
+        const means = {}
+        PROFILE.forEach((dimension, position) => {
+            const norm = normOf(dimension)
+            if (norm) means[position] = spot(position, reachOf(dimension, norm.mean) * radius)
+        })
+        c.setLineDash([6, 5])
+        c.strokeStyle = "#767c92"
+        c.lineWidth = 2
+        if (Object.keys(means).length === PROFILE.length) {
+            trace(Object.values(means), true)
             c.stroke()
-            c.setLineDash([])
+        } else {
+            for (let position = 0; position < PROFILE.length; position++) {
+                const next = (position + 1) % PROFILE.length
+                if (!means[position] || !means[next]) continue
+                trace([means[position], means[next]], false)
+                c.stroke()
+            }
         }
+        c.setLineDash([])
 
         const yours = {}
         PROFILE.forEach((dimension, position) => {
@@ -826,7 +866,9 @@ function makeResults(engine) {
 
         into.querySelector(".share").classList.toggle("share--waiting", !values)
         note.classList.remove("share__note--done")
-        note.textContent = values ? "" : "Finish a few more dimensions to unlock your card."
+        // A card wants CARD_LEAST axes; a battery with fewer never earns one, and
+        // is not told to keep answering for it.
+        note.textContent = values || PROFILE.length < CARD_LEAST ? "" : "Finish a few more dimensions to unlock your card."
         if (!values) return
 
         into.querySelector(".share__download").onclick = () => downloadCard(values)
@@ -858,10 +900,13 @@ function makeResults(engine) {
         key.innerHTML = ""
         if (drawn.compared) key.appendChild(legend(drawn.colour))
 
-        into.querySelector(".profile__note").textContent =
-            drawn.found === PROFILE.length
-                ? "All " + PROFILE.length + " dimensions revealed."
-                : drawn.found + " of " + PROFILE.length + " dimensions revealed. Keep answering to fill in the rest."
+        // A battery may hold no normed scale at all, and then there is no web
+        // to fill in rather than one with nothing revealed.
+        into.querySelector(".profile__note").textContent = !PROFILE.length
+            ? "This version of the test draws no profile web."
+            : drawn.found === PROFILE.length
+              ? "All " + PROFILE.length + " dimensions revealed."
+              : drawn.found + " of " + PROFILE.length + " dimensions revealed. Keep answering to fill in the rest."
 
         renderShare(into)
     }
@@ -896,6 +941,7 @@ function makeResults(engine) {
         if (known("Emotional Intensity")) slide(climb.renderBars(true))
         if (known("Extraversion")) slide(theories.renderOldTheories(true).querySelector("svg.theory__figure"))
         if (known("Sage")) slide(wheel.renderWheel(true).querySelector("svg"))
+        if (known("Verbal Reasoning")) slide(reasoning.renderReasoning(true).querySelector("svg"))
         return slides
     }
 
@@ -918,9 +964,12 @@ function makeResults(engine) {
                 if (name === CLIMB_FIRST) add(climb.CLIMB_KEY)
             } else if (name === archetype.ARCHETYPE_OF) add(archetype.ARCHETYPE_KEY)
             else if (name === wheel.WHEEL_OF) add(wheel.WHEEL_KEY)
+            else if (name === reasoning.REASONING_OF) add(reasoning.REASONING_KEY)
             else if (name === sea.SEA) add(sea.SEA_KEY)
             else if (name === theories.OLD_THEORIES_OF) {
-                add(theories.STARS_KEY)
+                // The star card is read off the birthday, which a battery
+                // without the first demographics never asks.
+                if (RUN.indexOf(theories.STARS_FROM) !== -1) add(theories.STARS_KEY)
                 add(theories.TEMPERAMENT_KEY)
             } else {
                 for (const dimension of dimensionsOf(name)) if (normOf(dimension).interpretations) add(dimension)
