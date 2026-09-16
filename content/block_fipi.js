@@ -4,7 +4,7 @@ defineBlock("fipi", [
         type: "briefing",
         key: "Briefing_Personality",
         text:
-            "<h2>Let's start with general questions.</h2>" +
+            "<h2>Some general questions.</h2>" +
             "<p>The following questions contain statements about your personality: how you " +
             "are most of the time, and how you perceive yourself.</p>" +
             "<p>Be warned however, that the deeper you progress in this test, the stranger the questions become, " +

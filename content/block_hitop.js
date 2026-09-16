@@ -8,8 +8,8 @@ defineBlock("hitop", [
         type: "briefing",
         key: "Briefing_Spectra",
         text:
-            "<h2>Now, the last year.</h2>" +
-            "<p>The last few questions were about the past couple of weeks. The next ones widen the frame to the " +
+            "<h2>The last year.</h2>" +
+            "<p>The questions about your mood were about the past couple of weeks. These widen the frame to the " +
             "<b>last twelve months</b>. They ask about the kinds of experience psychology has spent a century " +
             "sorting into diagnoses. Here they are asked as dimensions instead: not whether you have something, " +
             "but how much of it has been true of you.</p>" +

@@ -7,7 +7,7 @@ defineBlock("mint", [
         type: "briefing",
         key: "Briefing_Interoception",
         text:
-            "<h2>Now, let's talk about your body.</h2>" +
+            "<h2>Let's talk about your body.</h2>" +
             "<p>The next questions are about your body and what you feel going on inside it: your breathing, your " +
             "heartbeat, your stomach, your genitals, your skin. What you notice, how clearly you notice it and how " +
             "easily you can tell what it means.</p>" +

@@ -9,7 +9,8 @@
      TIMELINE            the levels, asked top to bottom
        level             the blocks of that level, in order — and a `name`,
                          which is what the gauge, the level screen and the
-                         results panel call it
+                         results panel call it; a run of them sharing a `fork`
+                         are taken in whatever order the person chooses
          block           its entries: briefings and questionnaires, in order
            questionnaire its items
 
@@ -78,7 +79,8 @@
 
      format: {
          options: [0, 1, 2, 3],                       // numbered circles, or
-                  [{ value: 0, text: "Not at all" }], // labelled buttons
+                  [{ value: 0, text: "Not at all" }], // labelled buttons, or
+                  [{ value: 1, text: "A", image: "assets/icar/MR45_A.png" }], // pictures
          labels: ["--", "-", "+", "++"],  // optional: written over the values
          anchors: ["Disagree", "Agree"],  // optional: the two ends of the scale
          columns: 2,                      // optional: labelled options only
@@ -119,7 +121,10 @@
    screen. Nothing else is written: the curve has no options and takes no
    anchors.
 
-   An option with `small: true` is set below the others, for a way out of a
+   An option with `image:` (a path under `assets/`) is a picture on a tile,
+   its `text` under it as a caption — and still what is saved and what the
+   keyboard answers by; the picture is only how it is shown. An option with
+   `small: true` is set below the others, for a way out of a
    question rather than an answer to it. A question of ten or more options
    wants `columns: 2`. `max` on a text field is how long the answer may run.
 
@@ -190,15 +195,34 @@ function shuffle(arr) {
 // Leaving the last level in the water for it goes through the crossing line,
 // the way the quote closes over the way in. Write it on the last levels only.
 //
+// A run of consecutive levels written with the same `fork:` name is a fork:
+// their order is the person's, two at a time. At the end of the level before
+// them, and again at the end of each of them while more than one is left,
+// the next two are shown side by side, blurred, and the person picks which
+// to take first; the one passed over is offered again against the one after
+// it, and the one written first is marked as recommended. It is the
+// one thing about the run's order that is the participant's, there so that
+// the descent is not one straight line. The written order is the default —
+// what the recommendation follows, and what a battery that leaves one of
+// them falls back on — and the name is what the choices are keyed by in the
+// saved file, where each is an item of its own (`Fork_<name>_<n>`, standing
+// at the head of the level it decided; `levels` says the order that was
+// actually walked). They must all be scored levels, must all
+// lie in the water or all in the rock, and want a scored level before them
+// to be offered from; app.js throws on a fork written on one level, or on
+// levels that are not next to each other. The World is left out of the water
+// levels' fork on purpose: it is the floor, and the way beneath goes through it.
+//
 const TIMELINE = [
     { name: "General", blocks: ["demographics1", "fipi", "singles"] },
-    { name: "Interoception", blocks: ["demographics2", "mint"] },
-    { name: "Attitudes to AI", blocks: ["bait"] },
-    { name: "Mood & Health", blocks: ["demographics3", shuffle(["mood", "health"]), "hitop"].flat() },
-    { name: "Character", blocks: ["hexaco"] },
-    { name: "Archetypes", blocks: ["archetypes"] },
+    { name: "Interoception", blocks: ["demographics2", "mint"], fork: "Water" },
+    { name: "Attitudes to AI", blocks: ["bait"], fork: "Water" },
+    { name: "Mood & Health", blocks: ["demographics3", shuffle(["mood", "health"]), "hitop"].flat(), fork: "Water" },
+    { name: "Character", blocks: ["hexaco"], fork: "Water" },
+    { name: "Archetypes", blocks: ["archetypes"], fork: "Water" },
     { name: "The World", blocks: ["primals"] },
     { name: "Reasoning", blocks: ["icar"], beneath: true },
+    { name: "Passion & Restraint", blocks: ["regulation"], beneath: true },
     { name: "Closing", blocks: ["closing"] },
 ]
 
@@ -212,8 +236,7 @@ const TIMELINE = [
 // link with no battery asks everything. The two below are examples, to be
 // edited or replaced when a study is designed.
 const BATTERIES = {
-    personality: ["demographics1", "fipi", "singles", "demographics2", "hexaco", "archetypes"],
-    ai: ["demographics1", "demographics2", "bait"],
+    test: ["icar", "regulation"],
 }
 
 // Blocks that come and go together, because one figure is drawn from both:

@@ -231,10 +231,13 @@ function makeResults(engine) {
     const sea = makeSea(shared)
     const climb = makeClimb(shared)
     const reasoning = makeReasoning(shared)
+    const heads = makeHeads(shared)
 
     // The climb is one section for two questionnaires, rendered where the
-    // first of them falls in the run and skipped where the other would.
+    // first of them falls in the run and skipped where the other would; the
+    // heads are the same for the `regulation` block's three.
     const CLIMB_FIRST = RUN.find((one) => climb.CLIMB_OF.indexOf(one) !== -1)
+    const HEADS_FIRST = RUN.find((one) => heads.HEADS_OF.indexOf(one) !== -1)
 
     /* ---------------------------- spider chart ---------------------------- */
 
@@ -472,6 +475,15 @@ function makeResults(engine) {
                 continue
             }
 
+            // The heads are the same for the `regulation` block's three: drawn
+            // once, where the first falls, and skipped where the other two would.
+            if (heads.HEADS_OF.indexOf(name) !== -1) {
+                if (name !== HEADS_FIRST || !heads.HEADS_OF.some((one) => onLevel(dimensionsOf(one), level))) continue
+                if (!locked && !heads.headed()) continue
+                openSection(into, "Inside Your Head", colourOf("Emotional Arousal") || colourOf("Self-Control"), locked).body.appendChild(heads.renderHeads(locked))
+                continue
+            }
+
             if (name === archetype.ARCHETYPE_OF) {
                 if (!onLevel(dimensionsOf(name), level)) continue
                 const type = archetype.aiArchetype()
@@ -540,8 +552,11 @@ function makeResults(engine) {
     // The foot of a finished level carries a taste of the next: the same
     // locked rendering with the rows and the note taken out — a blurred figure
     // is the hook, blurred rows only look like a page that failed to load — and
-    // the count of answers still to go where the Locked badge was.
-    function renderTeaser(into, level, title) {
+    // the count of answers still to go where the Locked badge was. "Next"
+    // stands large over it with the level's title small underneath — or, at a
+    // fork, where the level's number is not yet decided, the `word` handed in
+    // (the level's name) and no title.
+    function renderTeaser(into, level, title, word) {
         renderResults(into, level, true)
 
         for (const extra of into.querySelectorAll(".rows, .taste, .result__lock")) extra.remove()
@@ -560,8 +575,10 @@ function makeResults(engine) {
 
         const head = document.createElement("div")
         head.className = "level__next-head"
-        head.innerHTML = '<p class="level__next-word">Next</p><p class="level__next-title"></p>'
+        head.innerHTML = '<p class="level__next-word"></p><p class="level__next-title"></p>'
+        head.firstChild.textContent = word || "Next"
         head.lastChild.textContent = title
+        head.lastChild.hidden = !title
         into.insertBefore(head, into.firstChild)
 
         markLone(into)
@@ -605,7 +622,13 @@ function makeResults(engine) {
             if (!section) {
                 document.removeEventListener("click", hurry)
                 unfoot()
-                setTimeout(() => burst($("level-continue"), "#d9a441", { count: 20, reach: 70 }), 320)
+                // Out of whichever way on is showing: the one button, or
+                // either side of a fork.
+                setTimeout(() => {
+                    for (const button of foot ? foot.querySelectorAll(".btn") : []) {
+                        if (button.getClientRects().length) burst(button, "#d9a441", { count: 20, reach: 70 })
+                    }
+                }, 320)
                 return
             }
             if (section.getBoundingClientRect().bottom > window.innerHeight) section.scrollIntoView({ behavior: "smooth", block: "center" })
@@ -941,7 +964,7 @@ function makeResults(engine) {
         if (known("Emotional Intensity")) slide(climb.renderBars(true))
         if (known("Extraversion")) slide(theories.renderOldTheories(true).querySelector("svg.theory__figure"))
         if (known("Sage")) slide(wheel.renderWheel(true).querySelector("svg"))
-        if (known("Verbal Reasoning")) slide(reasoning.renderReasoning(true).querySelector("svg"))
+        if (known("Verbal")) slide(reasoning.renderReasoning(true).querySelector("svg"))
         return slides
     }
 
@@ -962,6 +985,11 @@ function makeResults(engine) {
         for (const name of RUN) {
             if (climb.CLIMB_OF.indexOf(name) !== -1) {
                 if (name === CLIMB_FIRST) add(climb.CLIMB_KEY)
+            } else if (heads.HEADS_OF.indexOf(name) !== -1) {
+                if (name === HEADS_FIRST) {
+                    add(heads.HEART_KEY)
+                    add(heads.MIND_KEY)
+                }
             } else if (name === archetype.ARCHETYPE_OF) add(archetype.ARCHETYPE_KEY)
             else if (name === wheel.WHEEL_OF) add(wheel.WHEEL_KEY)
             else if (name === reasoning.REASONING_OF) add(reasoning.REASONING_KEY)

@@ -12,7 +12,8 @@
 
     // Questionnaires that get a spider chart of their own. The FIPI is not
     // among them: only two of its five dimensions carry norms, and a spider
-    // wants three axes, so it reads back as two rows.
+    // wants three axes, so it reads back as two rows; nor are the `regulation`
+    // block's three, which are read back together as the two heads.
     const CHARTS = ["hexaco18", "hitopbr"]
     const ADVANCE_DELAY = 330 // ms between answering and the next item
     const TURN = 180 // ms of that spent fading the answered item out
@@ -86,11 +87,75 @@
     // The timeline as this run walks it: each level's blocks that are asked,
     // and no level left with none. Everything below reads this and never
     // TIMELINE, so a level's number is its place in *this* run — which is why
-    // the saved file carries the list of blocks beside the level numbers.
-    const PLAN = TIMELINE.map((entry) => Object.assign({}, entry, { blocks: entry.blocks.filter((name) => asked.has(name)) })).filter(
-        (entry) => entry.blocks.length,
-    )
-    const blocksAsked = PLAN.flatMap((entry) => entry.blocks)
+    // the saved file carries `levels`, each with its blocks, beside them.
+    // Each carries `written`, its place on the timeline, which is what the
+    // fork's recommendation reads once levels have been moved about.
+    const PLAN = TIMELINE.map((entry, at) =>
+        Object.assign({}, entry, { blocks: entry.blocks.filter((name) => asked.has(name)), written: at }),
+    ).filter((entry) => entry.blocks.length)
+
+    /* -------------------------------- forks ------------------------------- */
+
+    // A run of consecutive levels written with the same `fork:` name is
+    // taken in the order the person chooses, two at a time: at the end of
+    // the level before them, and again at the end of each of them while more
+    // than one is left, the first two of the levels still to come are
+    // offered and the one picked goes first — so the one passed over stays
+    // at the front and is offered again against the next. `next` is the
+    // level number the coming choice fills; the levels from it to `last` are
+    // the ones still to be ordered. A battery that leaves one level of a
+    // fork leaves nothing to choose, and that level is asked where it falls.
+    //
+    // **A choice is saved as an item of the run**, and not as a record of its
+    // own: it is asked on screen, it is answered by pressing one of two
+    // cards, and it takes as long as it takes — so it is written into
+    // `items[]` where it was made, standing between the last item of the
+    // level it was offered from and the first of the level it filled. Its
+    // `response` is the level taken and then the one passed over, in the
+    // words the cards carried; its `timeOnset` is the moment the results
+    // behind it were uncovered and its `timeResponse` the moment a card was
+    // pressed, so the two are also how long that level's results were read.
+    // Every choice a fork will ask exists from the start, nulls until it is
+    // reached, so the shape of the file never changes.
+    const FORKS = [] // { name, first, last: the level numbers the fork spans, next: the one the coming choice fills }
+    const forkItems = [] // one per choice: { fork, fills: the level number it decides, key, response, timeOnset, timeResponse }
+
+    PLAN.forEach((entry, at) => {
+        if (!entry.fork || FORKS.some((fork) => fork.name === entry.fork)) return
+        const written = TIMELINE.filter((one) => one.fork === entry.fork).length
+        if (written < 2) throw new Error("a fork is two levels or more, and " + entry.fork + " is written on one")
+        const group = PLAN.filter((one) => one.fork === entry.fork)
+        if (group.length < 2) return // a battery left one level of it; it is asked where it falls
+        group.forEach((one, position) => {
+            if (PLAN[at + position] !== one) throw new Error("the levels of a fork are next to each other: " + entry.fork)
+            if (!!one.beneath !== !!group[0].beneath) throw new Error("the levels of a fork lie in the same water: " + entry.fork)
+        })
+        if (at === 0) throw new Error("a fork wants a level before it to be offered from: " + entry.fork)
+        FORKS.push({ name: entry.fork, first: at + 1, last: at + group.length, next: at + 1 })
+        group.slice(1).forEach((one, position) =>
+            forkItems.push({
+                fork: entry.fork,
+                fills: at + 1 + position,
+                key: "Fork_" + entry.fork + "_" + (position + 1),
+                response: null,
+                timeOnset: null,
+                timeResponse: null,
+            }),
+        )
+    })
+
+    // The fork with a choice to offer on finishing this level, if any: the
+    // level is the one before the next place to fill, and more than one level
+    // is left to fill it with. A level finished a second time, after going
+    // back into it, has the ordinary way on.
+    function forkAfter(level) {
+        return FORKS.find((fork) => fork.next === level + 1 && fork.next < fork.last)
+    }
+
+    // The item the coming choice of this fork is written into.
+    function forkItem(fork) {
+        return forkItems.find((item) => item.fork === fork.name && item.fills === fork.next)
+    }
 
     // The page is put back to the top underneath something that is covering
     // it. Moving smoothly there would be seen sliding about under the fade,
@@ -481,10 +546,22 @@
     // order they are presented.
     function container() {
         // A test run answers most of itself, so the file says which it is
-        // before it says anything else.
-        // Then which blocks it asked, in order: a level number below is a
-        // place in this run's timeline, and cannot be read without the list.
-        const file = { version: APP_VERSION, participant: participant, testMode: testMode, battery: battery, blocks: blocksAsked, timeStart: timeStart }
+        // before it says anything else. Then the order it was walked in,
+        // which is partly the person's: the levels, in that order, each its
+        // name and the blocks it asked — a level number anywhere below is a
+        // place in this run and cannot be read without them — and the
+        // questionnaires in the order asked (the items' own `order` is
+        // theirs). Where the run forked, the choice that put a level where
+        // it stands is an item like any other, down in `items[]`.
+        const file = {
+            version: APP_VERSION,
+            participant: participant,
+            testMode: testMode,
+            battery: battery,
+            levels: PLAN.map((entry) => ({ name: entry.name, blocks: entry.blocks.slice() })),
+            questionnaires: RUN.slice(),
+            timeStart: timeStart,
+        }
 
         for (const level of levels) file["timeLevel" + level] = levelTimes[level] || null
 
@@ -497,14 +574,38 @@
         file.qualityControl = {}
         for (const level of levels) file.qualityControl["level" + level] = qualityControl(level)
 
-        file.items = questions.map((question, position) => {
-            const entry = log[question.key] || {}
+        // The run's items in order, with a fork's choice standing where it
+        // was made: at the head of the level it decided, which is where the
+        // person met it. A choice already carries the shape a saved item has,
+        // so the only thing it wants here is its place in the count.
+        const walked = []
+        let standing = null
+        for (const question of questions) {
+            if (question.level !== standing) {
+                standing = question.level
+                const choice = forkItems.find((item) => item.fills === standing)
+                if (choice) walked.push(choice)
+            }
+            walked.push(question)
+        }
+
+        file.items = walked.map((entry, position) => {
+            if (entry.fork !== undefined) {
+                return {
+                    key: entry.key,
+                    order: position + 1,
+                    response: entry.response,
+                    timeOnset: entry.timeOnset,
+                    timeResponse: entry.timeResponse,
+                }
+            }
+            const logged = log[entry.key] || {}
             return {
-                key: question.key,
+                key: entry.key,
                 order: position + 1,
-                response: said(question, entry.response),
-                timeOnset: entry.timeOnset || null,
-                timeResponse: entry.timeResponse || null,
+                response: said(entry, logged.response),
+                timeOnset: logged.timeOnset || null,
+                timeResponse: logged.timeResponse || null,
             }
         })
         file.feedback = feedback
@@ -699,10 +800,27 @@
     function optionButton(option, role, press) {
         const button = document.createElement("button")
         button.type = "button"
-        button.className = "option" + (option.small ? " option--small" : "")
+        button.className = "option" + (option.small ? " option--small" : "") + (option.image ? " option--picture" : "")
         button.dataset.value = String(option.value)
         const label = worded(option.text)
-        button.textContent = label === null ? option.label || String(option.value) : label
+        const words = label === null ? option.label || String(option.value) : label
+        // An option drawn rather than written — a candidate cut out of a
+        // reasoning figure — is its picture with its words under it as a
+        // caption. The words are still the button's text: they are what a
+        // screen reader hears, what the keyboard answers by and what `said()`
+        // saves, so the picture changes nothing about the answer.
+        if (option.image) {
+            const picture = document.createElement("img")
+            picture.src = option.image
+            picture.alt = ""
+            picture.draggable = false
+            const caption = document.createElement("span")
+            caption.className = "option__caption"
+            caption.textContent = words
+            button.append(picture, caption)
+        } else {
+            button.textContent = words
+        }
         button.setAttribute("role", role)
         button.setAttribute("aria-checked", "false")
         button.addEventListener("click", press)
@@ -714,6 +832,7 @@
     // here alike — what differs is the writing on the buttons.
     function renderChoice(question, wrap) {
         const labelled = question.options.some((o) => worded(o.text) !== null)
+        const pictured = question.options.some((o) => o.image)
 
         // A row of circles is only as wide as its circles, so the scale draws
         // its anchors in against them rather than against its own edges — five
@@ -729,9 +848,13 @@
         $("scale").classList.toggle("scale--vertical", !!question.vertical)
 
         wrap.classList.toggle("options--labelled", labelled)
+        // Candidates drawn rather than written are tiles in a grid, the two
+        // written ones among them (a rotation item's "none of the cubes")
+        // tiles of the same size.
+        wrap.classList.toggle("options--pictures", pictured)
         // Labelled options given a column each are a Likert scale set in a row
         // rather than a list, and read centred like the circles do.
-        wrap.classList.toggle("options--row", labelled && question.columns === question.options.length)
+        wrap.classList.toggle("options--row", labelled && !pictured && question.columns === question.options.length)
         wrap.classList.toggle("options--wide", !labelled && question.options.length > 7)
         // Labelled options stack unless the item asks for columns; circles
         // always get one column each.
@@ -1084,6 +1207,15 @@
     // of its own so that it comes after the last of these has been opened.
     const scoredLevels = levels.filter((level) => questions.some((one) => one.level === level && one.dimension))
 
+    // A fork is offered from the level screen of the level before it, which
+    // an unscored level never shows, and moves levels about among numbers
+    // that have to stay scored in every order.
+    for (const fork of FORKS) {
+        for (let level = fork.first - 1; level <= fork.last; level++) {
+            if (scoredLevels.indexOf(level) === -1) throw new Error("a fork and the level before it are scored levels: " + fork.name)
+        }
+    }
+
     // How far through a level, and whether it has been finished. Only the items
     // being asked count: a branch nobody went down is not owed an answer.
     function levelProgress(level) {
@@ -1263,7 +1395,7 @@
                 '<span class="sidebar__level-card-meter"><i></i></span>' +
                 '<span class="sidebar__level-card-note"></span>' +
                 "</span>"
-            button.querySelector(".sidebar__level-card-title").textContent = levelName(level) || "Level " + level
+            labelStop(button)
             button.querySelector(".sidebar__level-card-depth").textContent = sounding(levelDepth(level))
 
             // The button that opened it closes it again: a level is a thing on
@@ -1272,6 +1404,17 @@
             button.addEventListener("click", () => (panel === "results" && openLevel === level ? closePanel() : openResults(level)))
             wrap.appendChild(button)
         })
+    }
+
+    // What a stop says about its level: the name on its card, and its label
+    // to a screen reader. Written when the gauge is built and again when a
+    // fork swaps two levels — the number on a stop stays, and the level
+    // behind it changes. The depth on the card is the stop's place on the
+    // line and does not move.
+    function labelStop(button) {
+        const level = Number(button.dataset.level)
+        button.setAttribute("aria-label", levelTitle(level))
+        button.querySelector(".sidebar__level-card-title").textContent = levelName(level) || "Level " + level
     }
 
     // The whole run on one line down the edge of the bar, filling as it is
@@ -1528,10 +1671,17 @@
 
         // The way on carries a blurred taste of the level it leads to, when
         // there is one with something to open: the closing level scores
-        // nothing, so the last scored level is followed by nothing here.
+        // nothing, so the last scored level is followed by nothing here. Where
+        // the run forks, it carries a taste of each of the two ahead with a
+        // way into either instead, and the one button is put away.
+        const fork = forkAfter(level)
+        const choice = fork ? forkItem(fork) : null // held, since taking the fork moves the fork on to the next one
         const next = scoredLevels[scoredLevels.indexOf(level) + 1]
-        if (next) results.renderTeaser($("level-next"), next, levelTitle(next))
-        else $("level-next").hidden = true
+        $("level-next").hidden = true
+        $("level-fork").hidden = !fork
+        $("level-continue").hidden = !!fork
+        if (fork) renderFork(fork)
+        else if (next) results.renderTeaser($("level-next"), next, levelTitle(next))
         // From the floor, the way on is down through it rather than on.
         $("level-continue").textContent = level === floorLevel ? "Go beneath the floor →" : "Continue the test →"
 
@@ -1545,10 +1695,97 @@
                 jump(0)
             },
             () => {
+                // The choice's clock starts when the results it stands under
+                // are uncovered — unless it has somehow been taken already,
+                // which would stamp an onset past its own response.
+                if (choice && choice.timeResponse === null) choice.timeOnset = new Date().toISOString()
                 burst($("level-title"), "#d9a441", { count: 24, reach: 90 })
                 results.openSections($("level-results"), $("level-foot"))
             },
         )
+    }
+
+    // The next two levels, side by side, each as the taste the way on would
+    // carry of it alone — its name over its blurred figures — with a way into
+    // it underneath, and the one the timeline writes first marked as the
+    // recommended one. Pressing one is the choice, and writes it.
+    function renderFork(fork) {
+        const paths = $("level-paths")
+        paths.innerHTML = ""
+
+        const left = PLAN.slice(fork.next - 1, fork.next + 1)
+        const first = left.reduce((best, one) => (one.written < best.written ? one : best))
+        const sides = shuffle(left)
+        const item = forkItem(fork)
+
+        for (const side of sides) {
+            const recommended = side === first
+            const path = document.createElement("div")
+            path.className = "level__path" + (recommended ? " level__path--recommended" : "")
+
+            const tag = document.createElement("p")
+            tag.className = "level__path-tag"
+            tag.textContent = recommended ? "Recommended next" : ""
+            path.appendChild(tag)
+
+            const taste = document.createElement("div")
+            taste.className = "level__next"
+            results.renderTeaser(taste, PLAN.indexOf(side) + 1, "", side.name)
+            taste.hidden = false // a level with no figure still has its name to show
+            path.appendChild(taste)
+
+            const go = document.createElement("button")
+            go.type = "button"
+            go.className = "btn"
+            go.textContent = "Go this way →"
+            go.addEventListener("click", () => {
+                if (item.response !== null) return // a second press while the screen is leaving
+                takeFork(fork, side)
+                leaveLevel()
+            })
+            path.appendChild(go)
+            paths.appendChild(path)
+        }
+    }
+
+    // The choice made: recorded, and the chosen level moved to the front of
+    // those left, the rest closing up behind it in the order they had (with
+    // two offered, that is the two changing places). A level already
+    // standing there stays; otherwise the move is made everywhere the order
+    // is held at once — on the timeline, in the run, in
+    // the order the questionnaires read, and on every item of the levels
+    // moved, which is what the scoring, the gauge and the results all read
+    // the level off. Nothing in any of them has been answered yet, so no
+    // answer moves. The item waiting behind the level screen is then the
+    // first of the chosen level, and the stops on the gauge take the names
+    // they now hold.
+    function takeFork(fork, side) {
+        const item = forkItem(fork)
+        const offered = PLAN.slice(fork.next - 1, fork.next + 1) // read before the move puts them in their new order
+        const target = fork.next // the level number the chosen level takes
+        const from = PLAN.indexOf(side) + 1
+
+        if (from !== target) {
+            PLAN.splice(from - 1, 1)
+            PLAN.splice(target - 1, 0, side)
+
+            const moved = questions.filter((question) => question.level >= target && question.level <= from)
+            const mine = moved.filter((question) => question.level === from)
+            const rest = moved.filter((question) => question.level !== from)
+            const start = questions.indexOf(moved[0])
+            questions.splice(start, moved.length, ...mine, ...rest)
+            for (const question of mine) question.level = target
+            for (const question of rest) question.level += 1
+
+            RUN.splice(0, RUN.length, ...questions.map((question) => question.questionnaire).filter((name, at, all) => name && all.indexOf(name) === at))
+            index = nextShown(start)
+            for (const button of $("levels").children) labelStop(button)
+        }
+
+        item.response = [side.name].concat(offered.filter((one) => one !== side).map((one) => one.name))
+        item.timeResponse = new Date().toISOString()
+        fork.next += 1
+        renderSidebar()
     }
 
     /* -------------------------------- flow ------------------------------- */
@@ -1876,8 +2113,14 @@
 
         const options = question.options
         const n = Number(e.key)
+        // An option that is one letter — a lettered candidate, the next letter
+        // of a series — is answered by its letter as well as by its position.
+        const letter = /^[a-z]$/i.test(e.key) && !e.ctrlKey && !e.metaKey && !e.altKey ? e.key.toUpperCase() : null
+        const lettered = letter === null ? -1 : options.findIndex((one) => worded(one.text) === letter)
         if (n >= 1 && n <= options.length) {
             answer(options[n - 1].value)
+        } else if (lettered !== -1) {
+            answer(options[lettered].value)
         } else if (e.key === "ArrowLeft") {
             goBack()
         }
@@ -2027,7 +2270,10 @@
     // Every way in is also the way out: pressing a lit button shuts what it lit.
     $("profile").addEventListener("click", () => (panel === "profile" ? closePanel() : openProfile()))
     $("raw").addEventListener("click", () => (panel === "raw" ? closePanel() : openRaw()))
-    $("level-continue").addEventListener("click", () => {
+    // The way out of the level screen — the one button, or either side of a
+    // fork: the screen is drawn into its stop on the gauge and the item waiting
+    // behind it is put up.
+    function leaveLevel() {
         const crossing = levelShowing === floorLevel
         suckLevel(levelShowing, () => {
             const resume = () => {
@@ -2042,7 +2288,9 @@
             if (crossing) gaze(resume, CROSSING)
             else resume()
         })
-    })
+    }
+
+    $("level-continue").addEventListener("click", leaveLevel)
 
     // The strip of page left showing beside a panel is the way out of it.
     $("scrim").addEventListener("click", closePanel)

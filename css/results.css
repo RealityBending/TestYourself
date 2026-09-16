@@ -282,6 +282,112 @@
     max-width: 440px;
 }
 
+/* Where the run forks, the way on is two ways: the two levels ahead side by
+   side, each the taste the foot would carry of it alone — its name over its
+   blurred figures — with a way into it underneath. Pressing one is the
+   choice; the one button is put away while this is up. */
+.level__fork {
+    justify-self: stretch;
+    display: grid;
+    gap: 18px;
+}
+
+.level__fork[hidden] {
+    display: none;
+}
+
+.level__fork-head {
+    text-align: center;
+}
+
+.level__fork-note {
+    max-width: 46ch;
+    margin: 6px auto 0;
+    font-size: 13.5px;
+    line-height: 1.5;
+    color: var(--muted);
+}
+
+.level__paths {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    align-items: stretch;
+}
+
+@media (max-width: 640px) {
+    .level__paths {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* A side: the tag, the taste, then its button, on a card of its own that
+   lifts under the pointer so the two read as things to pick between. The
+   taste takes whatever height the taller side needs, so the two buttons sit
+   on one line whatever the figures above them measure. Two, always: a
+   choice is between the next two levels and never a menu. */
+.level__path {
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    gap: 10px;
+    justify-items: center;
+    padding: 14px 8px 18px;
+    border-radius: 22px;
+    border: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.02);
+    transition: border-color 0.3s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease;
+}
+
+.level__path:hover,
+.level__path:focus-within {
+    border-color: rgba(217, 164, 65, 0.45);
+    transform: translateY(-3px);
+    box-shadow: 0 30px 60px -40px rgba(217, 164, 65, 0.5);
+}
+
+/* The side the timeline writes first: a thin line of gold round it and a
+   word over it, and nothing louder. The other side is as good a way on. */
+.level__path--recommended {
+    border-color: rgba(217, 164, 65, 0.55);
+    box-shadow: 0 0 0 1px rgba(217, 164, 65, 0.18), 0 24px 50px -40px rgba(217, 164, 65, 0.45);
+}
+
+.level__path-tag {
+    min-height: 1.2em;
+    margin: 0;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: var(--gold);
+}
+
+.level__path .level__next {
+    width: 100%;
+}
+
+.level__path .level__next-word {
+    font-size: clamp(22px, 3.4vw, 30px);
+}
+
+/* The taste inside a side is the figure alone, not a card: the side is
+   already the box, and a box in a box reads as two things. A figure's own
+   title (the climb's, the sea's, the heads') goes too — the level's name
+   over the card has just said what it is. */
+.level__path .result {
+    margin-top: 10px;
+    padding: 0 8px;
+    border: 0;
+    background: none;
+    box-shadow: none;
+}
+
+.level__path .climbview__head,
+.level__path .seaview__head,
+.level__path .headsview__head {
+    display: none;
+}
+
 /* ------------------------------- results -------------------------------- */
 
 /* One questionnaire's reading, as a card on the water: its name across the
@@ -852,9 +958,9 @@
 /* ------------------------- the last year, as a climb --------------------- */
 
 /* The section on the sea's pattern: a title, the person's own hill at the
-   width of the card, the four channels as a bar chart under it, a note, the
-   two ends of all four bars, and one question — each piece arriving a beat
-   after the one above it. */
+   width of the card, a line saying what it was drawn from, the four channels
+   as a bar chart under that, the two ends of the four, and one question —
+   each piece arriving a beat after the one above it. */
 .climbview__head {
     margin: 0 0 18px;
     text-align: center;
@@ -911,6 +1017,7 @@
     border: 1px solid var(--line);
     background: rgba(255, 255, 255, 0.04);
     overflow: hidden;
+    transition: transform 0.35s var(--ease), border-color 0.35s var(--ease), box-shadow 0.35s var(--ease);
 }
 
 .climbview__fill {
@@ -924,6 +1031,7 @@
     box-shadow: 0 0 14px -2px var(--key);
     transform-origin: bottom;
     animation: climb-fill 0.9s 0.6s var(--ease) both;
+    transition: filter 0.35s var(--ease), box-shadow 0.35s var(--ease);
 }
 
 @keyframes climb-fill {
@@ -935,6 +1043,56 @@
     }
 }
 
+/* A bar answers the pointer: the track lifts and takes the channel's colour,
+   the fill brightens, and a band of light runs up it once. The band is on the
+   fill's own ::after and moved by `translate` rather than `transform`, since
+   the fill is parked on the last frame of `climb-fill` and a transform of its
+   own would be overridden by it. */
+.climbview__col:hover .climbview__track,
+.climbview__col:focus-visible .climbview__track {
+    transform: translateY(-4px);
+    border-color: color-mix(in srgb, var(--key) 60%, transparent);
+}
+
+.climbview__col:hover .climbview__track {
+    box-shadow: 0 12px 22px -14px var(--key);
+}
+
+.climbview__col:hover .climbview__fill,
+.climbview__col:focus-visible .climbview__fill {
+    filter: brightness(1.2);
+    box-shadow: 0 0 22px -2px var(--key);
+}
+
+.climbview__fill::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(0deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+    opacity: 0;
+}
+
+.climbview__col:hover .climbview__fill::after,
+.climbview__col:focus-visible .climbview__fill::after {
+    animation: climb-sheen 0.9s var(--ease);
+}
+
+@keyframes climb-sheen {
+    from {
+        translate: 0 110%;
+        opacity: 0;
+    }
+
+    45% {
+        opacity: 1;
+    }
+
+    to {
+        translate: 0 -110%;
+        opacity: 0;
+    }
+}
+
 .climbview__name {
     font-size: 10.5px;
     font-weight: 700;
@@ -943,6 +1101,12 @@
     text-align: center;
     line-height: 1.35;
     color: var(--text);
+    transition: color 0.35s var(--ease);
+}
+
+.climbview__col:hover .climbview__name,
+.climbview__col:focus-visible .climbview__name {
+    color: var(--key);
 }
 
 .climbview__note {
@@ -1490,6 +1654,214 @@
 
 /* The four kinds of reasoning are one figure and the reading under it, stacked
    the way the wheel's is — the compass carries the whole section. */
+/* The two heads, as a section: a title over the picture, the heads at the
+   width of the card, a reading under each with the two bars it was drawn
+   from and its vote, where the picture came from, and the two ends. Each
+   piece arrives a beat after the one above it, on the sea's pattern. */
+.headsview__head {
+    margin: 0 0 18px;
+    text-align: center;
+    animation: rise 0.8s var(--ease) both;
+}
+
+.headsview__title {
+    margin: 0;
+    font-family: var(--serif);
+    font-size: clamp(26px, 4vw, 34px);
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    color: var(--gold-pale);
+    text-shadow: 0 0 40px rgba(217, 164, 65, 0.35);
+}
+
+.headsview__stage {
+    animation: fade 1s var(--ease) 0.15s both;
+}
+
+/* The picture is tall and narrow — bulb, head, heart down one axis — so it
+   is held to a column rather than the width of the card. */
+.heads {
+    display: block;
+    max-width: 300px;
+    margin: 0 auto;
+}
+
+.headsview__end .heads {
+    max-width: 180px;
+}
+
+/* The lines draw themselves out from the pen's first point; a sealed card
+   holds them at nothing until the level opens. */
+.heads__line {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: heads-draw 2.4s var(--ease) both;
+}
+
+@keyframes heads-draw {
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+/* The two readings side by side, one a head. Each is a sentence and not a
+   name over a sentence — a label read as a verdict — so the kind line leads
+   straight into it. */
+.headsview__pair {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    max-width: 760px;
+    margin: 18px auto 0;
+    animation: rise 0.8s var(--ease) 0.3s both;
+}
+
+.headsview__card {
+    display: grid;
+    align-content: start;
+    justify-items: center;
+    gap: 4px;
+    padding: 18px 16px 16px;
+    border-radius: 16px;
+    border: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.025);
+    text-align: center;
+}
+
+.headsview__kind {
+    margin: 0 0 4px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.headsview__told {
+    margin: 6px 0 12px;
+    font-size: 15px;
+    line-height: 1.55;
+    color: var(--text);
+}
+
+/* What each head is made of: two keys, a bar apiece filled to the reach the
+   picture is drawn from. */
+.headsview__keys {
+    display: grid;
+    gap: 10px;
+    width: 100%;
+    margin: 0 0 12px;
+    padding: 0;
+    list-style: none;
+    text-align: left;
+}
+
+.headsview__key {
+    padding: 11px 13px 12px;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.03);
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: var(--muted);
+}
+
+.headsview__key b {
+    display: block;
+    margin-bottom: 7px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text);
+}
+
+.headsview__bar {
+    display: block;
+    height: 5px;
+    margin-bottom: 9px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    overflow: hidden;
+}
+
+.headsview__bar i {
+    display: block;
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, color-mix(in srgb, var(--key) 45%, transparent), var(--key));
+    box-shadow: 0 0 12px -2px var(--key);
+    transform-origin: left;
+    animation: grow 0.9s 0.6s var(--ease) both;
+}
+
+.headsview__ask {
+    margin: 4px 0 6px;
+    font-size: 14px;
+    font-style: italic;
+    color: var(--text);
+}
+
+.headsview__note {
+    max-width: 660px;
+    margin: 18px auto 0;
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: var(--muted);
+    animation: rise 0.8s var(--ease) 0.45s both;
+}
+
+.headsview__others {
+    max-width: 660px;
+    margin: 28px auto 0;
+    animation: rise 0.8s var(--ease) 0.6s both;
+}
+
+.headsview__aside {
+    margin: 0 0 6px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.headsview__others .headsview__note {
+    margin: 0 0 14px;
+    animation: none;
+}
+
+.headsview__ends {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.headsview__end {
+    margin: 0;
+}
+
+.headsview__end figcaption {
+    margin-top: 9px;
+    text-align: center;
+    font-size: 12px;
+    line-height: 1.4;
+    color: var(--muted);
+}
+
+.headsview__end figcaption b {
+    display: block;
+    font-weight: 600;
+    color: var(--text);
+}
+
+@media (max-width: 560px) {
+    .headsview__pair,
+    .headsview__ends {
+        grid-template-columns: 1fr;
+    }
+}
+
 .compass__all {
     display: grid;
     justify-items: center;
@@ -1914,7 +2286,10 @@
     }
 
     .result,
-    .level__foot {
+    .level__foot,
+    .climbview__track,
+    .climbview__fill,
+    .climbview__name {
         transition: none;
     }
 
@@ -1944,8 +2319,17 @@
     .climbview__note,
     .climbview__bars,
     .climbview__fill,
+    .climbview__col:hover .climbview__fill::after,
+    .climbview__col:focus-visible .climbview__fill::after,
     .climbview__others,
-    .climbview__vote {
+    .climbview__vote,
+    .heads__line,
+    .headsview__stage,
+    .headsview__head,
+    .headsview__pair,
+    .headsview__bar i,
+    .headsview__note,
+    .headsview__others {
         animation: none;
     }
 

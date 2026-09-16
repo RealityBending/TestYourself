@@ -3,7 +3,7 @@ defineBlock("bait", [
         type: "briefing",
         key: "Briefing_BAIT",
         text:
-            "<h2>Next, what do you make of the new age we are entering?</h2>" +
+            "<h2>What do you make of the new age we are entering?</h2>" +
             "<p>The questions that follow are about your relationship with <b>artificial intelligence (AI)</b>. " +
             "What we make of thinking machines tends to say as much about us as it does about them.</p>",
     },

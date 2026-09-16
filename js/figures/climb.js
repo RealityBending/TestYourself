@@ -8,7 +8,7 @@
    development sample — those norms are real, and the spectra pile up at their
    floor, so a reach along the scale would draw nearly everyone the same
    gentle hill — and the weather is read against the PHQ-4's own bands. The
-   summit is always in frame and the path always reaches it.
+   summit is always in frame.
    ========================================================================= */
 
 function makeClimb(shared) {
@@ -28,7 +28,6 @@ function makeClimb(shared) {
 
     const CLIMB_OF = ["phq4", "hitopbr"]
     const CLIMB_KEY = "Year"
-    const SAMPLE = 780 // the HiTOP-BR's development sample, which the three standings are read against
     const MOOD_FULL = 9 // the PHQ-4 total at which the sky is fully overcast: the foot of its "severe" band
 
     const W = 600
@@ -170,33 +169,10 @@ function makeClimb(shared) {
         return (x) => (x <= FOOT_X ? GROUND : x >= FOOT_X + SPAN ? GROUND - rise : GROUND - rise * ramp((x - FOOT_X) / SPAN))
     }
 
-    function hill(into, id, height, random) {
+    function hill(into, id, height) {
         const points = []
         for (let x = 0; x <= W; x += 6) points.push(x.toFixed(0) + "," + height(x).toFixed(1))
         into.appendChild(draw("polygon", { points: points.join(" ") + " " + W + "," + H + " 0," + H, fill: "url(#" + id + "-hill)" }))
-
-        // The path up: always drawn, always reaching the top.
-        const trail = []
-        for (let x = YOU_X + 12; x <= FOOT_X + SPAN + 30; x += 6) trail.push((x === YOU_X + 12 ? "M" : "L") + x.toFixed(0) + " " + (height(x) - 2.5).toFixed(1))
-        into.appendChild(
-            draw("path", { d: trail.join(" "), fill: "none", stroke: "rgba(255, 255, 255, 0.38)", "stroke-width": 1.6, "stroke-dasharray": "5 6", "stroke-linecap": "round" }),
-        )
-
-        // Tufts of grass, where the seed puts them.
-        for (let i = 0; i < 16; i++) {
-            const x = 20 + random() * (W - 40)
-            const y = height(x)
-            const size = 3 + random() * 4
-            into.appendChild(
-                draw("path", {
-                    d: "M" + (x - size).toFixed(1) + " " + y.toFixed(1) + " l" + (size * 0.6).toFixed(1) + " -" + (size * 1.4).toFixed(1) + " l" + (size * 0.5).toFixed(1) + " " + (size * 1.4).toFixed(1),
-                    fill: "none",
-                    stroke: "rgba(210, 230, 200, 0.35)",
-                    "stroke-width": 1.2,
-                    "stroke-linecap": "round",
-                }),
-            )
-        }
 
         // A cairn on the plateau: the top is a place, and it is in the frame.
         const cx = FOOT_X + SPAN + 40
@@ -271,7 +247,7 @@ function makeClimb(shared) {
 
         const scene = draw("g", { "clip-path": "url(#" + id + "-clip)" })
         sky(scene, id, now.cloud, random)
-        hill(scene, id, height, random)
+        hill(scene, id, height)
         company(scene, now.alone, height)
         walker(scene, YOU_X, GROUND, 1, now.load, "climb__you")
         chart.appendChild(scene)
@@ -335,10 +311,10 @@ function makeClimb(shared) {
         return chart
     }
 
-    // A title, the person's own hill at the width of the card, the four
-    // channels as bars under it, a note on where the picture came from, the
-    // two ends under a line of their own, and one question. Locked, the title
-    // and the scene alone.
+    // A title, the person's own hill at the width of the card, a line saying
+    // what it was drawn from, the four channels as bars under that, the two
+    // ends under a line of their own, and one question. Locked, the title and
+    // the scene alone.
     function renderClimb(locked) {
         const all = document.createDocumentFragment()
         const now = year(locked)
@@ -360,27 +336,19 @@ function makeClimb(shared) {
         all.appendChild(stage.holder)
         if (locked) return all
 
-        all.appendChild(bars(now))
-
         all.appendChild(
-            text(
-                "p",
-                "climbview__note",
-                "The hill is drawn from four things worked out from your answers: three from the last twelve months and one from the last two weeks. " +
-                    "For the three, the bar is where you stand among the " +
-                    SAMPLE +
-                    " people the year's scales were developed on; for the weather, it is how far the last two weeks go towards the top of their own scale. None of it is a diagnosis.",
-            ),
+            text("p", "climbview__note", "This is how we think you might feel. This hill is drawn from four dimensions that emerged through your answers."),
         )
+        all.appendChild(bars(now))
 
         const others = document.createElement("div")
         others.className = "climbview__others"
         others.appendChild(text("p", "climbview__aside", "Other people climb other hills"))
-        others.appendChild(text("p", "climbview__note", "The same hill as it looks from the two far ends of all four bars. Most people stand somewhere between them."))
+        others.appendChild(text("p", "climbview__note", "How the same hill can look for two people with opposite answers. Most people stand somewhere between them."))
         const ends = document.createElement("div")
         ends.className = "climbview__ends"
-        ends.appendChild(end(EASY, "A gentle morning, in company", "The foot of all four bars", "The same hill at the foot of all four bars"))
-        ends.appendChild(end(HARD, "A cliff in cloud, alone, with a heavy pack", "The top of all four bars", "The same hill at the top of all four bars"))
+        ends.appendChild(end(EASY, "A gentle morning, in company", "Low scores on the four dimensions", "The same hill drawn from low scores on the four dimensions"))
+        ends.appendChild(end(HARD, "A cliff in cloud, alone, with a heavy pack", "High scores on the four dimensions", "The same hill drawn from high scores on the four dimensions"))
         others.appendChild(ends)
         all.appendChild(others)
 

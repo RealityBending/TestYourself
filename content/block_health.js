@@ -3,7 +3,7 @@ defineBlock("health", [
         type: "briefing",
         key: "Briefing_Health",
         text:
-            "<h2>Now, your health.</h2>" +
+            "<h2>Your health.</h2>" +
             "<p>A couple of questions about conditions you have been diagnosed with, and any treatment you are " +
             "currently receiving for them. If none of it applies to you, say so and move on.</p>",
     },

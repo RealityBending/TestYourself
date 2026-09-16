@@ -3,7 +3,7 @@ defineBlock("archetypes", [
         type: "briefing",
         key: "Briefing_Archetypes",
         text:
-            "<h2>Next, archetypes.</h2>" +
+            "<h2>Archetypes.</h2>" +
             "<p>Long before anyone measured personality, people described each other with, and aspired to be, figures of literature and mythology.</p>" +
             "<p><em>Let's see how your personality connects with them.</em></p>",
     },

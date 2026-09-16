@@ -3,9 +3,9 @@ defineBlock("hexaco", [
         type: "briefing",
         key: "Briefing_Traits",
         text:
-            "<h2>Now, a closer look at who you are.</h2>" +
-            "<p>Level 1 sketched your personality in five strokes. This level goes over the same ground in more " +
-            "detail, with short statements about how you tend to act, and adds a trait the classic five leave out: " +
+            "<h2>A closer look at who you are.</h2>" +
+            "<p>Short statements about how you tend to act, drawing your personality in more detail than a handful of " +
+            "questions can, and adding a trait the classic five leave out: " +
             "<b>honesty and humility</b>, or how far you can be bought, flattered or impressed by status. You get " +
             "all six back as one chart at the end of the level.</p>" +
             "<p>The statements are short and plain. Go with the first answer that fits.</p>" +

@@ -24,8 +24,8 @@ defineBlock("primals", [
         type: "briefing",
         key: "Briefing_World",
         text:
-            "<h2>Last but not least: the world itself.</h2>" +
-            "<p>Everything so far has been about you. The next statements are about how you think and experience <b>the world you live in</b>.</p>" +
+            "<h2>The world itself.</h2>" +
+            "<p>Most of this test is about you. These statements are about how you think and experience <b>the world you live in</b>.</p>" +
             "<p><em>These are statements about the actual world as it is now, not the world we wish we lived in. " +
             "When in doubt, go with what first feels true. There is no need to overthink it.</em></p>",
     },

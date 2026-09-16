@@ -3,7 +3,7 @@ defineBlock("mood", [
         type: "briefing",
         key: "Briefing_Mood",
         text:
-            "<h2>Now, how have you been lately?</h2>" +
+            "<h2>How have you been lately?</h2>" +
             "<p>The next questions are about the last couple of weeks rather than about you in general: your mood, " +
             "your sleep and whether stressful memories have been bothering you.</p>" +
             "<p>Everybody has some of this. What differs is how often it comes and how heavy it is.</p>" +

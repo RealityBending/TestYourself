@@ -41,7 +41,7 @@ function makeSea(shared) {
 
     // The two ends of all three scales, kept just off the ends themselves.
     // Alive is held above its floor so the floor panel still shows what Safe
-    // does to a creature; "all but lifeless" is what its caption says.
+    // does to a creature; "mostly lifeless" is what its caption says.
     const FLOOR = { safe: 0.04, enticing: 0.05, alive: 0.19 }
     const CEILING = { safe: 0.96, enticing: 0.95, alive: 0.95 }
 
@@ -597,13 +597,13 @@ function makeSea(shared) {
         ends.appendChild(
             end(
                 FLOOR,
-                "A dangerous, dull, all but lifeless world",
-                "The bottom of all three scales",
-                "The same abyss at the bottom of all three scales",
+                "A dangerous, dull, mostly lifeless world",
+                "Low scores on the three scales",
+                "The same abyss drawn from low scores on the three scales",
             ),
         )
         ends.appendChild(
-            end(CEILING, "A safe, enticing, living world", "The top of all three scales", "The same abyss at the top of all three scales"),
+            end(CEILING, "A safe, enticing, living world", "High scores on the three scales", "The same abyss drawn from high scores on the three scales"),
         )
         others.appendChild(ends)
         all.appendChild(others)
