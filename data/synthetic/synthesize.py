@@ -5,7 +5,7 @@ as a sampled persona, and written in the shape the app saves.
 Nothing here touches the page or the browser. The test is data, so one API
 request per persona answers every item at once, and the answers are written
 into the same JSON `container()` produces — `items[]` with the words that
-would have been on screen, `feedback` all null, null times — so that an
+would have been on screen, `feedback` and `ratings` all null, null times — so that an
 analysis reads a synthetic run and a real one with one code path. Every file
 is flagged: the participant code starts `synthetic-` and the file carries a
 `synthetic` field saying which model and persona wrote it. Nothing is ever
@@ -76,6 +76,9 @@ FIGURE_VOTES = {
     "pi18": ["World"],
     "archetypes": ["Archetype"],
     "icar16": ["Reasoning"],
+    "control": ["Heart", "Mind"],
+    "ers": ["Heart", "Mind"],
+    "cerq": ["Heart", "Mind"],
 }
 
 # A circumstance or two, so that two personas with the same demographics are
@@ -465,12 +468,83 @@ def feedback_keys(book):
     return keys
 
 
+def screens(book):
+    """One item per level screen, keyed by the level it showed.
+
+    Its `response` is the way on that was taken. A synthetic run walks the
+    written order, which is every fork choice taken as recommended: where a
+    level ends in a fork, the two offered are the next two levels of that
+    fork as written and the first of them is the one taken; otherwise it is
+    the words on the one button, which say so when the way on goes through
+    the seabed.
+    """
+    # A briefing row carries no `dimension` at all — codebook.js writes one
+    # only onto an item there is something to answer on — so it is asked for
+    # rather than read, the way everything else here tells a briefing by its
+    # `type`.
+    scored = {item["level"] for item in book["items"] if item.get("dimension")}
+
+    # The floor is the last scored level in the water, and only where there is
+    # rock under it to go down into — `floorLevel` in app.js.
+    water = [level["level"] for level in book["levels"] if level["level"] in scored and not level["beneath"]]
+    rock = [level["level"] for level in book["levels"] if level["level"] in scored and level["beneath"]]
+    floor = water[-1] if water and rock else None
+
+    # A choice is made on the screen of the level *before* the one it decides.
+    taken = {}
+    for name in {level["fork"] for level in book["levels"] if level["fork"]}:
+        group = [level for level in book["levels"] if level["fork"] == name]
+        for at in range(len(group) - 1):
+            taken[group[at]["level"] - 1] = [group[at]["name"], group[at + 1]["name"]]
+
+    return {
+        level["level"]: {
+            "key": "Level_" + str(level["level"]),
+            "response": taken.get(level["level"], "Go beneath the floor →" if level["level"] == floor else "Continue the test →"),
+            "timeOnset": None,
+            "timeResponse": None,
+        }
+        for level in book["levels"]
+        if level["level"] in scored
+    }
+
+
+def walked(book, answers):
+    """The run's items in order, each in the shape a saved item has but for
+    its `order`, with each level screen standing after the last item of the
+    level it showed — which is where `container()` splices them in."""
+    shown = screens(book)
+    out = []
+    standing = None
+    for item in book["items"]:
+        if item["level"] != standing:
+            if standing in shown:
+                out.append(shown[standing])
+            standing = item["level"]
+        out.append(
+            {
+                "key": item["key"],
+                "response": None if item["type"] == "briefing" else said(item, answers.get(item["key"]), answers),
+                "timeOnset": None,
+                "timeResponse": None,
+            }
+        )
+    if standing in shown:
+        out.append(shown[standing])
+    return out
+
+
 def write_file(book, persona, given, bio, provenance):
     answers = tidy(book, persona, given)
     now = dt.datetime.now(dt.timezone.utc).isoformat().replace("+00:00", "Z")
 
     file = {"version": book["version"], "participant": persona["code"], "testMode": False}
     file["synthetic"] = dict(provenance, seed=persona["seed"], flavours=persona["flavours"], bio=bio, generated=now)
+    # The whole timeline, in its written order, which is what a synthetic run
+    # walks: no battery, every level and questionnaire as written.
+    file["battery"] = None
+    file["levels"] = [{"name": level["name"], "blocks": level["blocks"]} for level in book["levels"]]
+    file["questionnaires"] = list(book["run"])
     file["timeStart"] = now
     for level in book["levels"]:
         file["timeLevel" + str(level["level"])] = None
@@ -481,15 +555,18 @@ def write_file(book, persona, given, bio, provenance):
     }
     file["items"] = [
         {
-            "key": item["key"],
+            "key": entry["key"],
             "order": position + 1,
-            "response": None if item["type"] == "briefing" else said(item, answers.get(item["key"]), answers),
-            "timeOnset": None,
-            "timeResponse": None,
+            "response": entry["response"],
+            "timeOnset": entry["timeOnset"],
+            "timeResponse": entry["timeResponse"],
         }
-        for position, item in enumerate(book["items"])
+        for position, entry in enumerate(walked(book, answers))
     ]
     file["feedback"] = {key: None for key in feedback_keys(book)}
+    # A model is not asked what it made of the level it has just read, so the
+    # stars are null throughout — one key per level screen, as in a real run.
+    file["ratings"] = {screen["key"]: None for screen in screens(book).values()}
 
     OUT.mkdir(parents=True, exist_ok=True)
     path = OUT / (persona["code"] + ".json")

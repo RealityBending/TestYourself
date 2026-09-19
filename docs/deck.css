@@ -1,0 +1,556 @@
+/* =========================================================================
+   The look of the deck, which is the app's look restated rather than
+   imported: the tokens below are the ones in `css/style.css` and the hero is
+   `.hero` from the root `index.html`. Nothing here reaches into the app, so
+   this page can never break it — and a change to the app's look has to be
+   brought across by hand.
+   ========================================================================= */
+
+:root {
+    color-scheme: dark;
+
+    --bg: #05070d;
+    --text: #eef1f8;
+    --muted: #d2d8e7;
+    --dim: #98a2bd;
+    --line: rgba(255, 255, 255, 0.11);
+    --accent: #7c5cff;
+    --accent-2: #22d3ee;
+    --gold: #d9a441;
+    --gold-pale: #f6e6c4;
+    /* What is picked out: the row of the table being read and the list of its
+       items, which are one thing in two places and so are one colour. */
+    --pick: #3d7dfb;
+    --pick-soft: rgba(61, 125, 251, 0.26);
+    --serif: ui-serif, "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+    --pad: clamp(28px, 6vw, 90px);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    background: radial-gradient(120% 70% at 50% -10%, rgba(124, 92, 255, 0.18), transparent 60%),
+        radial-gradient(90% 55% at 12% 8%, rgba(34, 211, 238, 0.09), transparent 62%),
+        linear-gradient(180deg, #090d18 0%, var(--bg) 45%, #020308 100%);
+    background-attachment: fixed;
+    color: var(--text);
+    font-family: ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* --------------------------------- a slide -------------------------------- */
+
+/* One slide fills the window and is the only one showing. They are laid one
+   on top of another rather than in a row, so moving is a class and not a
+   measurement. */
+.slide {
+    position: fixed;
+    inset: 0;
+    display: none;
+    overflow-y: auto;
+    padding: var(--pad);
+    padding-bottom: calc(var(--pad) + 40px);
+}
+
+.slide--on {
+    display: flex;
+    flex-direction: column;
+    /* `safe` matters: a slide shorter than the window is centred, and one
+       taller than it falls back to the top. Plain `center` overflows a tall
+       slide equally in both directions, which puts the first rows of a long
+       table above the scrollable area, where they cannot be reached. The
+       unprefixed value is left in front for anything that cannot parse the
+       keyword. */
+    justify-content: center;
+    justify-content: safe center;
+    animation: arrive-on 0.42s cubic-bezier(0.22, 0.85, 0.3, 1) both;
+}
+
+/* A slide arrives from the side it came from — from the right going on,
+   from the left going back — so the move is read as a direction and not just
+   a change of words. `deck.js` writes the side; the first slide of a visit
+   has none and comes up without one. */
+.slide--on[data-from="back"] {
+    animation-name: arrive-back;
+}
+
+@keyframes arrive-on {
+    from {
+        opacity: 0;
+        transform: translateX(56px) scale(0.985);
+    }
+}
+
+@keyframes arrive-back {
+    from {
+        opacity: 0;
+        transform: translateX(-56px) scale(0.985);
+    }
+}
+
+.slide > * {
+    max-width: 1100px;
+    width: 100%;
+    margin-inline: auto;
+    /* Keep their own height rather than being squeezed by the centring: a
+       slide too tall for the window scrolls as a whole, instead of growing a
+       second scrollbar inside it. */
+    flex-shrink: 0;
+}
+
+h2 {
+    margin: 0 0 24px;
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(30px, 4.4vw, 46px);
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    color: var(--gold-pale);
+}
+
+/* A slide of two parts, one under the other, each its words beside a picture —
+   the picture to the right of the first and to the left of the second, so the
+   two do not read as one column with a stripe down it. Their headings are a
+   size down from a slide's own, since there are two of them and neither is the
+   slide. */
+.parts {
+    display: grid;
+    gap: clamp(26px, 4vh, 54px);
+}
+
+.part {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.62fr);
+    gap: clamp(24px, 4vw, 52px);
+    align-items: center;
+}
+
+/* The words stay first in the markup — it is the order they are read in, on a
+   narrow window and on paper — and the picture is moved across instead. */
+.part--mirror {
+    grid-template-columns: minmax(0, 0.62fr) minmax(0, 1fr);
+}
+
+.part--mirror .part__seen {
+    order: -1;
+}
+
+.part h2 {
+    font-size: clamp(24px, 3.2vw, 36px);
+    margin-bottom: 14px;
+}
+
+.part p {
+    margin: 0 0 14px;
+    color: var(--muted);
+    max-width: 56ch;
+}
+
+.part p:last-child {
+    margin-bottom: 0;
+}
+
+.part__seen {
+    margin: 0;
+}
+
+.part__seen img {
+    display: block;
+    width: 100%;
+    max-height: 30vh;
+    object-fit: contain;
+    border-radius: 12px;
+}
+
+/* A figure drawn on white sits on a plate rather than straight on the water,
+   the way the app puts a reasoning problem on one. The plate hugs the figure
+   — `width: auto` against the height — since a square plot in a column-wide
+   plate is mostly empty white. */
+.part__seen--plated img {
+    width: auto;
+    max-width: 100%;
+    margin-inline: auto;
+    padding: 8px;
+    background: #f4f6fb;
+    box-shadow: 0 18px 40px -26px #000;
+}
+
+/* Narrow: one column, and the picture back under the words it belongs to. */
+@media (max-width: 900px) {
+    .part,
+    .part--mirror {
+        grid-template-columns: 1fr;
+    }
+
+    .part--mirror .part__seen {
+        order: 0;
+    }
+
+    .part__seen img {
+        max-height: 22vh;
+    }
+}
+
+b {
+    color: var(--text);
+    font-weight: 600;
+}
+
+code {
+    font-family: var(--mono);
+    font-size: 0.9em;
+    color: var(--accent-2);
+}
+
+a {
+    color: var(--gold);
+}
+
+/* ---------------------------------- the hero ------------------------------ */
+
+/* Slide one is the landing page of the app — the same words in the same order,
+   in the same dark — with what this deck is under it. */
+.hero {
+    max-width: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    height: 100%;
+    position: relative;
+}
+
+.hero__iris {
+    position: absolute;
+    top: 42%;
+    left: 50%;
+    width: min(94vmin, 780px);
+    aspect-ratio: 1;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    pointer-events: none;
+    background: radial-gradient(circle, rgba(124, 92, 255, 0.17) 0%, rgba(34, 211, 238, 0.07) 38%, transparent 66%);
+    animation: iris 11s ease-in-out infinite alternate;
+}
+
+@keyframes iris {
+    from {
+        transform: translate(-50%, -50%) scale(0.86);
+        opacity: 0.55;
+    }
+    to {
+        transform: translate(-50%, -50%) scale(1.08);
+        opacity: 1;
+    }
+}
+
+.hero__logos {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.hero__logos img {
+    height: clamp(30px, 4.4vw, 52px);
+    width: auto;
+}
+
+.hero__the {
+    position: relative;
+    margin: 0 0 0.9em;
+    font-size: clamp(12px, 1.5vw, 18px);
+    font-weight: 600;
+    letter-spacing: 0.62em;
+    text-indent: 0.62em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.hero__title {
+    position: relative;
+    margin: 0;
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(72px, 15vw, 210px);
+    line-height: 0.86;
+    letter-spacing: 0.06em;
+    text-indent: 0.06em;
+    text-transform: uppercase;
+    background: linear-gradient(178deg, #ffffff 4%, #c3cdeb 30%, rgba(120, 133, 175, 0.55) 62%, rgba(80, 90, 130, 0) 92%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.hero__sub {
+    position: relative;
+    margin: clamp(18px, 3.4vh, 34px) 0 0;
+    font-family: var(--serif);
+    font-size: clamp(15px, 2vw, 22px);
+    font-style: italic;
+    color: #c8cfe4;
+}
+
+.hero__meta {
+    position: relative;
+    margin: 14px 0 0;
+    font-size: clamp(10.5px, 1.1vw, 12.5px);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.hero__meta i {
+    font-style: normal;
+    opacity: 0.45;
+    margin: 0 4px;
+}
+
+/* What this is, under what it is about: the second word on the slide, said
+   large enough to be the reason the deck is open, and set off by a rule so it
+   is not read as more of the title. */
+.hero__doc {
+    position: relative;
+    margin: clamp(30px, 5.5vh, 62px) 0 0;
+    padding-top: clamp(18px, 3vh, 30px);
+    border-top: 1px solid var(--line);
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(34px, 6vw, 78px);
+    line-height: 1;
+    letter-spacing: 0.14em;
+    text-indent: 0.14em;
+    text-transform: uppercase;
+    color: var(--text);
+    text-shadow: 0 0 50px rgba(190, 208, 245, 0.28);
+}
+
+/* --------------------------------- a table -------------------------------- */
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: clamp(11px, 1.15vw, 13.5px);
+}
+
+th,
+td {
+    text-align: left;
+    padding: 6px 16px 6px 0;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+}
+
+/* The header scrolls with the table rather than sticking to the top of it: a
+   sticky header has to be opaque, the slide behind it is a gradient, and a
+   flat band that matches it nowhere reads as something gone wrong rather than
+   as a header. The four columns say what they are without it. */
+th {
+    font-size: 10.5px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--dim);
+    font-weight: 600;
+}
+
+td {
+    color: var(--dim);
+}
+
+/* The level, then the instrument, then what it scores: narrow, plain, wide. */
+td:first-child {
+    white-space: nowrap;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+}
+
+td:nth-child(2) {
+    color: var(--text);
+}
+
+/* A row of the table says which instrument; picking it says what that
+   instrument actually asks. Hovering only says that it can be picked. */
+tr[data-items] {
+    cursor: pointer;
+    outline: none;
+}
+
+tr[data-items]:hover td {
+    color: var(--text);
+    background: rgba(61, 125, 251, 0.1);
+}
+
+tr[data-items]:focus-visible td {
+    background: rgba(61, 125, 251, 0.16);
+}
+
+/* The row being read, in the blue its items are shown in. */
+tr[data-items][aria-expanded="true"] td {
+    color: var(--text);
+    background: var(--pick-soft);
+}
+
+tr[data-items][aria-expanded="true"] td:first-child {
+    box-shadow: inset 3px 0 0 var(--pick);
+}
+
+td:last-child {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+/* The items themselves, along the foot of the window rather than in the flow
+   of the table: a questionnaire of forty-odd would push everything below it
+   off the slide, and this way the list is the same size wherever it is opened
+   from. It scrolls on its own, which is why hovering only opens it and a
+   click pins it — the pointer has to be able to leave the row and get in. */
+.items {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 5;
+    max-height: 42vh;
+    overflow-y: auto;
+    padding: 16px var(--pad) 46px;
+    background: linear-gradient(180deg, rgba(20, 40, 86, 0.97), rgba(7, 12, 26, 0.97));
+    border-top: 2px solid var(--pick);
+    box-shadow: 0 -20px 50px -30px #000;
+}
+
+.items__of {
+    margin: 0 0 10px;
+    max-width: 1100px;
+    margin-inline: auto;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--dim);
+}
+
+.items__of b {
+    color: var(--pick);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: none;
+    font-size: 13px;
+}
+
+.items__list {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding-left: 22px;
+    columns: 2;
+    column-gap: 40px;
+    font-size: clamp(11px, 1.1vw, 13px);
+    line-height: 1.55;
+    color: var(--muted);
+}
+
+.items__list li {
+    break-inside: avoid;
+    margin-bottom: 5px;
+}
+
+.items__list li::marker {
+    color: var(--pick);
+}
+
+@media (max-width: 800px) {
+    .items__list {
+        columns: 1;
+    }
+}
+
+/* --------------------------------- the foot ------------------------------- */
+
+/* Where you are and the two ways to move, out of the way at the bottom. The
+   keyboard is the real way through; these are for a touchscreen and for
+   saying how many are left. */
+.foot {
+    position: fixed;
+    z-index: 6;
+    right: 18px;
+    bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    color: var(--dim);
+    user-select: none;
+}
+
+.foot button {
+    appearance: none;
+    width: 30px;
+    height: 30px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: rgba(4, 10, 20, 0.5);
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.foot button:hover {
+    color: var(--text);
+    border-color: rgba(255, 255, 255, 0.28);
+}
+
+.foot span {
+    min-width: 54px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+/* How far through, along the very bottom of the window. */
+.through {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent-2), var(--accent), var(--gold));
+    transition: width 0.4s cubic-bezier(0.22, 0.85, 0.3, 1);
+}
+
+@media print {
+    .slide {
+        position: static;
+        display: block !important;
+        animation: none;
+        min-height: 100vh;
+        break-after: page;
+    }
+
+    .foot,
+    .through,
+    .items {
+        display: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .slide--on,
+    .slide--on[data-from="back"],
+    .hero__iris {
+        animation: none;
+    }
+}

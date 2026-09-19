@@ -39,8 +39,10 @@ vignettes/*.pdf
 # R Environment Variables
 .Renviron
 
-# pkgdown site
-docs/
+# `docs/` is the deck about the app — two hand-written files, nothing built —
+# and is kept. (This line used to ignore the whole folder, from the R-package
+# template these rules came out of, where it meant a generated pkgdown site.
+# There has never been one here.)
 
 # translation temp files
 po/*~
@@ -54,3 +56,4 @@ literature/
 # Synthetic runs: regenerable work files and generated data, not part of the app
 data/synthetic/work/
 data/synthetic/out/
+__pycache__/

@@ -32,6 +32,9 @@
     /* The two edges the page is padded clear of. */
     --sidebar: 100px;
     --banner: 46px;
+    /* Where the seabed sits in the column behind the page. app.js writes the
+       real one from how many levels this run asks; this is the whole run's. */
+    --floor: 70.4%;
     --serif: ui-serif, "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
 }
 
@@ -58,11 +61,14 @@ body {
    towards what is under the crust. The column is several windows tall and
    `--descent` — 0 at the surface, 1 at the end of the run — is how far down it
    the window is looking, so going on with the test is going under. The water
-   ends at 79% of the column: the window sees 100/420 of it at a time, so the
-   floor rises into the bottom of the window as the last level in the water is
-   answered, crosses it as the level beneath begins, and by the end of the run
-   all but the top of the window is rock. Fixed, so the page moves against it
-   rather than carrying it along. */
+   ends at `--floor`, which app.js writes from where the seabed actually falls
+   in this run (`WATER_SHARE`, and a battery can move it): the window sees
+   100/420 of the column at a time, so the floor rises into the bottom of the
+   window halfway through the last level in the water, crosses it as the first
+   level beneath begins, and by the end of the run the window is rock. Every
+   stop is placed against that one number rather than written out, so the
+   picture and the run's own arithmetic cannot drift. Fixed, so the page moves
+   against it rather than carrying it along. */
 body::before {
     content: "";
     position: fixed;
@@ -78,21 +84,22 @@ body::before {
         radial-gradient(48% 6% at 72% 5%, rgba(160, 226, 255, 0.32), transparent 72%),
         linear-gradient(
             180deg,
+            /* the water, its stops as shares of the way down to the floor */
             #3f92b8 0%,
-            #2c7ba4 5%,
-            #1b5c82 11%,
-            #124b6e 19%,
-            #0e3a57 30%,
-            #0a2740 43%,
-            #06192c 55%,
-            #030e1a 66%,
-            #01050c 74%,
-            #01030a 79%,
+            #2c7ba4 calc(var(--floor) * 0.063),
+            #1b5c82 calc(var(--floor) * 0.139),
+            #124b6e calc(var(--floor) * 0.241),
+            #0e3a57 calc(var(--floor) * 0.38),
+            #0a2740 calc(var(--floor) * 0.544),
+            #06192c calc(var(--floor) * 0.696),
+            #030e1a calc(var(--floor) * 0.835),
+            #01050c calc(var(--floor) * 0.937),
+            #01030a var(--floor),
             /* the floor: silt, then rock, then the heat under it */
-            #2b241c 79.4%,
-            #171310 80.4%,
-            #120d0b 86%,
-            #1a0c09 93%,
+            #2b241c calc(var(--floor) + 0.4%),
+            #171310 calc(var(--floor) + 1.4%),
+            #120d0b calc(var(--floor) + (100% - var(--floor)) * 0.33),
+            #1a0c09 calc(var(--floor) + (100% - var(--floor)) * 0.67),
             #2a0d08 100%
         );
 }

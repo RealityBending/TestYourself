@@ -32,7 +32,7 @@ const files = [...html.matchAll(/<script src="(content\/[^"]+)"><\/script>/g)].m
 if (!files.length) throw new Error("no content scripts found in index.html")
 
 const source = files.map((file) => fs.readFileSync(path.join(ROOT, file), "utf8")).join("\n;\n")
-const content = new Function(source + "\nreturn { QUESTIONNAIRES, BLOCKS, TIMELINE, formatMint }")()
+const content = new Function(source + "\nreturn { QUESTIONNAIRES, BLOCKS, TIMELINE, WATER_SHARE, formatMint }")()
 
 // The app version, so a synthetic file says which code its codebook came from.
 const app = fs.readFileSync(path.join(ROOT, "js", "app.js"), "utf8")
@@ -71,7 +71,7 @@ function wordings(text, item) {
 
 content.TIMELINE.forEach((entry, at) => {
     const level = at + 1
-    levels.push({ level: level, name: entry.name, blocks: entry.blocks })
+    levels.push({ level: level, name: entry.name, blocks: entry.blocks, fork: entry.fork || null, beneath: false })
 
     for (const name of entry.blocks) {
         const block = content.BLOCKS[name]
@@ -136,6 +136,15 @@ content.TIMELINE.forEach((entry, at) => {
         }
     }
 })
+
+// Which levels are under the seabed. It is not written on a level any more
+// (`WATER_SHARE` in content/timeline.js): the first two thirds of the scored
+// levels are in the water and the rest are in the rock, which is the sum
+// `waterLevels` does in app.js. The rule is worked out in both places, so a
+// change to one wants the same change here.
+const scored = [...new Set(items.filter((item) => item.dimension).map((item) => item.level))].sort((one, two) => one - two)
+const water = scored.slice(0, Math.round(scored.length * content.WATER_SHARE))
+for (const level of levels) level.beneath = scored.indexOf(level.level) !== -1 && water.indexOf(level.level) === -1
 
 const questionnaires = {}
 for (const key of run) {

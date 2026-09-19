@@ -2,7 +2,8 @@
    Everything that reads a score back. app.js hands `makeResults` the engine —
    the run, the scores, and the two pieces of chrome a result arrives with —
    and gets back the few functions it calls. Nothing here walks the run or
-   records anything but the agree/disagree on a prediction.
+   records anything but the agree/disagree on a prediction and the stars a
+   level's results are given.
 
    The figures a level closes on each live in js/figures/, one factory apiece,
    handed `shared` below and nothing else; this file holds what they have in
@@ -20,6 +21,7 @@ function makeResults(engine) {
     const dimensions = engine.dimensions
     const dimensionOrder = engine.dimensionOrder
     const feedback = engine.feedback
+    const ratings = engine.ratings
     const score = engine.score
     const total = engine.total
     const percentile = engine.percentile
@@ -176,6 +178,89 @@ function makeResults(engine) {
         return pickButtons(dimension, VOTES)
     }
 
+    const STARS = 5
+    const STAR = "M12 2.6l2.7 5.9 6.4.7-4.8 4.4 1.3 6.4L12 16.8 6.4 20l1.3-6.4L2.9 9.2l6.4-.7z"
+
+    // Under everything a level opened: what the person made of it, out of five.
+    // It is filed under the level screen's own key, since it is a reading of
+    // that screen rather than of any one questionnaire on it, and pressing the
+    // star already given takes the rating back the way a vote unvotes. Nothing
+    // asks for it and nothing is held shut by it.
+    function starRating(level) {
+        const key = "Level_" + level
+        const box = document.createElement("div")
+        box.className = "rating"
+
+        const ask = document.createElement("p")
+        ask.className = "rating__ask"
+        ask.textContent = "How did you like this part of the test?"
+        box.appendChild(ask)
+
+        const row = document.createElement("div")
+        row.className = "rating__stars"
+        row.setAttribute("role", "group")
+        row.setAttribute("aria-label", "Rate this section out of " + STARS)
+        box.appendChild(row)
+
+        // `over` is the star under the pointer, which lights its run of them
+        // without standing for anything: what is given is what was pressed.
+        const paint = (over) => {
+            const given = ratings[key] || 0
+            for (const button of row.children) {
+                const at = Number(button.dataset.stars)
+                button.classList.toggle("star--lit", at <= (over || given))
+                button.setAttribute("aria-pressed", at === given ? "true" : "false")
+            }
+        }
+
+        // A rating given: the run of stars swells one after the other, and the
+        // one pressed throws the gold a results section opens with.
+        const light = (given, pressed) => {
+            for (const button of row.children) {
+                const at = Number(button.dataset.stars)
+                if (at > given) continue
+                button.classList.remove("star--pop")
+                void button.offsetWidth // a class put straight back never starts its animation again
+                button.style.setProperty("--beat", (at - 1) * 55 + "ms")
+                button.classList.add("star--pop")
+            }
+            burst(pressed, "#d9a441", { count: 12, reach: 46 })
+        }
+
+        for (let at = 1; at <= STARS; at++) {
+            const button = document.createElement("button")
+            button.type = "button"
+            button.className = "star"
+            button.dataset.stars = at
+            button.setAttribute("aria-label", at + (at === 1 ? " star" : " stars"))
+
+            const glyph = document.createElementNS(SVG, "svg")
+            glyph.setAttribute("viewBox", "0 0 24 24")
+            glyph.setAttribute("aria-hidden", "true")
+            glyph.appendChild(draw("path", { d: STAR }))
+            button.appendChild(glyph)
+
+            button.addEventListener("click", () => {
+                const given = ratings[key] === at ? null : at
+                ratings[key] = given
+                paint()
+                if (given) light(given, button)
+            })
+            button.addEventListener("mouseenter", () => paint(at))
+            button.addEventListener("focus", () => paint(at))
+            // The pop is taken off again, or its last frame would hold the
+            // star still against the lift it gets on hover.
+            button.addEventListener("animationend", () => button.classList.remove("star--pop"))
+            row.appendChild(button)
+        }
+
+        row.addEventListener("mouseleave", () => paint())
+        row.addEventListener("focusout", () => paint())
+
+        paint()
+        return box
+    }
+
     // The holder every figure sits in: the svg with its label, and the Locked
     // badge over it when the level is.
     function figureHolder(told, className, locked) {
@@ -271,7 +356,21 @@ function makeResults(engine) {
 
         list.forEach((dimension, position) => {
             const [x, y] = pointAt(position, radius)
-            chart.appendChild(draw("line", { class: "chart__axis", x1: centreX, y1: centreY, x2: x, y2: y }))
+            // Drawn from the centre outward, which is what lets the finished
+            // run's web run its axes out of the middle; `pathLength` makes one
+            // the length of every axis, whatever the radius, so the stylesheet
+            // can draw them with a dash without knowing the geometry.
+            chart.appendChild(
+                draw("line", {
+                    class: "chart__axis",
+                    x1: centreX,
+                    y1: centreY,
+                    x2: x,
+                    y2: y,
+                    pathLength: 1,
+                    style: "--at: " + (position * 0.045).toFixed(3) + "s",
+                }),
+            )
 
             const [labelX, labelY] = pointAt(position, radius + 22)
             const value = tease ? teaseValue(dimension) : score(dimension)
@@ -341,7 +440,10 @@ function makeResults(engine) {
                 cx: one.spot[0],
                 cy: one.spot[1],
                 r: many ? 5 : 5.5,
-                style: "--chart: " + one.colour + "; animation-delay: " + one.position * 0.06 + "s",
+                // `--at` rather than the delay itself, so a card that wants the
+                // whole chart to arrive later can push all of them back
+                // together without losing the stagger between them.
+                style: "--chart: " + one.colour + "; --at: " + (one.position * 0.06).toFixed(3) + "s",
             })
             // A teased point stands for nothing, so it says nothing on hover.
             if (!tease) {
@@ -480,7 +582,7 @@ function makeResults(engine) {
             if (heads.HEADS_OF.indexOf(name) !== -1) {
                 if (name !== HEADS_FIRST || !heads.HEADS_OF.some((one) => onLevel(dimensionsOf(one), level))) continue
                 if (!locked && !heads.headed()) continue
-                openSection(into, "Inside Your Head", colourOf("Emotional Arousal") || colourOf("Self-Control"), locked).body.appendChild(heads.renderHeads(locked))
+                openSection(into, "Feeling and Focus", colourOf("Emotional Arousal") || colourOf("Self-Control"), locked).body.appendChild(heads.renderHeads(locked))
                 continue
             }
 
@@ -547,6 +649,12 @@ function makeResults(engine) {
         }
 
         markLone(into)
+
+        // What the level was worth, asked once under the whole of it — never
+        // on a level still locked, where there is nothing yet to think of.
+        // It is no `.result`, so it neither counts towards the lone rule nor
+        // breaks open with the sections.
+        if (!locked && into.querySelector(".result")) into.appendChild(starRating(level))
     }
 
     // The foot of a finished level carries a taste of the next: the same
@@ -598,6 +706,8 @@ function makeResults(engine) {
 
     function sealSections(into, foot) {
         for (const section of into.querySelectorAll(".result")) section.classList.add("result--sealed")
+        const rating = into.querySelector(".rating")
+        if (rating) rating.classList.add("rating--sealed")
         if (foot) foot.classList.add("level__foot--sealed")
     }
 
@@ -607,7 +717,13 @@ function makeResults(engine) {
         const sections = Array.prototype.slice.call(into.querySelectorAll(".result"))
         let hurried = false
 
-        const unfoot = () => foot && foot.classList.remove("level__foot--sealed")
+        // The rating arrives with the way on, once there is nothing left to
+        // watch appear: it is asked about what has just been read.
+        const unfoot = () => {
+            const rating = into.querySelector(".rating")
+            if (rating) rating.classList.remove("rating--sealed")
+            if (foot) foot.classList.remove("level__foot--sealed")
+        }
         const hurry = () => {
             hurried = true
             for (const section of sections) section.classList.remove("result--sealed")

@@ -639,6 +639,85 @@
     padding: 2px 11px;
 }
 
+/* ---------------------- what the level itself was worth ------------------ */
+
+/* Asked once under everything a level opened, in its panel as on its screen:
+   the one question here that is about the test rather than about the person,
+   which is why it is set apart under a line rather than in a card of its own. */
+.rating {
+    display: grid;
+    justify-items: center;
+    gap: 10px;
+    margin-top: 34px;
+    padding-top: 24px;
+    border-top: 1px solid var(--line);
+    text-align: center;
+    transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Held shut until the sections it is asked about have opened. */
+.rating--sealed {
+    opacity: 0;
+    transform: translateY(22px);
+    pointer-events: none;
+}
+
+.rating__ask {
+    margin: 0;
+    font-size: 13px;
+    color: var(--muted);
+}
+
+.rating__stars {
+    display: flex;
+    gap: 2px;
+}
+
+.star {
+    padding: 3px;
+    line-height: 0;
+    color: rgba(255, 255, 255, 0.16);
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    transition: color 0.15s, transform 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.star svg {
+    width: 25px;
+    height: 25px;
+    fill: currentColor;
+}
+
+/* Lit as far as the star under the pointer, or as far as the rating given. */
+.star--lit {
+    color: var(--gold);
+}
+
+.star:hover,
+.star:focus-visible {
+    transform: translateY(-2px);
+}
+
+/* Given: each star of the run swells a beat after the one before it, over the
+   spray the pressed one throws. The class comes off at the end (`animationend`
+   in results.js), so the last frame cannot hold the star against its hover. */
+.star--pop {
+    animation: star-pop 0.4s cubic-bezier(0.3, 1.5, 0.4, 1) var(--beat, 0ms);
+}
+
+@keyframes star-pop {
+    40% {
+        transform: scale(1.45);
+    }
+    70% {
+        transform: scale(0.94);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
 /* ----------------------- a level not yet unlocked ----------------------- */
 
 /* What a locked level is worth finishing for, shown but not readable: the
@@ -1650,16 +1729,16 @@
     color: var(--muted);
 }
 
-/* --------------------------- the reasoning compass ------------------------ */
+/* ------------------------------ feeling & focus --------------------------- */
 
-/* The four kinds of reasoning are one figure and the reading under it, stacked
-   the way the wheel's is — the compass carries the whole section. */
-/* The two heads, as a section: a title over the picture, the heads at the
-   width of the card, a reading under each with the two bars it was drawn
-   from and its vote, where the picture came from, and the two ends. Each
-   piece arrives a beat after the one above it, on the sea's pattern. */
+/* The last level's four channels, as a section: a title, the chart at the
+   width of the card, a reading under each half with its vote, and one line on
+   what the bars are. Each piece arrives a beat after the one above it, on the
+   sea's pattern. The chart is HTML rather than an SVG, so a name and a number
+   in it are the size the stylesheet says on a phone as well as on a desktop;
+   only the two glyphs are drawn. */
 .headsview__head {
-    margin: 0 0 18px;
+    margin: 0 0 16px;
     text-align: center;
     animation: rise 0.8s var(--ease) both;
 }
@@ -1678,41 +1757,158 @@
     animation: fade 1s var(--ease) 0.15s both;
 }
 
-/* The picture is tall and narrow — bulb, head, heart down one axis — so it
-   is held to a column rather than the width of the card. */
-.heads {
+.headsview__chart {
+    display: grid;
+    gap: 26px;
+    max-width: 580px;
+    margin: 4px auto 0;
+}
+
+/* Every other locked figure is blurred by the rule on `.result__chart svg`;
+   this one has no svg to catch, so it is named here. */
+.result--locked .headsview__chart {
+    filter: blur(5px);
+    opacity: 0.5;
+}
+
+/* One half: its glyph and name down the left, its two rows to the right. */
+.headsview__half {
+    display: grid;
+    grid-template-columns: 52px minmax(0, 1fr);
+    align-items: center;
+    column-gap: 14px;
+}
+
+.headsview__emblem {
+    display: grid;
+    justify-items: center;
+    gap: 3px;
+    color: var(--half);
+}
+
+/* The glow behind a glyph is the background rather than a gradient in the
+   figure, which keeps the drawing to its own lines. `--glow` is the half's own
+   colour everywhere but the bulb, which glows in the colour of its glass. */
+.headsview__glyph {
+    width: 38px;
+    height: 38px;
+    background: radial-gradient(circle at 50% 46%, color-mix(in srgb, var(--glow, var(--half)) 22%, transparent), transparent 68%);
+}
+
+.headsview__organ {
+    margin: 0;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+    opacity: 0.8;
+}
+
+/* The two rows of a half, and the dashed midpoint standing over the middle of
+   them: the line the sentence under the chart is read off. It is drawn on the
+   list, so it finds the middle of the tracks at any width. */
+.headsview__rows {
+    position: relative;
+    display: grid;
+    gap: 14px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.headsview__rows::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: -4px;
+    bottom: -4px;
+    border-left: 1px dashed rgba(255, 255, 255, 0.28);
+    pointer-events: none;
+}
+
+.headsview__midname {
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 6px);
+    transform: translateX(-50%);
+    font-size: 9.5px;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    opacity: 0.7;
+}
+
+/* A row is a name, its share at the far end, and the track under the two. */
+.headsview__row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: baseline;
+    row-gap: 6px;
+}
+
+.headsview__row:focus {
+    outline: none;
+}
+
+.headsview__label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text);
+}
+
+.headsview__num {
+    font-size: 13px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--text);
+}
+
+.headsview__track {
+    grid-column: 1 / -1;
+    height: 12px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.06);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+    transition: background 0.15s, box-shadow 0.15s;
+}
+
+.headsview__row:hover .headsview__track,
+.headsview__row:focus-visible .headsview__track {
+    background: rgba(255, 255, 255, 0.11);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.26);
+}
+
+/* The channel that carries the system is the solid bar and the one that gets
+   in its way the same hue held back. A fill narrower than the track's own
+   radius keeps a minimum width, so nought reads as a mark at the foot of the
+   scale rather than as nothing drawn. */
+.headsview__track i {
     display: block;
-    max-width: 300px;
-    margin: 0 auto;
+    height: 100%;
+    min-width: 12px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--half) 45%, transparent);
+    transform-origin: left;
+    animation: grow 0.9s 0.35s var(--ease) both;
 }
 
-.headsview__end .heads {
-    max-width: 180px;
+.headsview__row--carries .headsview__track i {
+    background: var(--half);
+    box-shadow: 0 0 14px -4px var(--half);
 }
 
-/* The lines draw themselves out from the pen's first point; a sealed card
-   holds them at nothing until the level opens. */
-.heads__line {
-    stroke-dasharray: 1;
-    stroke-dashoffset: 1;
-    animation: heads-draw 2.4s var(--ease) both;
-}
-
-@keyframes heads-draw {
-    to {
-        stroke-dashoffset: 0;
-    }
-}
-
-/* The two readings side by side, one a head. Each is a sentence and not a
-   name over a sentence — a label read as a verdict — so the kind line leads
-   straight into it. */
+/* The two readings side by side, one a half, edged in that half's colour so
+   the card and the two bars above it read as one thing. Each is a sentence
+   and not a name over a sentence — a label read as a verdict — so the kind
+   line leads straight into it. */
 .headsview__pair {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 14px;
-    max-width: 760px;
-    margin: 18px auto 0;
+    max-width: 700px;
+    margin: 24px auto 0;
     animation: rise 0.8s var(--ease) 0.3s both;
 }
 
@@ -1720,148 +1916,59 @@
     display: grid;
     align-content: start;
     justify-items: center;
-    gap: 4px;
-    padding: 18px 16px 16px;
+    gap: 2px;
+    padding: 16px 16px 14px;
     border-radius: 16px;
     border: 1px solid var(--line);
+    border-top: 2px solid color-mix(in srgb, var(--half) 55%, transparent);
     background: rgba(255, 255, 255, 0.025);
     text-align: center;
 }
 
 .headsview__kind {
-    margin: 0 0 4px;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: var(--muted);
-}
-
-.headsview__told {
-    margin: 6px 0 12px;
-    font-size: 15px;
-    line-height: 1.55;
-    color: var(--text);
-}
-
-/* What each head is made of: two keys, a bar apiece filled to the reach the
-   picture is drawn from. */
-.headsview__keys {
-    display: grid;
-    gap: 10px;
-    width: 100%;
-    margin: 0 0 12px;
-    padding: 0;
-    list-style: none;
-    text-align: left;
-}
-
-.headsview__key {
-    padding: 11px 13px 12px;
-    border-radius: 12px;
-    border: 1px solid var(--line);
-    background: rgba(255, 255, 255, 0.03);
-    font-size: 12.5px;
-    line-height: 1.5;
-    color: var(--muted);
-}
-
-.headsview__key b {
-    display: block;
-    margin-bottom: 7px;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--text);
-}
-
-.headsview__bar {
-    display: block;
-    height: 5px;
-    margin-bottom: 9px;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.08);
-    overflow: hidden;
-}
-
-.headsview__bar i {
-    display: block;
-    height: 100%;
-    border-radius: 999px;
-    background: linear-gradient(90deg, color-mix(in srgb, var(--key) 45%, transparent), var(--key));
-    box-shadow: 0 0 12px -2px var(--key);
-    transform-origin: left;
-    animation: grow 0.9s 0.6s var(--ease) both;
-}
-
-.headsview__ask {
-    margin: 4px 0 6px;
-    font-size: 14px;
-    font-style: italic;
-    color: var(--text);
-}
-
-.headsview__note {
-    max-width: 660px;
-    margin: 18px auto 0;
-    font-size: 13.5px;
-    line-height: 1.55;
-    color: var(--muted);
-    animation: rise 0.8s var(--ease) 0.45s both;
-}
-
-.headsview__others {
-    max-width: 660px;
-    margin: 28px auto 0;
-    animation: rise 0.8s var(--ease) 0.6s both;
-}
-
-.headsview__aside {
     margin: 0 0 6px;
     font-size: 11px;
     font-weight: 700;
     letter-spacing: 0.22em;
     text-transform: uppercase;
-    color: var(--muted);
+    color: color-mix(in srgb, var(--half) 75%, var(--muted));
 }
 
-.headsview__others .headsview__note {
-    margin: 0 0 14px;
-    animation: none;
-}
-
-.headsview__ends {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 14px;
-}
-
-.headsview__end {
-    margin: 0;
-}
-
-.headsview__end figcaption {
-    margin-top: 9px;
-    text-align: center;
-    font-size: 12px;
-    line-height: 1.4;
-    color: var(--muted);
-}
-
-.headsview__end figcaption b {
-    display: block;
-    font-weight: 600;
+.headsview__told {
+    margin: 0 0 12px;
+    font-size: 15px;
+    line-height: 1.55;
     color: var(--text);
 }
 
+.headsview__ask {
+    margin: 0 0 2px;
+    font-size: 13.5px;
+    font-style: italic;
+    color: var(--muted);
+}
+
+.headsview__note {
+    max-width: 660px;
+    margin: 20px auto 0;
+    font-size: 12.5px;
+    line-height: 1.55;
+    color: var(--muted);
+    text-align: center;
+    opacity: 0.75;
+    animation: rise 0.8s var(--ease) 0.45s both;
+}
+
 @media (max-width: 560px) {
-    .headsview__pair,
-    .headsview__ends {
+    .headsview__pair {
         grid-template-columns: 1fr;
     }
 }
 
+/* --------------------------- the reasoning compass ------------------------ */
+
+/* The four kinds of reasoning are one figure and the reading under it, stacked
+   the way the wheel's is — the compass carries the whole section. */
 .compass__all {
     display: grid;
     justify-items: center;
@@ -1943,6 +2050,40 @@
     color: var(--muted);
 }
 
+/* --------------------------------- the core ------------------------------ */
+
+/* The run ends at the centre, and the last thing it shows is not a chart
+   appearing but a figure lighting up out of one point: the axes run out of the
+   middle, and everything drawn on them comes up behind. Only the finished
+   run's web does this — the panel's and the landing page's are the same
+   drawing, shown rather than arrived at — so it is scoped to `#profile-done`,
+   which is the one place that web is the end of something. */
+#profile-done .chart__axis {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: core-reach 0.8s var(--ease) both;
+    animation-delay: var(--at, 0s);
+}
+
+@keyframes core-reach {
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+/* Everything that hangs on the axes waits for them. */
+#profile-done .chart__ring,
+#profile-done .chart__average,
+#profile-done .chart__area,
+#profile-done .chart__link,
+#profile-done .chart__label {
+    animation: fade 0.9s var(--ease) 0.7s both;
+}
+
+#profile-done .chart__point {
+    --from: 0.85s;
+}
+
 /* ----------------------------- spider chart ----------------------------- */
 
 .chart {
@@ -2011,6 +2152,10 @@
     transform-origin: center;
     cursor: pointer;
     animation: reveal 0.45s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+    /* `--at` is the point's own place in the stagger, written on it by
+       `drawSpider`; `--from` is what the whole chart is held back by, which is
+       nothing anywhere but the core. */
+    animation-delay: calc(var(--from, 0s) + var(--at, 0s));
 }
 
 .chart__point:hover {
@@ -2300,6 +2445,15 @@
         animation: none;
     }
 
+    /* A star is simply lit, the way `burst` throws nothing here either. */
+    .star--pop {
+        animation: none;
+    }
+
+    .rating {
+        transition: none;
+    }
+
     /* The water holds still, and the section is all there at once. */
     .sea__drift,
     .sea__creature,
@@ -2323,13 +2477,17 @@
     .climbview__col:focus-visible .climbview__fill::after,
     .climbview__others,
     .climbview__vote,
-    .heads__line,
+    #profile-done .chart__axis,
+    #profile-done .chart__ring,
+    #profile-done .chart__average,
+    #profile-done .chart__area,
+    #profile-done .chart__link,
+    #profile-done .chart__label,
+    .headsview__track i,
     .headsview__stage,
     .headsview__head,
     .headsview__pair,
-    .headsview__bar i,
-    .headsview__note,
-    .headsview__others {
+    .headsview__note {
         animation: none;
     }
 

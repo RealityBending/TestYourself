@@ -32,7 +32,7 @@ $0.03 a persona in a batch (halve or double for Haiku 4.5 or Opus 5, `--model`).
 A synthetic file says so twice: the participant code starts `synthetic-`, and
 a `synthetic` field carries the model, the batch, the seed and the persona's
 biography. Reaction times are null, the attention checks are passed, the
-`feedback` votes are all null. Never pool these with participants — models
+`feedback` votes and the `ratings` stars are all null. Never pool these with participants — models
 answer in socially desirable ways, avoid the extremes and vary less than
 people, however hard the prompt pushes back. Use them to test scoring,
 reverse-keying and the figures, not to learn anything about anybody.

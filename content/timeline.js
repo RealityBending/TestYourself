@@ -188,41 +188,58 @@ function shuffle(arr) {
 // level screen call it. Its colour on the gauge is not written here: the stops
 // run through one gradient down the line, by position (app.js, `levelColour`).
 //
-// A level written `beneath: true` lies under the seabed rather than in the
-// water: the levels above it share the trench between them and reach its
-// floor together, and it goes on into the rock underneath (app.js, `BEDROCK`),
-// the water darkening into rock behind it and the gauge sounding "seabed +".
-// Leaving the last level in the water for it goes through the crossing line,
-// the way the quote closes over the way in. Write it on the last levels only.
+// **Where the seabed falls is not written on any level.** `WATER_SHARE` below
+// is a share of the scored levels: the first two thirds are swum down and the
+// rest are cut through the rock underneath (app.js, `BEDROCK`, `waterLevels`),
+// the water darkening into rock behind them and the gauge sounding "seabed +".
+// Leaving the last level in the water goes through the crossing line, the way
+// the quote closes over the way in. It is a share and not a flag so that the
+// break holds its place however many levels a battery asks and wherever the
+// fork has put them — which level is the floor is the descent's business and
+// not the content's.
 //
-// A run of consecutive levels written with the same `fork:` name is a fork:
-// their order is the person's, two at a time. At the end of the level before
-// them, and again at the end of each of them while more than one is left,
-// the next two are shown side by side, blurred, and the person picks which
-// to take first; the one passed over is offered again against the one after
-// it, and the one written first is marked as recommended. It is the
-// one thing about the run's order that is the participant's, there so that
-// the descent is not one straight line. The written order is the default —
-// what the recommendation follows, and what a battery that leaves one of
-// them falls back on — and the name is what the choices are keyed by in the
-// saved file, where each is an item of its own (`Fork_<name>_<n>`, standing
-// at the head of the level it decided; `levels` says the order that was
-// actually walked). They must all be scored levels, must all
-// lie in the water or all in the rock, and want a scored level before them
-// to be offered from; app.js throws on a fork written on one level, or on
-// levels that are not next to each other. The World is left out of the water
-// levels' fork on purpose: it is the floor, and the way beneath goes through it.
+// Levels written with the same `fork:` name are a fork: their order is the
+// person's, two at a time. The places they take are the **slots** — the
+// positions on this timeline that carry the name — and what goes in them is
+// the person's to arrange. At the end of the level before each slot, while
+// more than one level is left to fill it with, the two standing next are
+// shown side by side, blurred, and the person picks which to take first; the
+// one passed over falls to the slot after, and the one written first is
+// marked as recommended. It is the one thing about the run's order that is
+// the participant's, there so that the descent is not one straight line.
+//
+// **`Self` is everything after the body.** Levels 3 to 9 are all of it, so
+// the whole of the descent below Interoception is chosen a step at a time,
+// and the seabed falls where `WATER_SHARE` puts it rather than between any
+// two particular levels — which three of the seven are met in the rock is
+// the person's own doing and nothing the timeline decides. Only the first
+// two levels are fixed: General opens the test, and everybody meets the body
+// before choosing anything.
+//
+// The written order is the default — what the recommendation follows, and
+// what a battery that leaves one of them falls back on. A choice is saved as
+// the answer of the level screen it was made on (`Level_<N>` in `items[]`,
+// the level taken and then the one passed over); `levels` says the order
+// that was actually walked. Every slot must be a scored level and every slot
+// chosen for wants a scored level before it to be offered from; app.js
+// throws otherwise, and on a fork written on one level. A fork standing at
+// level 1 has nothing to be offered from, so its first place is filled as
+// written and the choosing starts at the second.
+//
+// Where the seabed falls among them all: the first two thirds of the scored
+// levels are in the water and the rest are in the rock.
+const WATER_SHARE = 2 / 3
 //
 const TIMELINE = [
     { name: "General", blocks: ["demographics1", "fipi", "singles"] },
-    { name: "Interoception", blocks: ["demographics2", "mint"], fork: "Water" },
-    { name: "Attitudes to AI", blocks: ["bait"], fork: "Water" },
-    { name: "Mood & Health", blocks: ["demographics3", shuffle(["mood", "health"]), "hitop"].flat(), fork: "Water" },
-    { name: "Character", blocks: ["hexaco"], fork: "Water" },
-    { name: "Archetypes", blocks: ["archetypes"], fork: "Water" },
-    { name: "The World", blocks: ["primals"] },
-    { name: "Reasoning", blocks: ["icar"], beneath: true },
-    { name: "Passion & Restraint", blocks: ["regulation"], beneath: true },
+    { name: "Brain-Body Axis", blocks: ["demographics2", "mint"] },
+    { name: "AI Expertise & Usage", blocks: ["bait"], fork: "Self" },
+    { name: "Mood & Health", blocks: ["demographics3", shuffle(["mood", "health"]), "hitop"].flat(), fork: "Self" },
+    { name: "Character", blocks: ["hexaco"], fork: "Self" },
+    { name: "Archetypes", blocks: ["archetypes"], fork: "Self" },
+    { name: "The World", blocks: ["primals"], fork: "Self" },
+    { name: "Reasoning", blocks: ["icar"], fork: "Self" },
+    { name: "Passion & Restraint", blocks: ["regulation"], fork: "Self" },
     { name: "Closing", blocks: ["closing"] },
 ]
 

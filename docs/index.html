@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>The Abyss Test · Documentation</title>
+        <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cg fill='none' stroke-width='3' stroke-linecap='round'%3E%3Cpath d='M5 10h22' stroke='%2322d3ee'/%3E%3Cpath d='M7 18h18' stroke='%237c5cff'/%3E%3Cpath d='M10 26h12' stroke='%23d9a441'/%3E%3C/g%3E%3C/svg%3E" />
+
+        <!-- =================================================================
+             A companion deck about the app, for the people working on it. No
+             build, no dependency, no server: the deck a buildless app
+             deserves, in the three files the app itself is in — this markup,
+             `deck.css` for the look, `deck.js` for moving between the slides.
+
+             A slide is a `<section class="slide">`. Adding one is writing
+             another; the script counts them and never looks inside. Nothing
+             else here is a feature: no presenter notes, no transitions, no
+             export — `@media print` and the browser's print-to-PDF are the
+             export.
+
+             The three logos are the app's own files, one folder up. Nothing
+             else is imported from the app, so this page can never break it.
+             ================================================================= -->
+
+        <link rel="stylesheet" href="deck.css" />
+    </head>
+
+    <body>
+        <!-- 1 · the way in ------------------------------------------------- -->
+        <section class="slide">
+            <div class="hero">
+                <div class="hero__iris" aria-hidden="true"></div>
+
+                <div class="hero__logos">
+                    <img src="../assets/logo_sussex.svg" alt="University of Sussex" />
+                    <img src="../assets/logo_researchplus.png" alt="ResearchPlus" />
+                    <img src="../assets/logo_rebel.png" alt="Reality Bending Lab" />
+                </div>
+
+                <p class="hero__the">The</p>
+                <h1 class="hero__title">Abyss</h1>
+
+                <p class="hero__sub">The Science-based Assessment of Deep Personality</p>
+                <p class="hero__meta">
+                    Research-grade measures <i aria-hidden="true">·</i> immediate results <i aria-hidden="true">·</i> entirely anonymous
+                </p>
+
+                <p class="hero__doc">Documentation</p>
+            </div>
+        </section>
+
+        <!-- 2 · what it is, and what it is for ----------------------------- -->
+        <section class="slide">
+            <div class="parts">
+                <div class="part">
+                    <div class="part__said">
+                        <h2>What it is</h2>
+                        <p>
+                            A battery of validated questionnaires, gamified. The run is dressed as a descent: each level is deeper water, and
+                            every stretch of it closes on a figure drawn from the answers — a body, a hill, a sea — rather than on a page of
+                            scores.
+                        </p>
+                        <p>
+                            It is built to be changed. The questions are <b>data rather than code</b>, so a scale can be added, dropped or
+                            moved without touching the engine, and a study can ask a named subset of the blocks from its own recruitment
+                            link.
+                        </p>
+                    </div>
+                    <!-- On a plate, the way the app puts a drawn problem on one:
+                         the figure is on white and would otherwise be a lit
+                         square in the middle of the dark. -->
+                    <figure class="part__seen part__seen--plated">
+                        <img src="figures/correlations.png" alt="A clustered correlation matrix of the items, red and blue blocks along the diagonal" />
+                    </figure>
+                </div>
+
+                <div class="part part--mirror">
+                    <div class="part__said">
+                        <h2>Why</h2>
+                        <p>
+                            Self-report data are held back less by the instruments than by the answering. A long battery is often met by
+                            somebody with no stake in it who wants to be finished: straight lines down the page, the middle of every scale, a
+                            second an item. <b>No amount of validation survives that.</b>
+                        </p>
+                        <p>
+                            So the wager is a plain one — give people something worth reaching, and they read the question they are
+                            answering.
+                        </p>
+                    </div>
+                    <figure class="part__seen">
+                        <img src="figures/bored.jpg" alt="Somebody at a desk, bored, looking at a screen with their head on their hand" />
+                    </figure>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3 · what the test asks ----------------------------------------- -->
+        <section class="slide">
+            <h2>Content</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Level</th>
+                        <th>Questionnaire</th>
+                        <th>Dimensions</th>
+                        <th>Items</th>
+                    </tr>
+                </thead>
+                <tbody>
+        <!-- table:start · written by docs/build_slides.py · do not edit by hand -->
+                    <tr data-items="r0" tabindex="0" aria-controls="items" aria-expanded="false">
+                        <td>1</td>
+                        <td>Demographics</td>
+                        <td>—</td>
+                        <td>6</td>
+                    </tr>
+                    <tr data-items="r1" tabindex="0" aria-controls="items" aria-expanded="false">
+                        <td>1</td>
+                        <td>Five-Item Personality Inventory (FIPI; Gosling et al., 2003)</td>
+                        <td>Extraversion, Agreeableness, Conscientiousness, Emotional Stability, Openness</td>
+                        <td>5</td>
+                    </tr>
+                    <tr data-items="r2" tabindex="0" aria-controls="items" aria-expanded="false">
+                        <td>1</td>
+                        <td>Single Item Narcissism Scale (SINS; Konrath et al., 2014)</td>
+                        <td>—</td>
+                        <td>1</td>
+                    </tr>
+                    <tr data-items="r3" tabindex="0" aria-controls="items" aria-expanded="false">
+                        <td>1</td>
+                        <td>Single-Item Self-Rated Health (SRH; DeSalvo et al., 2006)</td>
+                        <td>General Health</td>
+                        <td>1</td>
+                    </tr>
+                    <tr data-items="r4" tabindex="0" aria-controls="items" aria-expanded="false">
+                        <td>1</td>
+                        <td>Single-Item Measure of Stress Symptoms (SIMS; Elo et al., 2003)</td>
+                        <td>—</td>
+                        <td>1</td>
+                    </tr>
+                    <tr data-items="r5" tabindex="0" aria-controls="items" aria-expanded="false">
+                        <td>1</td>
+                        <td>Single-Item Self-Esteem Scale (SISE; Robins et al., 2001)</td>
+                        <td>—</td>
+                        <td>1</td>
+                    </tr>
+                    <tr data-items="r6" tabindex="0" aria-controls="items" aria-expanded="false">
+                        <td>1</td>
+                        <td>Self-Concept Clarity Scale, item 11 (SCCS; Campbell et al., 1996)</td>
+                        <td>—</td>
+                        <td>1</td>
+                    </tr>
+                    <tr data-items="r7" tabindex="0" aria-controls="items" aria-expanded="false">
+                        <td>1</td>
+                        <td>Meaning in Life Questionnaire, item 8 (MLQ; Steger et al., 2006)</td>
+                        <td>—</td>
+                        <td>1</td>
+                    </tr>
+                    <tr data-items="r8" tabindex="0" aria-controls="items" aria-expanded="false">
+                        <td>1</td>
+                        <td>General Self-Efficacy Single-Item (GSE-SI; Di et al., 2023)</td>
+                        <td>—</td>
+                        <td>1</td>
+                    </tr>
+                    <tr data-items="r9" tabindex="0" aria-controls="items" aria-expanded="false">
+                        <td>1</td>
+                        <td>Single-Item Life Satisfaction Scale (SILS; Cheung &amp; Lucas, 2014)</td>
+                        <td>Life Satisfaction</td>
+                        <td>1</td>
+                    </tr>
+                    <tr data-items="r10" tabindex="0" aria-controls="items" aria-expanded="false">
+                        <td>1</td>
+                        <td>Self-placement items</td>
+                        <td>—</td>
+                        <td>2</td>
+                    </tr>
+                    <tr data-items="r11" tabindex="0" aria-controls="items" aria-expanded="false">
+                        <td>2</td>
+                        <td>Demographics</td>
+                        <td>—</td>
+                        <td>9</td>
+                    </tr>
+                    <tr data-items="r12" tabindex="0" aria-controls="items" aria-expanded="false">
+                        <td>2</td>
+                        <td>Multidimensional Interoceptive Traits questionnaire (MINT; Makowski et al.)</td>
+                        <td>Bodily Awareness, Bodily Clarity, Bodily Sensitivity</td>
+                        <td>34</td>
+                    </tr>
+                    <tr data-items="r13" tabindex="0" aria-controls="items" aria-expanded="false">
+                        <td>3</td>
+                        <td>Beliefs about Artificial Intelligence Technology (BAIT; Makowski et al.)</td>
+                        <td>AI Realism, AI Apprehension, AI Enthusiasm</td>
+                        <td>27</td>
+                    </tr>
+                    <tr data-items="r14" tabindex="0" aria-controls="items" aria-expanded="false">
+                        <td>4</td>
+                        <td>Subjective financial well-being (ESS / OECD item)</td>
+                        <td>—</td>
+                        <td>1</td>
+                    </tr>
+                    <tr data-items="r15" tabindex="0" aria-controls="items" aria-expanded="false">
+                        <td>4</td>
+                        <td>MacArthur Scale of Subjective Social Status (Adler et al., 2000)</td>
+                        <td>—</td>
+                        <td>1</td>
+                    </tr>
+                    <tr data-items="r16" tabindex="0" aria-controls="items" aria-expanded="false">
+                        <td>4</td>
+                        <td>Patient Health Questionnaire-4, refined 5-option version (PHQ-4; Kroenke et al., 2009; Makowski et al., 2025)</td>
+                        <td>Anxiety, Depression</td>
+                        <td>4</td>
+                    </tr>
+                    <tr data-items="r17" tabindex="0" aria-controls="items" aria-expanded="false">
+                        <td>4</td>
+                        <td>Single-Item Sleep Quality Scale (SQS; Snyder et al., 2018)</td>
+                        <td>Sleep</td>
+                        <td>1</td>
+                    </tr>
+                    <tr data-items="r18" tabindex="0" aria-controls="items" aria-expanded="false">
+                        <td>4</td>
+                        <td>Psychiatric history</td>
+                        <td>—</td>
+                        <td>2</td>
+                    </tr>
+                    <tr data-items="r19" tabindex="0" aria-controls="items" aria-expanded="false">
+                        <td>4</td>
+                        <td>HiTOP Brief Report (HiTOP-BR; Simms et al., 2026)</td>
+                        <td>Dominance, Unusual Experiences, Bodily Complaints, Solitude, Emotional Intensity, Impulsivity</td>
+                        <td>46</td>
+                    </tr>
+                    <tr data-items="r20" tabindex="0" aria-controls="items" aria-expanded="false">
+                        <td>5</td>
+                        <td>HEX-ACO-18 (Olaru &amp; Jankowsky, 2022)</td>
+                        <td>Honesty-Humility, Emotionality, Sociability, Patience, Diligence, Curiosity</td>
+                        <td>19</td>
+                    </tr>
+                    <tr data-items="r21" tabindex="0" aria-controls="items" aria-expanded="false">
+                        <td>5</td>
+                        <td>Social Desirability-Gamma Short Scale (KSE-G; Kemper et al., 2014)</td>
+                        <td>—</td>
+                        <td>6</td>
+                    </tr>
+                    <tr data-items="r22" tabindex="0" aria-controls="items" aria-expanded="false">
+                        <td>6</td>
+                        <td>Open Source Archetype Indicator – Pearson-Marr (OSAI-PM)</td>
+                        <td>Idealist, Sage, Seeker, Revolutionary, Magician, Warrior, Realist, Jester, Lover, Creator, Ruler, Caregiver</td>
+                        <td>37</td>
+                    </tr>
+                    <tr data-items="r23" tabindex="0" aria-controls="items" aria-expanded="false">
+                        <td>7</td>
+                        <td>Primals Inventory-18 (PI-18; Clifton &amp; Yaden, 2021) + five tertiary scales (PI-99; Clifton et al., 2019)</td>
+                        <td>Enticing, Alive, Safe, Acceptable, Changing, Hierarchical, Interconnected, Understandable</td>
+                        <td>41</td>
+                    </tr>
+                    <tr data-items="r24" tabindex="0" aria-controls="items" aria-expanded="false">
+                        <td>8</td>
+                        <td>ICAR-16 Sample Test (ICAR16; Condon &amp; Revelle, 2014; Young &amp; Keith, 2020)</td>
+                        <td>Verbal, Logical, Visual, Spatial</td>
+                        <td>16</td>
+                    </tr>
+                    <tr data-items="r25" tabindex="0" aria-controls="items" aria-expanded="false">
+                        <td>9</td>
+                        <td>Adult ADHD Self-Report Scale v1.1, items 1-2 (ASRS; Kessler et al., 2005)</td>
+                        <td>Inattention</td>
+                        <td>2</td>
+                    </tr>
+                    <tr data-items="r26" tabindex="0" aria-controls="items" aria-expanded="false">
+                        <td>9</td>
+                        <td>Cognitive Failures Questionnaire, items 10 and 21 (CFQ; Broadbent et al., 1982)</td>
+                        <td>Absent-mindedness</td>
+                        <td>2</td>
+                    </tr>
+                    <tr data-items="r27" tabindex="0" aria-controls="items" aria-expanded="false">
+                        <td>9</td>
+                        <td>Mind Wandering: Spontaneous, items 1 and 4 (MW-S; Carriere et al., 2013)</td>
+                        <td>Mind Wandering</td>
+                        <td>2</td>
+                    </tr>
+                    <tr data-items="r28" tabindex="0" aria-controls="items" aria-expanded="false">
+                        <td>9</td>
+                        <td>Brief Self-Control Scale, items 1-2 (BSCS; Tangney et al., 2004)</td>
+                        <td>Self-Control</td>
+                        <td>2</td>
+                    </tr>
+                    <tr data-items="r29" tabindex="0" aria-controls="items" aria-expanded="false">
+                        <td>9</td>
+                        <td>Emotion Reactivity Scale, six items (ERS; Nock et al., 2008)</td>
+                        <td>Emotional Sensitivity, Emotional Arousal, Emotional Persistence</td>
+                        <td>6</td>
+                    </tr>
+                    <tr data-items="r30" tabindex="0" aria-controls="items" aria-expanded="false">
+                        <td>9</td>
+                        <td>Cognitive Emotion Regulation Questionnaire, short form (CERQ-short; Garnefski &amp; Kraaij, 2006)</td>
+                        <td>Self-blame, Acceptance, Rumination, Positive Refocusing, Refocus on Planning, Positive Reappraisal, Putting into Perspective, Catastrophising, Other-blame</td>
+                        <td>19</td>
+                    </tr>
+                    <tr data-items="r31" tabindex="0" aria-controls="items" aria-expanded="false">
+                        <td>10</td>
+                        <td>Closing items</td>
+                        <td>—</td>
+                        <td>2</td>
+                    </tr>
+        <!-- table:end -->
+                </tbody>
+            </table>
+
+        </section>
+
+        <!-- ----------------------------------------------------------------- -->
+
+        <!-- What an instrument asks, filled from ITEMS when a row of the
+             Content table is hovered or focused. It sits out here beside the
+             chrome rather than inside the slide: a slide carries the arrival
+             animation, and an element with a transform on it — filled or
+             running — is the containing block its `position: fixed` children
+             are placed against, which is not the window. -->
+        <aside class="items" id="items" hidden>
+            <p class="items__of"></p>
+            <ol class="items__list"></ol>
+        </aside>
+
+        <div class="through" id="through"></div>
+        <div class="foot">
+            <button type="button" id="back" aria-label="Previous slide">&#8592;</button>
+            <button type="button" id="on" aria-label="Next slide">&#8594;</button>
+            <span id="count"></span>
+        </div>
+
+        <script src="items.js"></script>
+        <script src="deck.js"></script>
+    </body>
+</html>
