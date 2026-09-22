@@ -27,7 +27,7 @@ defineBlock("demographics3", [
             // MSSS =================================================================
             // MacArthur Scale of Subjective Social Status (Adler et al., 2000):
             {
-                key: "Demographics_MSSS_SocialStatus",
+                key: "Demographics_SocialStatus",
                 text:
                     "Think of the ladder below as showing where people stand relative to other people in your country. At the top are people who have the most money, the most " +
                     "education and the most respected jobs. At the bottom are people who have the least money, the least " +

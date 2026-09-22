@@ -16,113 +16,15 @@ has to supply. Flags are:
 - **[CONFIRM]** — a likely answer that someone has to verify (a date, a name, a number)
 - **[CREATE]** — something that does not exist yet and has to be written or built before submission or launch
 
----
-
-## 1. Framing (read this first)
-
-The study is presented as **a routine questionnaire-validation survey**: a
-follow-up to the MINT validation, collecting the MINT alongside further
-convergent and discriminant measures in a new sample. Nothing in the
-application leans on the app's gamified presentation, the level structure, the
-descent metaphor, the figures, or the participant-chosen ordering. Those are
-implementation details of the survey software, and where they have to be
-described they are described plainly:
-
-- Levels, the descent, the dive gauge → "blocks of questionnaires", and a progress indicator
-- The results figures (climb, sea, wheel, compass, archetype, body) → "a graphical summary of their own answers", which is the phrase the previous study already used
-- The fork (participant-chosen level order) → randomised, participant-paced ordering of the optional blocks
-- Star ratings and agree/disagree votes on the feedback → feedback questions about the survey itself
-
-This is the same register the previous application used: its Instructions page
-already promised "a graph summarizing your answers" at the end, so
-participant-facing feedback is precedent rather than novelty.
-
-**Decided: describe the whole instrument** — mandatory core plus optional
-continuation — and be explicit that the continuation is voluntary and
-unrewarded. The alternative was to apply for the core alone and add the rest by
-amendment, which would have been a shorter application for the same
-participant-facing product, and a reviewer would have seen it and wondered.
 
 ---
 
-## 2. What is similar to the MINT validation study
-
-Written into the Project Description as the case for this being a follow-up
-rather than a new line of work.
-
-**Identical or near-identical measures**
-
-- **MINT** — the primary instrument in both, same items
-- **PHQ-4** (Kroenke et al., 2009), refined five-option version — same version in both
-- **Single-item life satisfaction** — same
-- **PI-18** (Clifton & Yaden, 2021) — same, plus five PI-99 tertiary scales here
-- **CERQ** (Garnefski & Kraaij) — the Saetren et al. version there, the short form here
-- **Emotion reactivity** — B-ERS (Veilleux et al., 2024) there, the 6-item ERS (Nock et al., 2008) here
-- **Mental health history** — reported psychiatric diagnoses and treatment, same in both
-- **Psychosomatic complaints** — a dedicated questionnaire there, the HiTOP-BR somatoform scale here
-- **Demographics** — age, gender, education, ethnicity, country of residence in both; birth month, discipline and student status added here
-- **Feedback on the survey** — "did you enjoy it" there, the same plus per-block ratings here
-
-**Identical design and procedure**
-
-- Anonymous online survey, completed in one sitting, no IP addresses collected
-- Recruitment via SONA (and potentially Prolific), samples kept separable by source
-- Consent by explicit click before any item is shown
-- Attention checks embedded, with the same stated policy on withholding credit
-- De-identified data made publicly available through a scientific data repository
-- Same PI and research group
-
-**Constructs tapped in both**: interoception, emotion regulation, emotion
-reactivity, affective symptoms, somatic complaints, beliefs about the world,
-mental health history.
-
-**Confirmed.** The measure list above is taken from the previous study's ethics
-form (MAIA-2, IAS, BPQ-VSF, TAS-20, CERQ, B-ERS, PI-18, PHQ-4, CEFSA-S, mental
-health, psychosomatic disorders, plus exercise/wearables items) and is correct.
-
-**Decided: the TAS-20 and the three other interoception scales (MAIA-2, IAS,
-BPQ-VSF) are not in this study.** The convergent-validity work against those
-instruments was done in the previous sample; this study asks the MINT against
-different ground. Nothing in the application should imply they are here.
-
----
-
-## 3. What is additional
-
-**In the mandatory core** (beyond the overlap above):
-
-- FIPI (Gosling et al., 2003) — brief Big Five
-- Ten single-item scales (narcissism, self-rated health, stress, self-esteem,
-  self-concept clarity, meaning, self-efficacy, life satisfaction, two
-  self-placement items)
-- BAIT (Makowski et al.) — beliefs about AI technology
-- HiTOP-BR (Simms et al., 2026) — six psychopathology spectra
-- Subjective financial comfort; MacArthur subjective social status
-- Single-item sleep quality
-
-**Optional continuation only:**
-
-- HEX-ACO-18 (Olaru & Jankowsky, 2022) with the KSE-G social-desirability scale
-- OSAI-PM — twelve-archetype indicator (not validated; this study is part of its development)
-- PI-99 tertiary primals
-- ICAR-16 Sample Test (Condon & Revelle, 2014) — reasoning items with correct answers
-- ASRS (2 items), CFQ (2 items), MW-S (2 items), BSCS (2 items), ERS (6 items), CERQ-short
-
-**[DECIDE]** The ICAR-16 is an ability test, not a self-report. It is the one
-optional block a reviewer might ask about separately (performance testing,
-possible distress at getting items wrong). Mitigation already built in: it is
-untimed, and the feedback gives no score, total or percentile — only which of
-four kinds of problem came most easily. Say so in one sentence, or drop the
-block from this application.
-
----
-
-## 4. Header fields
+## 1. Header fields
 
 - **Project Title** —
 
 ```
-MINT questionnaire validation: follow-up
+Placement Project: MINT questionnaire validation follow-up
 ```
 
 - **Applicant** — **TODO: a student, name and email to be filled in.** Applicant
@@ -138,7 +40,7 @@ MINT questionnaire validation: follow-up
 
 ---
 
-## 5. Project Description
+## 2. Project Description
 
 **[CREATE]** The "Optional continuation" paragraph still describes behaviour
 the app does not have yet — the completion screen and its credit link (F3).
@@ -241,9 +143,7 @@ The optional set, offered after the core set, is:
 
 - A fuller personality inventory (HEX-ACO-18; Olaru & Jankowsky, 2022) together
   with a short social desirability scale (KSE-G; Kemper et al., 2014).
-- An archetype indicator developed by the research team, which is not a
-  validated instrument and for which this study forms part of the development
-  work.
+- Questions inspired by the Pearson-Marr archetype indicator (PMAI).
 - Five further scales of the Primals Inventory (Clifton et al., 2019).
 - A short untimed reasoning test (ICAR-16 Sample Test; Condon & Revelle, 2014).
 - Brief measures of attention and self-control (two items each from the ASRS,
@@ -293,19 +193,43 @@ and signposting sources of support.
 ## 6. Section A — Checklist
 
 - **A1. Vulnerable participants / unable to consent / dependent position?** — **No**.
-  Adults 18+, recruited through platforms. **[DECIDE]** SONA participants are
-  our own students; the previous application answered No and the consent states
-  that taking part does not affect grades. Keep that wording.
+  Settled. Adults 18+, recruited through platforms. SONA participants are our
+  own students, which the previous application also answered No to, and the
+  consent form states that taking part does not affect grades; that wording is
+  kept.
 - **A2. Participation without consent or knowledge, or deception?** — **No**. No deception.
 - **A3. Could participants be identified through a research output?** — **No**.
-  Anonymous; only a randomly generated participant code. **[DECIDE]** The final
-  free-text comment box is published with the data — see §9, flag F6.
+  Settled, and the route is what makes it settled rather than hopeful. A run
+  carries a randomly generated participant code and, where a recruitment
+  platform supplies one, that platform's own identifier; neither is a person's
+  name, and the second is resolvable only inside the platform. Nothing goes from
+  collection to publication in one step:
+
+  1. DataPipe deposits the responses into a Zenodo record that is an
+     **unpublished draft for the whole of collection** — no public address, no
+     DOI, readable only by the research team.
+  2. Those raw files are downloaded and **compiled into a single de-identified
+     data file**. This is the stage at which anonymisation is done: the
+     recruitment-platform identifier is dropped, and the one free-text field in
+     the survey (the closing comment box) is **read, and edited or deleted**
+     where it holds anything that could identify an individual.
+  3. Only that compiled file is made open-access, on the group's GitHub.
+
+  So no participant reaches a research output except through a file that has
+  been inspected. See B11a, B12a and §9, F5 and F6.
 - **A4. Might the study induce psychological stress or anxiety, or humiliation or harm beyond everyday risk?** — **No**.
-  **[CONFIRM]** with the committee's likely reading: the survey asks about
-  symptoms and gives participants a summary of their own answers. Our position:
-  the items are standard screening items, the summary is non-diagnostic by
-  design, and no risk score is shown. If reviewers would rather see Yes with
-  mitigation, the A10 text covers it.
+  Settled: nothing here goes beyond everyday risk. The items are standard
+  screening items of the kind used in general population surveys, and — the
+  part that carries the answer — **the feedback is written so that it can
+  never hand back something sensitive**. It presents no clinical label, no
+  cut-off and no risk score, it never characterises a pattern of answers as a
+  disorder or a problem, and on the symptom and health measures it shows the
+  participant no comparison with anybody else — no percentile, no ranking, no
+  "higher than X% of people", and no place on the whole-survey summary, which
+  those measures are deliberately kept off. Where the survey does report a
+  standing against other people it is on ordinary trait scales such as
+  personality, and the sensitive measures are not among them. B5 and A10 carry the same case at length if
+  reviewers would rather see it argued there.
 - **A5. Risk of disclosures about beliefs, illegal actions, or threats to self/others?** — **No**.
   No item asks about illegal activity, self-harm or suicide.
 - **A6. Collecting special category information in identifiable form?** — **Yes**.
@@ -315,10 +239,15 @@ and signposting sources of support.
 - **A8. Hazardous substances or equipment?** — **No**.
 - **A9. Human tissue under the HTA?** — **No**.
 
-**[DECIDE]** Whether SONA credit-granting changes the anonymity claim. The SONA
-survey code identifies the participant *to SONA*, and the app currently saves
-whatever `?sub=` carries into the data file. See §9, flag F5 — this has to be
-resolved before A3/A6/B11a can be answered as written.
+**Recruitment-platform identifiers — settled.** SONA and Prolific each put a
+per-participant code in the survey URL, and the app **will record it** (see
+§9, F5: it reads `?sub=` today and is to learn a small named set — a SONA
+survey code, a Prolific PID, study and session ids). Such a code is a key to
+the participant's identity *held by the platform*, never by the research team,
+and it is kept for one reason: so that a completed run can be matched to a
+credit or a payment if a query arises. It is **stripped at the preprocessing
+stage**, before any file is published. A3, A6, B7, B8 and B11a are written on
+that basis.
 
 ### A10 — case for the application being considered LOW risk
 
@@ -347,9 +276,13 @@ other cultural and linguistic contexts is needed.
 
 All data are anonymised at the point of collection. No name, email address or IP
 address is recorded, and each set of responses carries only a randomly generated
-participant code. The data cannot be linked back to an individual by the
-research team or by anyone else. No item asks about suicidal ideation, self-harm
-or illegal activity.
+participant code. Where a participant comes from a recruitment platform, the
+code that platform uses in order to award credit or payment is also recorded, so
+that a completed run can be matched to its reward if a query arises; it holds no
+personal information, it can be resolved to a person only within that platform,
+and it is removed before any data are published. The research team cannot link a
+set of responses to an individual. No item asks about suicidal ideation,
+self-harm or illegal activity.
 
 The graphical summary shown to participants at the end of each block is
 descriptive and explicitly non-diagnostic: no clinical label, cut-off or risk
@@ -362,13 +295,14 @@ score is shown at any point. The debriefing page signposts sources of support.
 
 ### B1. Participants: how many, who, and how selected
 
-**[DECIDE]** the number (300 is the previous study's). **[CONFIRM]** it against
-the planned analyses; the optional blocks will have a smaller N than the core.
+**Settled at a minimum of 300** for the core set, as in the previous study.
+**[CONFIRM]** it against the planned analyses if a power calculation is done;
+the optional blocks will have a smaller N than the core.
 
 Text to paste:
 
 ```
-The study will attempt to recruit a minimum of [300] participants for the core
+The study will attempt to recruit a minimum of 300 participants for the core
 set of questionnaires, based on typical sample sizes of comparable validation
 studies. A smaller number is expected to complete the optional questionnaires,
 which are offered after the core set and carry no reward.
@@ -380,22 +314,24 @@ age.
 
 ### B2. Recruitment
 
-**[DECIDE]** SONA only at first, or SONA + Prolific in the same application?
-Applying for both now avoids an amendment.
+**Settled: SONA and Prolific are both applied for here**, in one application,
+so that the study can run on either without an amendment later.
 
 Text to paste:
 
 ```
-Participants will be recruited via recruitment platforms (e.g., SONA, Prolific)
-and potentially by convenience sampling via social media. The samples from
-different methods of recruitment will be collected separately in case they
-differ (the incentive type, e.g., student credits, and its amount, or the
-absence of one, will thus be known and can be accounted for).
+Participants will be recruited via online recruitment platforms - SONA, the
+University's own participant pool, and Prolific - and potentially by convenience
+sampling via social media. The samples from different methods of recruitment
+will be collected separately in case they differ (the incentive type, e.g.,
+student credits or payment, and its amount, or the absence of one, will thus be
+known and can be accounted for).
 
-Participants recruited through SONA receive course credit for completing the
-core set of questionnaires. The optional questionnaires offered afterwards carry
-no additional credit, and participants are told this before deciding whether to
-continue.
+Participants recruited through SONA receive course credit, and participants
+recruited through Prolific are paid at that platform's recommended hourly rate,
+for completing the core set of questionnaires. The optional questionnaires
+offered afterwards carry no additional credit or payment, and participants are
+told this before deciding whether to continue.
 ```
 
 ### B3. Method
@@ -413,12 +349,12 @@ choosing.
 
 ### B5. Participant wellbeing
 
-**[DECIDE]**. The previous application said "No." Here the core set includes the
-HiTOP-BR, which asks about low mood, anxiety, unusual perceptual experiences ("I
-heard things that no one else could hear") and one item about thinking about
-death, plus the PHQ-4 and mental-health history. *Recommended:* answer with the
-mitigation text below. Answering "No" and having a reviewer read the HiTOP items
-is the worse outcome; the mitigation is cheap and standard.
+**Settled: Yes, with the mitigation below.** The previous application said
+"No"; here the core set includes the HiTOP-BR, which asks about low mood,
+anxiety, unusual perceptual experiences ("I heard things that no one else could
+hear") and one item about thinking about death, plus the PHQ-4 and mental-health
+history. Answering "No" and having a reviewer read the HiTOP items is the worse
+outcome, and the mitigation is cheap and standard.
 
 Text to paste:
 
@@ -441,24 +377,34 @@ details of the research team.
 ### Confidentiality and anonymity — the Yes/No items
 
 - **B6. Completed anonymously and returned indirectly?** — Yes.
-- **B7. Identifiable only by unique identifier?** — Yes. Randomly generated
-  12-character participant code. See B11a.
-- **B8. Lists linking identifiers to names stored separately?** — N/A (no names collected). **[DECIDE]** depends on the SONA code question, F5.
+- **B7. Identifiable only by unique identifier?** — Yes. A randomly generated
+  12-character participant code and, where the recruitment platform supplies
+  one, that platform's own participant identifier, which is removed before
+  publication. See B11a.
+- **B8. Lists linking identifiers to names stored separately?** — N/A. No names
+  are collected, and the research team holds no list linking a platform
+  identifier to a person; such a list exists only inside SONA or Prolific, under
+  those platforms' own governance.
 - **B9. Place names / institutions changed?** — Yes.
 - **B10. Personal information kept confidential, never disclosed to third parties?** — Yes.
-  **[CONFIRM]** wording, given that responses are transmitted through DataPipe
-  to a Zenodo deposit; these are data-hosting services, not third parties
-  receiving personal information. Best to name them explicitly in B11a rather
-  than have it noticed later.
+  Responses are transmitted through DataPipe to a Zenodo deposit, but these are
+  data-hosting services rather than third parties receiving personal
+  information, and no personal information is in what they hold. Both are named
+  explicitly in B11a, which is the safer way round: named there, rather than
+  noticed later.
 - **B11. Records held per data protection regulations?** — Yes.
 - **B12. Data used for any purpose other than consented?** — No.
 
 ### B11a. How identifiable personal and research data will be managed and stored
 
-**[CONFIRM]** the Zenodo record and whether it is public or restricted at first.
-**[DECIDE]** whether to mention DataPipe by name (recommended: yes — it is the
-route the data actually take), and whether the bracketed SONA paragraph goes in
-(flag F5).
+**Settled.** DataPipe is named explicitly — it is the route the data actually
+take, and better named here than noticed later — the repository record is an
+unpublished private draft for the whole of collection, and the
+recruitment-platform paragraph is now in the text rather than bracketed (see
+the note under A9 and §9, F5). **The deposit's identifier is deliberately not
+given**: it is an unpublished draft, readable only by the PI, so it has no
+public address to quote and quoting one would imply there is something a
+reviewer could go and look at. It is described by what it is instead.
 
 Text to paste:
 
@@ -476,22 +422,31 @@ partway through still contributes the answers they had given. The data are
 deposited in a repository record held by the research group: one file for a
 participant who finishes, and, for one who stops partway, a file of the
 responses given up to that point, written about fifteen minutes after they
-stop. De-identified data may be made publicly available through that repository,
-as stated in the consent form that participants read and agree to before taking
-part.
+stop.
 
-[Only if the SONA survey code is stored with the data: Where participants are
-recruited through SONA, the survey URL carries a code generated by SONA for the
-purpose of awarding credit. This code is stored with the responses. It contains
-no personal information and can be resolved to an individual only within SONA,
-by staff with access to that system; it is not resolvable by the research team
-from the research data.]
+That repository record is unpublished and private for the whole of data
+collection: it has no public address, it is not indexed, and it is readable only
+by the research team. The files in it are downloaded and compiled into a single
+de-identified data file, and it is at that stage that anonymisation is carried
+out - any identifier supplied by a recruitment platform is removed, and
+free-text responses are read and edited or deleted where they contain anything
+that could identify an individual. Only the compiled, de-identified file is made
+publicly available, as stated in the consent form that participants read and
+agree to before taking part.
+
+Where participants are recruited through SONA or Prolific, the survey URL
+carries a code generated by that platform for the purpose of awarding credit or
+payment, and this code is recorded with the responses so that a completed run
+can be matched to its reward if a query arises. It contains no personal
+information and can be resolved to an individual only within that platform, by
+staff with access to that system; it is not resolvable by the research team from
+the research data, and it is removed before any data are published.
 ```
 
 ### B12a. Further information on confidentiality and data use
 
 Keeps the previous study's line about anonymous data sharing and adds the
-commitment to screen free-text responses before publication (flag F6).
+commitment to screen free-text responses before publication (flag F6, settled).
 
 Text to paste:
 
@@ -500,9 +455,11 @@ The potential for anonymous data sharing is included in the consent form.
 
 The survey ends with an optional free-text box in which participants may write
 any comments they wish to share. The item states that what is written there may
-be made public. Free-text responses will be checked before the data are
-published and any response containing information that could identify an
-individual will be removed.
+be made public. Every free-text response will be read before the data are
+published, and any response containing information that could identify an
+individual will be edited to remove it, or the response deleted. This is done at
+the same stage as the rest of the anonymisation, on the compiled data file,
+before anything is made publicly available.
 ```
 
 ### Informed consent and recruitment — the Yes/No items
@@ -519,10 +476,11 @@ individual will be removed.
   anything. The previous study's wording — "before submission, closing the
   browser discards everything" — is therefore gone, and the consent form says in
   plain words that answers are recorded as they are given and cannot be taken
-  back. **[CONFIRM]** that the committee is content with this, since it is the
-  one substantive change from the protocol they have approved before: the
-  trade is that a participant who gives up at level 5 of 10 is no longer
-  thirty minutes of their time thrown away.
+  back. **Settled: this is the position the application is submitted with.** It
+  is the one substantive change from the protocol the committee has approved
+  before, and it is flagged to them as such rather than slipped past: the trade
+  is that a participant who gives up at level 5 of 10 is no longer thirty
+  minutes of their time thrown away.
 
 ### B17. Further information on informed consent
 
@@ -545,21 +503,21 @@ identified and therefore cannot be withdrawn once they have been given.
 ### Context — the Yes/No items
 
 - **B18. DBS clearance needed?** — No.
-- **B19. Other ethical clearances or permissions?** — No. **[CONFIRM]** whether
-  SONA use at Sussex requires anything beyond C-REC approval.
+- **B19. Other ethical clearances or permissions?** — **No**. Settled: SONA use
+  at Sussex is standard and embedded in the School's research participation
+  scheme, and needs nothing beyond C-REC approval.
 - **B20. Fieldwork?** — No.
 - **B21. Lone working?** — No.
 
 ### B22. Any other ethical considerations
 
-**[DECIDE]**. Candidates for a Yes, each of which could equally be handled in
-the sections above:
+**Settled: No.** Both candidates for a Yes are handled in the sections above
+rather than raised again here — the graphical summary in A4, A10 and B5, and
+the free-text box in A3 and B12a — and a field that repeats them adds nothing a
+reviewer has not already read.
 
-- Participants are shown a summary of their own answers, including on symptom
-  measures. Our safeguard: it is non-diagnostic by design.
-- The final free-text box is published with the data (F6).
-
-If Yes, text to paste in B22a:
+The text below is kept **unused**, in case a reviewer would rather see the
+summary flagged in its own field. Do not paste it unless that happens.
 
 ```
 Participants are shown a graphical summary of their own answers, including on
@@ -586,15 +544,40 @@ Modelled on the previous application's four attachments, minus the item list.
   interoception, the two-part structure with credit attached to the first part
   only, the 18+ minimum, and a paragraph saying the feedback is not a
   diagnosis. Print the `.gate` to PDF for the attachment, or lift the text.
+  - **Amended again on 22 September 2026, and this application is written to
+    match.** Three changes, all in the information part of the sheet rather
+    than in the six consent statements:
+    1. The measures are now described **in kind rather than by name** —
+       "questionnaires about the sensations you notice in your body, plus other
+       measures which help us contextualize your answers, such as your mood and
+       health over the past weeks and months" — where the sheet previously
+       listed the AI-beliefs questionnaire and the mood and health measures one
+       by one.
+    2. The optional continuation is described the same way, without naming what
+       is in it ("further questionnaires if you would like to"), the point of
+       the paragraph being that it is voluntary and unrewarded rather than what
+       it contains.
+    3. What may be written into a publication is now "**the group results** of
+       this research" rather than "the results", which says in the participant's
+       own words that nothing about an individual is published.
+    - **[CONFIRM]** that describing the measures generically is enough
+      information for consent. Our position: the sheet names the aim and names
+      the sensitive ground (mood and health), which is what somebody needs in
+      order to decide; listing eleven instruments would not change that decision
+      and would lengthen a sheet that has to be read. The complete list is
+      public either way, through the Content table the Project Description
+      links to. Restore the itemised wording if the committee would rather have
+      it.
   - **[CREATE]** Three blanks remain in it: **the second contact** (the
     student), **the C-REC reference**, and **the duration** — it says "about 20
     to 25 minutes", which is the estimate in §10 and wants a timed pilot behind
     it before a participant is shown it or a credit is set against it.
-  - **[DECIDE]** Whether to add the DataPipe/Zenodo route to the sheet. The
+  - **Settled: the DataPipe/Zenodo route is not named on the sheet.** The
     standard statement it carries ("De-identified data may be made publicly
     available through secured scientific online data repositories") is the
-    committee's own wording and covers it; B11a names the services. Adding them
-    to the participant-facing sheet is more transparent and less standard.
+    committee's own wording and covers it, and B11a names both services to the
+    reviewers. Naming two pieces of infrastructure to the participant buys no
+    understanding and costs the sheet its plainness.
 - **[CREATE] Instructions.pdf** — the page warning that validity checks are
   performed and that credit may be withheld, that the questionnaires may feel
   long and repetitive, and that a graphical summary follows. The previous study
@@ -615,13 +598,15 @@ Modelled on the previous application's four attachments, minus the item list.
     `realitybending.github.io/TestYourself/...` addresses redirect there). Both
     checked, both return 200, and `python docs/build_slides.py --check` reports
     the deck up to date against `content/`.
-  - **[DECIDE]** whether the committee will accept a link rather than a
-    document. If not, print the deck to PDF (`@media print` is its export path)
-    and attach that — still generated from `content/`, so still one source.
+  - **[TODO]** whether the committee will accept a link rather than a
+    document. Left open on purpose — we may well have to generate the PDF. If
+    so, print the deck (`@media print` is its export path) and attach that:
+    still written out of `content/`, so still one source, and it goes stale the
+    moment `content/` changes, which is the reason for preferring the link.
 
-**[CONFIRM]** The previous study's consent quotes approval **ER/EB672/2** while
-the ethics form is **ER/MB2021/2**. Find which reference this application
-should cite as the parent.
+**Settled: the parent reference is ER/MB2021/2** (with amendment ER/MB2021/3),
+which is what the ethics form carries. The **ER/EB672/2** on the previous
+study's consent sheet is not the one to cite.
 
 ---
 
@@ -663,40 +648,60 @@ that change what participants are told) or before launch (the rest).
     asked first depends on the draw. That follows the app's existing habit of
     spreading demographics across levels rather than front-loading them; move
     them onto level 1 if the study would rather they were all asked at once.
-- **F3 [CREATE] — SONA completion screen.** After the fourth level, the
-  participant needs: a "you have completed the study" message, their SONA
-  credit link (opening in a new tab), and the choice to continue or stop. The
-  app has no such screen; its only ending is the profile after level 10.
+- **F3 [CREATE] — The completion screen. This is now the piece the study
+  turns on**, since F10 settled that the recruitment link asks for the whole
+  timeline: with no battery, **where this screen falls is the only thing that
+  defines the core**. After the fourth level the participant needs a "you have
+  completed the study" message, the way to claim their reward (the SONA credit
+  link or the Prolific completion URL, opening in a new tab), and the choice to
+  continue or stop. The app has no such screen; its only ending is the profile
+  after the last level. Until it exists there is no point at which a
+  participant is told they have finished, and no reward can be granted.
 - **F4 [CREATE] — Instructions screen.** See §8: the validity-check and
   credit-withholding warning promised in the Project Description does not exist
   in the app.
-- **F5 [DECIDE] — The SONA survey code.** SONA passes a per-participant code in
-  the URL; the app already reads `?sub=` and saves it verbatim. That code is a
-  key to the participant's SONA identity, held by SONA. Either (a) do not pass
-  it into the app at all and grant credit by a fixed completion URL, or (b)
-  pass it, save it, and describe it honestly in A3/A6/B7/B11a as a
-  pseudonymous identifier resolvable only by SONA. (a) keeps the anonymity
-  claim simplest; (b) is what lets us match credit to data if a dispute arises.
-- **F6 [DECIDE] — The free-text closing box.** `Closing_Comments` (level 10) is
-  saved verbatim into a public deposit, and the item warns that what is written
-  may be made public. Participants can nonetheless type identifying
-  information. Either screen the field before release, or state in the consent
-  and in B12a that free-text responses are checked before publication (which is
-  what the B12a text above does).
+- **F5 [DECIDED → CREATE] — Recruitment-platform identifiers.** Settled as (b):
+  the platform's code is passed in the URL, recorded with the responses,
+  described honestly in A3/A6/B7/B8/B11a as a pseudonymous identifier
+  resolvable only within that platform, and **stripped before publication**.
+  That is what lets a credit or a payment be matched to a run if a query
+  arises.
+  - **Still to build.** The app reads `?sub=` and nothing else. It needs to
+    record **a small named set of URL variables** — a SONA survey code, a
+    Prolific PID, and Prolific's study and session ids — saved beside the
+    participant code in the run's own file, sanitised the way `?sub=` already
+    is (somebody else's text: a character allowlist and a length cap), and
+    listed in `AGENTS.md` under **Who is taking it**.
+  - **And to strip.** `data/collected/preprocess.R` compiles the public file,
+    so that is where those columns are dropped — the same pass that screens
+    the free-text box (F6). The raw deposit keeps them; the published file does
+    not.
+- **F6 [DECIDED] — The free-text closing box.** Both, not either: the field is
+  **screened before release** *and* the commitment to screen it is stated in
+  B12a. `Closing_Comments` goes into the **private** deposit like every other
+  answer — it was never going straight into a public one — and every response
+  is read when the public file is compiled, with anything identifying edited out
+  or the response dropped. The item's own warning that what is written may be
+  made public stays, since it is still true of what survives the screen.
 - **F7 [DONE, pending approval] — The consent text in `index.html`** is now
   modelled on the Sussex sheet and describes this study (§8). It still has to
   be replaced with, or confirmed as, the approved version, and its three blanks
   filled in.
 - **F8 [CREATE] — Remove the "Test mode" link** from the landing page, and the
   test-mode consent bypass, before launch.
-- **F9 [CREATE] — Point DataPipe at production.** `js/app.js` currently posts to
-  `datapipe-test.web.app` with experiment ID `Elsjcjycb6ru`. Needs the live
-  endpoint and an experiment bound to the real Zenodo deposit.
-- **F10 [DECIDE] — Battery name for the SONA link.** The mandatory core is
-  `demographics1, fipi, singles, demographics2, mint, bait, demographics3,
-  mood, health, hitop` plus `closing`. If the optional continuation is offered,
-  the link asks for the whole timeline instead and the core is defined by where
-  the completion screen falls, not by a battery. **[DECIDE]** which.
+- **F9 [DONE] — DataPipe points at production.** `js/app.js` posts to
+  `https://pipe.jspsych.org` with experiment `C2mDNSFM3jAJ`, bound to the
+  group's Zenodo deposit (`zenodo.org/uploads/22882899`) — which stays an
+  **unpublished draft** for the whole of collection, and is therefore private
+  without anybody having to make it so. Publishing it is the last step, after
+  collection ends and DataPipe has finalised it; see **Where it goes** in
+  `AGENTS.md`.
+- **F10 [DECIDED] — The recruitment link asks for the whole timeline.** No
+  battery: the optional continuation is offered to everybody, so the core is
+  defined by **where the completion screen falls** (F3) and not by a block
+  list. The saved file therefore carries `battery: null` for this study, and
+  what a participant actually answered is read off `levels` and the items
+  present, which is where it should be read from anyway.
 - **F11 [CONFIRM] — Re-run `python docs/build_slides.py` and push** before
   submitting, so the published table the application links to matches
   `content/` at that moment. It is up to date as of this draft; any change to
@@ -727,23 +732,33 @@ core** and **45–60 minutes for the whole survey**, but this needs a timed pilo
 run before it goes in the consent form and the SONA advert — the figure quoted
 determines the credit awarded.
 
-**[DECIDE] SONA credit.** Set against the core only, since the continuation is
-unrewarded.
+**Credit and payment — settled in kind, pending the pilot for the numbers.**
+Both are set against the **core only**, since the continuation is unrewarded,
+and both are the standard rates rather than anything chosen for this study:
+**Prolific** is paid at the University's minimum rate for study compensation as
+set out in the Sussex guidelines, and **SONA** credit follows the scheme's own
+conversion from the median completion time. Neither number can be written down
+until the timed pilot has given a duration.
 
 ---
 
 ## 11. Open questions not covered by a form field
 
-- **[DECIDE]** Does the optional continuation need its own consent step, or
-  does the initial consent cover it? Our position: the initial consent covers
-  it, provided it describes the continuation and says it is voluntary and
-  unrewarded. The completion screen restates the choice.
+- **Settled: the optional continuation needs no consent step of its own.** The
+  initial consent covers it: the sheet describes the continuation and says it
+  is voluntary and unrewarded, and the completion screen (F3) restates the
+  choice at the point it is made.
 - **[DECIDE]** Are the agree/disagree votes on the feedback and the per-level
   star ratings analysed as data? If so they belong in the Project Description
   as a measure (they are, in effect, a validity question: does the instrument
   describe the person as they see themselves). If not, say nothing.
-- **[DECIDE]** Whether to pre-register, and whether the C-REC reference goes
-  into the pre-registration or vice versa.
-- **[CONFIRM]** That the OSAI-PM being an unvalidated instrument written for
-  this project is stated somewhere. It is the one measure in the survey with no
-  published provenance, and the application should not imply otherwise.
+- **Settled: no pre-registration.** So the question of which reference goes in
+  which document does not arise.
+- **Settled: the OSAI-PM is described as "Questions inspired by the
+  Pearson-Marr archetype indicator (PMAI)" in the Project Description, and
+  nothing further is said.** That wording claims no validation and no
+  provenance it does not have, which is the whole of what the application owes
+  here; spelling out that it is an unvalidated instrument written for this
+  project would give one measure a paragraph the others do not get, and invite
+  a question about a block that is in the optional set and scored for nobody's
+  benefit but the participant's.

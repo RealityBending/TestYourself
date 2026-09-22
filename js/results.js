@@ -89,9 +89,23 @@ function makeResults(engine) {
         return norm ? standFrom(score(dimension), norm) : null
     }
 
+    // What a point on the whole-run web says on hover: where somebody stands,
+    // on every axis including the reasoning's four.
+    //
+    // Those four are worded differently, and only worded differently. A
+    // standing on them is a standing on a *style* rather than on an ability —
+    // the level names them Verbal, Logical, Visual and Spatial and never says
+    // intelligence or a total — so the sentence says what the style is and
+    // then how much somebody leans on it, rather than putting a percentile
+    // against a bare name that a reader could take for a score. Being a less
+    // verbal thinker than most is not a worse result, and the words are what
+    // carry that.
     function summarise(dimension) {
         const standing = comparison(dimension)
-        return standing ? dimension + ": " + standing.direction + " than " + standing.share + "% of people" : dimension + ": " + score(dimension).toFixed(1)
+        if (!standing) return dimension + ": " + score(dimension).toFixed(1)
+        const style = dimensions[dimension][0].questionnaire === reasoning.REASONING_OF && reasoning.shortOf(dimension)
+        if (style) return dimension + ": " + style + " — you use it " + (standing.direction === "higher" ? "more" : "less") + " than " + standing.share + "% of people do"
+        return dimension + ": " + standing.direction + " than " + standing.share + "% of people"
     }
 
     // A stand-in figure for a locked level, hashed from a name rather than any
@@ -138,10 +152,30 @@ function makeResults(engine) {
         return name.replace(/[^A-Za-z0-9]+(.)?/g, (all, next) => (next ? next.toUpperCase() : ""))
     }
 
+    // What a vote on a dimension is filed under: the `key` written beside its
+    // norms in `content/`, which is wanted wherever there are interpretations,
+    // and otherwise the name with the spaces and punctuation taken out of it.
+    // The written key is there for the reason a level's is — the name is prose
+    // shown on the results row, free to be reworded for the person reading it,
+    // and a column of a study's data is not. The fallback stays so that a
+    // dimension which grows interpretations before it grows a key still files
+    // somewhere sensible; `feedbackKeys` is what refuses two of one key.
+    // `voteButtons` is handed a dimension by a results row and its own key by a
+    // figure that has no dimension to be read against (the wheel, the compass,
+    // the archetype), so a name that is not a dimension of this run is already
+    // the key and is passed through rather than looked up — `normOf` reads
+    // `dimensions[name][0]` and would throw on one.
+    function feedbackKey(dimension) {
+        const norm = known(dimension) && normOf(dimension)
+        return (norm && norm.key) || filed(dimension)
+    }
+
     // One pick out of a few. Pressing the chosen one again puts it back to
     // `null` rather than deleting it, since every key of `feedback` is written.
-    function pickButtons(name, choices) {
-        const key = filed(name)
+    // **The key is handed in rather than worked out here**: a figure's vote
+    // carries its own (`SEA_KEY` and the rest) and a dimension's comes from
+    // `feedbackKey`, so nothing on screen is ever the thing a vote is filed by.
+    function pickButtons(key, choices) {
         const votes = document.createElement("div")
         votes.className = "votes"
 
@@ -176,7 +210,7 @@ function makeResults(engine) {
     ]
 
     function voteButtons(dimension) {
-        return pickButtons(dimension, VOTES)
+        return pickButtons(feedbackKey(dimension), VOTES)
     }
 
     const STARS = 5
@@ -588,7 +622,7 @@ function makeResults(engine) {
             if (heads.HEADS_OF.indexOf(name) !== -1) {
                 if (name !== HEADS_FIRST || !heads.HEADS_OF.some((one) => onLevel(dimensionsOf(one), level))) continue
                 if (!locked && !heads.headed()) continue
-                openSection(into, "Feeling and Focus", colourOf("Emotional Arousal") || colourOf("Self-Control"), locked).body.appendChild(heads.renderHeads(locked))
+                openSection(into, "Mind & Heart", colourOf("Emotional Arousal") || colourOf("Self-Control"), locked).body.appendChild(heads.renderHeads(locked))
                 continue
             }
 
@@ -787,6 +821,14 @@ function makeResults(engine) {
     }
 
     const PROFILE = dimensionOrder.filter(onProfile)
+
+    // How much of the web is drawn: what the badge at the head of the shelf
+    // fills its ring to. It is the same count the note under the web reads, so
+    // the bar and the panel can never disagree about how far along it is.
+    function profileShare() {
+        const found = PROFILE.filter((dimension) => score(dimension) !== undefined).length
+        return { found: found, of: PROFILE.length, share: PROFILE.length ? found / PROFILE.length : 0 }
+    }
 
     const CARD_WIDTH = 1200
     const CARD_HEIGHT = 630
@@ -1202,30 +1244,39 @@ function makeResults(engine) {
     // questionnaire names its own key; elsewhere a vote follows a prediction.
     function feedbackKeys() {
         const keys = []
-        const add = (name) => {
-            const key = filed(name)
+        const from = {}
+        // Two readings filing under one key would quietly share a vote, and
+        // nothing downstream could tell them apart — the same fault `levelKey`
+        // refuses in app.js, and the reason a dimension that is fed back wants
+        // a `key` written beside its norms rather than one derived from the
+        // words on screen.
+        const add = (key, name) => {
+            if (from[key] !== undefined && from[key] !== name) {
+                throw new Error('two readings file under "' + key + '": ' + from[key] + " and " + name)
+            }
             if (keys.indexOf(key) === -1) keys.push(key)
+            from[key] = name
         }
 
         for (const name of RUN) {
             if (climb.CLIMB_OF.indexOf(name) !== -1) {
-                if (name === CLIMB_FIRST) add(climb.CLIMB_KEY)
+                if (name === CLIMB_FIRST) add(climb.CLIMB_KEY, climb.CLIMB_KEY)
             } else if (heads.HEADS_OF.indexOf(name) !== -1) {
                 if (name === HEADS_FIRST) {
-                    add(heads.HEART_KEY)
-                    add(heads.MIND_KEY)
+                    add(heads.HEART_KEY, heads.HEART_KEY)
+                    add(heads.MIND_KEY, heads.MIND_KEY)
                 }
-            } else if (name === archetype.ARCHETYPE_OF) add(archetype.ARCHETYPE_KEY)
-            else if (name === wheel.WHEEL_OF) add(wheel.WHEEL_KEY)
-            else if (name === reasoning.REASONING_OF) add(reasoning.REASONING_KEY)
-            else if (name === sea.SEA) add(sea.SEA_KEY)
+            } else if (name === archetype.ARCHETYPE_OF) add(archetype.ARCHETYPE_KEY, archetype.ARCHETYPE_KEY)
+            else if (name === wheel.WHEEL_OF) add(wheel.WHEEL_KEY, wheel.WHEEL_KEY)
+            else if (name === reasoning.REASONING_OF) add(reasoning.REASONING_KEY, reasoning.REASONING_KEY)
+            else if (name === sea.SEA) add(sea.SEA_KEY, sea.SEA_KEY)
             else if (name === theories.OLD_THEORIES_OF) {
                 // The star card is read off the birthday, which a battery
                 // without the first demographics never asks.
-                if (RUN.indexOf(theories.STARS_FROM) !== -1) add(theories.STARS_KEY)
-                add(theories.TEMPERAMENT_KEY)
+                if (RUN.indexOf(theories.STARS_FROM) !== -1) add(theories.STARS_KEY, theories.STARS_KEY)
+                add(theories.TEMPERAMENT_KEY, theories.TEMPERAMENT_KEY)
             } else {
-                for (const dimension of dimensionsOf(name)) if (normOf(dimension).interpretations) add(dimension)
+                for (const dimension of dimensionsOf(name)) if (normOf(dimension).interpretations) add(feedbackKey(dimension), dimension)
             }
         }
         return keys
@@ -1243,6 +1294,7 @@ function makeResults(engine) {
         sealSections: sealSections,
         openSections: openSections,
         renderProfile: renderProfile,
+        profileShare: profileShare,
         readCardLink: readCardLink,
         showVisit: showVisit,
         hideTip: hideTip,

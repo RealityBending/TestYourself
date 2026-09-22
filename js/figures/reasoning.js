@@ -3,12 +3,15 @@
    Verbal north, Logical east, Visual south, Spatial west — each drawn as
    long as that style's problems came easily *relative to the other three*,
    the longest reaching the rim whatever the number behind it, and the
-   longest picked out in gold and named underneath as the predominant style. It is the second figure drawn without norms,
-   and unlike the wheel it is not even drawn to the scale of its own scores:
-   the four are read against each other and against nobody, which is the
-   whole of what the level feeds back. What the arms are and what leading
-   with one tends to mean live here, since they are how the figure is read
-   and not anything that was asked.
+   longest picked out in gold and named underneath as the predominant style.
+   Unlike the wheel it is not even drawn to the scale of its own scores: the
+   four are read against each other and against nobody, which is the whole of
+   what the level feeds back. The four dimensions do carry norms in
+   `content/`, but nothing here reads them — they are written so that the
+   whole-run profile web can draw an average person across all of its axes,
+   and this section goes on giving no percentile and no count. What the arms
+   are and what leading with one tends to mean live here, since they are how
+   the figure is read and not anything that was asked.
    ========================================================================= */
 
 function makeReasoning(shared) {
@@ -232,5 +235,16 @@ function makeReasoning(shared) {
         return holder
     }
 
-    return { REASONING_OF: REASONING_OF, REASONING_KEY: REASONING_KEY, ready: ready, renderReasoning: renderReasoning }
+    // What a style is, in words. The whole-run web hovers every other axis as
+    // a standing against other people; these four carry norms now (so that the
+    // average person can be drawn across the whole web) but must not be read
+    // back as a percentile, which is the one number this level is written not
+    // to give. So the web asks here instead, and gets the same phrase the
+    // compass puts on its own arms.
+    function shortOf(dimension) {
+        const one = ARMS.find((each) => each.dimension === dimension)
+        return one && one.short
+    }
+
+    return { REASONING_OF: REASONING_OF, REASONING_KEY: REASONING_KEY, ready: ready, shortOf: shortOf, renderReasoning: renderReasoning }
 }

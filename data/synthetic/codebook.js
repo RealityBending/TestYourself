@@ -71,7 +71,7 @@ function wordings(text, item) {
 
 content.TIMELINE.forEach((entry, at) => {
     const level = at + 1
-    levels.push({ level: level, name: entry.name, blocks: entry.blocks, fork: entry.fork || null, beneath: false })
+    levels.push({ level: level, key: entry.key, name: entry.name, blocks: entry.blocks, fork: entry.fork || null, beneath: false })
 
     for (const name of entry.blocks) {
         const block = content.BLOCKS[name]
@@ -151,7 +151,13 @@ for (const key of run) {
     const q = content.QUESTIONNAIRES[key]
     const norms = {}
     for (const dimension of Object.keys(q.norms || {})) {
-        norms[dimension] = { interpretations: !!(q.norms[dimension] && q.norms[dimension].interpretations) }
+        // The key a vote on this dimension is filed under, written in
+        // `content/` beside the norms, so nothing out here has to work it out
+        // from the name a second time.
+        norms[dimension] = {
+            key: (q.norms[dimension] && q.norms[dimension].key) || null,
+            interpretations: !!(q.norms[dimension] && q.norms[dimension].interpretations),
+        }
     }
     questionnaires[key] = {
         name: q.name || null,

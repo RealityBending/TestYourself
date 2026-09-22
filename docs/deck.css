@@ -161,6 +161,28 @@ h2 {
     margin-bottom: 0;
 }
 
+/* The one list on a part slide. Three named mechanisms read as three things
+   rather than as a sentence with semicolons in it; the markers take the
+   deck's own blue, the way the item list's do. */
+.part ul {
+    margin: 0 0 14px;
+    padding-left: 1.15em;
+    color: var(--muted);
+    max-width: 56ch;
+}
+
+.part li {
+    margin-bottom: 9px;
+}
+
+.part li:last-child {
+    margin-bottom: 0;
+}
+
+.part li::marker {
+    color: var(--pick);
+}
+
 .part__seen {
     margin: 0;
 }

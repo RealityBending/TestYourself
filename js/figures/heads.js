@@ -1,16 +1,23 @@
 /* =========================================================================
    Two systems and what gets in the way of each — the whole of what the
-   Passion & Restraint level (the `regulation` block) feeds back. Four
-   numbers, read as a chart rather than as a picture: how much each system
-   carries (how strongly emotion comes, how firmly a goal holds) and how much
-   interference sits on it (how far the thinking circles, how far the
-   attention wanders). The level records sixteen dimensions; this shows four
-   things made of eleven of them and says so, since a figure that showed all
-   sixteen would show nothing. Every channel is a reach along its own scale,
-   not a standing — the norms behind these questionnaires are placeholders —
-   and the dashed line down the middle of the bars is the midpoint the two
+   Mind & Heart level (the `regulation` block) feeds back. Four numbers, read
+   as a chart rather than as a picture: how much each system carries (how
+   strongly emotion comes, how firmly a goal holds) and how much interference
+   sits on it (how far the mind keeps returning to a thing, how far the
+   attention wanders). The level records sixteen dimensions and this shows
+   four things made of eleven of them, since a figure that showed all sixteen
+   would show nothing. Every channel is a reach along its own scale, not a
+   standing — the norms behind these questionnaires are placeholders — and
+   the dashed line down the middle of the bars is the midpoint the two
    sentences under them are read off, so the reading and the numbers it came
    from are on one screen.
+
+   **A channel says what it means and never where it came from.** The tooltip
+   on a bar is one sentence about the thing itself: which items or which
+   scales were averaged into it is the instrument's business and not the
+   participant's, and a figure that shows its own workings reads as a receipt
+   rather than as a reading. It does not repeat the percentage either — that
+   is on the row, an inch away.
 
    The theme is carried by two small glyphs anchoring the two halves, a bulb
    and a heart, and by nothing else: they are fixed in size and say nothing
@@ -62,7 +69,8 @@ function makeHeads(shared) {
     // the mean of reaches rather than the reach of a mean, so scales of
     // different lengths weigh the same. `what` is the tooltip on the bar,
     // rather than prose on the page — the chart is four names and four
-    // numbers, the climb's rule.
+    // numbers, the climb's rule — and it says what the channel *means* and
+    // nothing about which scales went into it (see the note at the top).
     const CHANNELS = [
         {
             key: "restraint",
@@ -70,17 +78,15 @@ function makeHeads(shared) {
             name: "Restraint",
             carries: true,
             of: ["Self-Control"],
-            what: "How firmly a goal holds you against temptation and habit. From the two self-control items.",
+            what: "How firmly a goal holds you against temptation and habit.",
         },
         {
             key: "distractibility",
             head: "mind",
             name: "Distractibility",
             carries: false,
-            of: ["Mind Wandering", "Absent-mindedness", "Inattention"],
-            what:
-                "How often the mind drifts off, drops the thread and leaves the last stretch unfinished. " +
-                "The average of mind wandering, absent-mindedness and inattention.",
+            of: ["Mind Wandering", "Absent-Mindedness", "Inattention"],
+            what: "How often the mind drifts off, drops the thread and leaves the last stretch unfinished.",
         },
         {
             key: "sensitivity",
@@ -88,19 +94,15 @@ function makeHeads(shared) {
             name: "Sensitivity",
             carries: true,
             of: ["Emotional Sensitivity", "Emotional Arousal", "Emotional Persistence"],
-            what:
-                "How easily emotion is set off, how strongly it comes and how long it stays. " +
-                "The average of emotional sensitivity, arousal and persistence.",
+            what: "How easily emotion is set off, how strongly it comes and how long it stays.",
         },
         {
             key: "brooding",
             head: "heart",
             name: "Brooding",
             carries: false,
-            of: ["Rumination", "Catastrophising", "Self-blame", "Other-blame"],
-            what:
-                "How often, when something hits, the thinking goes over it, dwells on how bad it is and looks for whose fault it was. " +
-                "The average of rumination, catastrophising, self-blame and other-blame.",
+            of: ["Rumination", "Catastrophising", "Self-Blame", "Other-Blame"],
+            what: "How often, when something hits, the mind keeps returning to it — going over it, dwelling on how bad it is, looking for whose fault it was.",
         },
     ]
 
@@ -127,9 +129,9 @@ function makeHeads(shared) {
         heart: {
             "big-clean": "you feel things strongly, and when something hits, your thinking moves through it rather than round it.",
             "big-tangled":
-                "you feel things strongly, and when something hits, your thinking tends to circle it: going over it, dwelling on how bad it was, looking for whose fault it was.",
+                "you feel things strongly, and when something hits, your mind keeps going back to it: turning it over, dwelling on how bad it was, looking for whose fault it was.",
             "small-clean": "little stirs you, and what does passes without much turning over.",
-            "small-tangled": "little stirs you, but what does tends to stay: your thinking circles it for longer than the feeling itself lasts.",
+            "small-tangled": "little stirs you, but what does tends to stay: you keep turning it over long after the feeling itself has passed.",
         },
     }
 
@@ -223,15 +225,16 @@ function makeHeads(shared) {
     }
 
     // One row: the name, its share at the far end, and a track the fill draws
-    // itself out along. The whole row takes the tooltip, so what a channel is
-    // made of is read by hovering it rather than off the page.
+    // itself out along. The whole row takes the tooltip, so what a channel
+    // means is read by hovering it rather than off the page — one sentence,
+    // with no percentage in it, the number being on the row already. The
+    // label a screen reader hears carries the number too, since a reader
+    // handed an explicit label never reaches the text inside the row.
     function row(one, share) {
-        const said = one.name + ": " + Math.round(share * 100) + "% of the way along its own scale. " + one.what
-
         const item = document.createElement("li")
         item.className = "headsview__row" + (one.carries ? " headsview__row--carries" : "")
         item.tabIndex = 0
-        item.setAttribute("aria-label", said)
+        item.setAttribute("aria-label", one.name + ": " + Math.round(share * 100) + "%. " + one.what)
         item.appendChild(text("b", "headsview__label", one.name))
         item.appendChild(text("span", "headsview__num", Math.round(share * 100) + "%"))
 
@@ -243,9 +246,9 @@ function makeHeads(shared) {
         track.appendChild(fill)
         item.appendChild(track)
 
-        item.addEventListener("mouseenter", () => showTip(track, said))
+        item.addEventListener("mouseenter", () => showTip(track, one.what))
         item.addEventListener("mouseleave", hideTip)
-        item.addEventListener("focus", () => showTip(track, said))
+        item.addEventListener("focus", () => showTip(track, one.what))
         item.addEventListener("blur", hideTip)
         return item
     }
@@ -290,7 +293,7 @@ function makeHeads(shared) {
             "aria-label",
             locked
                 ? "Blurred preview of the chart your answers will draw"
-                : "Four bars: how firmly a goal holds and how far the attention wanders, how strongly emotion comes and how far the thinking circles",
+                : "Four bars: how firmly a goal holds and how far the attention wanders, how strongly emotion comes and how far it is gone back over",
         )
         HALVES.forEach((one, index) => inside.appendChild(half(one, values, index === 0)))
         stage.appendChild(inside)
@@ -346,7 +349,7 @@ function makeHeads(shared) {
 
         const headline = document.createElement("header")
         headline.className = "headsview__head"
-        headline.appendChild(text("h3", "headsview__title", "Feeling and focus"))
+        headline.appendChild(text("h3", "headsview__title", "Your mind and your heart"))
         all.appendChild(headline)
 
         all.appendChild(chart(values, locked))
@@ -357,15 +360,11 @@ function makeHeads(shared) {
         for (const one of HALVES) pair.appendChild(card(one, values))
         all.appendChild(pair)
 
-        all.appendChild(
-            text(
-                "p",
-                "headsview__note",
-                "Each bar is the average of a few of the scales you answered, and how far along its own scale it sits — not where you stand among other people. " +
-                    "Hover a bar for what went into it. Which side of the dashed midpoint a half's two bars fall is what the sentence under them is read off. " +
-                    "A busy head is not a broken one, and none of this is a diagnosis.",
-            ),
-        )
+        // What is left of the note the chart used to carry. The three
+        // sentences explaining where a bar came from went with the tooltips
+        // that said the same thing; this one stays, because it is the only
+        // line on the level that says what the reading is not.
+        all.appendChild(text("p", "headsview__note", "A busy head is not a broken one, and none of this is a diagnosis."))
 
         return all
     }

@@ -25,7 +25,7 @@ A change usually needs one file out of one of them.
 
 | | |
 |---|---|
-| `content/timeline.js` | **The frame the rest of `content/` is written into, and what is asked when.** Also `BATTERIES`, the named subsets a study may ask instead of the whole, and `HELD_TOGETHER`, the blocks that come and go as one (see **Batteries**). `TIMELINE` is one entry per level, in order, naming that level's blocks — moving a block is moving its name from one line to another, and a block named nowhere here is never asked. Each level also carries a `name`: what the gauge's hover card, the results panel and the level screen call it (`levelName`, `levelTitle` in `app.js`) — and may carry `fork: true`, shared with the other levels the person puts in order (see **The fork**). A run of levels wrapped in `shuffle()` is asked in an order drawn for them instead (see **The drawn order**), which is why `TIMELINE` ends `.flat()`. Also `shuffle()` itself, which **draws nothing outside a browser** and hands the written order back — `data/synthetic/codebook.js` and `docs/build_slides.py` read this file too, and what they describe is what is asked rather than one draw of it. Also `WATER_SHARE`, the share of the scored levels that are in the water rather than in the rock (see **Beneath the floor**) — where the seabed falls is a share and not a flag on any level. Its colour on the gauge is not content — the stops run through one gradient by position (`levelColour`). Also `defineBlock()` and the `QUESTIONNAIRES` / `BLOCKS` the block files fill, `answerKey()` (the hash an item with a right answer carries in place of it — see **Right answers**, below), and, at the head of the file, an annotated skeleton of every field a block may carry. **Read that before editing anything in `content/`**; it says what the fields are, and this file says why. |
+| `content/timeline.js` | **The frame the rest of `content/` is written into, and what is asked when.** Also `BATTERIES`, the named subsets a study may ask instead of the whole, and `HELD_TOGETHER`, the blocks that come and go as one (see **Batteries**). `TIMELINE` is one entry per level, in order, naming that level's blocks — moving a block is moving its name from one line to another, and a block named nowhere here is never asked. Each level also carries a `key` and a `name`: the key is what the saved file is written under (`ratings`, `qualityControl`) and never changes for the sake of the person reading it, the name is what the gauge's hover card, the results panel and the level screen call it (`levelName`, `levelTitle` in `app.js`) and is prose that may — and may carry `fork: true`, shared with the other levels the person puts in order (see **The fork**). A run of levels wrapped in `shuffle()` is asked in an order drawn for them instead (see **The drawn order**), which is why `TIMELINE` ends `.flat()`. Also `shuffle()` itself, which **draws nothing outside a browser** and hands the written order back — `data/synthetic/codebook.js` and `docs/build_slides.py` read this file too, and what they describe is what is asked rather than one draw of it. Also `WATER_SHARE`, the share of the scored levels that are in the water rather than in the rock (see **Beneath the floor**) — where the seabed falls is a share and not a flag on any level. Its colour on the gauge is not content — the stops run through one gradient by position (`levelColour`). Also `defineBlock()` and the `QUESTIONNAIRES` / `BLOCKS` the block files fill, `answerKey()` (the hash an item with a right answer carries in place of it — see **Right answers**, below), and, at the head of the file, an annotated skeleton of every field a block may carry. **Read that before editing anything in `content/`**; it says what the fields are, and this file says why. |
 | `content/block_*.js` | Every question, scale, colour and norm, **split by block** — one stretch of the run that moves as a piece — so the file to open is the thing being changed rather than the position it happens to be asked in. **Content changes go here and nowhere else.** Each is one `defineBlock("name", [ … ])` over an ordered list of entries: briefings and questionnaires, each carrying its own `key`. |
 | `content/block_UNUSED.js` | Questionnaires written but not asked, commented out, waiting on whatever they want before they can go in. Nothing in it defines a block, so nothing in it can be reached. |
 | `js/draw.js` | Three helpers that draw rather than decide — `SVG`, `draw()` (an SVG element with its attributes on it) and `mix()` (a colour between two others, reading either a `#rrggbb` out of `content/` or its own `rgb(…)` back, so a tint can be darkened in a second pass; `channelsOf()` is the reader, and the fourth name it takes) — held in common by the two files below it. It reads nothing and keeps nothing, which is the whole reason it can sit under both of them; **nothing else belongs in it**, and a helper only moves down here because `app.js` and `results.js` both want it. Not an IIFE: it takes those names in the globals every file on the page shares, so nothing in `content/` may take them too. |
@@ -43,7 +43,7 @@ showcase of stand-in figures the landing page cycles (`renderShowcase`), and
 | `assets/` | The logos on the hero and the consent form, referenced from `index.html`, and `assets/icar/` — the pictures of the reasoning level's matrix and rotation items, a problem and its candidates apiece, cut out of the eight published figures by `assets/icar/source/cut.py` (which sits beside the figures it cuts, and is run by hand when they change), referenced from `content/block_icar.js` as `<img>` in the items' own `text` and as `image:` on their options, which is the one place a script reaches for a file. No stylesheet does. |
 | `data/norms/` | A workbench, not part of the page: `make_norms.R` prints, ready to paste, every set of norms in the app that is *not* invented. Two sections, independent of each other so that a missing package or a dropped connection costs you one and not both — the HiTOP-BR's development-sample means and SDs out of the {hitop} R package, and the MINT's worked out from the raw answers of the studies that have asked it, pulled from their repositories and scored the way `content/block_mint.js` scores them. It prints the two number lines and never the `interpretations` beside them, which are the app's own prose. Nothing on the page reaches for it, and R is not a dependency of anything that runs. |
 | `data/synthetic/` | A second workbench, not part of the page: runs of the test answered by Claude in a sampled persona, written in the exact shape `container()` saves so that an analysis reads them with the same code as a real run. `codebook.js` (bun or node) reads every item out of `content/` the way `app.js` flattens it, so the requests cannot drift from what is asked; `synthesize.py` samples the demographics from the items' own options, has the model write a biography and answer the rest under a JSON schema of the items' own values, passes the attention checks, prunes closed branches, and writes `out/synthetic-<code>.json` — participant code prefixed `synthetic-`, a `synthetic` field naming model, batch, seed and biography, null times, null votes, null stars (`ratings`, one key per level screen). `work/` and `out/` are git-ignored. Its `FIGURE_VOTES` mirrors `feedbackKeys()` in `results.js` and has to move with it (the two `heads.js` keys went in under all three of level 9's questionnaires, September 2026). It writes `battery` (null), `levels` and `questionnaires` (the whole timeline, written order) the way `container()` does, and splices a `Level_<N>` item into `items[]` after each scored level, answered with the way on that level offers — every fork choice taken as recommended (`screens`, `walked`; `codebook.js` works `beneath` out from `WATER_SHARE` the way `waterLevels` does, for the floor's wording — the one rule this workbench restates rather than reads) — so a synthetic file reads with the same code. Never sent to DataPipe, never pooled with participants; its `README.md` says why. |
-| `data/collected/` | **A third workbench, and the way the answers come back**, in two steps: `download.py` fetches, `preprocess.R` makes tables of what it fetched. Both folders it writes, `raw/` and `clean/`, are git-ignored because they hold **real participant data that must never be committed**. **`preprocess.R`** ({jsonlite} and base R, the way `data/norms/make_norms.R` is) reads `raw/` and writes `clean/`: **`data.csv`, one row a participant and everything in it, and nothing else at all** — **a master file**, 718 columns: the run (participant, file, completed, version, testMode, synthetic, battery, formatMint, timeStart), the two sequence columns, a `feedback_<reading>` apiece, a `rating_<level name>` apiece, four `qc_<level name>_*` apiece, a column per item holding the words that were on screen, and an `<item>_rt` beside each one (a suffix, so an item and its time sort together). Nothing is left out to keep it narrow — an analysis selects from it rather than coming back for a second file, and width costs nothing to anything that is not Excel — and **nothing is worked out that the file does not already say**: no mean reaction time, no share of an instrument completed, no count of failed checks, no item counts, no minutes taken. Each is a line of R over the columns that are there, and which of them an analysis wants is the analysis's business; this reshapes rather than computes, and a file that counts things for you is a file whose counting has to be checked. (It was seven tables until 22 September 2026, and carried its own counts and shares for a few hours after that.) **`NA` is not the empty string in it**: an item never put on screen is NA, an optional item shown and deliberately left blank is `""`, and the saved file has always told those apart — writing NA as empty, which it did at first, made a question nobody was asked look like one somebody declined. **What is not data is said rather than filed**: the complaints go to the terminal where whoever ran the script is looking, since a `checks.csv` that is empty nine times in ten is a file somebody has to open to learn nothing. **Anything counting how much of an instrument somebody gave wants care, which
+| `data/collected/` | **A third workbench, and the way the answers come back**, in two steps: `download.py` fetches, `preprocess.R` makes tables of what it fetched. Both folders it writes, `raw/` and `clean/`, are git-ignored because they hold **real participant data that must never be committed**. **`preprocess.R`** ({jsonlite} and base R, the way `data/norms/make_norms.R` is) reads `raw/` and writes `clean/`: **`data.csv`, one row a participant and everything in it, and nothing else at all** — **a master file**, 718 columns: the run (participant, file, completed, version, testMode, synthetic, battery, formatMint, timeStart), the two sequence columns, a `Feedback_<reading>` apiece, a `Rating_<level key>` apiece, four `QC_<level key>_*` apiece (`RT_Mean`, `RT_SD`, `ChecksFailed`, `TimeFinished`), a column per item holding the words that were on screen, and an `<item>_RT` beside each one (a suffix, so an item and its time sort together). **One naming rule across it, and it is `content/`'s own**: what the run says about itself is lowercase (`participant`, `time_start`) and everything that is a *measure* is `Prefix_Subject_Field`, the prefix an acronym in capitals or a word in PascalCase exactly as an item key is written — so `QC_Character_RT_Mean` and `Feedback_BodilyAwareness` sit beside `HEXACO_Sincerity` under one convention and a measure can be told from a run field on sight. Times are milliseconds throughout and no column name says so. Nothing is left out to keep it narrow — an analysis selects from it rather than coming back for a second file, and width costs nothing to anything that is not Excel — and **nothing is worked out that the file does not already say**: no mean reaction time, no share of an instrument completed, no count of failed checks, no item counts, no minutes taken. Each is a line of R over the columns that are there, and which of them an analysis wants is the analysis's business; this reshapes rather than computes, and a file that counts things for you is a file whose counting has to be checked. (It was seven tables until 22 September 2026, and carried its own counts and shares for a few hours after that.) **`NA` is not the empty string in it**: an item never put on screen is NA, an optional item shown and deliberately left blank is `""`, and the saved file has always told those apart — writing NA as empty, which it did at first, made a question nobody was asked look like one somebody declined. **What is not data is said rather than filed**: the complaints go to the terminal where whoever ran the script is looking, since a `checks.csv` that is empty nine times in ten is a file somebody has to open to learn nothing. **Anything counting how much of an instrument somebody gave wants care, which
 is the other reason there is no column for it.** A partial holds only the items
 that were answered — that is what the staged records are — so a share worked out
 from one is 1 for every instrument it touched, however little was reached: a
@@ -51,7 +51,7 @@ real abandoned run of 22 September 2026 had answered three of the HEXACO's
 twenty-five and a share said 1 where a count said 3. The denominator that would
 settle it is the instrument's own length, which lives in `content/` and in no
 saved file. **The two sequence columns are how one row
-keeps what a row cannot hold**: which levels somebody walked and the order they met the items in are facts about a sequence, so they are joined with `" | "` into one cell each rather than spent as a column per item. `--long` also writes the tidy `responses.csv`, one row an item, which is the shape a mixed model wants. **A new item wants a key that is not already a column of this file** — nothing called `minutes` or `completed`, nothing ending `_rt`, nothing starting `done_`, `feedback_`, `rating_` or `qc_`. The `PREFIX_Name` convention every key in `content/` follows keeps that true without anybody thinking about it, and there is deliberately no guard: a check for something the naming makes impossible is one more thing to read. It **reads both shapes out of the deposit**: a finished run is a `container()`, and a `.partial.json` is **a bare JSON array of the staged records** — verified against a real one on 22 September 2026: no envelope, no wrapper, just the `frame` and `item` objects as the app staged them — which it puts back together by the rule they were staged under, the last frame and the last record under each key. That first real partial reassembled into a run of 28 items over five finished levels, **with the two fork choices in it** (`Level_4` answered "Character | Archetypes"), which is the whole point of the exercise: before streaming, a tab closed there left nothing at all. It checks rather than trusts (fields present, keys unique, `order` 1..n for a finished run and merely unique for a partial, one participant code per file, one app version across the set) and **prints** every file that fails instead of stopping on it or filing a report nobody opens. It drops a partial whose run also finished, and keeps test and synthetic runs out of `clean/` unless asked. **It does not score**, and the four things it cannot do are written at the foot of the file. `download.py` (standard library alone, no packages) fetches what DataPipe has filed in the Zenodo deposit, verifies each file against its checksum and leaves it in `raw/`. It runs again safely — a file already there with the right checksum is left alone — so it is the way to pull an ongoing study down each morning rather than a thing run once. **The deposit is a draft for the whole of a study** — DataPipe makes an unpublished deposition and never publishes it — and a draft is readable only by its owner, so the token is wanted throughout rather than at the end. It is looked for in `ZENODO_TOKEN` first and then in `~/.zenodo_token` (one line, nothing else), the second so that it outlives the shell it was typed into and anything run later finds it without being told. **Neither place is in this repository**: a secret in a folder git watches is committed sooner or later, and this one is inside Dropbox as well. `deposit:write` is the narrowest scope Zenodo offers for reading a draft and it can write to the account's depositions too, so it is worth rotating when a study ends. It unpacks DataPipe's `datapipe-batch-NNNN.zip` archives as they arrive, so `raw/` holds runs rather than archives however large the study grows. Its report is the reason it is a script rather than a download button: it counts complete runs apart from the partials of people who stopped, keeps **test runs out of the count** (`test-`, not data), and names any run that has **both** a complete file and a partial — one person and two files, which is a wrong n if both are counted (see **Where it goes**). |
+keeps what a row cannot hold**: which levels somebody walked and the order they met the items in are facts about a sequence, so they are joined with `" | "` into one cell each rather than spent as a column per item. `--long` also writes the tidy `responses.csv`, one row an item, which is the shape a mixed model wants. **A new item wants a key that is not already a column of this file** — nothing called `minutes` or `completed`, nothing ending `_RT`, nothing starting `done_`, `Feedback_`, `Rating_` or `QC_`. The `PREFIX_Name` convention every key in `content/` follows keeps that true without anybody thinking about it, and there is deliberately no guard: a check for something the naming makes impossible is one more thing to read. It **reads both shapes out of the deposit**: a finished run is a `container()`, and a `.partial.json` is **a bare JSON array of the staged records** — verified against a real one on 22 September 2026: no envelope, no wrapper, just the `frame` and `item` objects as the app staged them — which it puts back together by the rule they were staged under, the last frame and the last record under each key. That first real partial reassembled into a run of 28 items over five finished levels, **with the two fork choices in it** (`Level_4` answered "Character | Archetypes"), which is the whole point of the exercise: before streaming, a tab closed there left nothing at all. It checks rather than trusts (fields present, keys unique, `order` 1..n for a finished run and merely unique for a partial, one participant code per file, one app version across the set) and **prints** every file that fails instead of stopping on it or filing a report nobody opens. It drops a partial whose run also finished, and keeps test and synthetic runs out of `clean/` unless asked. **It does not score**, and the four things it cannot do are written at the foot of the file. `download.py` (standard library alone, no packages) fetches what DataPipe has filed in the Zenodo deposit, verifies each file against its checksum and leaves it in `raw/`. It runs again safely — a file already there with the right checksum is left alone — so it is the way to pull an ongoing study down each morning rather than a thing run once. **The deposit is a draft for the whole of a study** — DataPipe makes an unpublished deposition and never publishes it — and a draft is readable only by its owner, so the token is wanted throughout rather than at the end. It is looked for in `ZENODO_TOKEN` first and then in `~/.zenodo_token` (one line, nothing else), the second so that it outlives the shell it was typed into and anything run later finds it without being told. **Neither place is in this repository**: a secret in a folder git watches is committed sooner or later, and this one is inside Dropbox as well. `deposit:write` is the narrowest scope Zenodo offers for reading a draft and it can write to the account's depositions too, so it is worth rotating when a study ends. It unpacks DataPipe's `datapipe-batch-NNNN.zip` archives as they arrive, so `raw/` holds runs rather than archives however large the study grows. Its report is the reason it is a script rather than a download button: it counts complete runs apart from the partials of people who stopped, keeps **test runs out of the count** (`test-`, not data), and names any run that has **both** a complete file and a partial — one person and two files, which is a wrong n if both are counted (see **Where it goes**). |
 | `docs/` | **The documentation**: a deck about the app, for the people working on it, in the three files the app itself is in — `index.html`, `deck.css`, `deck.js` — plus `items.js` and a stretch of `index.html` that are **generated**, and the script that generates them. No build to open it, no dependency, no server. Two slides: the landing page of the app with **Documentation** under it, and **Content**, the table of everything the test asks — which lived in `README.md` until September 2026, and which is now written by `build_slides.py` rather than kept by hand. A slide is a `<section class="slide">` and adding one is writing another; `deck.js` counts them, moves between them with the arrow keys, keeps the slide showing in the address (`#2`, read on load and on `hashchange`, written back with `replaceState` so the back button stays clear) and never looks at what is inside. **The wheel is the other way on**: scrolling past the end of a slide moves to the next, but only once that slide has nothing left to scroll (so a long table is read to the bottom first), only past a deliberate push rather than the tick that arrives at the end, and not at all for a moment afterwards — a trackpad sends its momentum in a long tail, which would otherwise carry straight through the slide it just landed on. A slide that fits the window is at both ends at once, which is what makes the wheel work there. A slide arrives from the side it came from (`arrive-on` / `arrive-back`, the side written by `deck.js`; the slide a visit opens on has come from nowhere and arrives without one), and `.slide--on` centres with `justify-content: safe center`, so a slide taller than the window falls back to the top instead of overflowing past it where the first rows cannot be reached. **Picking a row of the table says what that instrument asks**, out of `items.js`. It is a **click** and not a hover (`aria-expanded` on the row, `aria-controls="items"`, Enter or Space when it has focus, and the same row again, Escape or leaving the slide to put it away): the list stays up, the text in it can be selected and copied, and forty-odd items can be scrolled without the pointer having to stay on the row it came from. The row and the list are one thing in two places and so are one colour, `--pick`, a blue of the deck's own between the app's cyan and its violet — the row filled with it and edged in it, the list bordered and numbered in it. That list sits beside the chrome rather than inside the slide, because a slide carries the arrival animation and an element with a transform on it is the containing block its `position: fixed` children are placed against. The look is the app's **restated, not imported** — the tokens are those in `css/style.css` and the hero is `.hero` from the root `index.html` — so nothing here can break the app, and a change to the app's look has to be brought across by hand; the three logos are the app's own files in `assets/`. No presenter notes, no transitions, no export: `@media print` and the browser's print-to-PDF are the export. It was a Slidev project for a day, which is why the root `.gitignore` no longer ignores `docs/`. |
 | `docs/build_slides.py` | **The Content table and `items.js`, written out of the app's own questions** — a workbench like `data/norms/` and `data/synthetic/`, run by hand when `content/` changes (`--check` says whether the deck is stale and exits 1 if it is). It reads the app **through `data/synthetic/codebook.js`** rather than parsing `content/` itself, so there is one reader of the questions and it is the one that already walks them the way `app.js` does; it needs bun or node for that, and nothing else. It sanitises what cannot go into a table: an item that words itself from an earlier answer becomes one of its wordings marked as such, `text` is HTML so the tags come off and the `<small>` gloss stays, and a reasoning item drawn as a picture is marked `[with a figure]` — four of them share a stem and would otherwise read as the same question four times. **`ROWS` is the one hand-written thing in it**, and has to be: a row's *reference* is nowhere in `content/`, and the table's unit is the instrument where the content's is the questionnaire — `singles` is one questionnaire holding ten scales, `hexaco18` holds the HEX-ACO-18 and the KSE-G, `control` holds four two-item proxies. That mapping is **checked rather than trusted**: every item the app asks must be claimed by exactly one row and every row must claim at least one item, or the script stops and says which, so a questionnaire added to `content/` without a row is a failure rather than a table that quietly goes stale. |
 | `README.md` | The author's own notes: the aim, the batteries, and a long list of questionnaire ideas that are *not* in the test. Its **Includes** section is now a pointer to the deck's Content table, which is where the list of what *is* asked lives. Not documentation. |
@@ -122,12 +122,12 @@ around it at once:
 | Level 1 | `demographics1` (age, month of birth and — branching off the month — which side of that month's zodiac cusp the day fell, one `BirthDay` item wording itself from the month; gender and what branches off it), `fipi` (the briefing that opens the whole test, then the five items) and `singles` → General. `fipi` is read back as **two old theories and nothing else**: the star sign and the temperament side by side (see **Two old theories**, below), no rows. Extraversion and Emotional Stability keep their norms because the temperament is read off them; the other three are commented out, since the HEXACO on level 5 draws the same ground in full — so it is out of `CHARTS` (a spider wants three axes) and off the whole-run web (`profile: false`) |
 | Level 2–4 | `demographics2` (education, discipline, student, ethnicity, country), `mint` (a briefing, then the items) → Brain-Body Axis. **One of the three levels of the drawn run** (September 2026), so it is met second, third or fourth as the draw falls; it was fixed at level 2 until then, and a fork level before that |
 | Level 2–4 | `bait` — a briefing, the AI knowledge, technical-understanding and usage singles (the 2.1B Expertise trio, which asked the same three things among the shuffled statements, is gone; the understanding single carries a key of its own, `BAIT_Understanding`, so it cannot stack onto the old `BAIT_UnderstandingAI` it replaces), then the shuffled BAIT statements (the union of the 2.1B and 2.2 administrations, under the harmonised item names of the pooled validation, plus its attention check). Scored as the BAIT-8 — AI Realism, AI Enthusiasm, AI Apprehension — and read back as one of three archetypes (see below) |
-| Level 2–4 | `demographics3` (household financial comfort, MacArthur subjective social status), then `mood` and `health` in a random order, then `hitop`. `mood` is a briefing, then `phq4` and `sleep` (the SQS single, asked and scored but shown nowhere; the CDS-2, and the PCL-2 that was the Stress dimension until September 2026, sit commented out in the same file) and `health` is a briefing, then the list of psychiatric diagnoses and treatments (`psychiatric`, asked and saved but scored and fed back nowhere; the SSS-8 and the somatic medical history sit commented out in the same file). Then `hitop`: a briefing (widening from the last few weeks to the last year, and saying what follows is asked as spectra rather than categories) and the HiTOP-BR (`hitopbr`), 45 statements about the last twelve months on a 4-point scale, scored as six spectra. `phq4` and `hitopbr` are read back together as **the climb** (see below), the level's one section — three of the spectra and the PHQ-4's fortnight drawn into one hill; the other three spectra, sleep and self-rated health are fed back nowhere. (It had a spider chart with a row per spectrum once, dropped as reading like verdicts, and the level was then two faces, Mood and Health, until the climb.) **The spectra carry plainer names than the HiTOP's own** — Bodily Complaints, Emotional Intensity, Unusual Experiences, Solitude, Impulsivity, Dominance, for Somatoform, Internalizing, Thought Disorder, Detachment, Disinhibition, Antagonism — one for one, so nothing about the scoring changes; the mapping is written above the norms in the block file. The one questionnaire whose norms are **not** invented — they are the development-sample means and SDs of Simms et al. (2026) — kept for analysis, and written `profile: false` too, so the six stay off the whole-run web. Item keys are the package's item numbers under the app's prefix (`HITOP_01`…`HITOP_45`, since September 2026; `HBR_nn` before), so a saved file scores with `score_hitopbr()` once the columns are renamed `HBR_nn`. It lived in `block_hexaco.js` — then `block_personality.js` — until September 2026 |
-| Level 5–9 | `hexaco` → Character: a briefing, then the HEX-ACO-18 (`hexaco18`, 18 items, the HEXACO on its own 5-point scale, named "Character" on screen). **Read back in full**, as a spider chart with a row per domain, and its six domains take axes on the whole-run web. The domains carry **plain names** — Honesty-Humility and Emotionality as published, then Sociability, Patience, Diligence and Curiosity for eXtraversion, Agreeableness, Conscientiousness and Openness — because a dimension is one name across the run and the FIPI has the Big Five words on level 1, and because the HEXACO's constructs are not the Big Five's anyway (its Agreeableness is patience and forgiveness); the mapping is written above the questionnaire in the block file, and the item keys still name the facet. The Mini-IPIP6 (`ipip6`) sits commented out in the same file, dropped for the HEXACO. **Dealt in among the HEXACO's items is the KSE-G** (`KSEG_Positive1`…`KSEG_Negative3`), six social-desirability statements — three exaggerating positive qualities, three minimising negative ones — there to blend in, which is why they are items of that questionnaire rather than a questionnaire of their own. They carry **no `dimension`** (September 2026; they were two, which the engine averaged for nobody): nothing reads a score off them, the total is taken at analysis time with the Negative three reversed, and one handed back would only teach the next answer. The BSDS sits commented out beside them, one of its items being the KSE-G's almost word for word |
+| Level 2–4 | `demographics3` (household financial comfort, MacArthur subjective social status), then `mood` and `health` in a random order, then `hitop`. `mood` is a briefing, then `phq4` and `sleep` (the SQS single, asked and scored but shown nowhere; the CDS-2, and the PCL-2 that was the Stress dimension until September 2026, sit commented out in the same file) and `health` is a briefing, then the list of psychiatric diagnoses and treatments (`psychiatric`, keyed `Psychiatric_Diagnoses` / `Psychiatric_Treatment` and asked and saved but scored and fed back nowhere — the two were `Disorders_…` until September 2026, and the commented-out somatic history beside them moved to `Somatic_…` at the same time, so a prefix names the thing asked about; the SSS-8 and the somatic medical history sit commented out in the same file). Then `hitop`: a briefing (widening from the last few weeks to the last year, and saying what follows is asked as spectra rather than categories) and the HiTOP-BR (`hitopbr`), 45 statements about the last twelve months on a 4-point scale, scored as six spectra. `phq4` and `hitopbr` are read back together as **the climb** (see below), the level's one section — three of the spectra and the PHQ-4's fortnight drawn into one hill; the other three spectra, sleep and self-rated health are fed back nowhere. (It had a spider chart with a row per spectrum once, dropped as reading like verdicts, and the level was then two faces, Mood and Health, until the climb.) **The spectra carry plainer names than the HiTOP's own** — Bodily Complaints, Emotional Intensity, Unusual Experiences, Solitude, Impulsivity, Dominance, for Somatoform, Internalizing, Thought Disorder, Detachment, Disinhibition, Antagonism — one for one, so nothing about the scoring changes; the mapping is written above the norms in the block file. The one questionnaire whose norms are **not** invented — they are the development-sample means and SDs of Simms et al. (2026) — kept for analysis, and written `profile: false` too, so the six stay off the whole-run web. Item keys are the package's item numbers under the app's prefix (`HITOP_01`…`HITOP_45`, since September 2026; `HBR_nn` before), so a saved file scores with `score_hitopbr()` once the columns are renamed `HBR_nn`. It lived in `block_hexaco.js` — then `block_personality.js` — until September 2026 |
+| Level 5–9 | `hexaco` → Character: a briefing, then the HEX-ACO-18 (`hexaco18`, 18 items, the HEXACO on its own 5-point scale, named "Character" on screen). **Read back in full**, as a spider chart with a row per domain, and its six domains take axes on the whole-run web. The domains carry **plain names** — Honesty-Humility and Emotionality as published, then Sociability, Patience, Diligence and Curiosity for eXtraversion, Agreeableness, Conscientiousness and Openness — because a dimension is one name across the run and the FIPI has the Big Five words on level 1, and because the HEXACO's constructs are not the Big Five's anyway (its Agreeableness is patience and forgiveness); the mapping is written above the questionnaire in the block file, and the item keys still name the facet. The Mini-IPIP6 (`ipip6`) sits commented out in the same file, dropped for the HEXACO. **Dealt in among the HEXACO's items is the KSE-G** (`KSEG_Positive_1`…`KSEG_Negative_3`), six social-desirability statements — three exaggerating positive qualities, three minimising negative ones — there to blend in, which is why they are items of that questionnaire rather than a questionnaire of their own. They carry **no `dimension`** (September 2026; they were two, which the engine averaged for nobody): nothing reads a score off them, the total is taken at analysis time with the Negative three reversed, and one handed back would only teach the next answer. The BSDS sits commented out beside them, one of its items being the KSE-G's almost word for word |
 | Level 5–9 | `archetypes` — a briefing, then the **Open Source Archetype Indicator – Pearson-Marr (OSAI-PM)**: twelve three-item scales after Pearson and Marr's twelve-archetype framework (Idealist, Sage, Seeker, Revolutionary, Magician, Warrior, Realist, Jester, Lover, Creator, Ruler, Caregiver), an open paraphrase written from public descriptions of the framework rather than from the PMAI's items, to be validated independently of it. The only scored questionnaire in the app **written without norms on purpose**, and the only one fed back anyway: read back as a wheel (see below) |
 | Level 5–9 | `primals` — a briefing, then two questionnaires asked back to back on one scale: the **PI-18** (`pi18`, Clifton & Yaden, 2021), the validated short form of the 99-item Primals Inventory — eighteen statements about the character of the world on its own 0-5 agreement scale, seven reverse-keyed, **written in the fixed order the short form was validated in** (`shuffle: false`, the only questionnaire in the app that holds its own order), read back as **the sea** (see below) and nothing else — no rows, no standings, one vote on the picture; and the five **tertiary primals that cluster under none of those three** (`primals_tertiary` — Acceptable, Changing, Hierarchical, Interconnected, Understandable), 22 items taken whole from the PI-99, which is what the inventory's own instructions recommend for reaching them. The two are separate questionnaires because they are two instruments asked two ways, and because the broader primals are meant to precede the narrower ones. The inventory's headline primal, overall **Good** world belief, is *not* a fourth set of items but a composite of the PI-18's own (all six Safe, all seven Enticing, `PI_Alive_1` and `PI_Alive_4`) — an item here carries one dimension, so rather than ask anything twice or teach the engine a second way to score, Good is left to analysis time: the keys name the primal and count within it (`PI_Safe_1`) with Clifton's own label beside each in the block file, so his published code computes it from a saved file after one rename (the keys were his labels, `PI18_ed1` then `PI_ed1`, until September 2026). Safe, Enticing and Alive take axes on the whole-run web; the five neutral primals are written **both** `profile: false` and `results: false`, so they are asked, scored and saved and fed back nowhere — five percentile rows under the sea would be a second, plainer answer to the question the picture has just answered. The level is therefore one section, and `markLone` hides its name |
-| Level 5–9 | `icar` — a briefing (turning from what you are like to how you think), then the **ICAR-16 Sample Test** (`icar16`; Condon & Revelle, 2014; Young & Keith, 2020): sixteen problems with one right answer each, four of each of four kinds — verbal reasoning, letter series, matrix reasoning and three-dimensional rotation — keyed by the ICAR's own item numbers under the app's prefix (`ICAR_VR_04`, `ICAR_LN_07`, `ICAR_MR_45`, `ICAR_R3D_03`). Untimed and shuffled, as validated. **Scored right or wrong** (`correct:`, see **Right answers**), one dimension per kind, **no norms on purpose**, and read back as **the compass** (see below): the four against each other, never a total and never a standing. **The four carry plain names, framed as cognitive styles** — Verbal, Logical, Visual and Spatial, for verbal reasoning, the letter series, matrix reasoning and rotation, one for one, so nothing about the scoring changes and the item keys still name the subtest; the mapping is written above the items in the block file. "Styles" is the feedback's word: what is measured is performance on four kinds of problem, and which came easiest is the one reading four items a kind can bear. The eight matrix and rotation items are drawn: the problem (the grid with a cell missing, the cube to rotate) is the item's picture, and each candidate is a picture on a button of its own with its letter under it, cut out of the figures in Appendix A of the paper's supplement (`assets/icar/source/`, see **Right answers**); two of a rotation item's eight candidates are written rather than drawn — "None of the cubes could be a rotation", "I do not know the solution" — and are plain labelled options, saved as those words (they were saved as "D" and "H" until September 2026; the values are unchanged). Stems and options are verbatim from that appendix (shelved as `literature/Condon_Revelle_2014_ICAR_supplement_SampleTest.pdf`) — except that the rotation stem says "the following cube" for "the cube labeled X", the cube being shown alone and without its letter — and the key is the `iq.keys` vector the {psych} package documents beside these items. The four take axes on the whole-run web (`profile: true`), each as its share of items right. No attention check: there is no straight line to catch on a right-answer test |
-| Level 5–9 | `regulation` → Passion & Restraint: a briefing (turning from what you are like to how well you steer it; written, like every briefing since September 2026, to hold wherever the timeline puts it), then three questionnaires on one theme from three sides. `control` ("Attention & Self-Control") is eight single items off four short scales asked as one questionnaire so the pairs are dealt in among one another — the first two items of the **ASRS-v1.1** screener (Kessler et al., 2005; `ASRS_1`, `ASRS_2`, on its own five labels, for the past six months) as Inattention, items 10 and 21 of the **CFQ** (Broadbent et al., 1982; `CFQ_10`, `CFQ_21`, on its own five labels) as Absent-mindedness, items 1 and 4 of the **MW-S** (Carriere et al., 2013; `MWS_1`, `MWS_4`, 1 rarely to 7 a lot) as Mind Wandering, and items 1 and 2 of the **BSCS** (Tangney et al., 2004; `BSCS_1`, `BSCS_2` reversed, 1-5 like me) as Self-Control — none of the four pairs a validated short form in its own right, so each is a two-item proxy. `ers` ("Emotional Reactivity") is six items of the **Emotion Reactivity Scale** (Nock et al., 2008), two per facet, verbatim, on its 0-4 scale — Emotional Sensitivity, Emotional Arousal, Emotional Persistence, the word in front because a dimension is one name across the run and the bare facet names sit too close to the MINT's and the HiTOP-BR's. `cerq` ("Coping Strategies") is the **CERQ-short** (Garnefski & Kraaij, 2006): nine strategies, two items each, verbatim, on its 1-5 almost-never-to-almost-always scale, the CERQ-36's item number in a comment beside each, under the CERQ's own strategy names in the app's spelling (Catastrophising); the adaptive/maladaptive split of the literature is a reading and not a score, and is left to analysis time. **All three are read back together as one chart** (see **Feeling and focus**, below), the level's one section — no rows, no spider, two votes — and **all three are `profile: false`**: sixteen more axes would double the whole-run web. All norms invented placeholders, flagged; nothing on the level reads them, but they are what puts the three on the level at all (`dimensionsOf`). The level's check is `CERQ_AttentionCheck`, asking for 2. **One of the five levels of the fork** (September 2026), like everything else below the drawn core |
+| Level 5–9 | `icar` — a briefing (turning from what you are like to how you think), then the **ICAR-16 Sample Test** (`icar16`; Condon & Revelle, 2014; Young & Keith, 2020): sixteen problems with one right answer each, four of each of four kinds — verbal reasoning, letter series, matrix reasoning and three-dimensional rotation — keyed by the ICAR's own item numbers under the app's prefix (`ICAR_VR_04`, `ICAR_LN_07`, `ICAR_MR_45`, `ICAR_R3D_03`). Untimed and shuffled, as validated. **Scored right or wrong** (`correct:`, see **Right answers**), one dimension per kind, and read back as **the compass** (see below): the four against each other, never a total and never a standing. **The four carry norms, and the level reads none of them** (September 2026): they are invented placeholders, written for one reason only — the whole-run web draws the average person from a mean on every axis, and four axes without one left a gap in that ring where the reasoning's fell. The compass itself is unchanged, since `renderReasoning` takes the section whole and there is no row to grow. The web *does* read them back as a standing, worded as a style rather than as a score ("Verbal: thinking in words — you use it less than 97% of people do"), which is the whole of what makes a percentile on this ground all right: see **The compass**. The real SAPA norms exist and are still deliberately not used. **The four carry plain names, framed as cognitive styles** — Verbal, Logical, Visual and Spatial, for verbal reasoning, the letter series, matrix reasoning and rotation, one for one, so nothing about the scoring changes and the item keys still name the subtest; the mapping is written above the items in the block file. "Styles" is the feedback's word: what is measured is performance on four kinds of problem, and which came easiest is the one reading four items a kind can bear. The eight matrix and rotation items are drawn: the problem (the grid with a cell missing, the cube to rotate) is the item's picture, and each candidate is a picture on a button of its own with its letter under it, cut out of the figures in Appendix A of the paper's supplement (`assets/icar/source/`, see **Right answers**); two of a rotation item's eight candidates are written rather than drawn — "None of the cubes could be a rotation", "I do not know the solution" — and are plain labelled options, saved as those words (they were saved as "D" and "H" until September 2026; the values are unchanged). Stems and options are verbatim from that appendix (shelved as `literature/Condon_Revelle_2014_ICAR_supplement_SampleTest.pdf`) — except that the rotation stem says "the following cube" for "the cube labeled X", the cube being shown alone and without its letter — and the key is the `iq.keys` vector the {psych} package documents beside these items. The four take axes on the whole-run web (`profile: true`, now redundant beside the norms and kept as the statement of intent), each as its share of items right. No attention check: there is no straight line to catch on a right-answer test |
+| Level 5–9 | `regulation` → Mind & Heart (**Passion & Restraint** until September 2026; the `key` is `Regulation` and did not move, which is what keys are for): a briefing (turning from what you are like to how well you steer it; written, like every briefing since September 2026, to hold wherever the timeline puts it), then three questionnaires on one theme from three sides. `control` ("Attention & Self-Control") is eight single items off four short scales asked as one questionnaire so the pairs are dealt in among one another — the first two items of the **ASRS-v1.1** screener (Kessler et al., 2005; `ASRS_1`, `ASRS_2`, on its own five labels, for the past six months) as Inattention, items 10 and 21 of the **CFQ** (Broadbent et al., 1982; `CFQ_10`, `CFQ_21`, on its own five labels) as Absent-Mindedness, items 1 and 4 of the **MW-S** (Carriere et al., 2013; `MWS_1`, `MWS_4`, 1 rarely to 7 a lot) as Mind Wandering, and items 1 and 2 of the **BSCS** (Tangney et al., 2004; `BSCS_1`, `BSCS_2` reversed, 1-5 like me) as Self-Control — none of the four pairs a validated short form in its own right, so each is a two-item proxy. `ers` ("Emotional Reactivity") is six items of the **Emotion Reactivity Scale** (Nock et al., 2008), two per facet, verbatim, on its 0-4 scale — Emotional Sensitivity, Emotional Arousal, Emotional Persistence, the word in front because a dimension is one name across the run and the bare facet names sit too close to the MINT's and the HiTOP-BR's. `cerq` ("Coping Strategies") is the **CERQ-short** (Garnefski & Kraaij, 2006): nine strategies, two items each, verbatim, on its 1-5 almost-never-to-almost-always scale, the CERQ-36's item number in a comment beside each, under the CERQ's own strategy names in the app's spelling (Catastrophising); the adaptive/maladaptive split of the literature is a reading and not a score, and is left to analysis time. **All three are read back together as one chart** (see **Mind and heart**, below), the level's one section — no rows, no spider, two votes — and **all three are `profile: false`**: sixteen more axes would double the whole-run web. All norms invented placeholders, flagged; nothing on the level reads them, but they are what puts the three on the level at all (`dimensionsOf`). The level's check is `CERQ_AttentionCheck`, asking for 2. **One of the five levels of the fork** (September 2026), like everything else below the drawn core |
 | Level 10 | `closing` — **fixed**, and the only level after the fork. Nothing scored in it, so it opens no results: whether the test was taken seriously, then `Closing_Comments`, a free-text box (`multiline`, `optional`) for anything the person wants to say, with a warning over it that what is written may be made public. Saved as given, `""` when skipped; nothing reads it back |
 | — | `gjs` sits in `content/block_UNUSED.js`, named on no level, so it is never asked; the `somatic` medical-history questionnaire sits commented out in `content/block_health.js` |
 
@@ -613,19 +613,38 @@ top is named (`leading`, the wheel's rule), the one furthest behind is named
 in a quieter line when there is exactly one and it is not also at the top
 (`trailing`, "Your least used style is"), and four styles level with each other are named as
 four with a sentence saying no one stands out. One vote ("Do you agree with this?") filed under
-`REASONING_KEY`, which is `Reasoning`. Hovering an arm says what the kind is,
-never how many were right. `REASONING_OF` names the questionnaire; `ARMS` the
-four, with what leading with each tends to mean; `ready()` is every kind
-answered. **It is the second figure drawn without norms** and goes through
-`dimensionsIn` like the wheel, and it is deliberately more reticent than the
-wheel: no count on hover, no scale of its own, because the one number a
-person wants off a reasoning test is the one the level is written not to
-give. The four dimensions do take axes on the whole-run web, each as its
-share of items right, which is a reach and not a standing; the web draws no
-average person on those four axes (see **The profile**). Locked, a stand-in
-name and the figure from `teaseValue`, blurred, no buttons.
+`REASONING_KEY`, which is **`Reasoning`** — the key, unchanged, though the
+level is now called **How You Think** on screen (it was `Reasoning` there too
+until September 2026: accurate but dry. **"Logic" was considered and
+dropped** — one of the four arms is already called Logical, and three of the
+four subtests are not logic in anybody's everyday sense — and "Thinking
+Styles" was written for a few minutes before "How You Think", which asks the
+question the level answers instead of naming a category). Hovering an arm
+says what the kind is, never how many were right. `REASONING_OF` names the
+questionnaire; `ARMS` the four, with what leading with each tends to mean and
+the `short` phrase `shortOf` hands out; `ready()` is every kind answered. It
+goes through `dimensionsIn` like the wheel, and it is deliberately more
+reticent than the wheel: no count on hover, no scale of its own, because a
+total is what a reasoning test is usually wanted for and this level does not
+give one. **It was the second figure drawn without norms until September
+2026**, when the four grew invented ones — not for this section, which reads
+none of them, but so that the whole-run web could draw an average person
+right round its rim (see **The profile**). Nothing in the section changed:
+still no row and still no percentile here.
 
-**Feeling and focus.** The Passion & Restraint level (`regulation`, level 9)
+**The web does read them back as a standing, and the wording is what makes
+that all right.** `summarise` says "Verbal: thinking in words — you use it
+less than 97% of people do" where every other axis says "lower than 97% of
+people". The four are named and framed throughout as **styles rather than
+abilities** — Verbal, Logical, Visual, Spatial, never intelligence and never
+a total — so being a less verbal thinker than most is a description and not
+a worse result, which a bare percentile against a bare name could be taken
+for. The words carry that, so they are load-bearing: **if the dimensions are
+ever renamed towards ability, this sentence has to be looked at again.**
+Locked, a stand-in name and the figure from `teaseValue`, blurred, no
+buttons.
+
+**Mind and heart.** The Mind & Heart level (`regulation`)
 closes on one figure for its three questionnaires (`renderHeads`, in
 `js/figures/heads.js`; `HEADS_OF = ["control", "ers", "cerq"]`, rendered where
 the first of them falls in `RUN` and skipped where the other two would, on the
@@ -641,9 +660,9 @@ back):
 | | |
 |---|---|
 | **Restraint** | the mind carries: Self-Control. Named for the level's own second word, and honest to the two BSCS items, which ask about resisting temptation and impulse |
-| **Distractibility** | and this gets in its way: the mean of Mind Wandering, Absent-mindedness and Inattention. The trait rather than the episode, which is what items asking *how often, over the past six months* measure |
+| **Distractibility** | and this gets in its way: the mean of Mind Wandering, Absent-Mindedness and Inattention. The trait rather than the episode, which is what items asking *how often, over the past six months* measure |
 | **Sensitivity** | the heart carries: the mean of the ERS's three, Emotional Sensitivity, Arousal and Persistence |
-| **Brooding** | and this gets in its way: the mean of Rumination, Catastrophising, Self-blame and Other-blame, the four the CERQ literature calls maladaptive, though nothing on screen says so |
+| **Brooding** | and this gets in its way: the mean of Rumination, Catastrophising, Self-Blame and Other-Blame, the four the CERQ literature calls maladaptive, though nothing on screen says so |
 
 The four were **Grip, Wandering, Feeling and Circling** until September 2026,
 when they were renamed in place; nothing is keyed by a channel name, so the
@@ -674,16 +693,27 @@ and **unnamed** — a name for the *quadrant* the sentence came out of ("Full an
 caught", "Wandering") read as a verdict and went the day it was written. Those
 were names for a pair of bars taken together and are not the channel names,
 one of which happened to be "Wandering" too until September 2026. The section is a title
-("Feeling and focus", `.headsview__head`), the chart at the width of the card,
+("Your mind and your heart", `.headsview__head`, and `openSection`'s own name
+for the section is "Mind & Heart", the level's — the two were "Passion &
+Restraint" on the gauge and "Feeling and focus" on the page until September
+2026, which was one level called two things), the chart at the width of the card,
 then **two cards side by side** (`.headsview__pair`, on the old theories'
 pattern), each edged and voting in its own half's colour: which half, the
 sentence, its own vote — "Does this match how you focus?" filed under
 `MIND_KEY`, which is `Mind`, and "Does this match your emotional life?" under
-`HEART_KEY`, which is `Heart` — and then a note saying what the four are, that
-the bars are reaches and not standings, that a busy head is not a broken one.
-What a channel is *made of* is the tooltip on its row and nothing on the page,
-which is the climb's rule: the chart is four names and four numbers. Locked,
-the title and the chart from `teaseValue`, blurred, no cards.
+`HEART_KEY`, which is `Heart` — and then one line, which is all that is left
+of the note: "A busy head is not a broken one, and none of this is a
+diagnosis." **A channel says what it means and never where it came from**
+(September 2026). The tooltip on a bar was one sentence about the thing and
+then a second naming the scales averaged into it — "the average of mind
+wandering, absent-mindedness and inattention" — and the note under the chart
+said the same thing a third time. Both went: which items a number came out of
+is the instrument's business and not the participant's, and a figure that
+shows its own workings reads as a receipt rather than as a reading. The
+tooltip does not repeat the percentage either, that being on the row an inch
+away; **the `aria-label` still carries both**, since a reader handed an
+explicit label never reaches the text inside the row. Locked, the title and
+the chart from `teaseValue`, blurred, no cards.
 
 **The chart is HTML and only the two glyphs are drawn**, which is why this
 figure builds its own stage instead of taking `figureHolder` from `shared`, and
@@ -1128,6 +1158,18 @@ on in it and the level's number in the corner. It is there so that the run
 accumulates something to look at rather than only filling rings in, and the
 badges are a collection: they arrive one at a time, in level order, and stay.
 
+**The profile at its head is a badge too** (September 2026): the same rounded
+square, with a ring round it that fills clockwise as the whole-run web is
+drawn — `--share` on `.shelf__link`, the same registered property a stop on
+the gauge sweeps and in the same units (0 to 100), written by `renderShelf`
+from `results.profileShare()`, which counts the `PROFILE` dimensions that
+have a score. The ring and the note under the web are therefore the same
+count and cannot disagree. Full, it closes in gold (`.shelf__link--whole`),
+the way a finished level's stop does. The bar and the badges on it were
+widened at the same time (84 → 108px, 54 → 74px square, and the two narrow
+and short window sizes with them): a badge is a crop of somebody's own
+drawing and was too small to be one.
+
 A badge is a **second way into the same panel its stop opens**, and the two
 can never disagree, both being read off `levelProgress`. `renderShelf` is
 called at the end of `renderSidebar` rather than beside it — a level finished
@@ -1283,7 +1325,17 @@ through **the crossing** — `gaze()` again, the layer that closes over the way
 in, handed `CROSSING` ("The water ends here. / The descent does not.", the
 floor's depth for a byline) and dressed `gaze--rock` (no eye, warm dark), so
 the first item beneath comes up out of it the way the first item of the run
-does. `gaze()` writes the words it is handed over the Nietzsche line in the
+does. **It carries a sentence under those two lines** (`said`, into
+`.gaze__said`; September 2026): "Everything above this was the surface of
+you. What lies under it is what the rest of the descent is for." Without it
+the crossing is a beautiful animation between two questions that nobody can
+read a meaning off — the point of it is that a threshold was passed and that
+what is under it is the part worth staying for, and the two big lines say
+where but not what. Only a set of words carrying a `said` shows the line:
+the way in is a quotation and explains itself, and the core has nothing left
+to promise. A layer with one is held `GAZE_READ` (9.2 s) rather than
+`GAZE_HOLD` (6.6 s), a sentence wanting reading rather than glancing at; a
+click or a key still cuts either short. `gaze()` writes the words it is handed over the Nietzsche line in the
 markup and leaves them; the way in comes first and only once, so nothing
 reads them back. The descent *share* — the gauge line, `--descent` — still
 gives every scored level the same length, water or rock; only the metres
@@ -1309,7 +1361,7 @@ rather than a white film.
 the file, logged in `CHANGELOG.md`, so an export can always be matched back to
 the code that produced it — then `participant` and `testMode` — which run
 this is and whether it counts — then `battery` — the preset the link named,
-or null (see **Batteries**) — then `levels`, the levels of this run in the order walked, each its `name` and its block list, which is what makes a `timeLevel<N>` or `qualityControl.level<N>` below readable on its own, and `questionnaires`, the questionnaire keys in the order asked (`RUN`; the items' own `order` is theirs) — then `timeStart`, a `timeLevel<N>` per level —
+or null (see **Batteries**) — then `levels`, the levels of this run in the order walked, each its `key`, its `name` and its block list, which is what makes a `timeLevel<N>` or `qualityControl.<key>` below readable on its own — the key being what the file is written under and the name what the person read, so one can always be turned into the other, and `questionnaires`, the questionnaire keys in the order asked (`RUN`; the items' own `order` is theirs) — then `timeStart`, a `timeLevel<N>` per level —
 when that level was last left with nothing outstanding, stamped in `answer()`
 rather than on the level screen, which the last level never shows — `formatMint`,
 `qualityControl`, then `items[]`
@@ -1333,15 +1385,24 @@ the object app.js hands it — and last `ratings`, the stars each level's result
 were given (see **What the level was worth**), written the same way: one per
 *scored* level, `null` until somebody rates it and `null` again if they take it
 back, so an unrated level and an unreached one read alike. **They are keyed by
-the level's name and not its number** (`ratings["Character"]`, September 2026):
-a number is a place in one person's run, and the run is drawn and partly chosen,
-so `Level_5` is Character for one person and Reasoning for the next — a column
-of numbered ratings holds a different level in every row, which is not a column.
-The set of names does not move when a fork swaps two levels, since the names
-cross over with them. `levelKey` in `app.js` is the one place that is decided,
-and it is handed across the seam as `ratingKey` so that `results.js` asks rather
-than works it out; two levels sharing a name throws at build time, since their
-ratings would silently merge. The level screen's own item in `items[]` keeps its
+the level's `key` — not its number, and not the name on screen**
+(`ratings["Character"]`, `ratings["MoodHealth"]`). A number is a place in one
+person's run, and the run is drawn and partly chosen, so `Level_5` is Character
+for one person and Reasoning for the next — a column of numbered ratings holds a
+different level in every row, which is not a column. **And a name is prose.** It
+is what the gauge, the level screen and the results panel call the level, it is
+written to make the test engaging and is free to be reworded for that, and it
+may hold an ampersand, a hyphen or an article — "Mood & Health", "The World" —
+none of which a column name can keep. So each level carries a `key` in
+`content/timeline.js` beside its `name`, the way a questionnaire and an item do,
+and the key is what the file is written under. The set of keys does not move
+when a fork swaps two levels, since the key crosses over with the level the way
+the name and the blocks do (`swapLevels`). `levelKey` in `app.js` is the one
+place that is decided, and it is handed across the seam as `ratingKey` so that
+`results.js` asks rather than works it out; a level with no key, or two levels
+sharing one, throws at build time, since their ratings would silently merge.
+`levels` in the saved file carries both, so a key can always be read back as a
+name. The level screen's own item in `items[]` keeps its
 `Level_<N>` key, an item key being an item key — `levels` is what joins the two. `response` is
 what was read on screen, not the code behind it — `said()` gives back the
 option's own text ("Male", not 1), so a saved file is legible without the
@@ -1368,13 +1429,23 @@ was answered rather than nothing at all. **That is the whole reason for
 streaming**: the run is thirty or forty minutes long, and until September 2026
 a run left halfway saved nothing (see the parked note this replaced, below).
 
-**At the end**, the whole of `container()` in one piece, exactly as "Download
-responses" would save it, so the two can never disagree — and carrying the
+**At the end**, the whole of `container()` in one piece, exactly as the
+download button would save it, so the two can never disagree — and carrying the
 session's id, which is what tells DataPipe that the records it has been holding
 belong to a run that finished, and are to be dropped rather than filed as a
 partial beside the complete one. `saved()` writes the outcome into `#save-note`
-on the last screen — sending, saved, or failed with the download button as the
-way out — and goes on `result.ok` alone. An agree/disagree or a star given on a
+on the last screen — sending, saved, or failed — and goes on `result.ok` alone.
+
+**The download is no longer offered** (September 2026). It was two buttons: one
+under the save note on the last screen and one at the foot of the Raw results
+panel. The run now saves itself, every answer as it is given and the whole file
+at the end, so there is nothing for a participant to keep and an unexplained
+"Download responses (.json)" only invites the question of why they would want
+to. The panel's went outright — nothing has failed there, and the file is on
+screen to be read — and the last screen's is written `hidden` and uncovered by
+`saved("failed")` and by nothing else, since a send that did not land is the
+one case where the answers are still in the page and need a way out of it.
+`download()` itself is unchanged and is what that one button still calls. An agree/disagree or a star given on a
 level reopened *after* the end is the one thing the sent file can miss; that is
 accepted, since a filename is taken once and a second copy would be refused.
 
@@ -1409,15 +1480,22 @@ is a new answer, even where it is the same answer.
 **The staging is best-effort and can never hold the run up.** A session that
 will not start warns in the console and disables itself, every call into it
 swallows its own errors, and the file at the end goes whether any of it worked.
-**The flush at the end is raced against `STAGING_WAIT`** (4 s) rather than
-waited on, and the close after it is not waited on at all. That is not
-belt-and-braces: the flush goes to the staging database over a connection of its
-own, and a browser throttles the timers behind a tab that is not in front — a
-run finished with the tab in the background sat on "Saving your answers…" for
-the best part of a minute before the race went in (tested 22 September 2026, in
-a hidden preview pane). A blocked or slow staging database must cost the staged
-copy and never the file, so after four seconds the file goes without the
-session's id, which costs at most a partial filed beside a complete run.
+**The file at the end waits for the session to have *started* and for nothing
+else**, and the close after it is not waited on at all. The session goes to
+`saveData` as the `session` itself rather than as its id, and the client waits
+on `session.ready()` — startup alone, not the staged writes, which go over a
+database connection of their own and have their timers throttled to a crawl
+behind a tab that is not in front. **That is the fix for the thing this app
+raised**: the documented flush-then-read-the-id sequence left a run finished in
+the background sitting on "Saving your answers…" for the best part of a minute
+(tested 22 September 2026, in a hidden preview pane), and what stood here until
+the client grew `ready()` was a flush raced against a four-second timeout, which
+bought the same behaviour at the cost of sometimes sending the file without the
+id (jspsych/datapipe#273; datapipe-client 0.2.0, 22 September 2026). Nothing
+about the staging may cost the file, and now nothing can: the only thing between
+the last answer and the send is a session handshake that a throttled tab does
+not slow down. The flush that the race was for is `close()`'s own, on its way
+out.
 A session is opened when the **Start** button is pressed rather than when the
 page loads — somebody who read the landing page and left is not a participant,
 and a session held open for them is one of the five hundred an experiment may
@@ -1440,10 +1518,11 @@ third-party code changing under a running study, on a page that asks about
 psychiatric diagnoses. Vendored, the code a participant runs is the code that
 was reviewed, and the page still works with no internet but DataPipe's own.
 **It is the one exception to "dependency-free"**, and it is pinned:
-`datapipe-client@0.1.0`, from
-`https://unpkg.com/datapipe-client@0.1.0/dist/datapipe-client.browser.global.js`,
-sha256 `a5ffee8d…d643a84`. Updating it means fetching a new version by hand and
-writing the new version and hash here. It is a classic script and defines one
+`datapipe-client@0.2.0`, from
+`https://unpkg.com/datapipe-client@0.2.0/dist/datapipe-client.browser.global.js`,
+sha256 `b2af030b…9774310c` (0.1.0, sha256 `a5ffee8d…d643a84`, until 22
+September 2026). Updating it means fetching a new version by hand and writing
+the new version and hash here. It is a classic script and defines one
 global, `DataPipe`; its tag goes **first** in `index.html`, above `content/`,
 since nothing else on the page reads it at load. **Without it the run still
 saves**: `send()` falls back to the documented `POST /api/data/`, which is the
@@ -1458,6 +1537,15 @@ at `pipe.jspsych.org/docs/api`: `POST /api/data/` takes `experimentID`,
 `ok` rather than on the status), and refuses with 400 and an `error` code
 (`EXPERIMENT_NOT_FOUND`, `FILE_EXISTS`, `INVALID_DATA`, `EXPERIMENT_FINALIZED`,
 …; the three that were `OSF_*` lost the prefix in the September 2026 release).
+That code is the whole of what says *which* thing went wrong, and it comes back
+on the client's `body`, so a refusal is written into the console beside the
+status rather than left as a status nobody can act on. **The name of the
+experiment field is `experimentID` here and should stay that way**: the client
+takes `experiment_id` too since 0.2.0 (jsPsych's own spelling, and the one its
+README now uses) and throws if it is handed both with different values, but the
+plain `POST` fallback is hand-built against the REST API, which documents the
+camelCase name alone — one name in one file is worth more than agreeing with a
+README.
 And the limits the staging works inside are DataPipe's: 16 KiB a record, 1,000
 records a session, 500 sessions at once, 24 hours a session, and 100 files a
 Zenodo record — past 80 of them DataPipe zips the older ones into
@@ -1587,7 +1675,9 @@ origin and path alone, so it never carries a battery and always reads against
 the whole run's profile.
 
 **Quality control.** `qualityControl` is one entry per level, **keyed by the
-level's name** for the reason the ratings are (`level<N>` until September 2026),
+level's `key`** for the reason the ratings are (the level's *name* between
+September 2026 and the key; `level<N>` before that, and `preprocess.R` reads
+all three),
 saying how the level was answered rather than what it says, and three numbers is
 the whole of it: `responseTimeMean` and `responseTimeSD` in milliseconds — sample SD, null
 where there is only one time to go on — and `attentionChecksFailed`. `took()`
@@ -1742,21 +1832,35 @@ before the study runs.**
   level-3 one, `Year` the level-4 vote on the climb, `World` the vote
   on the sea, `Archetype` the one on the wheel, `Reasoning` the level-8
   vote on the compass, and `Heart` and `Mind` the level-9 votes on the two
-  halves of **Feeling and focus**. All nine are load-bearing: the
-  feedback collected under them has to keep stacking. (Files from before the
+  halves of **Mind and heart**. All nine are load-bearing: the
+  feedback collected under them has to keep stacking. Each is now written as
+  its own key in the figure file rather than as prose filed into one —
+  `ARCHETYPE_KEY` was `"AI Archetype"` and `STARS_KEY` was `"Star Sign"` until
+  September 2026, which filed to exactly these, so nothing collected moved. (Files from before the
   climb carry `Mood`, `Health` and, earlier, `Stress` instead of `Year`.)
   (An `"Old Theories"` forced choice between the two was built and taken
   out the same day, September 2026, as redundant with the two votes; a file
   from a test run that day may carry it.)
-- **A vote is filed under a one-word key, not under the name on screen.**
-  `pickButtons` puts every pick through `filed()`, which takes the spaces and
-  punctuation out of the reading's name — "Bodily Awareness" is filed as
-  `BodilyAwareness`, "AI Archetype" as `AIArchetype` — so that every key in
-  the saved file, items and feedback alike, is one word. Files written before
-  September 2026 carry the names with the spaces still in them.
+- **A vote is filed under a written key, not under the name on screen.**
+  A dimension that is fed back carries a `key` beside its norms in `content/`
+  ("Bodily Awareness" → `BodilyAwareness`) and a figure's vote names its own
+  (`SEA_KEY`, `ARCHETYPE_KEY` and the rest, which *are* the key rather than
+  prose that files to one). `feedbackKey()` in `results.js` reads the written
+  key and falls back to `filed()` — the old derivation, spaces and punctuation
+  taken out — for a dimension that grows interpretations before it grows a key;
+  `pickButtons` is handed a key and no longer works one out, so nothing on
+  screen is ever the thing a vote is filed by. It is written rather than
+  derived for the reason a level's key is: the name beside it is prose and free
+  to change, and a column of a study's data is not. **`feedbackKeys()` throws
+  when two readings file under one key**, the way `levelKey` does — the
+  derivation was silent about it, and two dimensions would have shared a vote.
+  Note that `voteButtons` is handed a dimension by a results row and its own
+  key by a figure with no dimension to read against, so `feedbackKey` passes a
+  name that is not a dimension of this run straight through. Files written
+  before September 2026 carry the names with the spaces still in them.
 - **Every demographic item is keyed `Demographics_…`** (September 2026):
   `Demographics_Age`, `Demographics_BirthMonth`, `Demographics_Gender`,
-  `Demographics_Education`, `Demographics_Country`, `Demographics_MSSS_SocialStatus`
+  `Demographics_Education`, `Demographics_Country`, `Demographics_SocialStatus`
   and the rest, across all three demographics blocks, so a saved file sorts
   them together. The questionnaire keys stay `demographics1`…`3`. Files
   written before then carry the bare names (`Age`, `BirthMonth`, …) and want
@@ -1771,6 +1875,33 @@ before the study runs.**
   filled and eleven null, under the old names, and wants coalescing and
   renaming at analysis time. The sign is read from month and half together,
   never from a day, which is not asked, on purpose.
+- **`Catastrophising` and `CERQ_Catastrophizing_N` are spelled differently on
+  purpose.** The dimension takes the app's British spelling, which is what the
+  person reads; the item keys keep Garnefski's own, which is what a published
+  scoring script matches. The same goes for `Perspective` and `RefocusPlanning`,
+  whose keys are his shorthand for dimensions named in full. Written up at the
+  head of the CERQ in `content/block_regulation.js`; it is a decision, not a
+  slip, and reconciling the two would break one side or the other.
+- **An item key's middle segment is not always the scored dimension, and
+  nothing marks which it is.** `CERQ_SelfBlame_1`, `PI_Safe_1`,
+  `Archetype_Idealist_1` and `PHQ4_Anxiety_1` name the dimension the item
+  feeds; `MINT_ExAc_1` and `HEXACO_Sincerity` name a *facet* under one
+  (Bodily Awareness, Honesty-Humility), `ERS_Sensitivity_1` names it a word
+  short of it (Emotional Sensitivity), and `ASRS_1`, `CFQ_10`, `HITOP_01` and
+  the ICAR's four name none at all. **That is deliberate and should stay**: a
+  key names the finest scale its own instrument defines, which is the thing a
+  published key has to match, and the MINT and the HEXACO genuinely want the
+  facet in the key. The cost is that `grep("^CERQ_SelfBlame", names(d))` works
+  and looks general when it is not, so **key → dimension is not derivable from
+  the key**: it lives in `content/`, and `data/synthetic/codebook.js` is what
+  reads it out. An analysis that wants to group by dimension goes there.
+- **A number in a key is padded only where a stem can reach ten.** `HITOP_01`
+  and `ICAR_VR_04` are padded because their numbers run past nine under one
+  stem and would otherwise sort `1, 10, 11, 2`; everything else — the MINT's
+  threes, the archetypes' threes, the primals' sevens — never does, so it is
+  not. The rule is about sorting and nothing else: a regex splits `_(\d+)$`
+  either way. Pad a new instrument's numbers if one of its stems can reach ten,
+  and do not go back and pad the ones that cannot.
 - **"Block" also means two things.** A *block* is one file of questions in
   `content/`, named in the timeline. A *results* block is a `.result` section,
   above. The first is in `content/` and `app.js`, the second in `results.js`.
@@ -1809,11 +1940,19 @@ before the study runs.**
   present the rest as real, and keep the flags when editing. The
   `archetypes` block has none at all, and that is deliberate rather than
   unfinished — writing twelve would be twelve more invented numbers, and the
-  wheel does not want them. Don't "fix" it by adding some. Nor has the
-  `icar` block, for a different reason: the SAPA norms exist, and the
-  level is written not to read them — the compass compares the four kinds
-  with each other, and a percentile on intelligence is the one thing the
-  author decided this test would not hand back.
+  wheel does not want them. Don't "fix" it by adding some. **The `icar`
+  block is the opposite case and worth reading twice**: it has norms, and
+  nothing on its own level reads them. They went in in September 2026 for
+  the whole-run web alone — the average person is drawn from a mean on
+  every axis, and four axes without one left a gap in that ring — and they
+  are invented placeholders like the rest, not the SAPA norms, which exist
+  and are still not used. The compass compares the four kinds with each
+  other and with nobody, and a percentile on reasoning is the one thing the
+  author decided this test would not hand back: no row, no interpretation and
+  no `key`. The whole-run web does give a standing on them, worded as a style
+  and not as a score — see **The compass** for why that is a different thing.
+  Adding an `interpretations` to one of them would grow a results row and a
+  vote on a level that gives neither.
 - **The consent form in `index.html` is not approved text yet.** Since
   September 2026 it is modelled on the University of Sussex sheet the MINT
   validation study ran with (`ethics/mint_validation/Consent.pdf`) — the same
@@ -1848,8 +1987,12 @@ before the study runs.**
   way a finished one leaves a `test-…json`. The `test-` prefix is what picks
   both out for binning; nothing else does. To exercise the wiring without
   sending anything, put a stub on `window.DataPipe` before pressing Start —
-  `createSession` returning `{sessionId, record, flush, close}` and `saveData`
-  returning `{ok: true}` — which is how it was tested when it went in. Note
+  `createSession` returning `{sessionId, ready, record, flush, close}` and
+  `saveData` returning `{ok: true}` — which is how it was tested when it went
+  in and again on 22 September 2026. `ready()` is new to the stub: the session
+  is handed to `saveData` whole now, and that is what the real client awaits on
+  it, so a stub session without one cannot stand in for it (and a stub of
+  `createSession` alone, left to the real `saveData`, fails the send outright). Note
   that `delete window.DataPipe` does **not** work: the bundle declares it with
   `var`, so the global is writable but not configurable, and what removes it is
   `window.DataPipe = undefined`.

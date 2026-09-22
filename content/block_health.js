@@ -159,13 +159,13 @@ defineBlock("health", [
 
         items: [
             {
-                key: "Disorders_Psychiatric",
+                key: "Psychiatric_Diagnoses",
                 text: "Are you currently living with any of the following, as diagnosed by a professional?",
             },
             {
-                key: "Disorders_PsychiatricTreatment",
+                key: "Psychiatric_Treatment",
                 text: "Are you currently receiving any of the following?",
-                showIf: { key: "Disorders_Psychiatric", is: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 99] },
+                showIf: { key: "Psychiatric_Diagnoses", is: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 99] },
                 format: {
                     options: [
                         { value: 1, text: "Antidepressant medication (e.g., PROZAC, ZOLOFT, EFFEXOR)" },
@@ -203,7 +203,7 @@ defineBlock("health", [
 
     //     items: [
     //         {
-    //             key: "Disorders_Somatic_Musculoskeletal",
+    //             key: "Somatic_Musculoskeletal",
     //             text: "Are you currently living with a diagnosed condition related to your <em>muscles, joints and pain</em>",
     //             format: {
     //                 options: [
@@ -221,7 +221,7 @@ defineBlock("health", [
     //             },
     //         },
     //         {
-    //             key: "Disorders_Somatic_Dermatological",
+    //             key: "Somatic_Dermatological",
     //             text: "Are you currently living with a diagnosed condition related to your <em>skin</em>",
     //             format: {
     //                 options: [
@@ -237,7 +237,7 @@ defineBlock("health", [
     //             },
     //         },
     //         {
-    //             key: "Disorders_Somatic_Cardiovascular",
+    //             key: "Somatic_Cardiovascular",
     //             text: "Are you currently living with a diagnosed condition related to your <em>heart and circulation</em>",
     //             format: {
     //                 options: [
@@ -253,7 +253,7 @@ defineBlock("health", [
     //             },
     //         },
     //         {
-    //             key: "Disorders_Somatic_Gastrointestinal",
+    //             key: "Somatic_Gastrointestinal",
     //             text: "Are you currently living with a diagnosed condition related to your <em>stomach and gut</em>",
     //             format: {
     //                 options: [
@@ -272,7 +272,7 @@ defineBlock("health", [
     //             },
     //         },
     //         {
-    //             key: "Disorders_Somatic_Respiratory",
+    //             key: "Somatic_Respiratory",
     //             text: "Are you currently living with a diagnosed condition related to your <em>lungs or breathing</em>",
     //             format: {
     //                 options: [
@@ -288,7 +288,7 @@ defineBlock("health", [
     //             },
     //         },
     //         {
-    //             key: "Disorders_Somatic_Neurological",
+    //             key: "Somatic_Neurological",
     //             text: "Are you currently living with a diagnosed condition related to your <em>brain and nerves</em>",
     //             format: {
     //                 options: [
@@ -305,7 +305,7 @@ defineBlock("health", [
     //             },
     //         },
     //         {
-    //             key: "Disorders_Somatic_Genitourinary",
+    //             key: "Somatic_Genitourinary",
     //             text: "Are you currently living with a diagnosed condition related to your <em>bladder or reproductive organs</em>",
     //             format: {
     //                 options: [

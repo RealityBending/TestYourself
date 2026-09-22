@@ -40,12 +40,21 @@ defineBlock("icar", [
     // Scored right or wrong: every item carries `correct:` (the hash of its
     // right option, see timeline.js) and counts 1 or 0, so a dimension's
     // score is the share of its four items got right. The four types are four
-    // dimensions on purpose, and there are NO NORMS, on purpose: the level is
-    // read back as the four against each other — which came easiest — and
-    // not as a standing against other people. A general score is deliberately
-    // not fed back; the total is one sum at analysis time. The four take axes
-    // on the whole-run web (`profile: true`, the opt-in for a questionnaire
-    // without norms), each as its share of items right.
+    // dimensions on purpose. A general score is deliberately not fed back;
+    // the total is one sum at analysis time.
+    //
+    // THE NORMS BELOW ARE INVENTED PLACEHOLDERS, like every other set in
+    // `content/` but the HiTOP-BR's and the MINT's, and they are here for one
+    // reason: the whole-run profile web draws the average person from a mean
+    // on every axis, and four axes without one left a gap in that ring where
+    // the reasoning's four fell (September 2026). They put the four on the
+    // web beside everything else instead. **The level itself still reads no
+    // standing off them** — `renderReasoning` takes the section whole, so
+    // there is no row, no percentile and no interpretation here, and the
+    // compass goes on comparing the four kinds with each other and with
+    // nobody. The real SAPA norms exist and are deliberately not used: a
+    // percentile on reasoning is the one thing this test does not hand back
+    // on its own level.
     //
     // THE FOUR CARRY PLAIN NAMES, framed to the participant as four cognitive
     // styles rather than as the ICAR's subtests — Verbal for verbal reasoning,
@@ -72,9 +81,23 @@ defineBlock("icar", [
     // right.
     {
         key: "icar16",
-        name: "Reasoning",
+        name: "How You Think",
         profile: true,
         instructions: "Choose the one answer you think is right",
+
+        // INVENTED PLACEHOLDERS — see the note above. A score here is a share
+        // of four items right, so the scale is 0 to 1 and a mean is the share
+        // an average person gets; the ordering follows the published
+        // difficulty of the four subtests, the rotations being the hardest.
+        // No `key` and no `interpretations` on any of them, on purpose:
+        // neither is read, and writing them would grow a results row and a
+        // vote on a level that gives neither.
+        norms: {
+            Verbal: { mean: 0.55, sd: 0.3 },
+            Logical: { mean: 0.48, sd: 0.31 },
+            Visual: { mean: 0.5, sd: 0.3 },
+            Spatial: { mean: 0.34, sd: 0.29 },
+        },
 
         items: [
             // Verbal reasoning ------------------------------------------------

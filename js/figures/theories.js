@@ -22,7 +22,7 @@ function makeTheories(shared) {
 
     const OLD_THEORIES_OF = "fipi"
     const TEMPERAMENT_KEY = "Temperament"
-    const STARS_KEY = "Star Sign"
+    const STARS_KEY = "StarSign"
     const STARS_FROM = "demographics1" // the questionnaire the birthday is read out of; without it there is no star card
     const TEMPERAMENT_ON = ["Extraversion", "Emotional Stability"] // across, then up
 

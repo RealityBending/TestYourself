@@ -555,7 +555,7 @@
             participant: participant,
             testMode: testMode,
             battery: battery,
-            levels: PLAN.map((entry) => ({ name: entry.name, blocks: entry.blocks.slice() })),
+            levels: PLAN.map((entry) => ({ key: entry.key, name: entry.name, blocks: entry.blocks.slice() })),
             questionnaires: RUN.slice(),
             timeStart: timeStart,
         }
@@ -568,8 +568,8 @@
         file.formatMint = formatMint
 
         // How each level was answered, beside when it was finished — **under
-        // the level's name, for the reason the ratings are** (see `levelKey`):
-        // a number is a place in one person's run and a name is the same thing
+        // the level's key, for the reason the ratings are** (see `levelKey`):
+        // a number is a place in one person's run and a key is the same thing
         // for everybody, so `qualityControl["Character"]` can be read down a
         // column where `qualityControl.level5` cannot.
         file.qualityControl = {}
@@ -1247,25 +1247,32 @@
     const levelItem = (level) => levelItems.find((item) => item.level === level)
 
     // A star rating belongs to the same screen, but it is **filed under the
-    // level's name rather than its number** — `ratings["Character"]`, not
+    // level's key rather than its number** — `ratings["Character"]`, not
     // `ratings["Level_5"]`. A level number is a place in one person's run, and
     // the run is drawn and partly chosen, so level 5 is Character for one
     // person and Reasoning for the next: a column of numbered ratings holds a
-    // different level in every row, which is not a column. The name is the
-    // same thing for everybody. `levelKey` is the one place that is decided,
-    // and the seam hands it to `results.js` so nothing there has to know how a
-    // rating is keyed. The set of names does not move when a fork swaps two
-    // levels — the names cross over with the levels, so the same names are
+    // different level in every row, which is not a column. The key is the same
+    // thing for everybody. It is written in the timeline beside the name and is
+    // not the name: the name is participant-facing prose, free to change for
+    // the sake of the test and free to hold an ampersand or an article, and a
+    // column of a study's data is neither. `levelKey` is the one place that is
+    // decided, and the seam hands it to `results.js` so nothing there has to
+    // know how a rating is keyed. The set of keys does not move when a fork
+    // swaps two levels — they cross over with the levels, so the same keys are
     // always all present — which is why they can be written in up front.
-    const levelKey = (level) => levelName(level)
+    const levelKey = (level) => PLAN[level - 1].key
 
-    // Two levels of one name would quietly share a rating and a quality-control
+    // Two levels of one key would quietly share a rating and a quality-control
     // entry, and nothing downstream could tell them apart. Every level is
     // checked and not only the scored ones, since the quality control covers
-    // the closing level too.
+    // the closing level too. A level with no key at all is the same fault found
+    // one step earlier.
     const levelKeys = levels.map(levelKey)
+    if (levelKeys.some((key) => !key)) {
+        throw new Error("a level of the timeline has no key: " + levels.map(levelName).join(", "))
+    }
     if (new Set(levelKeys).size !== levelKeys.length) {
-        throw new Error("two levels share a name, so their ratings would collide: " + levelKeys.join(", "))
+        throw new Error("two levels share a key, so their ratings would collide: " + levelKeys.join(", "))
     }
 
     for (const item of levelItems) ratings[levelKey(item.level)] = null
@@ -1576,6 +1583,17 @@
             }
             place(wrap, mintBadge(level))
         }
+
+        // The way into the profile is at the head of this bar, and it is a
+        // badge like the rest: a ring round it filled to how much of the
+        // whole-run web is drawn. `--share` is the same custom property a
+        // stop on the gauge sweeps, so the two read alike, and the button is
+        // told what it holds rather than working it out.
+        const drawn = results.profileShare()
+        const link = $("profile")
+        link.style.setProperty("--share", drawn.share * 100)
+        link.classList.toggle("shelf__link--whole", drawn.of > 0 && drawn.found === drawn.of)
+        link.title = drawn.of ? drawn.found + " of " + drawn.of + " dimensions drawn" : "Your profile"
     }
 
     // In level order rather than in the order they were earned: the two are
@@ -1969,7 +1987,9 @@
         const low = Math.min(one, other)
         const high = Math.max(one, other)
 
-        for (const field of ["name", "blocks", "written"]) {
+        // The key travels with what is asked, the way the name and the blocks
+        // do: it is the level's identity in the saved file, not the place's.
+        for (const field of ["key", "name", "blocks", "written"]) {
             const held = PLAN[low - 1][field]
             PLAN[low - 1][field] = PLAN[high - 1][field]
             PLAN[high - 1][field] = held
@@ -2231,7 +2251,6 @@
     // worked or not.
     const DATAPIPE = "https://pipe.jspsych.org" // the service; the client puts its own `/api/…` on the end
     const DATAPIPE_EXPERIMENT = "C2mDNSFM3jAJ" // TestYourself, bound to a Zenodo deposit
-    const STAGING_WAIT = 4000 // ms the file waits on the staged copy at the end before going without it
 
     // The file's name at the far end has to be one nobody has used — DataPipe
     // refuses a name it has already taken, and a code brought in on the link
@@ -2313,12 +2332,23 @@
         }
     }
 
-    // The end of the run. The staged copy is brought up to date and flushed —
-    // which is also how the session's id is waited for, since a session starts
-    // in the background and has none until it has — then the whole file goes
-    // under that id, and the session is closed behind it: closed as submitted,
+    // The end of the run. The whole file goes under the session — which is what
+    // tells DataPipe that the records it has been holding belong to a run that
+    // finished — and the session is closed behind it: closed as submitted,
     // which is what drops the staged copy rather than leaving it to be filed as
     // a partial fifteen minutes later.
+    //
+    // **Handing the session to `saveData` is the whole of the waiting.** The
+    // client waits on `session.ready()`, which is the session having *started*
+    // and nothing else — not the staged writes, which go over a database
+    // connection of their own and have their timers throttled to a crawl behind
+    // a tab that is not in front. A run finished in the background used to sit
+    // on "Saving your answers…" for the best part of a minute for that reason
+    // (tested 22 September 2026), and a flush raced against a four-second
+    // timeout stood here until the client learned to do it properly
+    // (datapipe-client 0.2.0, which added `ready()` and this `session`
+    // parameter for exactly this). Nothing about the staging may hold the file
+    // up, and now nothing can.
     //
     // It goes once, when the last item is answered: nothing after that changes
     // an answer. The one thing it can miss is an agree/disagree or a rating
@@ -2343,31 +2373,27 @@
     async function sendRun() {
         stageFrame()
 
-        // The flush is waited on because the session's id comes with it, and
-        // the id is what matches the staged copy to this file. **It is waited
-        // on for a moment and not for ever**, which is the whole point of this
-        // race: a flush goes to the staging database over a connection of its
-        // own, and a tab left in the background has the timers behind it
-        // throttled to a crawl. Nothing about the staging may hold up the file,
-        // so the wait is time-boxed and the file goes either way — without the
-        // id, at worst, which costs a partial filed beside a complete run.
-        if (session) {
-            await Promise.race([session.flush().catch(() => {}), new Promise((done) => setTimeout(done, STAGING_WAIT))])
-        }
-
         const sent = await send(JSON.stringify(container(), null, 2))
 
         // Closing as submitted is what drops the staged copy rather than
-        // leaving it to be filed as a partial a quarter of an hour later. It is
-        // not waited on: the file has gone, and holding "Saving your answers…"
-        // on screen for the sake of tidying up behind it would be the staging
-        // costing the person something again. It takes about a tenth of a
-        // second, so a tab shut on the instant is the only way it does not
-        // finish — and what that costs is a partial filed beside a complete
-        // run, under the same name, which is noise rather than a lost answer.
+        // leaving it to be filed as a partial a quarter of an hour later; it
+        // flushes what is still staged on its way out. It is not waited on: the
+        // file has gone, and holding "Saving your answers…" on screen for the
+        // sake of tidying up behind it would be the staging costing the person
+        // something again. It takes about a tenth of a second, so a tab shut on
+        // the instant is the only way it does not finish — and what that costs
+        // is a partial filed beside a complete run, under the same name, which
+        // is noise rather than a lost answer.
         if (session) session.close({ submitted: sent.ok }).catch(() => {})
-        // What the last screen says goes by whether it arrived and nothing else.
-        if (!sent.ok) throw new Error("DataPipe answered " + sent.status)
+        // What the last screen says goes by whether it arrived and nothing
+        // else. A refusal carries a reason with it (`FILE_EXISTS`,
+        // `EXPERIMENT_FINALIZED`, …), which is worth having in the console of
+        // whoever is looking: a status alone says a file did not land and not
+        // which of the several quite different things went wrong.
+        if (!sent.ok) {
+            console.warn("DataPipe refused the file: " + sent.status, sent.body)
+            throw new Error("DataPipe answered " + sent.status)
+        }
     }
 
     // The client does the sending: it gzips what it is handed, tries again in
@@ -2377,8 +2403,14 @@
     // cost the staging, not the data.
     function send(data) {
         const body = { experimentID: DATAPIPE_EXPERIMENT, filename: FILENAME, data: data }
+        // The session goes with it rather than its id: the client waits for the
+        // session to have started and puts the id on the request itself, which
+        // is what a hand-built one would have to do with `ready()` and
+        // `sessionId`. The plain POST below is hand-built, and has no id to put
+        // on — the fallback is for a client missing from the deploy, and a
+        // session cannot have been opened without one either.
         if (window.DataPipe) {
-            return DataPipe.saveData(session && session.sessionId ? { ...body, sessionId: session.sessionId } : body)
+            return DataPipe.saveData(session ? { ...body, session } : body)
         }
         return fetch(DATAPIPE + "/api/data/", {
             method: "POST",
@@ -2390,9 +2422,11 @@
         )
     }
 
-    // What the last screen says about it. The download button underneath is
-    // the way out if it went wrong: the answers are still in the page, and the
-    // person can keep them and send them by hand.
+    // What the last screen says about it. The run saves itself — every answer
+    // as it is given and the whole file at the end — so there is nothing here
+    // for a participant to keep, and the download is not offered. It is the
+    // way out of a failed send and nothing else: the answers are still in the
+    // page, and this is how they get to somebody. Uncovered here and nowhere.
     function saved(state) {
         const note = $("save-note")
         note.classList.toggle("save__note--done", state === "done")
@@ -2403,6 +2437,7 @@
                 : state === "failed"
                   ? "Your answers could not be sent. Please download them below and email the file to D.Makowski@sussex.ac.uk."
                   : "Saving your answers…"
+        $("download").hidden = state !== "failed"
     }
 
     /* ------------------------------- results ----------------------------- */
@@ -2571,6 +2606,10 @@
     // The line the test is named after, held on screen once before the first
     // question. Any click or key cuts it short.
     const GAZE_HOLD = 6600 // ms the quote is left up for
+    // A crossing carries a sentence under its two lines, and a sentence wants
+    // reading rather than glancing at: the layer is held longer where there is
+    // one. A click or a key still cuts either short.
+    const GAZE_READ = 9200
     const GAZE_FADE = 1900 // ms it takes to clear, the words going before the dark
 
     // The words the same layer closes over the page with on the way through
@@ -2578,7 +2617,16 @@
     // and again at the bottom of the rock, where the run ends and the whole-run
     // web comes up out of the dark the way the first question did. Three
     // thresholds, one device: the surface, the seabed and the core.
-    const CROSSING = { lines: ["The water ends here.", "The descent does not."], by: "The floor · " + sounding(DEEPEST), dress: "gaze--rock" }
+    // `said` is the one line either of these carries under the two big ones,
+    // and it is what makes the crossing mean something rather than being an
+    // animation between two questions: everything above the floor asked what
+    // somebody is like, and what is under it is what the rest is for.
+    const CROSSING = {
+        lines: ["The water ends here.", "The descent does not."],
+        said: "Everything above this was the surface of you. What lies under it is what the rest of the descent is for.",
+        by: "The floor · " + sounding(DEEPEST),
+        dress: "gaze--rock",
+    }
     // The core carries no depth: the run is over, and how far down it went is
     // the last thing the profile behind this wants said over it.
     const CORE = {
@@ -2600,6 +2648,11 @@
             words.lines.forEach((line, at) => (lines[at].textContent = line))
             layer.querySelector(".gaze__by").textContent = words.by
         }
+        // The way in is a quotation and explains itself; a crossing is a place
+        // and does not, so only the ones that bring a line show one.
+        const said = $("gaze-said")
+        said.textContent = (words && words.said) || ""
+        said.hidden = !said.textContent
         layer.classList.remove("gaze--rock", "gaze--core")
         if (words) layer.classList.add(words.dress)
 
@@ -2642,7 +2695,7 @@
         layer.hidden = false
         layer.addEventListener("click", finish, { once: true })
         document.addEventListener("keydown", finish, true)
-        setTimeout(finish, GAZE_HOLD)
+        setTimeout(finish, words && words.said ? GAZE_READ : GAZE_HOLD)
     }
 
     // Agreeing to take part carries on down rather than going back up: pressing
@@ -2669,7 +2722,6 @@
     $("back").addEventListener("click", goBack)
     $("briefing-go").addEventListener("click", passBriefing)
     $("download").addEventListener("click", download)
-    $("raw-download").addEventListener("click", download)
     // Every way in is also the way out: pressing a lit button shuts what it lit.
     $("profile").addEventListener("click", () => (panel === "profile" ? closePanel() : openProfile()))
     $("raw").addEventListener("click", () => (panel === "raw" ? closePanel() : openRaw()))

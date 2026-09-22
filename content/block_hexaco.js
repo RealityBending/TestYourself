@@ -208,6 +208,7 @@ defineBlock("hexaco", [
         // PLACEHOLDER norms, invented. Not from any published sample.
         norms: {
             "Honesty-Humility": {
+                key: "HonestyHumility",
                 mean: 3.6,
                 sd: 0.7,
                 interpretations: {
@@ -217,6 +218,7 @@ defineBlock("hexaco", [
                 },
             },
             "Emotionality": {
+                key: "Emotionality",
                 mean: 3.2,
                 sd: 0.7,
                 interpretations: {
@@ -226,6 +228,7 @@ defineBlock("hexaco", [
                 },
             },
             "Sociability": {
+                key: "Sociability",
                 mean: 3.3,
                 sd: 0.7,
                 interpretations: {
@@ -235,6 +238,7 @@ defineBlock("hexaco", [
                 },
             },
             "Patience": {
+                key: "Patience",
                 mean: 3.1,
                 sd: 0.6,
                 interpretations: {
@@ -244,6 +248,7 @@ defineBlock("hexaco", [
                 },
             },
             "Diligence": {
+                key: "Diligence",
                 mean: 3.5,
                 sd: 0.7,
                 interpretations: {
@@ -253,6 +258,7 @@ defineBlock("hexaco", [
                 },
             },
             "Curiosity": {
+                key: "Curiosity",
                 mean: 3.5,
                 sd: 0.7,
                 interpretations: {
@@ -404,27 +410,27 @@ defineBlock("hexaco", [
             // and a social-desirability score handed back would only teach
             // the next answer.
             {
-                key: "KSEG_Positive1",
+                key: "KSEG_Positive_1",
                 text: "In an argument, I always remain objective and stick to the facts",
             },
             {
-                key: "KSEG_Positive2",
+                key: "KSEG_Positive_2",
                 text: "Even if I am feeling stressed, I am always friendly and polite to others",
             },
             {
-                key: "KSEG_Positive3",
+                key: "KSEG_Positive_3",
                 text: "When talking to someone, I always listen carefully to what the other person says",
             },
             {
-                key: "KSEG_Negative1",
+                key: "KSEG_Negative_1",
                 text: "It has happened that I have taken advantage of someone in the past",
             },
             {
-                key: "KSEG_Negative2",
+                key: "KSEG_Negative_2",
                 text: "I have occasionally thrown litter away in the countryside or on to the road",
             },
             {
-                key: "KSEG_Negative3",
+                key: "KSEG_Negative_3",
                 text: "Sometimes I only help people if I expect to get something in return",
             },
 

@@ -7,11 +7,12 @@
    FOUR LISTS, each knowing only the one under it:
 
      TIMELINE            the levels, asked top to bottom
-       level             the blocks of that level, in order — and a `name`,
-                         which is what the gauge, the level screen and the
-                         results panel call it; the ones marked `fork` are
-                         taken in whatever order the person chooses, and a run
-                         of them wrapped in `shuffle()` in one drawn for them
+       level             the blocks of that level, in order — and a `key`,
+                         what the saved file is written under, beside a `name`,
+                         what the gauge, the level screen and the results panel
+                         call it; the ones marked `fork` are taken in whatever
+                         order the person chooses, and a run of them wrapped in
+                         `shuffle()` in one drawn for them
          block           its entries: briefings and questionnaires, in order
            questionnaire its items
 
@@ -32,7 +33,7 @@
      defineBlock("example", [
          {
              type: "briefing",           // a screen with nothing to answer on:
-             key: "BriefingExample",     // a heading and a few paragraphs saying
+             key: "Briefing_Example",    // a heading and a few paragraphs saying
              text: "<h2>…</h2><p>…</p>", // what the next stretch is about. Its
            },                              // continue response and timings are recorded.
          {
@@ -47,6 +48,10 @@
              norms: {                    // no norms, no results: a dimension
                  "A Dimension": {        // with nothing to be placed against is
                                          // asked and saved, and fed back nowhere
+                     key: "ADimension",  // what the agree/disagree on it is filed
+                                         // under — wanted wherever there are
+                                         // `interpretations`, since the name
+                                         // beside it is prose and free to change
                      mean: 3.9,
                      sd: 1.1,
                      interpretations: { low: "…", mid: "…", high: "…" },
@@ -253,19 +258,27 @@ function shuffle(arr) {
 // levels are in the water and the rest are in the rock.
 const WATER_SHARE = 2 / 3
 //
+// Each level carries a `key` as well as a `name`, the way a questionnaire and
+// an item do: the key is what the saved file is written under (`ratings`,
+// `qualityControl`) and the name is what the person reads. They are two
+// things because the name is participant-facing prose and free to change for
+// the sake of the test, while a column of a study's data is not — and because
+// a name may hold an ampersand, a hyphen or an article, none of which a column
+// name can keep. Two levels of one key throw in app.js, the way two of one
+// name used to.
 const TIMELINE = [
-    { name: "General", blocks: ["demographics1", "fipi", "singles"] },
+    { key: "General", name: "General", blocks: ["demographics1", "fipi", "singles"] },
     shuffle([
-        { name: "Brain-Body Axis", blocks: ["demographics2", "mint"] },
-        { name: "AI Expertise & Usage", blocks: ["bait"] },
-        { name: "Mood & Health", blocks: ["demographics3", shuffle(["mood", "health"]), "hitop"].flat() },
+        { key: "BrainBody", name: "Brain-Body Axis", blocks: ["demographics2", "mint"] },
+        { key: "AIExpertise", name: "AI Expertise & Usage", blocks: ["bait"] },
+        { key: "MoodHealth", name: "Mood & Health", blocks: ["demographics3", shuffle(["mood", "health"]), "hitop"].flat() },
     ]),
-    { name: "Character", blocks: ["hexaco"], fork: true },
-    { name: "Archetypes", blocks: ["archetypes"], fork: true },
-    { name: "The World", blocks: ["primals"], fork: true },
-    { name: "Reasoning", blocks: ["icar"], fork: true },
-    { name: "Passion & Restraint", blocks: ["regulation"], fork: true },
-    { name: "Closing", blocks: ["closing"] },
+    { key: "Character", name: "Character", blocks: ["hexaco"], fork: true },
+    { key: "Archetypes", name: "Archetypes", blocks: ["archetypes"], fork: true },
+    { key: "World", name: "The World", blocks: ["primals"], fork: true },
+    { key: "Reasoning", name: "How You Think", blocks: ["icar"], fork: true },
+    { key: "Regulation", name: "Mind & Heart", blocks: ["regulation"], fork: true },
+    { key: "Closing", name: "Closing", blocks: ["closing"] },
 ].flat()
 
 // Batteries: named subsets of the timeline's blocks, for a study that wants

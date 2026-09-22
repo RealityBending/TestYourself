@@ -48,6 +48,7 @@ defineBlock("mint", [
         // them. Real numbers from real people, and still not a population.
         norms: {
             "Bodily Awareness": {
+                key: "BodilyAwareness",
                 mean: 4.23,
                 sd: 0.87,
                 interpretations: {
@@ -57,6 +58,7 @@ defineBlock("mint", [
                 },
             },
             "Bodily Sensitivity": {
+                key: "BodilySensitivity",
                 mean: 3.12,
                 sd: 1.28,
                 interpretations: {
@@ -66,6 +68,7 @@ defineBlock("mint", [
                 },
             },
             "Bodily Clarity": {
+                key: "BodilyClarity",
                 mean: 3.17,
                 sd: 0.91,
                 interpretations: {

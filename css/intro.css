@@ -655,14 +655,35 @@ body.sinking #screen-intro::after {
     animation-delay: 2.7s;
 }
 
+/* The one line a crossing carries under its two, saying what the threshold
+   meant — the way in is a quotation and brings none. It arrives after both
+   lines and before the byline, which is the order it is read in. */
+.gaze__said {
+    position: relative;
+    margin: 30px auto 0;
+    max-width: 44ch;
+    font-size: clamp(14px, 1.9vw, 18px);
+    line-height: 1.6;
+    color: var(--muted);
+    animation: rise 1.5s 3.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.gaze__said[hidden] {
+    display: none;
+}
+
+.gaze--out .gaze__said {
+    animation: dissolve 0.7s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
 .gaze__by {
     position: relative;
-    margin: 34px 0 0;
+    margin: 30px 0 0;
     font-size: 11px;
     letter-spacing: 0.34em;
     text-transform: uppercase;
     color: var(--muted);
-    animation: fade 1.4s 4.5s ease both;
+    animation: fade 1.4s 4.9s ease both;
 }
 
 .gaze__skip {

@@ -69,8 +69,8 @@ ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"
 # per dimension — mirrors `feedbackKeys()` in js/results.js, so that a
 # synthetic file has the same `feedback` columns as a real one. Update both.
 FIGURE_VOTES = {
-    "fipi": ["Star Sign", "Temperament"],
-    "bait": ["AI Archetype"],
+    "fipi": ["StarSign", "Temperament"],
+    "bait": ["AIArchetype"],
     "phq4": ["Year"],
     "hitopbr": ["Year"],
     "pi18": ["World"],
@@ -462,7 +462,13 @@ def feedback_keys(book):
             norms = book["questionnaires"][name]["norms"]
             names = [dim for dim, norm in norms.items() if norm["interpretations"]]
         for one in names:
-            key = filed(one)
+            # A figure's vote names its own key; a dimension's is written beside
+            # its norms in `content/` and comes through the codebook, with
+            # `filed()` left as the fallback `feedbackKey()` has in results.js.
+            written = None
+            if name not in FIGURE_VOTES:
+                written = (book["questionnaires"][name]["norms"].get(one) or {}).get("key")
+            key = written or filed(one)
             if key not in keys:
                 keys.append(key)
     return keys
@@ -545,16 +551,17 @@ def write_file(book, persona, given, bio, provenance):
     # The whole timeline, in its written order, which is what a synthetic run
     # walks: no battery, every level and questionnaire as written.
     file["battery"] = None
-    file["levels"] = [{"name": level["name"], "blocks": level["blocks"]} for level in book["levels"]]
+    file["levels"] = [{"key": level["key"], "name": level["name"], "blocks": level["blocks"]} for level in book["levels"]]
     file["questionnaires"] = list(book["run"])
     file["timeStart"] = now
     for level in book["levels"]:
         file["timeLevel" + str(level["level"])] = None
     file["formatMint"] = book["formatMint"]
-    # Keyed by the level's name, the way `container()` keys it: a number is a
-    # place in one person's run, a name is the same level for everybody.
+    # Keyed by the level's key, the way `container()` keys it: a number is a
+    # place in one person's run, a key is the same level for everybody, and the
+    # name beside it is prose that may be reworded without moving a column.
     file["qualityControl"] = {
-        level["name"]: {"responseTimeMean": None, "responseTimeSD": None, "attentionChecksFailed": 0}
+        level["key"]: {"responseTimeMean": None, "responseTimeSD": None, "attentionChecksFailed": 0}
         for level in book["levels"]
     }
     file["items"] = [
@@ -571,7 +578,7 @@ def write_file(book, persona, given, bio, provenance):
     file["feedback"] = {key: None for key in feedback_keys(book)}
     # A model is not asked what it made of the level it has just read, so the
     # stars are null throughout — one key per level screen, as in a real run.
-    by_number = {level["level"]: level["name"] for level in book["levels"]}
+    by_number = {level["level"]: level["key"] for level in book["levels"]}
     file["ratings"] = {by_number[number]: None for number in screens(book)}
 
     OUT.mkdir(parents=True, exist_ok=True)

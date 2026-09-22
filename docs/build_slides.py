@@ -67,7 +67,7 @@ ROWS = [
     ("Multidimensional Interoceptive Traits questionnaire (MINT; Makowski et al.)", ["mint"], None),
     ("Beliefs about Artificial Intelligence Technology (BAIT; Makowski et al.)", ["bait"], None),
     ("Subjective financial well-being (ESS / OECD item)", ["demographics3"], ["Demographics_FinancialComfort"]),
-    ("MacArthur Scale of Subjective Social Status (Adler et al., 2000)", ["demographics3"], ["Demographics_MSSS"]),
+    ("MacArthur Scale of Subjective Social Status (Adler et al., 2000)", ["demographics3"], ["Demographics_SocialStatus"]),
     (
         "Patient Health Questionnaire-4, refined 5-option version (PHQ-4; Kroenke et al., 2009; Makowski et al., 2025)",
         ["phq4"],

@@ -18,7 +18,7 @@ function makeArchetype(shared) {
     const voteButtons = shared.voteButtons
 
     const ARCHETYPE_OF = "bait"
-    const ARCHETYPE_KEY = "AI Archetype"
+    const ARCHETYPE_KEY = "AIArchetype"
     const ARCHETYPE_ON = ["AI Realism", "AI Enthusiasm", "AI Apprehension"]
 
     const ARCHETYPES = [

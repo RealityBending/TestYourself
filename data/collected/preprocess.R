@@ -46,23 +46,39 @@
 #                                test_mode, synthetic, battery, format_mint,
 #                                time_start
 #                  sequences     levels_walked, order_walked (see below)
-#                  feedback_*    one a reading: agree, disagree or nothing
-#                  rating_*      one a level: the stars its results were given
-#                  qc_*          four a level: rt mean and sd, attention checks
-#                                failed, and when it was left
+#                  Feedback_*    one a reading: agree, disagree or nothing
+#                  Rating_*      one a level: the stars its results were given
+#                  QC_*          four a level: RT_Mean, RT_SD, ChecksFailed,
+#                                TimeFinished
 #                  <item key>    one a question, holding the words that were
 #                                on screen
-#                  <item key>_rt one a question, holding what that answer took
+#                  <item key>_RT one a question, holding what that answer took
 #
-#                **The level columns are named for the level, not numbered** —
-#                `rating_Character`, `qc_Character_rt_mean_ms` — and **the app
-#                writes them that way**: `ratings` and `qualityControl` are
-#                keyed by name in the saved file, so nothing here recovers a
-#                name by joining. A number would be a different level in every
-#                row, the order being drawn and partly chosen.
+#                **ONE NAMING RULE, and it is `content/`'s own.** What the run
+#                says about itself is lowercase (`participant`, `time_start`);
+#                everything that is a *measure* is `Prefix_Subject_Field`, the
+#                prefix an acronym in capitals or a word in PascalCase, exactly
+#                the way an item key is written (`MINT_Card_28`,
+#                `Demographics_Age`). So `QC_Character_RT_Mean` and
+#                `Feedback_BodilyAwareness` sit beside `HEXACO_Sincerity`
+#                under one convention, and a column can be told from a run
+#                field on sight. Times are milliseconds throughout and do not
+#                say so in every name.
+#
+#                **The level columns are named for the level's KEY, not its
+#                number and not its name** — `Rating_Character`,
+#                `QC_MoodHealth_RT_Mean` — and **the app writes them that
+#                way**: each level carries a `key` in `content/timeline.js`
+#                beside the `name` the participant reads, and `ratings` and
+#                `qualityControl` are keyed by it, so nothing here recovers
+#                anything by joining. A number would be a different level in
+#                every row, the order being drawn and partly chosen; a name
+#                would move whenever the prose on screen was reworded, and
+#                would carry an ampersand into a column name.
 #
 # **The two sequence columns are how a wide file keeps what a wide file cannot
-# hold.** Which levels somebody walked, and the order they met the items in, are
+# hold** (`levels_walked` holds the level keys, not their names). Which levels
+# somebody walked, and the order they met the items in, are
 # facts about a sequence, and a row has one cell per item — so they are joined
 # with " | " into one cell each and split apart again when wanted. Nothing is
 # lost, and the alternative (a column per item saying where it fell) would have
@@ -254,16 +270,21 @@ level_rows <- function(run, file) {
   if (length(levels) == 0) return(NULL)
   held <- run$qualityControl %||% list()
   do.call(rbind, lapply(seq_along(levels), function(n) {
-    # Keyed by the level's name since September 2026, and by `level<N>` in
-    # files written before that; both are read so an old file still opens.
+    # **The key is what the columns are named for**, and it is written in the
+    # timeline beside the name: the name is participant-facing prose, free to be
+    # reworded for the sake of the test, and a column of a study's data is not.
+    # Three generations are read so an old file still opens — by key, then by
+    # name (files between September 2026 and the key), then by `level<N>`.
     name <- as.character(levels[[n]]$name %||% NA)
-    quality <- held[[name]] %||% held[[paste0("level", n)]]
+    key <- as.character(levels[[n]]$key %||% name)
+    quality <- held[[key]] %||% held[[name]] %||% held[[paste0("level", n)]]
     data.frame(
       participant = as.character(run$participant %||% NA),
       level = n,
+      key = key,
       name = name,
       blocks = paste(unlist(levels[[n]]$blocks %||% list()), collapse = SEP),
-      time_left = as.character(run[[paste0("timeLevel", n)]] %||% NA),
+      time_finished = as.character(run[[paste0("timeLevel", n)]] %||% NA),
       rt_mean_ms = as.numeric(quality$responseTimeMean %||% NA),
       rt_sd_ms = as.numeric(quality$responseTimeSD %||% NA),
       checks_failed = as.numeric(quality$attentionChecksFailed %||% NA),
@@ -468,7 +489,7 @@ for (column in setdiff(names(participants), "participant")) {
 if (!is.null(levels_table)) {
   walked <- vapply(who, function(code) {
     mine <- levels_table[levels_table$participant == code, ]
-    paste(mine$name[order(mine$level)], collapse = SEP)
+    paste(mine$key[order(mine$level)], collapse = SEP)
   }, character(1))
   wide$levels_walked <- walked
 }
@@ -481,11 +502,11 @@ if (!is.null(responses)) {
 
 # 4. The votes on each reading, and the stars each level's results were given.
 # **The stars are keyed by the level's name and not its number**, since the
-# order is drawn and partly chosen: `rating_Level_5` would be a different level
-# for every other person, where `rating_Character` is the same thing for all of
+# order is drawn and partly chosen: `Rating_Level_5` would be a different level
+# for every other person, where `Rating_Character` is the same thing for all of
 # them.
 if (!is.null(feedback)) {
-  wide <- c(wide, spread(feedback, "reading", "vote", sort(unique(feedback$reading)), "feedback_"))
+  wide <- c(wide, spread(feedback, "reading", "vote", sort(unique(feedback$reading)), "Feedback_"))
 }
 if (!is.null(ratings)) {
   # **The app files these under the level's name**, so there is nothing to join:
@@ -495,24 +516,29 @@ if (!is.null(ratings)) {
   old_style <- grepl("^Level_[0-9]+$", ratings$level)
   if (any(old_style) && !is.null(levels_table)) {
     number <- suppressWarnings(as.numeric(sub("^Level_", "", ratings$level)))
-    known <- unique(levels_table[, c("participant", "level", "name")])
+    known <- unique(levels_table[, c("participant", "level", "key")])
     at <- match(paste(ratings$participant, number), paste(known$participant, known$level))
-    ratings$level[old_style & !is.na(at)] <- known$name[at[old_style & !is.na(at)]]
+    ratings$level[old_style & !is.na(at)] <- known$key[at[old_style & !is.na(at)]]
   }
-  wide <- c(wide, spread(ratings, "level", "stars", sort(unique(ratings$level)), "rating_"))
+  wide <- c(wide, spread(ratings, "level", "stars", sort(unique(ratings$level)), "Rating_"))
 }
 
 # The quality control, per level and named for the level, on the same argument:
 # three columns a level saying how it was answered.
 if (!is.null(levels_table)) {
-  for (name in sort(unique(levels_table$name))) {
-    rows <- levels_table[levels_table$name == name, ]
+  for (key in sort(unique(levels_table$key))) {
+    rows <- levels_table[levels_table$key == key, ]
     at <- match(who, rows$participant)
-    stem <- paste0("qc_", tidy_name(name), "_")
-    wide[[paste0(stem, "rt_mean_ms")]] <- rows$rt_mean_ms[at]
-    wide[[paste0(stem, "rt_sd_ms")]] <- rows$rt_sd_ms[at]
-    wide[[paste0(stem, "checks_failed")]] <- rows$checks_failed[at]
-    wide[[paste0(stem, "time_left")]] <- rows$time_left[at]
+    stem <- paste0("QC_", tidy_name(key), "_")
+    wide[[paste0(stem, "RT_Mean")]] <- rows$rt_mean_ms[at]
+    wide[[paste0(stem, "RT_SD")]] <- rows$rt_sd_ms[at]
+    wide[[paste0(stem, "ChecksFailed")]] <- rows$checks_failed[at]
+    # Not out of `qualityControl` but out of the run's own `timeLevel<N>`: when
+    # the level was last left with nothing outstanding. It sits in this family
+    # because it is the fourth thing worth knowing about how a level went, and
+    # it is named for what it is rather than `time_left`, which read as time
+    # remaining.
+    wide[[paste0(stem, "TimeFinished")]] <- rows$time_finished[at]
   }
 }
 
@@ -527,11 +553,11 @@ if (!is.null(responses)) {
   wide <- c(wide, spread(responses, "key", "response", item_keys, ""))
 
   # And the time each answer took, beside it — **a suffix, so that an item and
-  # its time sort together** and a `_rt` is read as belonging to the column
+  # its time sort together** and a `_RT` is read as belonging to the column
   # before it. It doubles the width of the file, which is the point of a master
   # file: everything is in it, and what an analysis does not want it drops
   # rather than coming back here for it.
-  wide <- c(wide, spread_suffix(responses, "key", "rt_ms", item_keys, "_rt"))
+  wide <- c(wide, spread_suffix(responses, "key", "rt_ms", item_keys, "_RT"))
 }
 
 wide <- as.data.frame(wide, stringsAsFactors = FALSE, check.names = FALSE)

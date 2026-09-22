@@ -179,15 +179,16 @@
                             The aim of this study is to validate a questionnaire measuring interoception. Interoception refers to the
                             sensing, interpretation and processing of internal bodily signals (e.g., feeling changes in the way one's heart
                             beats). You will answer a series of questions on screen, one at a time, mostly by picking a point on a scale:
-                            first a few questions about yourself, then questionnaires about the sensations you notice in your body, about
-                            what you make of artificial intelligence, and about your mood and health over the past weeks and months.
+                            first a few questions about yourself, then questionnaires about the sensations you notice in your body, plus
+                            other measures which help us contextualize your answers, such as your mood and health over the past weeks and
+                            months.
                         </p>
                         <p>
                             That first part takes <b>about 20 to 25 minutes</b> and is the whole of the study. If you are taking part for
                             course credit or payment, it is awarded for finishing it. You will then be told that you have finished, and
-                            offered the choice of carrying on through further questionnaires — about your character, how you see the world
-                            and how you think — if you would like to. <b>That second part is entirely optional</b>, carries no additional
-                            credit or payment, and you can stop anywhere in it.
+                            offered the choice of carrying on through further questionnaires if you would like to.
+                            <b>That second part is entirely optional</b>, carries no additional credit or payment, and you can stop anywhere
+                            in it.
                         </p>
                         <p>
                             Please make sure that you are attentive and in a quiet environment, and that you have the time to complete it in
@@ -196,10 +197,10 @@
 
                         <h3>What will happen to the results and my personal information?</h3>
                         <p>
-                            The results of this research may be written into a scientific publication. Your anonymity will be ensured in the
-                            way described in the consent information below. Please read this information carefully and then, if you wish to
-                            take part, please acknowledge that you have fully understood this sheet, and that you consent to take part in
-                            the study as it is described here.
+                            The group results of this research may be written into a scientific publication. Your anonymity will be ensured
+                            in the way described in the consent information below. Please read this information carefully and then, if you
+                            wish to take part, please acknowledge that you have fully understood this sheet, and that you consent to take
+                            part in the study as it is described here.
                         </p>
                         <p>
                             <b>Your answers are recorded as you give them</b>, rather than only at the end: each one is sent for storage the
@@ -349,7 +350,13 @@
                         <!-- Whether the answers got where they were going. Written by
                              `saved()` in app.js once DataPipe has answered. -->
                         <p class="save__note" id="save-note" role="status"></p>
-                        <button class="btn btn--ghost" id="download">Download responses (.json)</button>
+                        <!-- Hidden unless the send fails. The run goes to
+                             DataPipe as it is answered and again whole at the
+                             end, so there is nothing for a participant to keep
+                             — but if none of that got through, the answers are
+                             still in the page and this is the way out. Only
+                             `saved("failed")` uncovers it. -->
+                        <button class="btn btn--ghost" id="download" hidden>Download responses (.json)</button>
                     </div>
                 </div>
             </section>
@@ -383,6 +390,9 @@
                 <span class="gaze__line">And if you gaze long into an abyss,</span>
                 <span class="gaze__line">the abyss also gazes into you.</span>
             </blockquote>
+            <!-- Only the crossing fills this: what the threshold meant. The
+                 way in is a quotation and wants nothing explaining it. -->
+            <p class="gaze__said" id="gaze-said" hidden></p>
             <p class="gaze__by">Friedrich Nietzsche</p>
             <p class="gaze__skip">Click anywhere to continue</p>
         </div>
@@ -454,9 +464,8 @@
                     <button class="panel__close" data-close aria-label="Close">&times;</button>
                 </header>
                 <div class="panel__body">
-                    <p class="lede">Everything recorded so far, exactly as it would be saved.</p>
+                    <p class="lede">Everything recorded so far, exactly as it is saved. Your answers are sent as you give them — there is nothing here to keep.</p>
                     <pre class="raw" id="raw-json"></pre>
-                    <button class="btn btn--ghost" id="raw-download">Download (.json)</button>
                 </div>
             </section>
         </div>

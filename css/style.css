@@ -32,7 +32,7 @@
     /* The three edges the page is padded clear of: the gauge down the right,
        the shelf of badges down the left, and the banner over both. */
     --sidebar: 100px;
-    --shelf: 84px;
+    --shelf: 108px;
     --banner: 46px;
     /* Where the seabed sits in the column behind the page. app.js writes the
        real one from how many levels this run asks; this is the whole run's. */
@@ -626,7 +626,9 @@ body[data-screen="card"] {
 
 /* The panels, as an icon and a word each: the file at the foot of the gauge
    and the profile at the head of the shelf. They are one kind of button in two
-   places, so they are written as one. */
+   places, so they are written as one — and then the profile takes a ring of
+   its own, further down, since it stands at the head of a bar of badges and
+   should read as the one they all add up to. */
 .sidebar__links {
     display: grid;
     gap: 4px;
@@ -680,6 +682,50 @@ body[data-screen="card"] {
     border-color: rgba(124, 92, 255, 0.55);
 }
 
+/* The profile is the badge the other badges add up to, so it is shaped like
+   one: the same rounded square, at the head of the bar, with a ring round it
+   filled clockwise to how much of the whole-run web is drawn. `--share` is
+   the same custom property a stop on the gauge sweeps, registered with
+   `@property` so it moves rather than jumps, and `app.js` writes it from
+   `results.profileShare()` on every answer — the ring and the note under the
+   web are the same count, so the two can never disagree. */
+.shelf__link {
+    --share: 0;
+    --ring: var(--accent-2);
+    position: relative;
+    width: auto;
+    padding: 10px 8px 8px;
+    border-radius: 18px;
+}
+
+.shelf__link::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: conic-gradient(var(--ring) calc(var(--share) * 1%), transparent 0);
+    /* Cut to a band the width of an edge, so it reads as an outline being
+       drawn round the square rather than as the square filling up. */
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    padding: 2px;
+    pointer-events: none;
+    transition: --share 0.6s var(--ease);
+}
+
+/* Every dimension drawn: the ring closes in the gold everything earned is
+   written in, the way a finished level's stop does. */
+.shelf__link--whole {
+    --ring: var(--gold);
+    color: var(--text);
+}
+
+.shelf__link--whole::before {
+    box-shadow: 0 0 18px -4px rgba(217, 164, 65, 0.8);
+}
+
 /* ------------------------------- the shelf ------------------------------ */
 
 /* The other half of the gauge. The gauge says how far down the descent has
@@ -731,13 +777,16 @@ body[data-screen="card"] {
     position: relative;
     flex: none;
     /* Nine of them and the profile above have to stand in the window
-       without scrolling on an ordinary laptop, which is what sets this. */
-    width: 54px;
-    height: 54px;
+       without scrolling on an ordinary laptop, which is what sets this —
+       and the figure inside is a crop of somebody's own drawing, so it is
+       worth the room it takes. The short-window rule below brings it back
+       in when there is not the height for nine of these. */
+    width: 74px;
+    height: 74px;
     padding: 0;
     background: radial-gradient(circle at 50% 30%, color-mix(in srgb, var(--tint) 26%, transparent), rgba(6, 10, 19, 0.9) 78%);
     border: 1px solid color-mix(in srgb, var(--tint) 45%, transparent);
-    border-radius: 14px;
+    border-radius: 18px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
     cursor: pointer;
     overflow: hidden;
@@ -798,7 +847,7 @@ body[data-screen="card"] {
     gap: 2px;
     width: 100%;
     height: 100%;
-    font-size: 26px;
+    font-size: 34px;
     line-height: 1;
 }
 
@@ -813,9 +862,9 @@ body[data-screen="card"] {
    and the one thing on the square that is not the figure. */
 .shelf__badge-number {
     position: absolute;
-    right: 3px;
-    bottom: 1px;
-    font-size: 9px;
+    right: 5px;
+    bottom: 2px;
+    font-size: 10px;
     font-weight: 700;
     letter-spacing: 0.04em;
     color: rgba(238, 241, 248, 0.82);
@@ -1856,7 +1905,7 @@ h1 {
        than by an edge: here they are read along the other axis. */
     :root {
         --sidebar: 60px;
-        --shelf: 50px;
+        --shelf: 62px;
     }
 
     .sidebar {
@@ -1902,13 +1951,13 @@ h1 {
     }
 
     .shelf__badge {
-        width: 38px;
-        height: 38px;
-        border-radius: 10px;
+        width: 48px;
+        height: 48px;
+        border-radius: 13px;
     }
 
     .shelf__badge-emblem {
-        font-size: 17px;
+        font-size: 22px;
     }
 
     .shelf__badge-number {
@@ -1919,6 +1968,8 @@ h1 {
 
     .shelf__link {
         flex: none;
+        padding: 6px;
+        border-radius: 13px;
     }
 
     body {
@@ -2095,7 +2146,7 @@ h1 {
     /* The shelf comes in with its badges: it is only ever as wide as the
        widest thing on it. */
     :root {
-        --shelf: 72px;
+        --shelf: 78px;
     }
 
     .sidebar__gauge-word,
@@ -2108,13 +2159,13 @@ h1 {
        in a window this short, and a shelf that has to be scrolled to be seen
        is not a shelf. */
     .shelf__badge {
-        width: 44px;
-        height: 44px;
-        border-radius: 11px;
+        width: 46px;
+        height: 46px;
+        border-radius: 12px;
     }
 
     .shelf__badge-emblem {
-        font-size: 20px;
+        font-size: 21px;
     }
 
     .sidebar__descent {

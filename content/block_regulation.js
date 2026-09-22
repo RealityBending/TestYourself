@@ -6,7 +6,7 @@
 // off four short scales), how hard feelings hit and how long they stay (the
 // ERS) and what the mind does when something goes wrong (the CERQ-short) —
 // which is why they share a level and a briefing. Framed to the participant
-// as "Passion & Restraint" (timeline.js); what is measured is executive
+// as "Mind & Heart" (timeline.js); what is measured is executive
 // lapses, self-control, emotion reactivity and cognitive emotion regulation
 // strategies, and the keys, comments and README say so.
 //
@@ -56,7 +56,7 @@ defineBlock("regulation", [
     // the six; the rest are high-loading items of their scales), so a pair
     // here is a two-item proxy for its construct and the comments say so.
     // Four dimensions, one a pair, under plain names — Inattention,
-    // Absent-mindedness, Mind Wandering, Self-Control — the first three
+    // Absent-Mindedness, Mind Wandering, Self-Control — the first three
     // running towards more of a problem and the fourth towards more of a
     // virtue. Read back, with the two questionnaires below, as the heads
     // (js/figures/heads.js): Self-Control is the bulb, the other three the
@@ -85,7 +85,7 @@ defineBlock("regulation", [
                     high: "the last stretch of a task, and the ordering of a complicated one, are where things slip for you more than for most people.",
                 },
             },
-            "Absent-mindedness": {
+            "Absent-Mindedness": {
                 mean: 1.6,
                 sd: 0.8,
                 interpretations: {
@@ -157,7 +157,7 @@ defineBlock("regulation", [
             // labels and, like the ASRS, for the past six months.
             {
                 key: "CFQ_10",
-                dimension: "Absent-mindedness",
+                dimension: "Absent-Mindedness",
                 instructions: "Over the past six months",
                 format: {
                     options: [
@@ -174,7 +174,7 @@ defineBlock("regulation", [
             },
             {
                 key: "CFQ_21",
-                dimension: "Absent-mindedness",
+                dimension: "Absent-Mindedness",
                 instructions: "Over the past six months",
                 format: {
                     options: [
@@ -368,7 +368,7 @@ defineBlock("regulation", [
         // (their Table, halved, since they report two-item sums) before any
         // of this is presented as a standing.
         norms: {
-            "Self-blame": {
+            "Self-Blame": {
                 mean: 2.5,
                 sd: 0.9,
                 interpretations: {
@@ -440,7 +440,7 @@ defineBlock("regulation", [
                     high: "your mind keeps returning to how terrible what happened was.",
                 },
             },
-            "Other-blame": {
+            "Other-Blame": {
                 mean: 1.8,
                 sd: 0.8,
                 interpretations: {
@@ -452,8 +452,8 @@ defineBlock("regulation", [
         },
 
         items: [
-            { key: "CERQ_SelfBlame_1", dimension: "Self-blame", text: "I feel that I am the one who is responsible for what has happened" }, // 10
-            { key: "CERQ_SelfBlame_2", dimension: "Self-blame", text: "I think that basically the cause must lie within myself" }, // 28
+            { key: "CERQ_SelfBlame_1", dimension: "Self-Blame", text: "I feel that I am the one who is responsible for what has happened" }, // 10
+            { key: "CERQ_SelfBlame_2", dimension: "Self-Blame", text: "I think that basically the cause must lie within myself" }, // 28
             { key: "CERQ_Acceptance_1", dimension: "Acceptance", text: "I think that I have to accept that this has happened" }, // 2
             { key: "CERQ_Acceptance_2", dimension: "Acceptance", text: "I think that I have to accept the situation" }, // 11
             { key: "CERQ_Rumination_1", dimension: "Rumination", text: "I often think about how I feel about what I have experienced" }, // 3
@@ -476,8 +476,8 @@ defineBlock("regulation", [
             { key: "CERQ_Perspective_2", dimension: "Putting into Perspective", text: "I tell myself that there are worse things in life" }, // 34
             { key: "CERQ_Catastrophizing_1", dimension: "Catastrophising", text: "I keep thinking about how terrible it is what I have experienced" }, // 17
             { key: "CERQ_Catastrophizing_2", dimension: "Catastrophising", text: "I continually think how horrible the situation has been" }, // 35
-            { key: "CERQ_OtherBlame_1", dimension: "Other-blame", text: "I feel that others are responsible for what has happened" }, // 18
-            { key: "CERQ_OtherBlame_2", dimension: "Other-blame", text: "I feel that basically the cause lies with others" }, // 36
+            { key: "CERQ_OtherBlame_1", dimension: "Other-Blame", text: "I feel that others are responsible for what has happened" }, // 18
+            { key: "CERQ_OtherBlame_2", dimension: "Other-Blame", text: "I feel that basically the cause lies with others" }, // 36
 
             // The level's attention check, dealt in among the eighteen. The
             // circles carry their numbers, so it names one — and one off
