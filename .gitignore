@@ -57,3 +57,9 @@ literature/
 data/synthetic/work/
 data/synthetic/out/
 __pycache__/
+
+# The answers themselves, pulled off Zenodo by data/collected/download.py, and
+# the tables preprocess.R makes of them. Real participant data: it lives on this
+# machine and in the deposit, never here.
+data/collected/raw/
+data/collected/clean/

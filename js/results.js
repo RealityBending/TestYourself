@@ -22,6 +22,7 @@ function makeResults(engine) {
     const dimensionOrder = engine.dimensionOrder
     const feedback = engine.feedback
     const ratings = engine.ratings
+    const ratingKey = engine.ratingKey
     const score = engine.score
     const total = engine.total
     const percentile = engine.percentile
@@ -187,7 +188,10 @@ function makeResults(engine) {
     // star already given takes the rating back the way a vote unvotes. Nothing
     // asks for it and nothing is held shut by it.
     function starRating(level) {
-        const key = "Level_" + level
+        // Filed under whatever the engine files a level's stars under — the
+        // level's name, as it happens, but that is app.js's business and not
+        // this file's.
+        const key = ratingKey(level)
         const box = document.createElement("div")
         box.className = "rating"
 
@@ -455,7 +459,9 @@ function makeResults(engine) {
             chart.appendChild(dot)
         }
 
-        return { found: found.length, compared: compared, colour: single && found[0] ? found[0].colour : null }
+        // `at` is where the web was drawn, for anything that wants to frame
+        // it rather than the room around it.
+        return { found: found.length, compared: compared, colour: single && found[0] ? found[0].colour : null, at: { x: centreX, y: centreY, r: radius } }
     }
 
     function legend(colour) {
@@ -1084,6 +1090,109 @@ function makeResults(engine) {
         return slides
     }
 
+    /* -------------------------- the shelf's badges ------------------------ */
+
+    // A badge shows one square of a figure, in the figure's own coordinates:
+    // where to look, and how much of it to keep. The figure is redrawn into
+    // that square rather than scaled down into it, so a badge is a detail of
+    // the person's own drawing at full sharpness rather than a thumbnail of
+    // the whole — which at 58 pixels would be a smudge. The numbers are read
+    // against the constants the figure file draws with, and a crop that falls
+    // somewhere else is a figure whose geometry has moved.
+    function crop(figure, x, y, side) {
+        if (!figure) return null
+
+        figure.setAttribute("viewBox", [x - side / 2, y - side / 2, side, side].join(" "))
+        // Fill the square and let it clip.
+        figure.setAttribute("preserveAspectRatio", "xMidYMid slice")
+        // The button around it carries the label; the crop is decoration.
+        figure.removeAttribute("role")
+        figure.setAttribute("aria-hidden", "true")
+        return figure
+    }
+
+    const figureIn = (built, selector) => built.querySelector(selector || "svg")
+
+    // A badge that is a mark rather than a drawing: the star sign, the robot.
+    function emblem(mark) {
+        const token = document.createElement("span")
+        token.className = "shelf__badge-emblem"
+        token.textContent = mark
+        return token
+    }
+
+    // The figure a finished level closed on, cropped to a square: the badge
+    // the shelf mints for that level. The dispatch is `renderResults`'s, read
+    // at the size of a token — a figure stands in for a questionnaire, and
+    // the first of this level's questionnaires to name one is what the level
+    // looks like. The drawing is pulled back out of the section its figure
+    // builds, the way `renderShowcase` does; the two figures that are not
+    // drawings hand back an emblem of their own instead. Null for a level
+    // with nothing drawn on it, which is a badge of its number alone.
+    function renderBadge(level) {
+        for (const name of RUN) {
+            if (!onLevel(dimensionsIn(name), level)) continue
+
+            // The walker, with the hill they are on and the weather over it.
+            if (climb.CLIMB_OF.indexOf(name) !== -1) {
+                if (!climb.climbed()) continue
+                return crop(figureIn(climb.renderClimb(false)), 115, 295, 150)
+            }
+            // The chart of the `regulation` block is HTML, and names and bars
+            // cannot be read this small: the two organs stand for it instead.
+            if (heads.HEADS_OF.indexOf(name) !== -1) {
+                if (!heads.headed()) continue
+                return heads.badge()
+            }
+            if (name === archetype.ARCHETYPE_OF) {
+                if (!archetype.aiArchetype()) continue
+                return archetype.badge()
+            }
+            if (name === wheel.WHEEL_OF) {
+                if (!wheel.leading().length) continue
+                return crop(figureIn(wheel.renderWheel(false)), 220, 176, 220)
+            }
+            // The four arms out of the centre, which is the whole of what the
+            // compass says: its names are room round the shape.
+            if (name === reasoning.REASONING_OF) {
+                if (!reasoning.ready()) continue
+                return crop(figureIn(reasoning.renderReasoning(false)), 260, 160, 252)
+            }
+            // The pool the torch throws, which is the lit part of the sea and
+            // the part the creature is in.
+            if (name === sea.SEA) return crop(figureIn(sea.renderSea(false)), 180, 155, 130)
+            // The head's ring, found on the drawing rather than worked out:
+            // the body is as deep as the readings beside it need, so where
+            // its organs fall is not a share of anything fixed.
+            if (name === soma.SOMA) {
+                const figure = document.createElementNS(SVG, "svg")
+                soma.drawSoma(figure, false)
+                const ring = figure.querySelector("circle")
+                if (!ring) continue
+                return crop(figure, Number(ring.getAttribute("cx")), Number(ring.getAttribute("cy")), 2 * (Number(ring.getAttribute("r")) + 16))
+            }
+            // The star sign, which is the one reading in the app that is
+            // already a single mark — and the temperament plane where there
+            // is no birthday to read a sign from, which is a battery without
+            // the first demographics.
+            if (name === theories.OLD_THEORIES_OF) {
+                const built = theories.renderOldTheories(false)
+                const glyph = built.querySelector(".theory__glyph")
+                if (glyph) return emblem(glyph.textContent)
+                return crop(figureIn(built, "svg.theory__figure"), 100, 100, 200)
+            }
+
+            if (CHARTS.indexOf(name) !== -1) {
+                const owned = dimensionsOf(name)
+                if (!owned.length) continue
+                const figure = document.createElementNS(SVG, "svg")
+                const drawn = drawSpider(figure, owned)
+                return crop(figure, drawn.at.x, drawn.at.y, 2 * (drawn.at.r + 14))
+            }
+        }
+        return null
+    }
+
     /* ---------------------------- what was voted on ----------------------- */
 
     // Every key a vote can be filed under, in the order the results read, so
@@ -1130,6 +1239,7 @@ function makeResults(engine) {
         renderShowcase: renderShowcase,
         renderResults: renderResults,
         renderTeaser: renderTeaser,
+        renderBadge: renderBadge,
         sealSections: sealSections,
         openSections: openSections,
         renderProfile: renderProfile,

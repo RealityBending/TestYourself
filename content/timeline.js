@@ -9,8 +9,9 @@
      TIMELINE            the levels, asked top to bottom
        level             the blocks of that level, in order — and a `name`,
                          which is what the gauge, the level screen and the
-                         results panel call it; a run of them sharing a `fork`
-                         are taken in whatever order the person chooses
+                         results panel call it; the ones marked `fork` are
+                         taken in whatever order the person chooses, and a run
+                         of them wrapped in `shuffle()` in one drawn for them
          block           its entries: briefings and questionnaires, in order
            questionnaire its items
 
@@ -169,8 +170,18 @@ function answerKey(key, value) {
 }
 
 // Fisher–Yates, in place: sorting by a coin flip is a biased shuffle, however
-// short the list. Used on the blocks of a level asked in a random order.
+// short the list. Used on the blocks of a level asked in a random order, and
+// on a run of levels asked in one (see TIMELINE).
+//
+// **Outside a browser it draws nothing and hands the written order back.**
+// This file is also read by `data/synthetic/codebook.js`, and through it by
+// `docs/build_slides.py`, and what those two describe is *what is asked*
+// rather than one draw of it: a level's number in the deck's Content table
+// has to be the same every time the table is built, or the published table
+// changes under a link that points at it. A shuffle says these may come in
+// any order, and the written one is the representative of all of them.
 function shuffle(arr) {
+    if (typeof window === "undefined") return arr
     for (let i = arr.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1))
         ;[arr[i], arr[j]] = [arr[j], arr[i]]
@@ -198,9 +209,9 @@ function shuffle(arr) {
 // fork has put them — which level is the floor is the descent's business and
 // not the content's.
 //
-// Levels written with the same `fork:` name are a fork: their order is the
-// person's, two at a time. The places they take are the **slots** — the
-// positions on this timeline that carry the name — and what goes in them is
+// Levels written `fork: true` are a fork: their order is the person's, two
+// at a time. The places they take are the **slots** — the positions on this
+// timeline that carry the flag — and what goes in them is
 // the person's to arrange. At the end of the level before each slot, while
 // more than one level is left to fill it with, the two standing next are
 // shown side by side, blurred, and the person picks which to take first; the
@@ -208,13 +219,25 @@ function shuffle(arr) {
 // marked as recommended. It is the one thing about the run's order that is
 // the participant's, there so that the descent is not one straight line.
 //
-// **`Self` is everything after the body.** Levels 3 to 9 are all of it, so
-// the whole of the descent below Interoception is chosen a step at a time,
-// and the seabed falls where `WATER_SHARE` puts it rather than between any
-// two particular levels — which three of the seven are met in the rock is
-// the person's own doing and nothing the timeline decides. Only the first
-// two levels are fixed: General opens the test, and everybody meets the body
-// before choosing anything.
+// A run of levels wrapped in `shuffle()` is the same rearrangement made *for*
+// the person rather than *by* them: their order is drawn once, when the file
+// is read, and nothing about it is ever offered or chosen. It is the same
+// call that puts two blocks of a level in a random order, at the list above
+// theirs, which is why TIMELINE ends `.flat()` — and why what is drawn or
+// chosen is visible in the shape of the list rather than written as a word on
+// every line. Use it for a stretch that has to be ordered somehow but has
+// nothing worth choosing about: three questionnaires a study asks of
+// everybody want counterbalancing, not picking.
+//
+// Below the drawn run, the levels marked `fork` are put in order by the
+// person, two at a time. Both follow one rule: what is asked moves between
+// places and where it is asked does not, so a level's number, its depth, its
+// colour and which side of the seabed it falls on stay with the place.
+//
+// **Neither says anything about a study.** Which levels are drawn and which
+// are chosen is a property of this run and not of the app: a battery that
+// leaves one level of the fork leaves nothing to choose, and a run of one
+// drawn level draws nothing.
 //
 // The written order is the default — what the recommendation follows, and
 // what a battery that leaves one of them falls back on. A choice is saved as
@@ -232,16 +255,18 @@ const WATER_SHARE = 2 / 3
 //
 const TIMELINE = [
     { name: "General", blocks: ["demographics1", "fipi", "singles"] },
-    { name: "Brain-Body Axis", blocks: ["demographics2", "mint"] },
-    { name: "AI Expertise & Usage", blocks: ["bait"], fork: "Self" },
-    { name: "Mood & Health", blocks: ["demographics3", shuffle(["mood", "health"]), "hitop"].flat(), fork: "Self" },
-    { name: "Character", blocks: ["hexaco"], fork: "Self" },
-    { name: "Archetypes", blocks: ["archetypes"], fork: "Self" },
-    { name: "The World", blocks: ["primals"], fork: "Self" },
-    { name: "Reasoning", blocks: ["icar"], fork: "Self" },
-    { name: "Passion & Restraint", blocks: ["regulation"], fork: "Self" },
+    shuffle([
+        { name: "Brain-Body Axis", blocks: ["demographics2", "mint"] },
+        { name: "AI Expertise & Usage", blocks: ["bait"] },
+        { name: "Mood & Health", blocks: ["demographics3", shuffle(["mood", "health"]), "hitop"].flat() },
+    ]),
+    { name: "Character", blocks: ["hexaco"], fork: true },
+    { name: "Archetypes", blocks: ["archetypes"], fork: true },
+    { name: "The World", blocks: ["primals"], fork: true },
+    { name: "Reasoning", blocks: ["icar"], fork: true },
+    { name: "Passion & Restraint", blocks: ["regulation"], fork: true },
     { name: "Closing", blocks: ["closing"] },
-]
+].flat()
 
 // Batteries: named subsets of the timeline's blocks, for a study that wants
 // less than the whole run. A link with `?battery=<name>` asks the blocks

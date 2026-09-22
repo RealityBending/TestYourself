@@ -2,7 +2,7 @@
 
 Runs of the test answered by Claude in a sampled persona, written in the exact
 shape the app saves, for exercising the analysis pipeline before there are
-participants. A workbench like `norms/`: nothing on the page reaches for it.
+participants. A workbench like `data/norms/`: nothing on the page reaches for it.
 
 ```bash
 pip install anthropic                                   # once

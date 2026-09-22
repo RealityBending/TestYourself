@@ -29,8 +29,10 @@
     --mean: #767c92;
     /* The house easing: how the water, the line and the depth move. */
     --ease: cubic-bezier(0.22, 0.85, 0.3, 1);
-    /* The two edges the page is padded clear of. */
+    /* The three edges the page is padded clear of: the gauge down the right,
+       the shelf of badges down the left, and the banner over both. */
     --sidebar: 100px;
+    --shelf: 84px;
     --banner: 46px;
     /* Where the seabed sits in the column behind the page. app.js writes the
        real one from how many levels this run asks; this is the whole run's. */
@@ -173,7 +175,8 @@ body::after {
    with the same hairline — the banner's along its bottom, the sidebar's along
    its left. */
 .banner,
-.sidebar {
+.sidebar,
+.shelf {
     background: rgba(9, 12, 21, 0.72);
     backdrop-filter: blur(20px) saturate(1.5);
     -webkit-backdrop-filter: blur(20px) saturate(1.5);
@@ -245,15 +248,17 @@ body::after {
 }
 
 body {
-    padding: var(--banner) calc(var(--sidebar) + 18px) 0 0;
+    padding: var(--banner) calc(var(--sidebar) + 18px) 0 var(--shelf);
 }
 
 /* Nothing over the title on the way in, and nothing over somebody else's card
-   either — a visitor has no levels of their own to open. */
+   either — a visitor has no levels of their own to open, and no badges. */
 body[data-screen="intro"] .banner,
 body[data-screen="card"] .banner,
 body[data-screen="intro"] .sidebar,
-body[data-screen="card"] .sidebar {
+body[data-screen="card"] .sidebar,
+body[data-screen="intro"] .shelf,
+body[data-screen="card"] .shelf {
     display: none;
 }
 
@@ -619,13 +624,16 @@ body[data-screen="card"] {
     color: var(--muted);
 }
 
-/* The two panels, at the foot: an icon and a word each. */
+/* The panels, as an icon and a word each: the file at the foot of the gauge
+   and the profile at the head of the shelf. They are one kind of button in two
+   places, so they are written as one. */
 .sidebar__links {
     display: grid;
     gap: 4px;
 }
 
-.sidebar__link {
+.sidebar__link,
+.shelf__link {
     display: grid;
     justify-items: center;
     gap: 4px;
@@ -645,7 +653,8 @@ body[data-screen="card"] {
     transition: color 0.15s, border-color 0.15s, background 0.15s;
 }
 
-.sidebar__link svg {
+.sidebar__link svg,
+.shelf__link svg {
     width: 20px;
     height: 20px;
     fill: none;
@@ -656,16 +665,187 @@ body[data-screen="card"] {
 }
 
 .sidebar__link:hover,
-.sidebar__link:focus-visible {
+.sidebar__link:focus-visible,
+.shelf__link:hover,
+.shelf__link:focus-visible {
     color: var(--text);
     border-color: var(--line);
     background: rgba(255, 255, 255, 0.05);
 }
 
-.sidebar__link--open {
+.sidebar__link--open,
+.shelf__link--open {
     color: var(--text);
     background: rgba(124, 92, 255, 0.2);
     border-color: rgba(124, 92, 255, 0.55);
+}
+
+/* ------------------------------- the shelf ------------------------------ */
+
+/* The other half of the gauge. The gauge says how far down the descent has
+   got; this says what it has turned up. It opens with nothing on it but the
+   way into the profile, and every level finished mints a badge onto it — a
+   crop of the figure that level closed on, drawn from the person's own
+   answers — so the run accumulates something to look at rather than only
+   filling rings in. A badge is a second way into the same panel a stop on the
+   gauge opens, and is only ever there while the level is finished. */
+.shelf {
+    position: fixed;
+    top: var(--banner);
+    left: 0;
+    bottom: 0;
+    z-index: 30;
+    width: var(--shelf);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0 12px;
+    border-right: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* The badges themselves, newest at the bottom. They scroll when a long run
+   has minted more of them than the window is tall, with no bar drawn: the
+   column is a shelf, not a list to be navigated. */
+.shelf__badges {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    min-height: 0;
+    padding: 2px 0 4px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: none;
+}
+
+.shelf__badges::-webkit-scrollbar {
+    display: none;
+}
+
+/* One badge: a square of the level's own colour with a crop of its figure in
+   it and its number in the corner. The frame is what makes a row of them read
+   as a collection, so it is the same on every one and only the tint moves. */
+.shelf__badge {
+    position: relative;
+    flex: none;
+    /* Nine of them and the profile above have to stand in the window
+       without scrolling on an ordinary laptop, which is what sets this. */
+    width: 54px;
+    height: 54px;
+    padding: 0;
+    background: radial-gradient(circle at 50% 30%, color-mix(in srgb, var(--tint) 26%, transparent), rgba(6, 10, 19, 0.9) 78%);
+    border: 1px solid color-mix(in srgb, var(--tint) 45%, transparent);
+    border-radius: 14px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+    cursor: pointer;
+    overflow: hidden;
+    transition: transform 0.18s var(--ease), border-color 0.18s, box-shadow 0.18s;
+}
+
+.shelf__badge:hover,
+.shelf__badge:focus-visible {
+    transform: translateY(-2px) scale(1.04);
+    border-color: color-mix(in srgb, var(--tint) 85%, white 10%);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45), 0 0 0 1px color-mix(in srgb, var(--tint) 30%, transparent);
+}
+
+.shelf__badge:focus-visible {
+    outline: 2px solid var(--accent-2);
+    outline-offset: 2px;
+}
+
+/* Open, it is lit the way a stop on the gauge is: the panel it holds up grows
+   out of it, so it should read as the place that panel is kept. */
+.shelf__badge--open {
+    border-color: color-mix(in srgb, var(--tint) 95%, white 20%);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--tint) 28%, transparent);
+}
+
+/* The crop: the figure is drawn at its own size into a square that clips it,
+   so what shows is a detail of the person's own drawing rather than a
+   shrunken copy of it. Which detail is `renderBadge`'s to choose — it rewrites
+   the figure's viewBox — and this only has to get out of the way. */
+.shelf__badge-art {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    /* Several figures hang a tooltip off the parts of their own drawing. A
+       badge is one button and not a figure to be read, so nothing inside it
+       takes the pointer. */
+    pointer-events: none;
+}
+
+.shelf__badge-art svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    /* The figures are sized for the width of a results card, and say so on
+       their own classes. */
+    max-width: none;
+    max-height: none;
+}
+
+/* A figure that is not a drawing — the AI archetype's robot, the two organs
+   of the regulation level — stands as an emblem instead, sized to the square
+   rather than cropped by it. */
+.shelf__badge-emblem {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    width: 100%;
+    height: 100%;
+    font-size: 26px;
+    line-height: 1;
+}
+
+.shelf__badge-emblem svg {
+    width: 46%;
+    height: auto;
+    color: var(--half);
+    background: radial-gradient(circle at 50% 46%, color-mix(in srgb, var(--glow, var(--half)) 26%, transparent), transparent 68%);
+}
+
+/* The number, small in the corner: what tells two badges apart at a glance,
+   and the one thing on the square that is not the figure. */
+.shelf__badge-number {
+    position: absolute;
+    right: 3px;
+    bottom: 1px;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: rgba(238, 241, 248, 0.82);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+    pointer-events: none;
+}
+
+/* Struck, rather than found already there: a badge arrives because something
+   was finished, so it is the one thing on this bar that moves on its own. The
+   class is taken off on `animationend`, or its last frame would hold the
+   badge against the lift it gets on hover. */
+.shelf__badge--minted {
+    animation: mint 0.85s var(--ease) both;
+}
+
+@keyframes mint {
+    0% {
+        opacity: 0;
+        transform: scale(0.2) rotate(-14deg);
+    }
+    55% {
+        opacity: 1;
+        transform: scale(1.18) rotate(3deg);
+        border-color: var(--gold);
+        box-shadow: 0 0 22px rgba(217, 164, 65, 0.65);
+    }
+    100% {
+        opacity: 1;
+        transform: none;
+    }
 }
 
 /* ------------------------------- screens -------------------------------- */
@@ -743,7 +923,7 @@ body[data-screen="card"] {
    whatever is open, the menu is still there and the page is still behind. */
 .overlay {
     position: fixed;
-    inset: var(--banner) var(--sidebar) 0 0;
+    inset: var(--banner) var(--sidebar) 0 var(--shelf);
     z-index: 20;
     visibility: hidden;
 }
@@ -1676,6 +1856,7 @@ h1 {
        than by an edge: here they are read along the other axis. */
     :root {
         --sidebar: 60px;
+        --shelf: 50px;
     }
 
     .sidebar {
@@ -1689,14 +1870,65 @@ h1 {
         border-top: 1px solid rgba(255, 255, 255, 0.06);
     }
 
+    /* Width is scarcer than height at this size, so the shelf turns the way
+       the gauge does and runs along the top instead, under the banner, with
+       the profile at its left end and the badges collecting away from it.
+       `--shelf` is its height here. */
+    .shelf {
+        right: 0;
+        bottom: auto;
+        width: auto;
+        height: var(--shelf);
+        flex-direction: row;
+        gap: 8px;
+        padding: 0 10px;
+        border-right: 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .shelf__badges {
+        flex-direction: row;
+        width: auto;
+        min-width: 0;
+        height: 100%;
+        gap: 7px;
+        padding: 0;
+        overflow-x: auto;
+        overflow-y: hidden;
+        /* A long collection runs off the edge of a phone, so the edge says
+           so: the last badge fades rather than being cut through. */
+        mask-image: linear-gradient(to right, #000 calc(100% - 20px), transparent);
+        -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 20px), transparent);
+    }
+
+    .shelf__badge {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+    }
+
+    .shelf__badge-emblem {
+        font-size: 17px;
+    }
+
+    .shelf__badge-number {
+        right: 2px;
+        bottom: 0;
+        font-size: 7.5px;
+    }
+
+    .shelf__link {
+        flex: none;
+    }
+
     body {
-        padding: var(--banner) 0 var(--sidebar);
+        padding: calc(var(--banner) + var(--shelf)) 0 var(--sidebar);
     }
 
     /* The panels stop short of the gauge along the foot instead of the bar
-       down the side. */
+       down the side, and of the shelf along the top. */
     .overlay {
-        inset: var(--banner) 0 var(--sidebar) 0;
+        inset: calc(var(--banner) + var(--shelf)) 0 var(--sidebar) 0;
     }
 
     .sidebar__gauge {
@@ -1860,9 +2092,29 @@ h1 {
    the gauge down the side with too little of it to go round: the stops come
    in a size and the words under the icons go. */
 @media (min-width: 761px) and (max-height: 640px) {
+    /* The shelf comes in with its badges: it is only ever as wide as the
+       widest thing on it. */
+    :root {
+        --shelf: 72px;
+    }
+
     .sidebar__gauge-word,
-    .sidebar__link span {
+    .sidebar__link span,
+    .shelf__link span {
         display: none;
+    }
+
+    /* The badges come in a size too: nine of them at full size would scroll
+       in a window this short, and a shelf that has to be scrolled to be seen
+       is not a shelf. */
+    .shelf__badge {
+        width: 44px;
+        height: 44px;
+        border-radius: 11px;
+    }
+
+    .shelf__badge-emblem {
+        font-size: 20px;
     }
 
     .sidebar__descent {

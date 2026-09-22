@@ -82,7 +82,7 @@ defineBlock("hitop", [
         // percentile these are read through is coarse at the low end: a run of
         // "Not at all" comes out around the 30th percentile, not the 1st.
         // TO DO: read them through empirical quantiles instead — see the note
-        // at the foot of norms/make_norms.R. The interpretations are ours.
+        // at the foot of data/norms/make_norms.R. The interpretations are ours.
         //
         // THE SPECTRA ARE RENAMED FOR THE PUBLIC (September 2026). The HiTOP's
         // own names are clinical jargon, and two of them ("Thought Disorder",

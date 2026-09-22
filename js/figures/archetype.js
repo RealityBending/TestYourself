@@ -73,6 +73,10 @@ function makeArchetype(shared) {
 
     // Locked, the figure keeps its shape — a stand-in name and a 00% share,
     // blurred — and carries no live buttons.
+    // The whole of this section's picture, which is why it is also the whole
+    // of its badge.
+    const ROBOT = "🤖"
+
     function renderArchetype(type, locked) {
         const holder = document.createElement("div")
         holder.className = "archetype"
@@ -85,7 +89,7 @@ function makeArchetype(shared) {
             holder.appendChild(line)
         }
 
-        piece("archetype__emoji", "🤖")
+        piece("archetype__emoji", ROBOT)
         piece("archetype__lead", "Based on your answers, you are")
         piece("archetype__name", shown.name, true)
         piece("archetype__share", (locked ? "00" : "about " + shown.share) + "% of people answer like this", true)
@@ -95,11 +99,21 @@ function makeArchetype(shared) {
         return holder
     }
 
+    // The shelf's badge: the robot alone. This section is a line of words
+    // under an emoji rather than a drawing, so there is nothing to crop.
+    function badge() {
+        const token = document.createElement("span")
+        token.className = "shelf__badge-emblem"
+        token.textContent = ROBOT
+        return token
+    }
+
     return {
         ARCHETYPE_OF: ARCHETYPE_OF,
         ARCHETYPE_KEY: ARCHETYPE_KEY,
         ARCHETYPE_ON: ARCHETYPE_ON,
         aiArchetype: aiArchetype,
         renderArchetype: renderArchetype,
+        badge: badge,
     }
 }

@@ -22,6 +22,24 @@
         <!-- The name of the test, over every screen it is taken on. -->
         <header class="banner" id="banner"><span class="banner__title">The Abyss Test</span></header>
 
+        <!-- The bar down the left: the other half of the gauge. Where the gauge
+             says how far down the descent has got, this says what it has turned
+             up — it opens with nothing on it but the way into the profile, and
+             every level finished mints a badge onto it, a crop of the figure
+             that level closed on. Built and filled by renderShelf. -->
+        <aside class="shelf">
+            <button class="shelf__link" id="profile" aria-expanded="false">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 3l7.8 4.5v9L12 21l-7.8-4.5v-9z" />
+                    <path d="M12 7.6l3.8 2.2v4.4L12 16.4l-3.8-2.2V9.8z" />
+                    <path d="M12 3v18M4.2 7.5l15.6 9M19.8 7.5l-15.6 9" />
+                </svg>
+                <span>Profile</span>
+            </button>
+
+            <div class="shelf__badges" id="badges" aria-label="The levels you have finished"></div>
+        </aside>
+
         <!-- The bar down the right: the way into each level and into the panels,
              and the descent itself running along the edge the page sits against.
              The levels are the milestones on it — the point each one is finished
@@ -41,18 +59,10 @@
                 <nav class="sidebar__levels" id="levels" aria-label="Your descent"></nav>
             </div>
 
-            <!-- The two panels, as an icon and a word each. The icons are drawn
-                 here rather than fetched: a web for the profile, braces for the
-                 file. -->
+            <!-- The raw file, as an icon and a word: braces. The profile is not
+                 here but at the head of the shelf, over the badges it draws
+                 together. -->
             <div class="sidebar__links">
-                <button class="sidebar__link" id="profile" aria-expanded="false">
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                        <path d="M12 3l7.8 4.5v9L12 21l-7.8-4.5v-9z" />
-                        <path d="M12 7.6l3.8 2.2v4.4L12 16.4l-3.8-2.2V9.8z" />
-                        <path d="M12 3v18M4.2 7.5l15.6 9M19.8 7.5l-15.6 9" />
-                    </svg>
-                    <span>Profile</span>
-                </button>
                 <button class="sidebar__link" id="raw" aria-expanded="false">
                     <svg viewBox="0 0 24 24" aria-hidden="true">
                         <path d="M8.5 4C6.5 4 5.5 5 5.5 7v2.4c0 1.6-.9 2.6-2.5 2.6 1.6 0 2.5 1 2.5 2.6V17c0 2 1 3 3 3" />
@@ -134,6 +144,20 @@
                     <p class="gate__step">Before you begin</p>
                     <h2 class="gate__heading">Information and consent</h2>
 
+                    <!-- Modelled on the University of Sussex consent sheet the MINT validation study ran with
+                         (`ethics/mint_validation/Consent.pdf`): same headings in the same order, and the six
+                         consent statements kept as the committee's own wording rather than reworded, since that
+                         is what a reviewer reads for. What is written around them describes this study — see
+                         `ethics/mint_followup/application_draft.md`, whose Project Description it has to keep
+                         agreeing with. STILL TO FILL IN before the study runs: the second contact, the C-REC
+                         reference, and the duration, which is an estimate until somebody has timed a pilot run.
+
+                         **One of the six is no longer the committee's wording**, and it had to change: the third
+                         said withdrawal was impossible "once I have completed it", which was true while the file
+                         went at the end and stopped being true in September 2026, when answers began going out as
+                         they are given (see **Where it goes** in AGENTS.md). The point of no return is now the
+                         first answer rather than the last, and the paragraph above the statements says so in
+                         plain words. A reviewer should be told this one was amended and why. -->
                     <div class="consent" id="consent" tabindex="0" role="region" aria-label="Consent form">
                         <!-- The one logo repeated from the row above: this is the
                              letterhead of the document itself, not another trust
@@ -146,17 +170,28 @@
                         <h3>Invitation to take part</h3>
                         <p>
                             Thank you for considering taking part in this study, conducted by Dr Dominique Makowski from the University of
-                            Sussex (see contact information below). Taking part is entirely up to you, and you can decide not to without
-                            giving a reason.
+                            Sussex and his team (see contact information below). Taking part is entirely up to you, and you can decide not
+                            to without giving a reason.
                         </p>
 
                         <h3>Why have I been invited, and what will I do?</h3>
                         <p>
-                            The study looks at how people differ in the way they describe their own personality traits, their mood over the
-                            past two weeks, and the sensations they notice in their body. You will answer a series of short questions on
-                            screen, one at a time, mostly by picking a point on a scale. The whole thing usually takes
-                            <b>10 to 15 minutes</b> to complete. Please make sure that you are attentive and in a quiet environment, and
-                            that you have the time to complete it in one go. You must be 18 or older to take part.
+                            The aim of this study is to validate a questionnaire measuring interoception. Interoception refers to the
+                            sensing, interpretation and processing of internal bodily signals (e.g., feeling changes in the way one's heart
+                            beats). You will answer a series of questions on screen, one at a time, mostly by picking a point on a scale:
+                            first a few questions about yourself, then questionnaires about the sensations you notice in your body, about
+                            what you make of artificial intelligence, and about your mood and health over the past weeks and months.
+                        </p>
+                        <p>
+                            That first part takes <b>about 20 to 25 minutes</b> and is the whole of the study. If you are taking part for
+                            course credit or payment, it is awarded for finishing it. You will then be told that you have finished, and
+                            offered the choice of carrying on through further questionnaires — about your character, how you see the world
+                            and how you think — if you would like to. <b>That second part is entirely optional</b>, carries no additional
+                            credit or payment, and you can stop anywhere in it.
+                        </p>
+                        <p>
+                            Please make sure that you are attentive and in a quiet environment, and that you have the time to complete it in
+                            one go. You must be 18 or older to take part.
                         </p>
 
                         <h3>What will happen to the results and my personal information?</h3>
@@ -165,6 +200,12 @@
                             way described in the consent information below. Please read this information carefully and then, if you wish to
                             take part, please acknowledge that you have fully understood this sheet, and that you consent to take part in
                             the study as it is described here.
+                        </p>
+                        <p>
+                            <b>Your answers are recorded as you give them</b>, rather than only at the end: each one is sent for storage the
+                            moment it is given. This means that if you stop partway through, or close the tab, the answers you have already
+                            given are kept and may be used in the research. Because the study is anonymous, there is no way to find your
+                            answers again afterwards, and so no way to take them back.
                         </p>
                         <p>
                             The feedback you are shown along the way is for interest only. It is generated from brief questionnaires scored
@@ -186,8 +227,8 @@
                                 grades).
                             </li>
                             <li>
-                                I understand that since the study is anonymous, it will be impossible to withdraw my data once I have
-                                completed it.
+                                I understand that my answers are recorded as I give them, and that since the study is anonymous, it will be
+                                impossible to withdraw my data once it has been given, whether or not I finish the study.
                             </li>
                             <li>
                                 I understand that my personal data will be used for the purposes of this research study and will be handled
@@ -206,7 +247,10 @@
 
                         <p>
                             For further information about this research, or if you have any concerns, please contact Dr Dominique Makowski
-                            (<i>D.Makowski@sussex.ac.uk</i>). This research has been approved
+                            (<i>D.Makowski@sussex.ac.uk</i>)
+                            <!-- The Sussex form names the researcher running the study beside the supervisor. Fill in
+                                 the student's name and address once the application has them. -->
+                            and/or XXX (<i>XXX@sussex.ac.uk</i>). This research has been approved
                             <!-- Placeholder, in the format the other studies use: fill in once this study has its own reference,
                                  rather than quoting one that covers a different protocol. -->
                             (XX/XXXX/XX) by the Sciences &amp; Technology Cross-Schools Research Ethics Committee (C-REC)
@@ -416,6 +460,13 @@
                 </div>
             </section>
         </div>
+
+        <!-- The one file on the page that is not ours: DataPipe's client, which
+             the answers are sent through. It is kept in the repository rather
+             than fetched from a CDN, so that the code a participant runs is the
+             code that was reviewed. Nothing below reads it at load; `app.js`
+             asks for it by name when the test begins. -->
+        <script src="js/vendor/datapipe-client.js"></script>
 
         <!-- How a question is written, then the running order, then the blocks
              of questions themselves — a file each — then everything that reads

@@ -96,48 +96,51 @@
 
     /* -------------------------------- forks ------------------------------- */
 
-    // Levels written with the same `fork:` name are taken in the order the
-    // person chooses, two at a time. The places they take are the fork's
-    // **slots** — the level numbers carrying the name — and `at` is the index
-    // of the slot the coming choice fills. On finishing the level before that
-    // slot, while more than one level is left to fill it with, the two
-    // standing next are offered and the one picked takes the slot, the other
-    // falling to the slot after — so a person who keeps passing a level over
-    // meets it again at every choice until it is the last one standing.
+    // Levels written `fork: true` are taken in the order the person chooses,
+    // two at a time. The places they take are the fork's **slots** — the level
+    // numbers carrying the flag — and `at` is the index of the slot the coming
+    // choice fills. On finishing the level before that slot, while more than
+    // one level is left to fill it with, the two standing next are offered and
+    // the one picked takes the slot, the other falling to the slot after — so
+    // a person who keeps passing a level over meets it again at every choice
+    // until it is the last one standing.
     //
-    // **The slots need not be next to each other.** `Self` is levels 3-6 and
-    // level 9, with two fixed levels between: four of its five are asked in
-    // the water and whichever is left after the last choice waits at the
-    // bottom of the rock. That is why a choice is a *swap* of two places
-    // rather than a shuffling of one run (`swapLevels`), and why `beneath`
-    // stays with the place rather than travelling with what is asked there.
+    // **The slots need not be next to each other.** They happen to be
+    // contiguous, but nothing here requires it, which is why a choice is a
+    // *swap* of two places rather than a shuffling of one run (`swapLevels`),
+    // and why `beneath` stays with the place rather than travelling with what
+    // is asked there.
     //
-    // A battery that leaves one level of a fork leaves nothing to choose, and
-    // that level is asked where it falls. A choice is not recorded here but on
-    // the level screen it was made on (`levelItems`, below): it is one of the
-    // two things that screen's way on can be, and is saved as that screen's
-    // answer.
-    const FORKS = [] // { name, slots: the level numbers it spans, at: the index of the slot the coming choice fills }
-
-    PLAN.forEach((entry) => {
-        if (!entry.fork || FORKS.some((fork) => fork.name === entry.fork)) return
-        const written = TIMELINE.filter((one) => one.fork === entry.fork).length
-        if (written < 2) throw new Error("a fork is two levels or more, and " + entry.fork + " is written on one")
-        const slots = PLAN.map((one, at) => (one.fork === entry.fork ? at + 1 : 0)).filter(Boolean)
-        if (slots.length < 2) return // a battery left one level of it; it is asked where it falls
+    // The flag is a boolean rather than a name, so there is one fork at most:
+    // a second, independent one is something nobody has wanted, and a name
+    // that is only ever compared against itself says nothing. A run of levels
+    // drawn instead of chosen needs nothing here at all — `shuffle()` in
+    // content/ has already put them in an order by the time this runs.
+    //
+    // A battery that leaves one level of the fork leaves nothing to choose,
+    // and that level is asked where it falls. A choice is not recorded here
+    // but on the level screen it was made on (`levelItems`, below): it is one
+    // of the two things that screen's way on can be, and is saved as that
+    // screen's answer.
+    const FORK = (() => {
+        const written = TIMELINE.filter((entry) => entry.fork).length
+        if (!written) return null
+        if (written < 2) throw new Error("a fork is two levels or more, and one level is written fork: true")
+        const slots = PLAN.map((entry, at) => (entry.fork ? at + 1 : 0)).filter(Boolean)
+        if (slots.length < 2) return null // a battery left one level of it; it is asked where it falls
         // A choice is offered from the screen of the level before the slot it
         // fills, and level 1 has none: a fork standing there takes its first
         // place as written and the choosing starts at the second. Only a
         // battery gets there, since the run's own first level is fixed.
-        FORKS.push({ name: entry.fork, slots: slots, at: slots[0] === 1 ? 1 : 0 })
-    })
+        return { slots: slots, at: slots[0] === 1 ? 1 : 0 } // at: the index of the slot the coming choice fills
+    })()
 
-    // The fork with a choice to offer on finishing this level, if any: the
+    // Whether the fork has a choice to offer on finishing this level: the
     // level is the one before the slot to fill next, and more than one level
     // is left to fill it with. A level finished a second time, after going
     // back into it, has the ordinary way on.
     function forkAfter(level) {
-        return FORKS.find((fork) => fork.at < fork.slots.length - 1 && fork.slots[fork.at] === level + 1)
+        return FORK && FORK.at < FORK.slots.length - 1 && FORK.slots[FORK.at] === level + 1 ? FORK : null
     }
 
     // The page is put back to the top underneath something that is covering
@@ -347,6 +350,7 @@
     let screen = "intro" // the screen underneath, which a panel never replaces
     let panel = null // the panel over it, if any
     let locked = false // ignore input while advancing
+    let turns = 0 // answers taken, so that a turn scheduled by one of them can tell it is still the current one
 
     /* ------------------------------ test mode ----------------------------- */
 
@@ -438,15 +442,20 @@
     }
 
     // An answer can close a branch that was open. What it held was given under
-    // a premise that no longer holds, so it goes.
+    // a premise that no longer holds, so it goes. What went is handed back, so
+    // that the staged copy of the run can be told an answer has been taken away
+    // as well as when one is given.
     function pruneBranches() {
+        const pruned = []
         for (const question of questions) {
             // An item a test run answered is never shown, and its answer is not
             // a branch closing behind anybody.
             if (question.auto || shown(question) || responses[question.key] === undefined) continue
             delete responses[question.key]
             delete log[question.key]
+            pruned.push(question.key)
         }
+        return pruned
     }
 
     // An item may word itself from an answer already given: `text`, on the item
@@ -558,9 +567,13 @@
         // circles they were read from.
         file.formatMint = formatMint
 
-        // How each level was answered, beside when it was finished.
+        // How each level was answered, beside when it was finished — **under
+        // the level's name, for the reason the ratings are** (see `levelKey`):
+        // a number is a place in one person's run and a name is the same thing
+        // for everybody, so `qualityControl["Character"]` can be read down a
+        // column where `qualityControl.level5` cannot.
         file.qualityControl = {}
-        for (const level of levels) file.qualityControl["level" + level] = qualityControl(level)
+        for (const level of levels) file.qualityControl[levelKey(level)] = qualityControl(level)
 
         // The run's items in order, each level screen standing after the last
         // item of the level it showed, which is where the person met it. A
@@ -583,10 +596,19 @@
 
         const screens = new Set(levelItems)
 
+        // Each item says which questionnaire asked it. Without that, working out
+        // whether somebody has a complete PI-18 means knowing which keys belong
+        // to it — and the keys do not say: the `singles` questionnaire alone
+        // holds ten different prefixes and `Demographics_` spans three
+        // questionnaires, so a prefix is a guess rather than a mapping. It is
+        // what the run already stamped on the item during the flatten walk, so
+        // nothing is worked out twice and nothing can disagree. A level screen
+        // belongs to no questionnaire and says so.
         file.items = walked.map((entry, position) => {
             if (screens.has(entry)) {
                 return {
                     key: entry.key,
+                    questionnaire: null,
                     order: position + 1,
                     response: entry.response,
                     timeOnset: entry.timeOnset,
@@ -596,6 +618,11 @@
             const logged = log[entry.key] || {}
             return {
                 key: entry.key,
+                // A briefing belongs to its block rather than to any
+                // questionnaire, so it has none to name — written as null
+                // rather than left out, since a key absent from some items and
+                // present in others is a shape an analysis has to guard.
+                questionnaire: entry.questionnaire || null,
                 order: position + 1,
                 response: said(entry, logged.response),
                 timeOnset: logged.timeOnset || null,
@@ -1219,20 +1246,40 @@
     const levelItems = scoredLevels.map((level) => ({ level: level, key: "Level_" + level, response: null, timeOnset: null, timeResponse: null }))
     const levelItem = (level) => levelItems.find((item) => item.level === level)
 
-    // A star rating belongs to the same screen, so it is filed under the same
-    // key: one per scored level, null until it is given.
-    for (const item of levelItems) ratings[item.key] = null
+    // A star rating belongs to the same screen, but it is **filed under the
+    // level's name rather than its number** — `ratings["Character"]`, not
+    // `ratings["Level_5"]`. A level number is a place in one person's run, and
+    // the run is drawn and partly chosen, so level 5 is Character for one
+    // person and Reasoning for the next: a column of numbered ratings holds a
+    // different level in every row, which is not a column. The name is the
+    // same thing for everybody. `levelKey` is the one place that is decided,
+    // and the seam hands it to `results.js` so nothing there has to know how a
+    // rating is keyed. The set of names does not move when a fork swaps two
+    // levels — the names cross over with the levels, so the same names are
+    // always all present — which is why they can be written in up front.
+    const levelKey = (level) => levelName(level)
+
+    // Two levels of one name would quietly share a rating and a quality-control
+    // entry, and nothing downstream could tell them apart. Every level is
+    // checked and not only the scored ones, since the quality control covers
+    // the closing level too.
+    const levelKeys = levels.map(levelKey)
+    if (new Set(levelKeys).size !== levelKeys.length) {
+        throw new Error("two levels share a name, so their ratings would collide: " + levelKeys.join(", "))
+    }
+
+    for (const item of levelItems) ratings[levelKey(item.level)] = null
 
     // A fork is offered from the level screen of the level before the slot it
     // fills, which an unscored level never shows, and moves levels about among
     // numbers that have to stay scored in every order. The last slot is filled
     // by what is left rather than chosen for, and so is the first when the fork
     // starts at level 1, so neither wants a level before it.
-    for (const fork of FORKS) {
-        fork.slots.forEach((slot, at) => {
-            const chosen = at >= fork.at && at < fork.slots.length - 1
+    if (FORK) {
+        FORK.slots.forEach((slot, at) => {
+            const chosen = at >= FORK.at && at < FORK.slots.length - 1
             for (const level of chosen ? [slot - 1, slot] : [slot]) {
-                if (scoredLevels.indexOf(level) === -1) throw new Error("a fork's slots and the levels before them are scored: " + fork.name)
+                if (scoredLevels.indexOf(level) === -1) throw new Error("a fork's slots and the levels before them are scored, and level " + level + " is not")
             }
         })
     }
@@ -1491,7 +1538,113 @@
                   : "Locked · " + progress.size + " question" + (progress.size === 1 ? "" : "s") + " ahead"
             button.setAttribute("aria-expanded", showing ? "true" : "false")
         }
+
+        // The shelf is the other face of the same fact — a level finished
+        // lights its stop and mints its badge — so the two bars are drawn
+        // together and nothing has to remember to call both.
+        renderShelf()
     }
+
+    /* ------------------------------ the shelf ----------------------------- */
+
+    // The bar down the left, and what accumulates on it. The gauge says how
+    // far down the descent has got; the shelf says what it has turned up:
+    // it opens with nothing on it but the way into the profile, and every
+    // level finished mints a badge — a crop of the figure that level closed
+    // on, drawn from the person's own answers. A badge is a second way into
+    // the panel its stop on the gauge opens, and the two never disagree,
+    // both being read off `levelProgress`.
+    //
+    // It is reconciled rather than rebuilt: a badge costs a whole section to
+    // draw and throw away, this runs on every answer, and a badge nobody
+    // touched should not be replaced under the pointer.
+    function renderShelf() {
+        const wrap = $("badges")
+
+        for (const level of scoredLevels) {
+            const had = badgeFor(level)
+            // Going back and changing the answer a branch hangs off can take
+            // a level's last answer away with it, so a badge is only ever
+            // there while the level behind it is finished.
+            if (!levelProgress(level).unlocked) {
+                if (had) had.remove()
+                continue
+            }
+            if (had) {
+                had.classList.toggle("shelf__badge--open", panel === "results" && openLevel === level)
+                continue
+            }
+            place(wrap, mintBadge(level))
+        }
+    }
+
+    // In level order rather than in the order they were earned: the two are
+    // the same walking down, and a badge taken off and put back by a changed
+    // branch should go back where it was rather than on the end.
+    function place(wrap, badge) {
+        const level = Number(badge.dataset.level)
+        let after = null
+        for (const one of wrap.children) {
+            if (Number(one.dataset.level) > level) {
+                after = one
+                break
+            }
+        }
+        wrap.insertBefore(badge, after)
+    }
+
+    function badgeFor(level) {
+        return document.querySelector('.shelf__badge[data-level="' + level + '"]')
+    }
+
+    function stopFor(level) {
+        return document.querySelector('.sidebar__level[data-level="' + level + '"]')
+    }
+
+    function mintBadge(level) {
+        const badge = document.createElement("button")
+
+        badge.type = "button"
+        badge.dataset.level = level
+        badge.className = "shelf__badge"
+        badge.style.setProperty("--tint", levelColour(level))
+        // The figure inside says nothing a screen reader can use, and the
+        // title is for the pointer: both point at the level itself.
+        badge.title = levelTitle(level)
+        badge.setAttribute("aria-label", levelTitle(level) + ", unlocked")
+
+        const art = document.createElement("span")
+        art.className = "shelf__badge-art"
+        const figure = results.renderBadge(level)
+        // A level may hold nothing drawn — then the badge is its number on
+        // its own colour, which still says it was finished.
+        if (figure) art.appendChild(figure)
+        badge.appendChild(art)
+
+        const number = document.createElement("span")
+        number.className = "shelf__badge-number"
+        number.textContent = level
+        badge.appendChild(number)
+
+        // Every way in is also the way out, the way a stop on the gauge is.
+        badge.addEventListener("click", () => (panel === "results" && openLevel === level ? closePanel() : openResults(level, badge)))
+
+        // Struck rather than found already there: it arrives because
+        // something was finished, which is the whole of what this bar is for.
+        // The class comes off again on `animationend` — its last frame would
+        // otherwise hold the badge against the lift it gets on hover — and
+        // only its own animation ends it, the figure inside having its own.
+        if (!still()) {
+            badge.classList.add("shelf__badge--minted")
+            badge.addEventListener("animationend", (event) => {
+                if (event.target === badge) badge.classList.remove("shelf__badge--minted")
+            })
+            setTimeout(() => burst(badge, "#d9a441", { count: 10, reach: 26 }), MINT_FLASH)
+        }
+        return badge
+    }
+
+    const MINT_FLASH = 300 // ms into the strike that the gold comes off it
 
     // A level's results belong to the button that opens them: they grow out of
     // that point on the line and are drawn back into it on the way out, so the
@@ -1499,11 +1652,10 @@
     // origin the scaling turns about, in the coordinates of the box `on` is
     // laid out in — the panel's own box is scaled down to nothing while it is
     // shut, and is no use for the sum.
-    function markOrigin(on, within, level) {
-        const button = document.querySelector('.sidebar__level[data-level="' + level + '"]')
-        if (!button) return false
+    function markOrigin(on, within, from) {
+        if (!from) return false
 
-        const spot = button.getBoundingClientRect()
+        const spot = from.getBoundingClientRect()
         const box = within.getBoundingClientRect()
 
         on.style.setProperty("--from-x", spot.left + spot.width / 2 - box.left + "px")
@@ -1511,8 +1663,8 @@
         return true
     }
 
-    function fromLevel(level) {
-        markOrigin($("panel-results"), $("overlay"), level)
+    function fromLevel(from) {
+        markOrigin($("panel-results"), $("overlay"), from)
     }
 
     // The level screen leaves the same way the panel does: what was just read
@@ -1522,7 +1674,9 @@
 
     function suckLevel(level, then) {
         const screen = $("screen-level")
-        if (still() || !markOrigin(screen, screen, level)) return then()
+        // Into the badge it has just minted, where there is one: what was
+        // read goes onto the shelf. Failing that, into its stop on the gauge.
+        if (still() || !markOrigin(screen, screen, badgeFor(level) || stopFor(level))) return then()
 
         screen.classList.add("screen--sucked")
 
@@ -1534,11 +1688,14 @@
 
     // `sealed`, not `locked`: that name already means "ignore input while
     // advancing" everywhere else in this file, and this is a different lock.
-    function openResults(level) {
+    function openResults(level, from) {
         const progress = levelProgress(level)
         const sealed = !progress.unlocked
         openLevel = level
-        fromLevel(level)
+        // Whichever of the two it was opened from: a panel is drawn back into
+        // the thing that let it out.
+        openFrom = from || stopFor(level)
+        fromLevel(openFrom)
         $("results-title").textContent = levelTitle(level)
         $("results-sub").textContent = sealed
             ? "Locked · " + progress.answered + " of " + progress.size + " answered"
@@ -1558,10 +1715,14 @@
     // page is never left, only covered. Every panel comes out from under the bar
     // the button that opened it sits on, and stops short of it.
     let openLevel = null // which level the results panel is showing
+    let openFrom = null // and which button it grew out of: a stop, or a badge
 
     // Panels opened by a bar link of the same id, lit while theirs is up. The
-    // level buttons open the results panel, and are lit by renderSidebar instead.
-    const LINKED = ["profile", "raw"]
+    // two sit on different bars — the profile at the head of the shelf, the
+    // file at the foot of the gauge — so each is named with the block it is
+    // written in. The level buttons open the results panel, and are lit by
+    // renderSidebar and renderShelf instead.
+    const LINKED = { profile: "shelf__link", raw: "sidebar__link" }
 
     function openPanel(name) {
         results.hideTip()
@@ -1585,10 +1746,11 @@
         // Taken again on the way out: the window may have been resized while
         // the level was open, and it should go back into where its button is
         // now rather than where it was.
-        if (panel === "results" && openLevel !== null) fromLevel(openLevel)
+        if (panel === "results" && openFrom) fromLevel(openFrom)
 
         panel = null
         openLevel = null
+        openFrom = null
 
         for (const sheet of document.querySelectorAll(".panel")) sheet.classList.remove("panel--open")
         $("overlay").classList.remove("overlay--open")
@@ -1601,8 +1763,8 @@
 
     // Which bar button, if any, is currently holding a panel open.
     function markSidebar() {
-        for (const name of LINKED) {
-            $(name).classList.toggle("sidebar__link--open", panel === name)
+        for (const name in LINKED) {
+            $(name).classList.toggle(LINKED[name] + "--open", panel === name)
             $(name).setAttribute("aria-expanded", panel === name ? "true" : "false")
         }
         renderSidebar()
@@ -1701,6 +1863,13 @@
 
     function completeLevel(level) {
         levelShowing = level
+
+        // A level's answers are all in, which is the moment worth staging: a
+        // run left on the results screen it opens has still left a whole level
+        // behind it. The frame goes again when the screen is left, with
+        // whatever was voted and starred on it.
+        stageFrame()
+
         $("level-title").textContent = "Level " + level + " Unlocked"
         $("level-name").textContent = levelName(level)
 
@@ -1875,7 +2044,12 @@
         log[question.key].response = value
         log[question.key].timeResponse = new Date().toISOString()
 
-        pruneBranches() // this answer may have opened or closed one
+        const pruned = pruneBranches() // this answer may have opened or closed one
+
+        // Into the staged copy: this answer, and any a closing branch has just
+        // taken away with it.
+        stageItems([question.key].concat(pruned))
+
         markSelection(value)
         renderSidebar() // every answer moves the descent on, including the last one
 
@@ -1893,7 +2067,17 @@
         locked = true
         setTimeout(() => $("screen-survey").classList.add("turning"), ADVANCE_DELAY - TURN)
 
+        // **The turn this answer takes belongs to it.** If anything has moved
+        // the run on in the meantime — a level screen going up behind the fade,
+        // a second press that got through while the lock was down — this
+        // timeout is stale and does nothing at all: it neither unlocks nor
+        // advances. Unlocking on a stale turn is what let the item behind a
+        // level screen be answered, and advancing on one ended the run while
+        // the last item was still on screen unanswered, which sent the file
+        // without the answer to it.
+        const turn = ++turns
         setTimeout(() => {
+            if (turn !== turns) return
             locked = false
             advance()
         }, ADVANCE_DELAY)
@@ -1954,6 +2138,7 @@
         entry.response = $("briefing-go").textContent.trim()
         entry.timeResponse = new Date().toISOString()
         log[question.key] = entry
+        stageItems([question.key])
         advance()
     }
 
@@ -2017,60 +2202,192 @@
 
     /* -------------------------------- saving ------------------------------ */
 
-    // Where a finished run goes. DataPipe (pipe.jspsych.org) takes a file over
-    // a plain POST and puts it in the repository its experiment ID is bound to
-    // — here a Zenodo deposit, under the beta of the service that writes there
-    // rather than to OSF. The file sent is `container()` exactly as "Download
-    // responses" would save it, so the two can never disagree.
-    // It goes once, when the last item is answered: nothing after that changes
-    // an answer. The one thing it can miss is an agree/disagree given on a
-    // level reopened after the end, which is accepted rather than sent twice —
-    // a filename is taken once at the far end, and a second copy would be
-    // refused.
+    // Where a run goes. DataPipe (pipe.jspsych.org) files what it is sent in
+    // the repository its experiment ID is bound to — here a Zenodo deposit.
+    // The same run is sent twice over, in two different ways, and it is the
+    // second that counts.
     //
-    // PARKED (September 2026): saving at every level too, so that a run left
-    // halfway still leaves what it had. DataPipe refuses a filename it has
-    // already taken (OSF_FILE_EXISTS, on the Zenodo adapter as much as on
-    // OSF — tested 2026-09-02), so that would mean one file per checkpoint
-    // and six files a run, against a Zenodo record's default limit of a
-    // hundred. Its maintainer has said a coming release may allow a file to
-    // be overwritten, or updated before it is sent; when it does, a `save()`
-    // call at the top of `completeLevel()` is the whole of the change. Until
-    // then, once, at the end.
+    // **As it is answered**, one record at a time: every item the moment it is
+    // given, and the rest of the file — who is taking it, in what order, how
+    // each level was answered — at the end of every level. DataPipe holds those
+    // in a staging database of its own, and about fifteen minutes after
+    // somebody stops answering it writes what it is holding for them into the
+    // deposit as a `.partial.json`. Nothing here has to notice the leaving: the
+    // connection itself is what says they have gone, so a tab closed halfway
+    // down the descent leaves the half that was answered rather than nothing at
+    // all. That is the whole reason for it — the run is long — and it is what
+    // was parked here in September 2026, when a checkpoint meant a second file
+    // under a second name and DataPipe refused a name it had already taken.
     //
-    // Writing to Zenodo is, as of September 2026, only on DataPipe's *test*
-    // deployment (`datapipe-test.web.app`, the `test` branch of
-    // jspsych/datapipe), which keeps experiments of its own: the production
-    // site (`pipe.jspsych.org`) does not know this experiment ID. When Zenodo
-    // reaches production, the experiment has to be made again there and both
-    // constants changed together.
-    const DATAPIPE = "https://datapipe-test.web.app/api/data/"
-    const DATAPIPE_EXPERIMENT = "Elsjcjycb6ru"
+    // **At the end**, the whole of `container()` in one piece, exactly as
+    // "Download responses" would save it, so the two can never disagree — and
+    // under the session's own id, which is what tells DataPipe that the records
+    // it has been holding belong to a run that finished, and are to be dropped
+    // rather than filed as a partial beside the complete one.
+    //
+    // The staging is best-effort and can never hold the run up: a session that
+    // will not start says so in the console and disables itself, every call into
+    // it swallows its own errors, and the file at the end goes whether any of it
+    // worked or not.
+    const DATAPIPE = "https://pipe.jspsych.org" // the service; the client puts its own `/api/…` on the end
+    const DATAPIPE_EXPERIMENT = "C2mDNSFM3jAJ" // TestYourself, bound to a Zenodo deposit
+    const STAGING_WAIT = 4000 // ms the file waits on the staged copy at the end before going without it
 
-    // The file's name at the far end has to be one nobody has used: a code
-    // brought in on the link (`?sub=`) may come round twice, so the moment the
-    // run began goes on the end of it. A test run says what it is up front,
-    // so that it can be picked out and thrown away.
-    function filename() {
-        const began = timeStart.replace(/[-:]/g, "").slice(0, 15) // 20260902T141530
-        // A study's battery goes in the name too, so a deposit sorts by study.
-        return (testMode ? "test-" : "responses-") + (battery ? battery + "-" : "") + participant + "_" + began + ".json"
+    // The file's name at the far end has to be one nobody has used — DataPipe
+    // refuses a name it has already taken, and a code brought in on the link
+    // (`?sub=`) may come round twice, so the moment the run began goes on the
+    // end of it. A test run says what it is up front, so that it can be picked
+    // out and binned, and a study's battery goes in the name too, so that a
+    // deposit sorts by study. It is worked out once rather than twice: the
+    // session is opened under this name and the finished file is sent under it,
+    // and a partial left behind is this name with the session's id after it.
+    const FILENAME =
+        (testMode ? "test-" : "responses-") +
+        (battery ? battery + "-" : "") +
+        participant +
+        "_" +
+        timeStart.replace(/[-:]/g, "").slice(0, 15) + // 20260902T141530
+        ".json"
+
+    // The session the run is staged into, or null where the client is not on
+    // the page. It is opened when the test begins rather than when the page
+    // loads: somebody who read the landing page and left is not a participant,
+    // and a session held open for them is one of the five hundred an experiment
+    // may have at once.
+    let session = null
+
+    function openSession() {
+        if (!window.DataPipe) return
+        DataPipe.setBaseURL(DATAPIPE)
+        session = DataPipe.createSession({ experimentID: DATAPIPE_EXPERIMENT, filename: FILENAME })
+        stageFrame()
     }
 
+    // One record into the staging database. Two kinds go in and each says which
+    // it is: a `frame`, the saved file with the answers taken out of it, and an
+    // `item`, one entry of that file's `items[]`. Read back, the last frame and
+    // the last record under each key are a container with as much of a run in it
+    // as was answered.
+    function stage(kind, body) {
+        if (!session) return
+        session.record({ record: kind, ...body })
+    }
+
+    // The frame is the file itself with the items dropped rather than a second
+    // thing built beside it, so a staged frame cannot drift from what the file
+    // would have said. It carries the run's order, the level times, the quality
+    // control, the votes and the stars — everything that is not an answer.
+    function frame() {
+        const file = container()
+        delete file.items
+        return file
+    }
+
+    // A frame that says nothing the last one did not is not staged: the way on
+    // from a level screen can be pressed more than once while it is animating
+    // away, and a record budget of a thousand is not something to spend on
+    // saying the same thing twice. Items are not deduplicated — the same key
+    // answered again is a new answer, even where it is the same answer.
+    let lastFrame = null
+
+    function stageFrame() {
+        if (!session) return
+        const body = frame()
+        const written = JSON.stringify(body)
+        if (written === lastFrame) return
+        lastFrame = written
+        stage("frame", body)
+    }
+
+    // An item is staged as the file's own entry for it, found in the file rather
+    // than made again here, for the same reason. One answered a second time —
+    // gone back to, or a branch closing behind it and taking its answer with it
+    // — is staged again, so what is read is the last record under that key, and
+    // a branch closed after the fact reads as the null it ends as.
+    function stageItems(keys) {
+        if (!session) return
+        const items = container().items
+        for (const key of keys) {
+            const entry = items.find((one) => one.key === key)
+            if (entry) stage("item", entry)
+        }
+    }
+
+    // The end of the run. The staged copy is brought up to date and flushed —
+    // which is also how the session's id is waited for, since a session starts
+    // in the background and has none until it has — then the whole file goes
+    // under that id, and the session is closed behind it: closed as submitted,
+    // which is what drops the staged copy rather than leaving it to be filed as
+    // a partial fifteen minutes later.
+    //
+    // It goes once, when the last item is answered: nothing after that changes
+    // an answer. The one thing it can miss is an agree/disagree or a rating
+    // given on a level reopened after the end, which is accepted rather than
+    // sent twice — a filename is taken once at the far end, and a second copy
+    // would be refused.
+    // **The run is sent once, however many times the end of it is reached.**
+    // `advance()` can arrive at the last item more than once — the survey
+    // screen is still up while the finale runs, and the way out of that item
+    // can be pressed again before the dark closes over it — and a second file
+    // under the same name would be refused (`FILE_EXISTS`), which would put
+    // "could not be sent" on the screen of somebody whose answers had just
+    // arrived. A second call gets the first one's promise, and so the first
+    // one's outcome.
+    let sending = null
+
     function save() {
-        return fetch(DATAPIPE, {
+        if (!sending) sending = sendRun()
+        return sending
+    }
+
+    async function sendRun() {
+        stageFrame()
+
+        // The flush is waited on because the session's id comes with it, and
+        // the id is what matches the staged copy to this file. **It is waited
+        // on for a moment and not for ever**, which is the whole point of this
+        // race: a flush goes to the staging database over a connection of its
+        // own, and a tab left in the background has the timers behind it
+        // throttled to a crawl. Nothing about the staging may hold up the file,
+        // so the wait is time-boxed and the file goes either way — without the
+        // id, at worst, which costs a partial filed beside a complete run.
+        if (session) {
+            await Promise.race([session.flush().catch(() => {}), new Promise((done) => setTimeout(done, STAGING_WAIT))])
+        }
+
+        const sent = await send(JSON.stringify(container(), null, 2))
+
+        // Closing as submitted is what drops the staged copy rather than
+        // leaving it to be filed as a partial a quarter of an hour later. It is
+        // not waited on: the file has gone, and holding "Saving your answers…"
+        // on screen for the sake of tidying up behind it would be the staging
+        // costing the person something again. It takes about a tenth of a
+        // second, so a tab shut on the instant is the only way it does not
+        // finish — and what that costs is a partial filed beside a complete
+        // run, under the same name, which is noise rather than a lost answer.
+        if (session) session.close({ submitted: sent.ok }).catch(() => {})
+        // What the last screen says goes by whether it arrived and nothing else.
+        if (!sent.ok) throw new Error("DataPipe answered " + sent.status)
+    }
+
+    // The client does the sending: it gzips what it is handed, tries again in
+    // the background if the first attempt does not land, and answers with the
+    // outcome rather than throwing. Without it on the page the same thing is a
+    // plain POST, which is the whole of the fallback — a missing file should
+    // cost the staging, not the data.
+    function send(data) {
+        const body = { experimentID: DATAPIPE_EXPERIMENT, filename: FILENAME, data: data }
+        if (window.DataPipe) {
+            return DataPipe.saveData(session && session.sessionId ? { ...body, sessionId: session.sessionId } : body)
+        }
+        return fetch(DATAPIPE + "/api/data/", {
             method: "POST",
             headers: { "Content-Type": "application/json", Accept: "*/*" },
-            body: JSON.stringify({
-                experimentID: DATAPIPE_EXPERIMENT,
-                filename: filename(),
-                data: JSON.stringify(container(), null, 2),
-            }),
-        }).then((reply) => {
-            // DataPipe refuses with a status as well as a message, so the
-            // status is enough to go on.
-            if (!reply.ok) throw new Error("DataPipe answered " + reply.status)
-        })
+            body: JSON.stringify(body),
+        }).then(
+            (reply) => ({ ok: reply.ok, status: reply.status }),
+            () => ({ ok: false, status: 0 }),
+        )
     }
 
     // What the last screen says about it. The download button underneath is
@@ -2101,6 +2418,9 @@
         dimensionOrder: dimensionOrder,
         feedback: feedback,
         ratings: ratings,
+        // What a level's stars are filed under. `results.js` asks rather than
+        // works it out, so how a rating is keyed is decided in one place.
+        ratingKey: levelKey,
         score: score,
         total: total,
         percentile: percentile,
@@ -2329,6 +2649,10 @@
     // the button opens more water under the form and the page keeps sinking
     // into it while the quote closes over the top.
     $("start").addEventListener("click", () => {
+        // Consent has been given and the run is about to begin, which is where
+        // the answers start going out as they are given rather than at the end.
+        openSession()
+
         document.body.classList.add("sinking")
         // Reading the height settles the water that class just opened, so the
         // scroll below has the whole of it to run down.
@@ -2363,6 +2687,13 @@
             screen.response = $("level-continue").textContent.trim()
             screen.timeResponse = new Date().toISOString()
         }
+
+        // The level screen is an item and is staged like one, and the frame
+        // goes with it: the level is over, so what it was worth — its time, how
+        // it was answered, the votes and the stars its results were given — is
+        // settled, and a run abandoned further down still carries it.
+        if (screen) stageItems([screen.key])
+        stageFrame()
 
         suckLevel(levelShowing, () => {
             const resume = () => {

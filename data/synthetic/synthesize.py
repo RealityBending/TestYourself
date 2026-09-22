@@ -500,6 +500,7 @@ def screens(book):
     return {
         level["level"]: {
             "key": "Level_" + str(level["level"]),
+            "questionnaire": None,
             "response": taken.get(level["level"], "Go beneath the floor →" if level["level"] == floor else "Continue the test →"),
             "timeOnset": None,
             "timeResponse": None,
@@ -524,6 +525,7 @@ def walked(book, answers):
         out.append(
             {
                 "key": item["key"],
+                "questionnaire": item["questionnaire"],
                 "response": None if item["type"] == "briefing" else said(item, answers.get(item["key"]), answers),
                 "timeOnset": None,
                 "timeResponse": None,
@@ -549,13 +551,16 @@ def write_file(book, persona, given, bio, provenance):
     for level in book["levels"]:
         file["timeLevel" + str(level["level"])] = None
     file["formatMint"] = book["formatMint"]
+    # Keyed by the level's name, the way `container()` keys it: a number is a
+    # place in one person's run, a name is the same level for everybody.
     file["qualityControl"] = {
-        "level" + str(level["level"]): {"responseTimeMean": None, "responseTimeSD": None, "attentionChecksFailed": 0}
+        level["name"]: {"responseTimeMean": None, "responseTimeSD": None, "attentionChecksFailed": 0}
         for level in book["levels"]
     }
     file["items"] = [
         {
             "key": entry["key"],
+            "questionnaire": entry["questionnaire"],
             "order": position + 1,
             "response": entry["response"],
             "timeOnset": entry["timeOnset"],
@@ -566,7 +571,8 @@ def write_file(book, persona, given, bio, provenance):
     file["feedback"] = {key: None for key in feedback_keys(book)}
     # A model is not asked what it made of the level it has just read, so the
     # stars are null throughout — one key per level screen, as in a real run.
-    file["ratings"] = {screen["key"]: None for screen in screens(book).values()}
+    by_number = {level["level"]: level["name"] for level in book["levels"]}
+    file["ratings"] = {by_number[number]: None for number in screens(book)}
 
     OUT.mkdir(parents=True, exist_ok=True)
     path = OUT / (persona["code"] + ".json")

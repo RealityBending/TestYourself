@@ -299,6 +299,25 @@ function makeHeads(shared) {
         return stage
     }
 
+    // The shelf's badge: the two organs and nothing else. This figure's chart
+    // is HTML and its bars are names and numbers, neither of which can be
+    // read at the size of a token — so what stands for the level there is the
+    // pair it is about. It is the one badge in the app that says which level
+    // it is rather than what the answers were, and that is the price of a
+    // figure that is not a drawing.
+    function badge() {
+        const pair = document.createElement("span")
+        pair.className = "shelf__badge-emblem"
+
+        for (const one of HALVES) {
+            const drawn = glyph(one.head)
+            drawn.style.setProperty("--half", one.colour)
+            drawn.style.setProperty("--glow", one.glow)
+            pair.appendChild(drawn)
+        }
+        return pair
+    }
+
     /* ------------------------------ the section --------------------------- */
 
     // One of the two readings under the chart: which half, the sentence the
@@ -351,5 +370,5 @@ function makeHeads(shared) {
         return all
     }
 
-    return { HEADS_OF: HEADS_OF, HEART_KEY: HEART_KEY, MIND_KEY: MIND_KEY, headed: headed, renderHeads: renderHeads }
+    return { HEADS_OF: HEADS_OF, HEART_KEY: HEART_KEY, MIND_KEY: MIND_KEY, headed: headed, renderHeads: renderHeads, badge: badge }
 }

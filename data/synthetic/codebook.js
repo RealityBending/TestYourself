@@ -17,7 +17,7 @@
    answer, such as `Demographics_BirthDay`) cannot be written to JSON, so it
    is evaluated once per possible answer to the item it waits on and written
    as `textBy: { <key>: { <value>: "…" } }`. Nothing here reaches the browser;
-   it is a workbench, like `norms/`.
+   it is a workbench, like `data/norms/`.
    ========================================================================== */
 
 const fs = require("fs")

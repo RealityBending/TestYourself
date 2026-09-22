@@ -5,7 +5,7 @@ app's own content files.
     python docs/build_slides.py            # rewrite the generated parts
     python docs/build_slides.py --check    # say whether they are up to date
 
-A workbench, like `norms/` and `data/synthetic/`: nothing on the page or in
+A workbench, like `data/norms/` and `data/synthetic/`: nothing on the page or in
 the deck reaches for it, and it is run by hand when `content/` changes. What it
 writes is ordinary static HTML and one JavaScript file of strings, so the deck
 stays a folder you can open off the disk with nothing loaded from the app.

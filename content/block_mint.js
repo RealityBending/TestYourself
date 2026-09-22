@@ -36,7 +36,7 @@ defineBlock("mint", [
         // answered these 33 items, pooled from the four studies that have asked
         // them — InteroceptionScale studies 1 and 2, FakeArt and FakeChat — and
         // scored exactly the way the app scores them, each dimension the mean of
-        // its facets with Clarity turned over. `norms/make_norms.R` is what works
+        // its facets with Clarity turned over. `data/norms/make_norms.R` is what works
         // them out and prints them in this shape; re-run it rather than retyping
         // these, and read the mapping table in it before touching study 1, whose
         // columns are named for a pilot's constructs rather than for these items.
