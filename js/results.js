@@ -355,12 +355,14 @@ function makeResults(engine) {
     const climb = makeClimb(shared)
     const reasoning = makeReasoning(shared)
     const heads = makeHeads(shared)
+    const stance = makeStance(shared)
 
     // The climb is one section for two questionnaires, rendered where the
     // first of them falls in the run and skipped where the other would; the
     // heads are the same for the `regulation` block's three.
     const CLIMB_FIRST = RUN.find((one) => climb.CLIMB_OF.indexOf(one) !== -1)
     const HEADS_FIRST = RUN.find((one) => heads.HEADS_OF.indexOf(one) !== -1)
+    const STANCE_FIRST = RUN.find((one) => stance.STANCE_OF.indexOf(one) !== -1)
 
     /* ---------------------------- spider chart ---------------------------- */
 
@@ -623,6 +625,15 @@ function makeResults(engine) {
                 if (name !== HEADS_FIRST || !heads.HEADS_OF.some((one) => onLevel(dimensionsOf(one), level))) continue
                 if (!locked && !heads.headed()) continue
                 openSection(into, "Mind & Heart", colourOf("Emotional Arousal") || colourOf("Self-Control"), locked).body.appendChild(heads.renderHeads(locked))
+                continue
+            }
+
+            // And the `opinions` block's four are one figure too, the plane
+            // and the spectra under it.
+            if (stance.STANCE_OF.indexOf(name) !== -1) {
+                if (name !== STANCE_FIRST || !stance.STANCE_OF.some((one) => onLevel(dimensionsOf(one), level))) continue
+                if (!locked && !stance.ready()) continue
+                openSection(into, "Where You Stand", colourOf("Sharing") || colourOf("Suspicion"), locked).body.appendChild(stance.renderStance(locked))
                 continue
             }
 
@@ -1186,6 +1197,13 @@ function makeResults(engine) {
                 if (!heads.headed()) continue
                 return heads.badge()
             }
+            // The point on the plane and the quadrant round it, kept inside
+            // the plane so a point near an edge does not crop into nothing.
+            if (stance.STANCE_OF.indexOf(name) !== -1) {
+                if (!stance.ready()) continue
+                const at = stance.youAt().map((one) => Math.min(250, Math.max(70, one)))
+                return crop(figureIn(stance.renderStance(false), "svg.stance__plane"), at[0], at[1], 140)
+            }
             if (name === archetype.ARCHETYPE_OF) {
                 if (!archetype.aiArchetype()) continue
                 return archetype.badge()
@@ -1265,6 +1283,11 @@ function makeResults(engine) {
                 if (name === HEADS_FIRST) {
                     add(heads.HEART_KEY, heads.HEART_KEY)
                     add(heads.MIND_KEY, heads.MIND_KEY)
+                }
+            } else if (stance.STANCE_OF.indexOf(name) !== -1) {
+                if (name === STANCE_FIRST) {
+                    add(stance.STANCE_KEY, stance.STANCE_KEY)
+                    add(stance.BELIEFS_KEY, stance.BELIEFS_KEY)
                 }
             } else if (name === archetype.ARCHETYPE_OF) add(archetype.ARCHETYPE_KEY, archetype.ARCHETYPE_KEY)
             else if (name === wheel.WHEEL_OF) add(wheel.WHEEL_KEY, wheel.WHEEL_KEY)

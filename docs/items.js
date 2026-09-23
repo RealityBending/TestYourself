@@ -9,7 +9,7 @@ const ITEMS = {
     "r0": [
         "How old are you?",
         "In which month were you born?",
-        "Which part of January? [worded from an earlier answer]",
+        "On which day of January were you born? [worded from an earlier answer]",
         "I am...",
         "I was born...",
         "But I identify as..."
@@ -43,13 +43,16 @@ const ITEMS = {
         "I am confident that I can perform effectively on many different tasks"
     ],
     "r9": [
-        "All things considered, how satisfied are you with your life as a whole?"
+        "I value beautiful things and I go out of my way to seek out beauty Beauty, here, means in art, music, nature, design or the world around you."
     ],
     "r10": [
+        "All things considered, how satisfied are you with your life as a whole?"
+    ],
+    "r11": [
         "I am typically more intelligent than... Intelligent, here, refers to reasoning, problem-solving and how quickly you learn or understand things. It does not refer to emotional intelligence, social skills, wisdom or creativity.",
         "I am typically more attractive than... Attractive, here, refers to your overall desirability as a romantic or sexual partner. Not just physical appearance, but also personality, charm and other qualities that make someone appealing to others."
     ],
-    "r11": [
+    "r12": [
         "What is your highest completed education level?",
         "Your highest completed education level is...",
         "What is your discipline?",
@@ -60,7 +63,7 @@ const ITEMS = {
         "In which country are you currently living?",
         "You are currently living in..."
     ],
-    "r12": [
+    "r13": [
         "I can always accurately feel when I am about to fart",
         "I can always accurately feel when I am about to sneeze",
         "I can always accurately feel when I am about to burp",
@@ -96,7 +99,7 @@ const ITEMS = {
         "I am always very aware of what my stomach is doing, even when I am calm",
         "I can always accurately answer to the extreme left on this question to show that I am reading it [attention check]"
     ],
-    "r13": [
+    "r14": [
         "How knowledgeable do you consider yourself about Artificial Intelligence (AI) technology?",
         "How well do you understand the way modern AI systems actually work, technically? For instance, how large language models (LLMs) and generative AI produce the text or images they do.",
         "How frequently do you use Artificial Intelligence (AI) tools or technologies in your daily life? This includes tools like ChatGPT, image or art generators and AI assistants.",
@@ -125,26 +128,26 @@ const ITEMS = {
         "I am more likely to trust content when I know it is created by a human rather than AI",
         "I can show that I am Human and not an AI by answering all the way to the right [attention check]"
     ],
-    "r14": [
+    "r15": [
         "Which of these descriptions comes closest to how you feel about your household's financial situation today?"
     ],
-    "r15": [
+    "r16": [
         "Think of the ladder below as showing where people stand relative to other people in your country. At the top are people who have the most money, the most education and the most respected jobs. At the bottom are people who have the least money, the least education and the least respected jobs. Where would you place yourself on this ladder?"
     ],
-    "r16": [
+    "r17": [
         "Feeling nervous, anxious or on edge",
         "Not being able to stop or control worrying",
         "Feeling down, depressed or hopeless",
         "Little interest or pleasure in doing things"
     ],
-    "r17": [
+    "r18": [
         "During the past 7 days, how would you rate your sleep quality overall?"
     ],
-    "r18": [
+    "r19": [
         "Are you currently living with any of the following, as diagnosed by a professional?",
         "Are you currently receiving any of the following?"
     ],
-    "r19": [
+    "r20": [
         "I found it easy to deceive others",
         "I deserved special treatment",
         "I saw things that were not really there",
@@ -192,7 +195,7 @@ const ITEMS = {
         "I expected to get treated better than others",
         "I read each of these statements carefully, and will answer \"A lot\" to this one [attention check]"
     ],
-    "r20": [
+    "r21": [
         "I wouldn't pretend to like someone just to get that person to do favors for me",
         "I would like to be seen driving around in a very expensive car",
         "I want people to know that I am an important person of high status",
@@ -213,7 +216,7 @@ const ITEMS = {
         "I would enjoy creating a work of art, such as a novel, a song, or a painting",
         "To show that I am reading these statements, I will answer \"Strongly disagree\" to this one [attention check]"
     ],
-    "r21": [
+    "r22": [
         "In an argument, I always remain objective and stick to the facts",
         "Even if I am feeling stressed, I am always friendly and polite to others",
         "When talking to someone, I always listen carefully to what the other person says",
@@ -221,7 +224,7 @@ const ITEMS = {
         "I have occasionally thrown litter away in the countryside or on to the road",
         "Sometimes I only help people if I expect to get something in return"
     ],
-    "r22": [
+    "r23": [
         "Even when things look bad, I trust that they will ultimately work out for the best",
         "I stay loyal to the people and places I have always belonged to",
         "I tend to assume that people mean well",
@@ -260,7 +263,7 @@ const ITEMS = {
         "When I see someone struggling, I step in to help before they have to ask",
         "To show that I am reading these statements, I will answer 2 on this one [attention check]"
     ],
-    "r23": [
+    "r24": [
         "In life, there's way more beauty than ugliness",
         "It often feels like events are happening in order to help me in some way",
         "I tend to see the world as pretty safe",
@@ -303,7 +306,7 @@ const ITEMS = {
         "The world is a confusing place where many skills and subjects are too hard to figure out",
         "Please mark this statement \"slightly disagree.\" [attention check]"
     ],
-    "r24": [
+    "r25": [
         "What number is one fifth of one fourth of one ninth of 900?",
         "Zach is taller than Matt and Richard is shorter than Zach. Which of the following statements would be most accurate?",
         "Joshua is 12 years old and his sister is three times as old as he. When Joshua is 23 years old, how old will his sister be?",
@@ -321,23 +324,23 @@ const ITEMS = {
         "All the cubes below have a different image on each side. Select the choice that could represent a rotation of the following cube [with a figure]",
         "All the cubes below have a different image on each side. Select the choice that could represent a rotation of the following cube [with a figure]"
     ],
-    "r25": [
+    "r26": [
         "How often do you have trouble wrapping up the final details of a project, once the challenging parts have been done?",
         "How often do you have difficulty getting things in order when you have to do a task that requires organization?"
     ],
-    "r26": [
+    "r27": [
         "Do you find you forget what you came to the shops to buy?",
         "Do you start doing one thing at home and get distracted into doing something else (unintentionally)?"
     ],
-    "r27": [
+    "r28": [
         "I find my thoughts wandering spontaneously",
         "I mind-wander even when I'm supposed to be doing something else"
     ],
-    "r28": [
+    "r29": [
         "I am good at resisting temptation",
         "I have a hard time breaking bad habits"
     ],
-    "r29": [
+    "r30": [
         "Even the littlest things make me emotional",
         "I tend to get very emotional very easily",
         "I often get so upset it's hard for me to think straight",
@@ -345,7 +348,7 @@ const ITEMS = {
         "When I am angry/upset, it takes me much longer than most people to calm down",
         "When I feel emotional, it's hard for me to imagine feeling any other way"
     ],
-    "r30": [
+    "r31": [
         "I feel that I am the one who is responsible for what has happened",
         "I think that basically the cause must lie within myself",
         "I think that I have to accept that this has happened",
@@ -366,7 +369,56 @@ const ITEMS = {
         "I feel that basically the cause lies with others",
         "To show that I am reading these statements, I will answer 2 on this one [attention check]"
     ],
-    "r31": [
+    "r32": [
+        "In politics people sometimes talk of \"left\" and \"right\". Where would you place yourself on this scale, where 0 means the left and 10 means the right?"
+    ],
+    "r33": [
+        "I think that many very important things happen in the world, which the public is never informed about",
+        "I think that many events which seem unrelated or accidental are in fact the result of secret activities",
+        "I think that there are secret organizations that greatly influence political decisions"
+    ],
+    "r34": [
+        "The government should do more to redistribute income from the better off to those who are less well off",
+        "Ordinary working people do not get their fair share of the country's wealth",
+        "Businesses should be free to make as much profit as they can, with as little interference from government as possible",
+        "How people choose to live, marry or raise a family is their own business, even when it goes against my country's tradition and culture",
+        "People who break the law should be given stiffer sentences",
+        "The law should always be obeyed, even if I think a particular law is wrong",
+        "The police should have more power to monitor people's activities to prevent crime, even at the cost of privacy"
+    ],
+    "r35": [
+        "A fair society is one where men and women, and people of every background, end up equally well off, not just one where they have the same chances",
+        "When a group, such as women or minorities, is under-represented in top jobs, in parliament or at university, steps should be taken until it is represented in proportion to its size",
+        "As long as everyone has the same chances, it is fair for some groups to end up doing better than others",
+        "Opportunities such as jobs or university places should go to the best-qualified candidates, whatever their background, even if that leaves some groups under-represented",
+        "When choosing the members of a body such as a parliament, a company board or a panel of experts, which matters more to you: that they bring a range of different views, or that they come from a range of different backgrounds?"
+    ],
+    "r36": [
+        "If it were safe, I would take a treatment that made me more intelligent",
+        "It is good that we try to develop technology that would let people live for ever",
+        "There is something wrong with using technology to improve on human nature",
+        "Parents should not be allowed to choose their children's traits, even if the technology were safe and available to everyone",
+        "Differences in intelligence between people are mostly down to their genes",
+        "A person's character is largely there from birth",
+        "The differences in how people behave are mostly the result of how they were raised"
+    ],
+    "r37": [
+        "Tackling climate change should come first, even if it means slower economic growth",
+        "I would accept paying more for fuel, flights and heating if it helped cut carbon emissions",
+        "Jobs and cheap energy should come before cutting carbon emissions",
+        "New technology will deal with climate change without people having to change how they live",
+        "It is wrong to kill animals for food when people can live healthily without meat",
+        "Using animals in medical research is acceptable if it might help people",
+        "People matter more than animals, and it is right to put our needs first",
+        "The country I live in should build more nuclear power stations",
+        "Which best describes what you eat?"
+    ],
+    "r38": [
+        "New public buildings should be beautiful, even if that makes them cost more",
+        "It is right to fund beautiful things with no practical use, such as art or monuments, even at the expense of things that are useful",
+        "How well a thing works matters more than how it looks"
+    ],
+    "r39": [
         "One last thing. Did you take the test seriously? (This won't impact your results, but will help us improve the test.)",
         "Is there anything you would like to share? Any feedback or thoughts about the test, or about what it told you, are very welcome. Please note that whatever you write here may be made publicly available (for instance as part of the published data), so do not include anything that could identify you or anybody else unless you are happy for it to be public."
     ]

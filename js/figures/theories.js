@@ -130,16 +130,20 @@ function makeTheories(shared) {
         return TEMPERAMENTS[outgoing ? (steady ? "sanguine" : "choleric") : steady ? "phlegmatic" : "melancholic"]
     }
 
-    // The sign if the half of the month was given, the two it could be if only
-    // the month was, nothing without even that.
+    // The day of each month the second of its two signs begins on, January
+    // first: the cusp, which falls between the 19th and the 23rd, not on the
+    // 15th. Month m's first sign is SIGNS[m - 1], its second SIGNS[m % 12].
+    const CUSPS = [20, 19, 21, 20, 21, 21, 23, 23, 23, 23, 22, 22]
+
+    // The sign if the day was given, the two it could be if only the month
+    // was ("I'd rather not say" is 99, no day), nothing without even that.
     function starSign() {
         const month = answer("Demographics_BirthMonth")
         if (!month) return undefined
-        const half = answer("Demographics_BirthDay")
+        const day = answer("Demographics_BirthDay")
         const first = SIGNS[month - 1]
         const second = SIGNS[month % 12]
-        if (half === 1) return { sign: first }
-        if (half === 2) return { sign: second }
+        if (day >= 1 && day <= 31) return { sign: day < CUSPS[month - 1] ? first : second }
         return { between: [first, second] }
     }
 

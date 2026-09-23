@@ -44,8 +44,15 @@
     box-sizing: border-box;
 }
 
+/* The page never scrolls sideways. A shut panel waits off to the side of the
+   overlay (slid out, or scaled down about a point on the gauge), and a fixed
+   box's overflow still widens the page, so at some window widths the whole
+   page could be dragged sideways onto nothing. Clipped here rather than on the
+   overlay, since the summoned panel grows out of a stop on the gauge, which is
+   outside the overlay's box, and clipping there would cut off the start of it. */
 html {
     scroll-behavior: smooth;
+    overflow-x: hidden;
 }
 
 body {
@@ -1864,6 +1871,127 @@ h1 {
 
 .curve--held .curve__hint {
     opacity: 0;
+}
+
+/* ------------------------------ the slider ------------------------------ */
+
+/* A point on a line between two ends. The range is the browser's own, restyled:
+   a track, and a thumb that is not there until the line has been touched, so
+   the middle it starts at is never read as an answer. The reading rides over
+   the thumb on `--at`, the share of the way along it. */
+.options--slider {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    gap: 22px;
+}
+
+.slider {
+    --thumb: 26px;
+    position: relative;
+    width: 100%;
+    max-width: 640px;
+    padding-top: 40px;
+}
+
+.slider__range {
+    display: block;
+    width: 100%;
+    height: var(--thumb);
+    margin: 0;
+    background: transparent;
+    cursor: pointer;
+    -webkit-appearance: none;
+    appearance: none;
+    touch-action: none;
+}
+
+.slider__range:focus-visible {
+    outline: 2px solid var(--selected, var(--accent));
+    outline-offset: 8px;
+    border-radius: 14px;
+}
+
+.slider__range::-webkit-slider-runnable-track {
+    height: 6px;
+    border-radius: 3px;
+    background: var(--line);
+}
+
+.slider__range::-moz-range-track {
+    height: 6px;
+    border-radius: 3px;
+    background: var(--line);
+}
+
+.slider__range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: var(--thumb);
+    height: var(--thumb);
+    margin-top: calc(3px - var(--thumb) / 2);
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    background: var(--selected, var(--accent));
+    opacity: 0;
+    transition: opacity 0.16s ease;
+}
+
+.slider__range::-moz-range-thumb {
+    width: var(--thumb);
+    height: var(--thumb);
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    background: var(--selected, var(--accent));
+    opacity: 0;
+    transition: opacity 0.16s ease;
+}
+
+.slider--touched .slider__range::-webkit-slider-thumb {
+    opacity: 1;
+}
+
+.slider--touched .slider__range::-moz-range-thumb {
+    opacity: 1;
+}
+
+/* Over the thumb's centre, which travels the width less one thumb. */
+.slider__reading {
+    position: absolute;
+    top: 0;
+    left: calc(var(--thumb) / 2 + var(--at, 0.5) * (100% - var(--thumb)));
+    transform: translateX(-50%);
+    font-size: 19px;
+    font-weight: 600;
+    color: var(--text);
+    opacity: 0;
+    transition: opacity 0.16s ease;
+}
+
+.slider--touched .slider__reading {
+    opacity: 1;
+}
+
+.slider__hint {
+    position: absolute;
+    top: 2px;
+    left: 0;
+    right: 0;
+    margin: 0;
+    text-align: center;
+    font-size: 14px;
+    color: var(--muted);
+    transition: opacity 0.16s ease;
+}
+
+.slider--touched .slider__hint {
+    opacity: 0;
+}
+
+.slider__ends {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+    font-size: 14px;
+    color: var(--muted);
 }
 
 /* ------------------------------ particles ------------------------------- */

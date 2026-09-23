@@ -648,7 +648,7 @@ if (check_only) {
 # 2. NOTHING INSIDE A PARTIAL SAYS IT IS ONE. `completed` here is read off the
 #    filename, so a file renamed on the way past loses it. A `finished: false`
 #    in the container would carry it in the data itself. This is the one of
-#    these four that is a defect rather than a decision.
+#    these five that is a defect rather than a decision.
 #
 # 3. LEVELS ARE THE EXPERIENCE, NOT THE DATA. A level is how the run is paced
 #    and dressed for the person taking it; its number is drawn and partly
@@ -662,3 +662,13 @@ if (check_only) {
 #    shuffled and forked, so two people met the same item in different places.
 #    The wide table's column order is the median of it — a convenience, not a
 #    canonical order, which lives in `content/`.
+#
+# 5. `clean/` IS NOT THE PUBLIC FILE. It still holds what must not be released:
+#    the platform's id where one came in on `?sub=` (`participant`), the day of
+#    birth (`Demographics_BirthDay`, which with the month and the age is most
+#    of a date of birth) and the free text of `Closing_Comments`. Before any of
+#    it is made public the id goes, the day is dropped or grouped (into the star
+#    sign, or the half of the month either side of the cusp), and the comments
+#    are read — the consent sheet and the ethics application promise all three.
+#    That step is not written yet, and is a release script's business rather
+#    than this one's.

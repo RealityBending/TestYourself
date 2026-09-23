@@ -1,4 +1,4 @@
-// The single-item scales of level 1: ten of them, asked as ONE questionnaire
+// The single-item scales of level 1: eleven of them, asked as ONE questionnaire
 // and not as ten, so that they are dealt in among one another rather than
 // arriving in the order they happen to be written. None of them is a sixth
 // item on the FIPI, which would put it on a chart it does not belong on.
@@ -123,6 +123,35 @@ defineBlock("singles", [
                     hovercolors: ["#ef4444", "#22c55e"],
                 },
                 text: "I am confident that I can perform effectively on many different tasks",
+            },
+
+            // Aesthetic seeking: custom, not validated (September 2026). How
+            // far somebody values beauty and actively seeks it out — the
+            // aesthete — which the HEX-ACO-18 touches only in passing (one
+            // Curiosity item names a novel, a song or a painting). **Valuing
+            // and seeking rather than being moved**, on purpose: nearly
+            // everybody says beauty moves them, which is the socially
+            // desirable answer and separates nobody, whereas going out of
+            // one's way for it costs something, so it is where people differ.
+            // It replaced "I am deeply moved by beautiful things" (adapted from
+            // AReA item 13, Schlotz et al., 2021) for that reason; nearest in
+            // spirit is now AReA item 1, the one behavioural item of its
+            // Aesthetic Appreciation factor ("I visit museums or go to
+            // musical/dance performances"), widened from the arts to beauty
+            // anywhere. **Two clauses in one item, knowingly** (the author's
+            // call): valuing beauty and going out of one's way for it are
+            // meant here as one disposition, the effort being how the valuing
+            // shows, so the conflation is the construct and not a slip. On the
+            // singles' 1-7. No norms, so it earns no row.
+            {
+                key: "Aesthetics_Beauty",
+                instructions: "To what extent do you agree with this statement",
+                format: {
+                    options: [1, 2, 3, 4, 5, 6, 7],
+                    anchors: ["Not at all", "Very much"],
+                    color: "#7B1FA2",
+                },
+                text: "I value beautiful things and I go out of my way to seek out beauty<br /><br /><small><b>Beauty</b>, here, means in art, music, nature, design or the world around you.</small>",
             },
 
             // Single-Item Life Satisfaction Scale (SILS; Cheung & Lucas, 2014; Jovanović & Lazić, 2020)

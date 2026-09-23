@@ -100,6 +100,7 @@ content.TIMELINE.forEach((entry, at) => {
                             custom: !!option.custom,
                             exclusive: !!option.exclusive,
                             small: !!option.small,
+                            showIf: option.showIf || null, // the 31st, offered only after a month that has one
                         },
                         wordings(option.text, item),
                     )

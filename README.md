@@ -20,6 +20,14 @@ A study may ask a subset of the blocks above: `?battery=<name>` in the link pick
 | `personality` | demographics1, fipi, singles, demographics2, hexaco, archetypes |
 | `ai`          | demographics1, demographics2, bait                              |
 
+`?start=<block>` puts the level holding that block first, and the rest of the run follows in its usual order. For example, to open on the opinions level (Where You Stand):
+
+```
+http://localhost:8123/?start=opinions
+```
+
+It only reorders and never adds a block, so it combines with the others: `?battery=test&start=regulation` asks the `test` battery with Mind & Heart first, and `?testMode=true&start=opinions` gets to the opinions results quickly.
+
 ## Questionnaire Ideas
 
 
@@ -27,7 +35,6 @@ A study may ask a subset of the blocks above: `?battery=<name>` in the link pick
 // Coping
 
 // Being funny, dark humor
-
 // Wordsum: g-factor loaded https://x.com/cremieuxrecueil/status/2098586478443901419?s=20
 
 // Hormones
@@ -60,8 +67,6 @@ A study may ask a subset of the blocks above: `?battery=<name>` in the link pick
 // Wellbeing/emotions
 
 // Self-Rated Health
-// Meaning in life (including search for meaning). Search: item 8 of the MLQ is asked among the level-1 singles since September 2026. The MLQ Search subscale (Steger et al., 2006) is the only validated measure of it and has no short form. Ranked by item-scale correlation in the original and by factor loading in two later validations (Peru 2022, China 2022), its items run 7 ("I am always searching for something that makes my life feel significant"; best everywhere), 8 ("I am seeking a purpose or mission for my life"), then 10 ("I am searching for meaning in my life"; best in the original, weaker since) and 3 ("I am always looking to find my life's purpose"; the reverse pattern) close together, and 2 ("I am looking for something that makes my life feel meaningful"; weakest everywhere). For the crisis rather than the quest, the MAPS Crisis of Meaning scale (3 items: "I am missing meaning in my life", "I suffer because I can't see any meaning in my life", "My life seems empty to me"). Presence, if wanted: the MLQ-SF (3 items) or the PROMIS Meaning and Purpose 4a
-// Self-concept clarity: the one SCCS item is asked among the level-1 singles since September 2026. The full 12-item scale (Campbell et al., 1996) has no validated short form, so more of it would be a selection of our own; the next candidates are "My beliefs about myself often conflict with one another" and "I spend a lot of time wondering about what kind of person I really am", both reverse-keyed
 // Dimorphous emotions
 // Mattering
 // Wisdom

@@ -90,9 +90,42 @@
     // the saved file carries `levels`, each with its blocks, beside them.
     // Each carries `written`, its place on the timeline, which is what the
     // fork's recommendation reads once levels have been moved about.
-    const PLAN = TIMELINE.map((entry, at) =>
-        Object.assign({}, entry, { blocks: entry.blocks.filter((name) => asked.has(name)), written: at }),
-    ).filter((entry) => entry.blocks.length)
+    //
+    // `?start=a,b` then brings the levels holding those blocks to the front,
+    // in the order named, with the named blocks first inside them — for a
+    // study that wants one instrument met fresh, or for testing one without
+    // walking to it. It moves whole levels, never a block out of its level
+    // (a level is what carries the key its ratings and quality control are
+    // filed under), and it asks nothing that was not already asked: a name
+    // the battery left out, or `closing`, which the run ends through, is
+    // dropped with a word in the console. A level brought forward is taken
+    // out of the fork, since it has been given its place by the link rather
+    // than left for the person to choose; the rest of the fork still forks.
+    // The saved file's `levels` says the order that was walked, as always.
+    const PLAN = (() => {
+        const plan = TIMELINE.map((entry, at) =>
+            Object.assign({}, entry, { blocks: entry.blocks.filter((name) => asked.has(name)), written: at }),
+        ).filter((entry) => entry.blocks.length)
+
+        const starts = namesIn("start").filter((name) => {
+            if (name === "closing") console.warn("closing is where the run ends, so it cannot start it; ignored")
+            else if (named.indexOf(name) === -1) console.warn("No block called " + name + " on the timeline; ignored")
+            else if (!asked.has(name)) console.warn("Block " + name + " is not asked in this run, so it cannot start it; ignored")
+            else return true
+            return false
+        })
+        const first = []
+        for (const name of starts) {
+            const entry = plan.find((one) => one.blocks.indexOf(name) !== -1)
+            if (first.indexOf(entry) === -1) first.push(entry)
+        }
+        const led = first.map((entry) => {
+            const leading = starts.filter((name) => entry.blocks.indexOf(name) !== -1)
+            const blocks = leading.concat(entry.blocks.filter((name) => leading.indexOf(name) === -1))
+            return Object.assign({}, entry, { blocks: blocks, fork: false })
+        })
+        return led.concat(plan.filter((entry) => first.indexOf(entry) === -1))
+    })()
 
     /* -------------------------------- forks ------------------------------- */
 
@@ -267,6 +300,8 @@
                                 highest: item.correct !== undefined ? 1 : scale.length ? Math.max.apply(null, values) : format.max,
                                 custom: options.filter((one) => one.custom).map((one) => one.value),
                                 anchors: format.anchors,
+                                unit: format.unit,
+                                step: format.step,
                                 columns: format.columns,
                                 vertical: format.vertical,
                                 tooLow: format.tooLow,
@@ -366,8 +401,8 @@
     // scored item never holds its dimension shut with an answer off the scale.
     function anyAnswer(question) {
         if (question.input === "text") return "test"
-        const pool = question.options.filter((one) => !one.custom)
-        const options = pool.length ? pool : question.options
+        const pool = offered(question).filter((one) => !one.custom)
+        const options = pool.length ? pool : offered(question)
         // Several answers may be true at once, and one of them stands in for
         // the rest.
         if (question.type === "multi") return [options[Math.floor(Math.random() * options.length)].value]
@@ -422,6 +457,16 @@
         const chosen = Array.isArray(given) ? given : [given]
         const wanted = question.showIf.is
         return Array.isArray(wanted) ? wanted.some((one) => chosen.indexOf(one) !== -1) : chosen.indexOf(wanted) !== -1
+    }
+
+    // An option may wait on an answer the way an item does — the 31st of the
+    // month waits on a month that has one — and what is put on screen, what the
+    // keyboard counts and what test mode answers with is the options whose
+    // branch is open. An answer already given is not taken back when its
+    // option closes: it is still one of the item's options, and `said()` still
+    // reads it back.
+    function offered(question) {
+        return question.options.filter((option) => !option.showIf || shown(option))
     }
 
     function nextShown(from) {
@@ -853,8 +898,9 @@
     // format gives them. A Likert scale and a list of countries come through
     // here alike — what differs is the writing on the buttons.
     function renderChoice(question, wrap) {
-        const labelled = question.options.some((o) => worded(o.text) !== null)
-        const pictured = question.options.some((o) => o.image)
+        const options = offered(question)
+        const labelled = options.some((o) => worded(o.text) !== null)
+        const pictured = options.some((o) => o.image)
 
         // A row of circles is only as wide as its circles, so the scale draws
         // its anchors in against them rather than against its own edges — five
@@ -876,18 +922,18 @@
         wrap.classList.toggle("options--pictures", pictured)
         // Labelled options given a column each are a Likert scale set in a row
         // rather than a list, and read centred like the circles do.
-        wrap.classList.toggle("options--row", labelled && !pictured && question.columns === question.options.length)
-        wrap.classList.toggle("options--wide", !labelled && question.options.length > 7)
+        wrap.classList.toggle("options--row", labelled && !pictured && question.columns === options.length)
+        wrap.classList.toggle("options--wide", !labelled && options.length > 7)
         // Labelled options stack unless the item asks for columns; circles
         // always get one column each.
-        wrap.style.setProperty("--columns", labelled ? question.columns || 1 : question.options.length)
+        wrap.style.setProperty("--columns", labelled ? question.columns || 1 : options.length)
 
-        question.options.forEach((option, position) => {
+        options.forEach((option, position) => {
             const button = optionButton(option, "radio", () => answer(option.value))
 
             // Each option lights up at its own point along the gradient.
             if (question.hovercolors) {
-                const spread = question.options.length - 1
+                const spread = options.length - 1
                 const shade = mix(question.hovercolors[0], question.hovercolors[1], position / spread)
                 button.style.setProperty("--hover", shade)
             }
@@ -941,7 +987,7 @@
             refresh()
         }
 
-        question.options.forEach((option) => {
+        offered(question).forEach((option) => {
             wrap.appendChild(optionButton(option, "checkbox", () => toggle(option)))
         })
 
@@ -1126,6 +1172,94 @@
         if (given !== undefined) show(placeOf(given))
     }
 
+    /* ------------------------------ the slider ---------------------------- */
+
+    // A point along a line between two ends — how likely something is, from
+    // certainly not to certain — where a row of circles would be too many
+    // stops to read. It is a real `<input type="range">`, drawn over, with the
+    // value riding above the thumb. **Nothing is claimed until it is touched**:
+    // the thumb is hidden and Continue held until the line is pressed or an
+    // arrow moves it, so that the middle, where a range has to start, is never
+    // an answer nobody gave. Continue (or Enter) takes it, since a drag has no
+    // moment at which it is obviously finished.
+    function renderSlider(question, wrap) {
+        wrap.classList.add("options--slider")
+
+        const holder = document.createElement("div")
+        holder.className = "slider"
+
+        const field = document.createElement("input")
+        field.type = "range"
+        field.className = "slider__range"
+        field.min = question.lowest
+        field.max = question.highest
+        field.step = question.step || 1
+        field.value = (question.lowest + question.highest) / 2
+        field.setAttribute("aria-labelledby", "text")
+
+        const reading = document.createElement("output")
+        reading.className = "slider__reading"
+        reading.setAttribute("aria-hidden", "true")
+
+        // Where the reading will be, until there is one: a line with no thumb
+        // on it does not say by itself that it is waiting to be pressed.
+        const hint = document.createElement("p")
+        hint.className = "slider__hint"
+        hint.textContent = "Click on the line"
+
+        const ends = document.createElement("div")
+        ends.className = "slider__ends"
+        for (const end of question.anchors || []) {
+            const word = document.createElement("span")
+            word.textContent = end
+            ends.appendChild(word)
+        }
+
+        const go = document.createElement("button")
+        go.type = "button"
+        go.className = "option option--go"
+        go.textContent = "Continue"
+        go.disabled = true
+
+        let touched = false
+        const show = () => {
+            const value = Number(field.value)
+            const share = (value - question.lowest) / (question.highest - question.lowest)
+            holder.style.setProperty("--at", share)
+            reading.textContent = value + (question.unit || "")
+            field.setAttribute("aria-valuetext", reading.textContent)
+        }
+        const touch = () => {
+            touched = true
+            holder.classList.add("slider--touched")
+            go.disabled = false
+            show()
+        }
+
+        field.addEventListener("pointerdown", touch)
+        field.addEventListener("input", touch)
+        field.addEventListener("keydown", (event) => {
+            if (event.key === "Enter" && touched) answer(Number(field.value))
+        })
+        go.addEventListener("click", () => {
+            if (touched) answer(Number(field.value))
+        })
+
+        holder.appendChild(hint)
+        holder.appendChild(reading)
+        holder.appendChild(field)
+        holder.appendChild(ends)
+        wrap.appendChild(holder)
+        wrap.appendChild(go)
+
+        // An answer already given is put back where it was left.
+        const given = responses[question.key]
+        if (given !== undefined) {
+            field.value = given
+            touch()
+        } else show()
+    }
+
     // A renderer per type of question, and beside it the thing each type is
     // answered by — which is where the spray comes out of. Only a choice
     // carries its value in a selector: a written answer is somebody's own
@@ -1133,13 +1267,14 @@
     // several answers is finished by pressing Continue rather than by any one
     // of them. A new way of answering is a `type` written in content/ and a
     // line in each of these, and nothing else moves.
-    const SCALES = { choice: renderChoice, input: renderEntry, multi: renderMulti, curve: renderCurve }
+    const SCALES = { choice: renderChoice, input: renderEntry, multi: renderMulti, curve: renderCurve, slider: renderSlider }
 
     const SPRAYS = {
         choice: (value) => document.querySelector('.option[data-value="' + value + '"]'),
         input: () => $("options").querySelector(".option--go"),
         multi: () => $("options").querySelector(".option--go"),
         curve: () => $("options").querySelector(".curve__mark"),
+        slider: () => $("options").querySelector(".option--go"),
     }
 
     function renderScale(question) {
@@ -2528,7 +2663,7 @@
             return
         }
 
-        const options = question.options
+        const options = offered(question)
         const n = Number(e.key)
         // An option that is one letter — a lettered candidate, the next letter
         // of a series — is answered by its letter as well as by its position.

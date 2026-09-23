@@ -127,12 +127,22 @@
    screen. Nothing else is written: the curve has no options and takes no
    anchors.
 
+   ...or, for `type: "slider"`, a point on a line between two ends:
+
+     format: { min: 0, max: 100, step: 1, unit: "%", anchors: ["Certainly not", "Certain"], color: "#6aa7f0" }
+
+   Nothing is answered until the line is touched, and Continue takes it. What
+   is saved is the number; `unit` is only written after it on screen.
+
    An option with `image:` (a path under `assets/`) is a picture on a tile,
    its `text` under it as a caption — and still what is saved and what the
    keyboard answers by; the picture is only how it is shown. An option with
    `small: true` is set below the others, for a way out of a
    question rather than an answer to it. A question of ten or more options
    wants `columns: 2`. `max` on a text field is how long the answer may run.
+   An option may carry a `showIf` of its own, written as an item's is, and is
+   then offered only while that answer is given — the 31st of the month waits
+   on a month that has one.
 
    An option marked `custom: true` — "Something else", "Other" — is an answer
    outside the scale: a category of its own, not a point on it. It is asked,
@@ -143,7 +153,7 @@
    this is the meaning.
 
    Types: `"choice"` and `"input"` are read off the format and need not be
-   written. `"multi"` and `"curve"` are written, on the item or on the
+   written. `"multi"`, `"curve"` and `"slider"` are written, on the item or on the
    questionnaire around it. `"briefing"` is written too, and only ever on a
    block entry.
    ========================================================================== */
@@ -278,15 +288,17 @@ const TIMELINE = [
     { key: "World", name: "The World", blocks: ["primals"], fork: true },
     { key: "Reasoning", name: "How You Think", blocks: ["icar"], fork: true },
     { key: "Regulation", name: "Mind & Heart", blocks: ["regulation"], fork: true },
+    { key: "Opinions", name: "Where You Stand", blocks: ["opinions"], fork: true },
     { key: "Closing", name: "Closing", blocks: ["closing"] },
 ].flat()
 
 // Batteries: named subsets of the timeline's blocks, for a study that wants
 // less than the whole run. A link with `?battery=<name>` asks the blocks
-// named here and nothing else, in the timeline's own order — app.js applies
-// the list and never reorders — so a study's battery is written in the
+// named here and nothing else, in the timeline's own order — the list says
+// what is asked and never where — so a study's battery is written in the
 // repository, under a version, rather than in a URL somebody pasted.
-// `?only=a,b` and `?skip=a,b` do the same by hand, for testing. `closing`
+// `?only=a,b` and `?skip=a,b` do the same by hand, for testing, and
+// `?start=a,b` brings the levels holding those blocks to the front. `closing`
 // need not be written: it is always asked, since the run ends through it. A
 // link with no battery asks everything. The two below are examples, to be
 // edited or replaced when a study is designed.

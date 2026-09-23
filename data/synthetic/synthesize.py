@@ -79,6 +79,8 @@ FIGURE_VOTES = {
     "control": ["Heart", "Mind"],
     "ers": ["Heart", "Mind"],
     "cerq": ["Heart", "Mind"],
+    "cmq": ["Stance", "Beliefs"],
+    "views": ["Stance", "Beliefs"],
 }
 
 # A circumstance or two, so that two personas with the same demographics are
@@ -194,7 +196,8 @@ def sample_persona(book, rng, seed):
         if not is_demographic(item) or not shown(item, answers):
             continue
         if item["type"] == "choice":
-            pool = [o for o in item["options"] if not o["custom"]]
+            # An option may wait on an answer too (the 31st on a month that has one).
+            pool = [o for o in item["options"] if not o["custom"] and shown(o, answers)]
             answers[item["key"]] = rng.choice(pool)["value"]
         elif item["type"] == "input" and item["input"] == "number":
             # Ages, skewed young the way online samples are, and never past 85.
@@ -254,6 +257,9 @@ def scale_of(item):
     kind = item["type"]
     if kind == "curve":
         return f"an integer from {item['lowest']} to {item['highest']}: how many people out of 100 you place yourself above"
+    if kind == "slider":
+        ends = item.get("anchors") or ["", ""]
+        return f"an integer from {item['lowest']} ('{plain(ends[0])}') to {item['highest']} ('{plain(ends[1])}')"
     if kind == "input":
         if item["input"] == "number":
             return f"an integer from {item['lowest']} to {item['highest']}"
@@ -311,7 +317,7 @@ def schema_for(item):
         values = [o["value"] for o in item["options"]]
         one = {"type": "integer" if all(isinstance(v, int) for v in values) else "number", "enum": values}
         return {"type": "array", "items": one} if kind == "multi" else one
-    if kind == "curve" or item["input"] == "number":
+    if kind in ("curve", "slider") or item["input"] == "number":
         return {"type": "integer"}
     return {"type": "string"}
 
@@ -388,7 +394,7 @@ def fake_answers(book, persona, rng):
             exclusive = [o["value"] for o in item["options"] if o["exclusive"]]
             rest = [o["value"] for o in item["options"] if not o["exclusive"]]
             answers[item["key"]] = exclusive if exclusive and rng.random() < 0.5 else rng.sample(rest, rng.randint(1, min(3, len(rest))))
-        elif kind == "curve" or item["input"] == "number":
+        elif kind in ("curve", "slider") or item["input"] == "number":
             answers[item["key"]] = rng.randint(item["lowest"], item["highest"])
         else:
             answers[item["key"]] = "" if item["optional"] and rng.random() < 0.5 else "fake"
@@ -423,7 +429,7 @@ def tidy(book, persona, given):
             chosen = exclusive[:1] if exclusive else chosen
             # Authored order, not the order given: two people who chose the same things save the same answer.
             answers[key] = [v for v in values if v in chosen] or None
-        elif kind == "curve" or (kind == "input" and item["input"] == "number"):
+        elif kind in ("curve", "slider") or (kind == "input" and item["input"] == "number"):
             if not isinstance(value, (int, float)) or not item["lowest"] <= value <= item["highest"]:
                 print(f"  ! {persona['code']} {key}: {value!r} is outside {item['lowest']}-{item['highest']}, left unanswered")
                 answers[key] = None

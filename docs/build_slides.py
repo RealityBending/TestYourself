@@ -14,10 +14,10 @@ stays a folder you can open off the disk with nothing loaded from the app.
 than parsing `content/` itself, so there is one reader of the questions and it
 is the one that already walks them the way `app.js` does. The codebook's
 grouping is by questionnaire; the table's is by instrument, and the two do not
-line up — `singles` is one questionnaire holding ten scales, `hexaco18` holds
+line up — `singles` is one questionnaire holding eleven scales, `hexaco18` holds
 the HEX-ACO-18 and the KSE-G, `control` holds four two-item proxies. ROWS below
 is that mapping, and the one hand-written thing here: a row's **reference** is
-not in `content/` anywhere, and neither is the fact that ten scales share a
+not in `content/` anywhere, and neither is the fact that eleven scales share a
 questionnaire.
 
 That mapping is checked rather than trusted. Every item the app asks must be
@@ -61,6 +61,7 @@ ROWS = [
     ("Self-Concept Clarity Scale, item 11 (SCCS; Campbell et al., 1996)", ["singles"], ["SCCS_"]),
     ("Meaning in Life Questionnaire, item 8 (MLQ; Steger et al., 2006)", ["singles"], ["MLQ_"]),
     ("General Self-Efficacy Single-Item (GSE-SI; Di et al., 2023)", ["singles"], ["GSESI_"]),
+    ("Aesthetic seeking", ["singles"], ["Aesthetics_"]),
     ("Single-Item Life Satisfaction Scale (SILS; Cheung & Lucas, 2014)", ["singles"], ["SILS_"]),
     ("Self-placement items", ["singles"], ["SelfPlacement_"]),
     ("Demographics", ["demographics2"], None),
@@ -91,6 +92,17 @@ ROWS = [
     ("Brief Self-Control Scale, items 1-2 (BSCS; Tangney et al., 2004)", ["control"], ["BSCS_"]),
     ("Emotion Reactivity Scale, six items (ERS; Nock et al., 2008)", ["ers"], None),
     ("Cognitive Emotion Regulation Questionnaire, short form (CERQ-short; Garnefski & Kraaij, 2006)", ["cerq"], None),
+    ("Left-right self-placement (European Social Survey)", ["leftright"], None),
+    ("Conspiracy Mentality Questionnaire, items 1, 4 and 5 (CMQ; Bruder et al., 2013)", ["cmq"], None),
+    (
+        "British Social Attitudes left-right and libertarian-authoritarian scales, adapted (BSA; Evans et al., 1996)",
+        ["views"],
+        ["Opinion_BSA_"],
+    ),
+    ("Equality of outcomes between groups", ["views"], ["Opinion_Parity_", "Opinion_Diversity"]),
+    ("Human enhancement and heredity beliefs", ["views"], ["Opinion_Enhancement_", "Opinion_Heredity_"]),
+    ("Climate, animals and the environment", ["views"], ["Opinion_Planet_", "Opinion_Animals_", "Opinion_Nuclear", "Opinion_Diet"]),
+    ("Beauty against purpose", ["views"], ["Opinion_Beauty_"]),
     ("Closing items", ["closing"], None),
 ]
 
