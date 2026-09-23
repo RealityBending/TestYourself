@@ -266,12 +266,6 @@
 
                     <p class="consent__hint" id="consent-hint">Scroll to the end of the form to continue.</p>
                     <button class="btn" id="start" disabled>Read the form to begin</button>
-
-                    <!-- TEMPORARY, for building the thing: the way straight into
-                         a run that answers most of itself. It is a plain link to
-                         the same page with `?testMode=true` on it, since that is
-                         what the switch is. Take it out before the study runs. -->
-                    <a class="testmode" href="?testMode=true">Test mode</a>
                 </div>
             </section>
 
@@ -369,7 +363,7 @@
             <section class="screen" id="screen-card">
                 <div class="visit">
                     <p class="level__eyebrow">Shared with you</p>
-                    <h1 class="visit__title">A profile from the Abyss</h1>
+                    <h1 class="visit__title" id="visit-title">A profile from the Abyss</h1>
                     <div class="card" id="visit-card"></div>
                     <p class="lede" id="visit-note"></p>
                     <button class="btn" id="visit-start">Take the test yourself</button>
@@ -506,6 +500,7 @@
         <script src="content/block_closing.js"></script>
         <script src="content/block_UNUSED.js"></script>
         <script src="js/draw.js"></script>
+        <script src="js/snapshot.js"></script>
         <script src="js/figures/soma.js"></script>
         <script src="js/figures/theories.js"></script>
         <script src="js/figures/archetype.js"></script>

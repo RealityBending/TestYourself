@@ -27,11 +27,13 @@
 
     /* --------------------------- who is taking it ------------------------- */
 
-    // What the link is allowed to say about this run: who is taking it, and
-    // whether it is a real one at all. A shared card is read out of the URL by
+    // What the link is allowed to say about this run: who is taking it, where
+    // it was handed out, and whether it is a real one at all. A shared card is read out of the URL by
     // results.js; nothing else here comes from it.
     const query = new URLSearchParams(location.search)
-    const testMode = query.get("testMode") === "true"
+    // `?test` or `?test=true`. The saved file still calls it `testMode`, which
+    // is a field of the data and not a word of the link.
+    const testMode = ["", "true", "1"].indexOf(query.get("test")) !== -1
 
     // Every run is filed under a code of its own, made here unless the link
     // brought one — a prewritten list, or a platform putting its own id on the
@@ -48,6 +50,21 @@
     // is made of survive it, and only so many of them. What is left of an empty
     // or impossible one is a code of our own.
     const participant = (query.get("sub") || "").replace(/[^A-Za-z0-9_-]/g, "").slice(0, 32) || madeCode()
+
+    // Where the link was handed out (`?source=`): a project, an experimenter,
+    // a page it was posted on. It is only ever written into the file, never put
+    // on screen, so it may be words — letters of any alphabet, digits and the
+    // punctuation a note wants — but it is somebody else's text all the same,
+    // so nothing else survives and not much of it. **A real deployment always
+    // names one**, so a link that says nothing is written "Unknown" rather than
+    // left null: in a deposit, a run nobody sent is the one to look at twice.
+    const UNKNOWN_SOURCE = "Unknown"
+    const source =
+        (query.get("source") || "")
+            .replace(/[^\p{L}\p{N} _.,:;/@()+#&'-]/gu, "")
+            .replace(/\s+/g, " ")
+            .trim()
+            .slice(0, 200) || UNKNOWN_SOURCE
 
     // Which blocks this run asks — its battery. Every block the timeline
     // names, unless the link says otherwise: `?battery=<name>` picks a preset
@@ -389,7 +406,7 @@
 
     /* ------------------------------ test mode ----------------------------- */
 
-    // `?testMode=true` walks the run in miniature: one item of each questionnaire
+    // `?test=true` walks the run in miniature: one item of each questionnaire
     // is put on screen and the rest are answered for it at random, so that every
     // chart, level and reading can be reached quickly. What comes out of such a
     // run is not data, and the saved file says so at the top of itself.
@@ -600,6 +617,7 @@
             participant: participant,
             testMode: testMode,
             battery: battery,
+            source: source,
             levels: PLAN.map((entry) => ({ key: entry.key, name: entry.name, blocks: entry.blocks.slice() })),
             questionnaires: RUN.slice(),
             timeStart: timeStart,
@@ -715,8 +733,16 @@
         return question.reverse ? question.lowest + question.highest - answer : answer
     }
 
+    // Somebody else's results, opened from a shared link: while they are on
+    // screen the scores are the link's and nothing of this run's. It is set
+    // by results.js (`visit`, on the engine) and cleared when the visitor
+    // presses "Take the test yourself", before anything of their own is
+    // answered, so no score of the run is ever read from it.
+    let visitor = null
+
     // The average of a dimension, once every one of its items is answered.
     function score(dimension) {
+        if (visitor) return visitor.values[dimension]
         const answers = dimensions[dimension].map(counted)
         if (answers.some((answer) => answer === undefined)) return undefined
         return answers.reduce((total, answer) => total + answer, 0) / answers.length
@@ -725,6 +751,8 @@
     // The total of a dimension, once every one of its items is answered. The
     // PHQ-4 is read from sums rather than averages.
     function total(dimension) {
+        // A link carries the average; the sum is that over the items again.
+        if (visitor) return visitor.values[dimension] === undefined ? undefined : visitor.values[dimension] * dimensions[dimension].length
         const answers = dimensions[dimension].map(counted)
         if (answers.some((answer) => answer === undefined)) return undefined
         return answers.reduce((sum, answer) => sum + answer, 0)
@@ -1182,6 +1210,13 @@
     // arrow moves it, so that the middle, where a range has to start, is never
     // an answer nobody gave. Continue (or Enter) takes it, since a drag has no
     // moment at which it is obviously finished.
+    //
+    // Before it is pressed, a ghost of the thumb follows the pointer along the
+    // line with the value it would give, so the line says it is live and what
+    // a press there would mean; once pressed, the line fills up to the thumb.
+    // The spray on answering comes out of the point chosen (`.slider__mark`,
+    // an empty mark riding under the thumb), not out of the button that
+    // confirmed it, since the point is the answer.
     function renderSlider(question, wrap) {
         wrap.classList.add("options--slider")
 
@@ -1215,18 +1250,36 @@
             ends.appendChild(word)
         }
 
+        // Where a press would land, and what it would give, while the pointer
+        // is over the line. It is decoration: the range underneath is what is
+        // pressed and what a screen reader hears.
+        const ghost = document.createElement("span")
+        ghost.className = "slider__ghost"
+        ghost.setAttribute("aria-hidden", "true")
+        const ghostReading = document.createElement("span")
+        ghostReading.className = "slider__ghost-reading"
+        ghost.appendChild(ghostReading)
+
+        const mark = document.createElement("span")
+        mark.className = "slider__mark"
+        mark.setAttribute("aria-hidden", "true")
+
         const go = document.createElement("button")
         go.type = "button"
         go.className = "option option--go"
         go.textContent = "Continue"
         go.disabled = true
 
+        const span = question.highest - question.lowest
+        const step = Number(field.step)
+        const shareOf = (value) => (value - question.lowest) / span
+        const said = (value) => value + (question.unit || "")
+
         let touched = false
         const show = () => {
             const value = Number(field.value)
-            const share = (value - question.lowest) / (question.highest - question.lowest)
-            holder.style.setProperty("--at", share)
-            reading.textContent = value + (question.unit || "")
+            holder.style.setProperty("--at", shareOf(value))
+            reading.textContent = said(value)
             field.setAttribute("aria-valuetext", reading.textContent)
         }
         const touch = () => {
@@ -1236,17 +1289,48 @@
             show()
         }
 
+        // The value under the pointer, found the way the range finds it: the
+        // thumb's centre travels the width less one thumb, and the answer
+        // snaps to the step.
+        const hovered = (event) => {
+            const box = field.getBoundingClientRect()
+            const thumb = parseFloat(getComputedStyle(holder).getPropertyValue("--thumb")) || 26
+            const along = Math.min(1, Math.max(0, (event.clientX - box.left - thumb / 2) / (box.width - thumb)))
+            return Math.round((question.lowest + along * span) / step) * step
+        }
+        field.addEventListener("pointermove", (event) => {
+            if (event.pointerType === "touch") return
+            const value = hovered(event)
+            holder.style.setProperty("--over", shareOf(value))
+            ghostReading.textContent = said(value)
+            holder.classList.add("slider--hovered")
+        })
+        field.addEventListener("pointerleave", () => holder.classList.remove("slider--hovered"))
+
+        // Held down is dragging: the thumb grows and the reading lifts.
+        field.addEventListener("pointerdown", () => holder.classList.add("slider--held"))
+        // The range keeps the pointer while it is dragged, so the release
+        // arrives here wherever it happens.
+        for (const type of ["pointerup", "pointercancel", "lostpointercapture"]) field.addEventListener(type, () => holder.classList.remove("slider--held"))
+
+        const take = () => {
+            holder.classList.add("slider--taken")
+            answer(Number(field.value))
+        }
+
         field.addEventListener("pointerdown", touch)
         field.addEventListener("input", touch)
         field.addEventListener("keydown", (event) => {
-            if (event.key === "Enter" && touched) answer(Number(field.value))
+            if (event.key === "Enter" && touched) take()
         })
         go.addEventListener("click", () => {
-            if (touched) answer(Number(field.value))
+            if (touched) take()
         })
 
         holder.appendChild(hint)
         holder.appendChild(reading)
+        holder.appendChild(ghost)
+        holder.appendChild(mark)
         holder.appendChild(field)
         holder.appendChild(ends)
         wrap.appendChild(holder)
@@ -1274,7 +1358,7 @@
         input: () => $("options").querySelector(".option--go"),
         multi: () => $("options").querySelector(".option--go"),
         curve: () => $("options").querySelector(".curve__mark"),
-        slider: () => $("options").querySelector(".option--go"),
+        slider: () => $("options").querySelector(".slider__mark"),
     }
 
     function renderScale(question) {
@@ -2350,7 +2434,7 @@
         const a = document.createElement("a")
         a.href = url
         // Filed under the same code the data inside it carries.
-        a.download = "responses-" + participant + ".json"
+        a.download = FILENAME // the name the deposit would have given it, so a rescued file sorts with the rest
         a.click()
         URL.revokeObjectURL(url)
     }
@@ -2387,20 +2471,30 @@
     const DATAPIPE = "https://pipe.jspsych.org" // the service; the client puts its own `/api/…` on the end
     const DATAPIPE_EXPERIMENT = "C2mDNSFM3jAJ" // TestYourself, bound to a Zenodo deposit
 
-    // The file's name at the far end has to be one nobody has used — DataPipe
-    // refuses a name it has already taken, and a code brought in on the link
-    // (`?sub=`) may come round twice, so the moment the run began goes on the
-    // end of it. A test run says what it is up front, so that it can be picked
-    // out and binned, and a study's battery goes in the name too, so that a
-    // deposit sorts by study. It is worked out once rather than twice: the
-    // session is opened under this name and the finished file is sent under it,
-    // and a partial left behind is this name with the session's id after it.
+    // The file's name at the far end is `<when>_<source>_<participant>.json`:
+    // when first, so that a deposit lists in the order runs began, then where
+    // the link was handed out, so that one study's files can be picked out of
+    // the list by eye. The moment also keeps the name one nobody has used —
+    // DataPipe refuses a name it has already taken, and a code brought in on
+    // the link (`?sub=`) may come round twice. The source is cut down to what a
+    // filename holds safely, with `_` kept for the gaps between the three. A
+    // test run says what it is before any of it (`test_`), so that it can be
+    // picked out and binned, which is what `data/collected/download.py` goes
+    // on. It is worked out once rather than twice: the session is opened under
+    // this name and the finished file is sent under it, and a partial left
+    // behind is this name with the session's id after it.
     const FILENAME =
-        (testMode ? "test-" : "responses-") +
-        (battery ? battery + "-" : "") +
-        participant +
-        "_" +
+        (testMode ? "test_" : "") +
         timeStart.replace(/[-:]/g, "").slice(0, 15) + // 20260902T141530
+        "_" +
+        (source
+            .normalize("NFD")
+            .replace(/[̀-ͯ]/g, "") // the accents off, so "Zoë" is "Zoe" rather than "Zo-"
+            .replace(/[^A-Za-z0-9-]+/g, "-")
+            .replace(/^-+|-+$/g, "")
+            .slice(0, 40) || UNKNOWN_SOURCE) +
+        "_" +
+        participant +
         ".json"
 
     // The session the run is staged into, or null where the client is not on
@@ -2598,7 +2692,12 @@
         levelProgress: levelProgress,
         // One answer as given, read-only: what the star sign on level 1 is
         // read from. Scores stay the way results.js reads the rest.
-        answer: (key) => responses[key],
+        answer: (key) => (visitor ? visitor.answers[key] : responses[key]),
+        // Somebody else's results from a link: what score, total and answer
+        // read while they are on screen (see `visitor`).
+        visit: (shown) => {
+            visitor = shown
+        },
         showScreen: showScreen,
         burst: burst,
         still: still,
@@ -2905,8 +3004,13 @@
 
     // Leaving somebody else's card puts the page back to the one everybody
     // else lands on, link and all, so that taking the test starts from scratch.
+    // The scores on screen were the link's, and are let go of before anything
+    // of the visitor's own can be answered. (The run's `source` was read when
+    // the page loaded, from the link, which says `shared`.)
     $("visit-start").addEventListener("click", () => {
+        visitor = null
         history.replaceState(null, "", location.origin + location.pathname)
+        renderSidebar()
         showScreen("intro")
         jump(0)
         sinkHero()
@@ -2927,7 +3031,10 @@
     showcase() // a taste of the far end, beside the case for making one
 
     // A shared card is the whole page when there is one: the test is still
-    // underneath it, waiting behind "Take the test yourself".
-    const visiting = results.readCardLink()
-    if (visiting) results.showVisit(visiting)
+    // underneath it, waiting behind "Take the test yourself". Either the whole
+    // profile web, or one level's results.
+    const visitingLevel = results.readLevelLink()
+    const visiting = !visitingLevel && results.readCardLink()
+    if (visitingLevel) results.showLevelVisit(visitingLevel)
+    else if (visiting) results.showVisit(visiting)
 })()

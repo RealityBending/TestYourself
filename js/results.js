@@ -29,6 +29,7 @@ function makeResults(engine) {
     const tercile = engine.tercile
     const levelProgress = engine.levelProgress
     const answer = engine.answer
+    const visit = engine.visit
     const showScreen = engine.showScreen
     const burst = engine.burst
     const still = engine.still
@@ -704,8 +705,12 @@ function makeResults(engine) {
         // What the level was worth, asked once under the whole of it — never
         // on a level still locked, where there is nothing yet to think of.
         // It is no `.result`, so it neither counts towards the lone rule nor
-        // breaks open with the sections.
-        if (!locked && into.querySelector(".result")) into.appendChild(starRating(level))
+        // breaks open with the sections. The way to share what was opened
+        // comes under it, on the same terms.
+        if (!locked && into.querySelector(".result")) {
+            into.appendChild(starRating(level))
+            into.appendChild(levelShare(level))
+        }
     }
 
     // The foot of a finished level carries a taste of the next: the same
@@ -759,6 +764,8 @@ function makeResults(engine) {
         for (const section of into.querySelectorAll(".result")) section.classList.add("result--sealed")
         const rating = into.querySelector(".rating")
         if (rating) rating.classList.add("rating--sealed")
+        const share = into.querySelector(".levelshare")
+        if (share) share.classList.add("levelshare--sealed")
         if (foot) foot.classList.add("level__foot--sealed")
     }
 
@@ -773,6 +780,8 @@ function makeResults(engine) {
         const unfoot = () => {
             const rating = into.querySelector(".rating")
             if (rating) rating.classList.remove("rating--sealed")
+            const share = into.querySelector(".levelshare")
+            if (share) share.classList.remove("levelshare--sealed")
             if (foot) foot.classList.remove("level__foot--sealed")
         }
         const hurry = () => {
@@ -1023,8 +1032,13 @@ function makeResults(engine) {
         const pairs = Object.keys(values)
             .map((dimension) => dimension + "~" + values[dimension].toFixed(2))
             .join(",")
-        return location.origin + location.pathname + "?card=1&s=" + encodeURIComponent(pairs)
+        return location.origin + location.pathname + "?card=1&s=" + encodeURIComponent(pairs) + "&source=" + SHARED_SOURCE
     }
+
+    // What a run begun from somebody's shared link is filed as (`?source=`),
+    // so that people who came by way of a friend's results can be told apart
+    // from the ones a study sent, and from the Unknowns nobody sent at all.
+    const SHARED_SOURCE = "shared"
 
     // A link is somebody else's text: only a dimension this build's profile
     // carries, at a number inside its own scale, gets drawn.
@@ -1083,11 +1097,227 @@ function makeResults(engine) {
 
     // Somebody else's card, opened from a link: nothing is recorded.
     function showVisit(values) {
+        $("visit-title").textContent = "A profile from the Abyss"
         $("visit-note").textContent =
             "Somebody has shared " + Object.keys(values).length + " of their dimensions with you, drawn against the average person. Take the test to see your own."
+        $("visit-card").className = "card"
         $("visit-card").innerHTML = ""
         $("visit-card").appendChild(drawCard(values))
         showScreen("card")
+    }
+
+    /* --------------------------- sharing a level -------------------------- */
+
+    // Any level whose results are open can be shared on its own, from its
+    // screen or from its panel at any time afterwards: as a link that shows
+    // somebody else the same results, or as a picture of them.
+    //
+    // **The link carries the level's scores and nothing else.** Every
+    // dimension of the level that has a score goes in it, whether or not it
+    // is drawn, since a figure may read a dimension it does not name; no
+    // answer goes in it but the birth month, and a day standing in for the
+    // birthday on the same side of the cusp (`birthdayStandIn`), which is all
+    // the star sign needs. The visitor's page draws the level from them
+    // through the ordinary `renderResults`, with the engine told to read the
+    // link's scores (`visit`) and with nothing on it that could be pressed:
+    // no votes, no stars, no share of its own. The level is named by its
+    // `key`, which is the same level for everybody, where its number is only
+    // a place in one person's run.
+
+    // Left out of a picture, and hidden on a visitor's page: what asks for an
+    // answer, and what the picture is being taken with.
+    const NOT_SHOWN = ".votes, [class*='__ask'], [class*='__vote'], .rating, .levelshare, .result__lock"
+
+    function nameOfLevel(key) {
+        const entry = TIMELINE.find((one) => one.key === key)
+        return entry ? entry.name : key
+    }
+
+    function levelLink(level) {
+        const pairs = dimensionOrder
+            .filter((dimension) => dimensions[dimension][0].level === level && score(dimension) !== undefined)
+            .map((dimension) => dimension + "~" + +score(dimension).toFixed(3))
+        let link = location.origin + location.pathname + "?card=1&level=" + encodeURIComponent(ratingKey(level)) + "&s=" + encodeURIComponent(pairs.join(","))
+
+        const birthday = onLevel(dimensionsOf(theories.OLD_THEORIES_OF), level) && theories.birthdayStandIn()
+        if (birthday) link += "&m=" + birthday.month + (birthday.day === undefined ? "" : "&d=" + birthday.day)
+        return link + "&source=" + SHARED_SOURCE
+    }
+
+    // A link is somebody else's text: only a level this build has, only its
+    // own dimensions, only numbers inside their scales, and only a month and
+    // a day that could be ones.
+    function readLevelLink() {
+        const query = new URLSearchParams(location.search)
+        const key = query.get("level")
+        if (query.get("card") !== "1" || !key || !query.get("s")) return null
+
+        const levels = Array.from(new Set(dimensionOrder.map((dimension) => dimensions[dimension][0].level)))
+        const level = levels.find((one) => ratingKey(one) === key)
+        if (level === undefined) return null
+
+        const values = {}
+        for (const pair of query.get("s").split(",")) {
+            const [name, raw] = pair.split("~")
+            if (!known(name) || dimensions[name][0].level !== level) continue
+            const value = Number(raw)
+            const question = dimensions[name][0]
+            if (!Number.isFinite(value) || value < question.lowest || value > question.highest) continue
+            values[name] = value
+        }
+        if (!Object.keys(values).length) return null
+
+        const answers = {}
+        const month = Number(query.get("m"))
+        const day = Number(query.get("d"))
+        if (Number.isInteger(month) && month >= 1 && month <= 12) {
+            answers["Demographics_BirthMonth"] = month
+            if (Number.isInteger(day) && ((day >= 1 && day <= 31) || day === 99)) answers["Demographics_BirthDay"] = day
+        }
+        return { level: level, key: key, values: values, answers: answers }
+    }
+
+    // Somebody else's level, opened from a link: nothing is recorded, and
+    // nothing on it can be pressed.
+    function showLevelVisit(shared) {
+        visit({ values: shared.values, answers: shared.answers })
+        const name = nameOfLevel(shared.key)
+        $("visit-title").textContent = name
+        $("visit-note").textContent = "Somebody has shared their results on " + name + " with you. Take the test to see your own."
+        const holder = $("visit-card")
+        holder.className = "visit__results"
+        renderResults(holder, shared.level, false)
+        for (const extra of holder.querySelectorAll(".rating, .levelshare")) extra.remove()
+        showScreen("card")
+    }
+
+    // The level's results as one picture: its sections as they stand on the
+    // page, without anything that asks for an answer, on the dark of the card
+    // with the name of the test over it and the way to take it under it.
+    function levelPicture(into, level) {
+        const RATIO = 2
+        const PAD = 44
+        const HEAD = 112
+        const FOOT = 60
+
+        return snapshot(into, { skip: NOT_SHOWN, ratio: RATIO }).then((shot) => {
+            const width = shot.width / RATIO + PAD * 2
+            const height = HEAD + shot.height / RATIO + FOOT
+            const canvas = document.createElement("canvas")
+            canvas.width = width * RATIO
+            canvas.height = height * RATIO
+            const c = canvas.getContext("2d")
+            c.scale(RATIO, RATIO)
+
+            const sans = 'ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif'
+            const serif = 'ui-serif, "Iowan Old Style", Georgia, serif'
+
+            const deep = c.createLinearGradient(0, 0, 0, height)
+            deep.addColorStop(0, "#0a0f1c")
+            deep.addColorStop(1, "#020308")
+            c.fillStyle = deep
+            c.fillRect(0, 0, width, height)
+            const glow = c.createRadialGradient(width / 2, 30, 0, width / 2, 30, width * 0.7)
+            glow.addColorStop(0, "rgba(124, 92, 255, 0.24)")
+            glow.addColorStop(1, "rgba(124, 92, 255, 0)")
+            c.fillStyle = glow
+            c.fillRect(0, 0, width, height)
+
+            c.letterSpacing = "0.34em"
+            c.font = "700 13px " + sans
+            c.fillStyle = "#22d3ee"
+            c.fillText("THE ABYSS TEST", PAD, 50)
+            c.letterSpacing = "0px"
+            c.font = "32px " + serif
+            c.fillStyle = "#ffffff"
+            c.fillText(nameOfLevel(ratingKey(level)), PAD, 90)
+
+            c.drawImage(shot, PAD, HEAD, shot.width / RATIO, shot.height / RATIO)
+
+            c.letterSpacing = "0.2em"
+            c.font = "600 12px " + sans
+            c.fillStyle = "#5d6478"
+            c.textAlign = "right"
+            c.fillText("TAKE IT AT " + location.host.toUpperCase(), width - PAD, height - 26)
+            return canvas
+        })
+    }
+
+    function saveBlob(blob, name) {
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement("a")
+        a.href = url
+        a.download = name
+        a.click()
+        URL.revokeObjectURL(url)
+    }
+
+    // Under a level's stars: a link, or a picture. The picture goes on the
+    // clipboard where the browser allows it, and is saved as a file where it
+    // does not. It is made when the button is pressed and not before, since
+    // it is a copy of the whole page's worth of results.
+    function levelShare(level) {
+        const box = document.createElement("div")
+        box.className = "levelshare"
+
+        const ask = document.createElement("p")
+        ask.className = "levelshare__head"
+        ask.textContent = "Share these results"
+        box.appendChild(ask)
+
+        const actions = document.createElement("div")
+        actions.className = "share__actions"
+        const button = (words) => {
+            const one = document.createElement("button")
+            one.type = "button"
+            one.className = "btn btn--ghost levelshare__button"
+            one.textContent = words
+            actions.appendChild(one)
+            return one
+        }
+        const linkButton = button("Copy link")
+        const imageButton = button("Copy as image")
+        box.appendChild(actions)
+
+        const note = document.createElement("p")
+        note.className = "share__note"
+        box.appendChild(note)
+        const say = (words, done) => {
+            note.textContent = words
+            note.classList.toggle("share__note--done", !!done)
+        }
+
+        linkButton.addEventListener("click", () => {
+            const link = levelLink(level)
+            if (navigator.clipboard) navigator.clipboard.writeText(link).then(() => say("Link copied. Whoever opens it sees these results, and can take the test themselves.", true), () => say(link))
+            else say(link)
+            burst(linkButton, "#d9a441", { count: 12, reach: 40 })
+        })
+
+        imageButton.addEventListener("click", () => {
+            const into = box.parentElement
+            const file = "abyss-" + ratingKey(level).toLowerCase() + ".png"
+            imageButton.disabled = true
+            say("Drawing the picture…")
+            const made = levelPicture(into, level).then((canvas) => new Promise((resolve) => canvas.toBlob(resolve, "image/png")))
+            const saved = () =>
+                made.then(
+                    (blob) => {
+                        saveBlob(blob, file)
+                        say("Saved as " + file + ".", true)
+                    },
+                    () => say("The picture could not be drawn in this browser."),
+                )
+            const copying = navigator.clipboard && window.ClipboardItem ? navigator.clipboard.write([new ClipboardItem({ "image/png": made })]) : Promise.reject()
+            copying
+                .then(() => say("Image copied. Paste it wherever you want to share it.", true), saved)
+                .then(() => {
+                    imageButton.disabled = false
+                    burst(imageButton, "#d9a441", { count: 12, reach: 40 })
+                })
+        })
+
+        return box
     }
 
     // Drawn in two places — the panel during the run and the last screen — so
@@ -1132,12 +1362,14 @@ function makeResults(engine) {
             soma.drawSoma(body, true)
             slide(body)
         }
-        // The climb's bar chart rather than its hill: the hill wants its bars
-        // beside it to be read, and the bars stand on their own. The
-        // temperament plane rather than the sea, which is too much picture for
-        // a frame this size.
-        if (known("Emotional Intensity")) slide(climb.renderBars(true))
+        // The temperament plane rather than the sea, which is too much picture
+        // for a frame this size. The climb is not here at all: its hill wants
+        // its bars beside it to be read, and the bars alone were a chart of
+        // four names with nothing to look at.
         if (known("Extraversion")) slide(theories.renderOldTheories(true).querySelector("svg.theory__figure"))
+        // Where You Stand as its plane and the four poles round it, which are
+        // what make it read as a compass; the spectra under it are left out.
+        if (known("Sharing")) slide(stance.renderStance(true).querySelector(".stance__map"))
         if (known("Sage")) slide(wheel.renderWheel(true).querySelector("svg"))
         if (known("Verbal")) slide(reasoning.renderReasoning(true).querySelector("svg"))
         return slides
@@ -1320,6 +1552,8 @@ function makeResults(engine) {
         profileShare: profileShare,
         readCardLink: readCardLink,
         showVisit: showVisit,
+        readLevelLink: readLevelLink,
+        showLevelVisit: showLevelVisit,
         hideTip: hideTip,
     }
 }

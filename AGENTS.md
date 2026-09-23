@@ -6,7 +6,8 @@ a second copy — write here and nowhere else, or the two will drift.
 Single-page survey app. No build, no dependencies, no framework, no tests.
 `index.html` loads the content first (`content/timeline.js`, then a
 `content/block_*.js` per block of questions), then `js/draw.js` (stateless
-drawing helpers everything below it uses), then `js/figures/*.js` (one file
+drawing helpers everything below it uses), then `js/snapshot.js` (a piece of
+the page turned into a picture), then `js/figures/*.js` (one file
 per figure a level closes on), then `js/results.js` (reads scores back), then
 `js/app.js` (the engine) — and
 three stylesheets in cascade order: `css/style.css` → `css/intro.css` →
@@ -29,6 +30,7 @@ A change usually needs one file out of one of them.
 | `content/block_*.js` | Every question, scale, colour and norm, **split by block** — one stretch of the run that moves as a piece — so the file to open is the thing being changed rather than the position it happens to be asked in. **Content changes go here and nowhere else.** Each is one `defineBlock("name", [ … ])` over an ordered list of entries: briefings and questionnaires, each carrying its own `key`. |
 | `content/block_UNUSED.js` | Questionnaires written but not asked, commented out, waiting on whatever they want before they can go in. Nothing in it defines a block, so nothing in it can be reached. |
 | `js/draw.js` | Three helpers that draw rather than decide — `SVG`, `draw()` (an SVG element with its attributes on it) and `mix()` (a colour between two others, reading either a `#rrggbb` out of `content/` or its own `rgb(…)` back, so a tint can be darkened in a second pass; `channelsOf()` is the reader, and the fourth name it takes) — held in common by the two files below it. It reads nothing and keeps nothing, which is the whole reason it can sit under both of them; **nothing else belongs in it**, and a helper only moves down here because `app.js` and `results.js` both want it. Not an IIFE: it takes those names in the globals every file on the page shares, so nothing in `content/` may take them too. |
+| `js/snapshot.js` | **A piece of the page turned into a picture**, which is how a level's results are copied as an image (see **Sharing a level**). One global, `snapshot(element, {skip, ratio})`, resolving to a canvas: the element is cloned with every style it is drawn with written onto the clone as computed, the clone goes in an SVG `<foreignObject>`, and the SVG is drawn onto a canvas. It reads nothing of the run and keeps nothing, like `draw.js`, but is not in it, since only `results.js` wants it. **What it has to get right, each learnt the hard way on 23 September 2026**: defaults are read on a blank iframe of its own, since this page's stylesheet reaches any box on it (`* { box-sizing: border-box }` passed for a default, was never copied, and every padded card came out wider than its column); a property is written unless it equals both the tag's default and the parent's value, which keeps an inherited value from being dropped; anything still arriving is `finish()`ed first, or a section mid-fade is copied blank; the size is the layout box (`offsetWidth`), not the bounding one, which a panel still growing out of its badge has scaled; the height is measured on the clone in that iframe, since a margin that collapsed out of the element on the page stays inside the picture; what is skipped is hidden on the page for the moment of copying so the rest closes up over it; one-line text is held to one line (it is drawn a hair wider in an image); and an **auto margin**, which Chrome reports on a grid item as `0px`, is recovered by asking the page's rules — only those that set a margin to `auto` — whether they match. Pseudo-elements are written as rules against a class made for each; an `<img>` or `<canvas>` becomes a data URL. |
 | `js/app.js` | The engine, one IIFE, in labelled sections: build the run → branching → scoring → rendering an item → the rail → panels → particles → finishing a level → flow → results → the way in → wiring. |
 | `js/results.js` | `makeResults(engine)`, a factory returning the handful of functions `app.js` calls. What every figure has in common — reading a score against its norm (`dimensionsOf`, `normOf`, `reachOf`, `standFrom`, `teaseValue`), the tooltip, the votes (`pickButtons`, `voteButtons`, `filed`), the holder a figure sits in (`figureHolder`) — then the spider chart, the results sections and their rows (`renderResults`, `renderTeaser`), the staged opening of a finished level, the profile and the card, the
 showcase of stand-in figures the landing page cycles (`renderShowcase`), and
@@ -42,8 +44,8 @@ showcase of stand-in figures the landing page cycles (`renderShowcase`), and
 | `index.html` | Static skeleton, and the load order above. Screens and panels are markup; everything inside them is filled in by the scripts via `$(id)`. The favicon is an inline SVG data URI in the head — three waves going down, in the descent's three colours. |
 | `assets/` | The logos on the hero and the consent form, referenced from `index.html`, and `assets/icar/` — the pictures of the reasoning level's matrix and rotation items, a problem and its candidates apiece, cut out of the eight published figures by `assets/icar/source/cut.py` (which sits beside the figures it cuts, and is run by hand when they change), referenced from `content/block_icar.js` as `<img>` in the items' own `text` and as `image:` on their options, which is the one place a script reaches for a file. No stylesheet does. |
 | `data/norms/` | A workbench, not part of the page: `make_norms.R` prints, ready to paste, every set of norms in the app that is *not* invented. Two sections, independent of each other so that a missing package or a dropped connection costs you one and not both — the HiTOP-BR's development-sample means and SDs out of the {hitop} R package, and the MINT's worked out from the raw answers of the studies that have asked it, pulled from their repositories and scored the way `content/block_mint.js` scores them. It prints the two number lines and never the `interpretations` beside them, which are the app's own prose. Nothing on the page reaches for it, and R is not a dependency of anything that runs. |
-| `data/synthetic/` | A second workbench, not part of the page: runs of the test answered by Claude in a sampled persona, written in the exact shape `container()` saves so that an analysis reads them with the same code as a real run. `codebook.js` (bun or node) reads every item out of `content/` the way `app.js` flattens it, so the requests cannot drift from what is asked; `synthesize.py` samples the demographics from the items' own options, has the model write a biography and answer the rest under a JSON schema of the items' own values, passes the attention checks, prunes closed branches, and writes `out/synthetic-<code>.json` — participant code prefixed `synthetic-`, a `synthetic` field naming model, batch, seed and biography, null times, null votes, null stars (`ratings`, one key per level screen). `work/` and `out/` are git-ignored. Its `FIGURE_VOTES` mirrors `feedbackKeys()` in `results.js` and has to move with it (the two `heads.js` keys went in under all three of level 9's questionnaires, September 2026). It writes `battery` (null), `levels` and `questionnaires` (the whole timeline, written order) the way `container()` does, and splices a `Level_<N>` item into `items[]` after each scored level, answered with the way on that level offers — every fork choice taken as recommended (`screens`, `walked`; `codebook.js` works `beneath` out from `WATER_SHARE` the way `waterLevels` does, for the floor's wording — the one rule this workbench restates rather than reads) — so a synthetic file reads with the same code. Never sent to DataPipe, never pooled with participants; its `README.md` says why. |
-| `data/collected/` | **A third workbench, and the way the answers come back**, in two steps: `download.py` fetches, `preprocess.R` makes tables of what it fetched. Both folders it writes, `raw/` and `clean/`, are git-ignored because they hold **real participant data that must never be committed**. **`preprocess.R`** ({jsonlite} and base R, the way `data/norms/make_norms.R` is) reads `raw/` and writes `clean/`: **`data.csv`, one row a participant and everything in it, and nothing else at all** — **a master file**, 718 columns: the run (participant, file, completed, version, testMode, synthetic, battery, formatMint, timeStart), the two sequence columns, a `Feedback_<reading>` apiece, a `Rating_<level key>` apiece, four `QC_<level key>_*` apiece (`RT_Mean`, `RT_SD`, `ChecksFailed`, `TimeFinished`), a column per item holding the words that were on screen, and an `<item>_RT` beside each one (a suffix, so an item and its time sort together). **One naming rule across it, and it is `content/`'s own**: what the run says about itself is lowercase (`participant`, `time_start`) and everything that is a *measure* is `Prefix_Subject_Field`, the prefix an acronym in capitals or a word in PascalCase exactly as an item key is written — so `QC_Character_RT_Mean` and `Feedback_BodilyAwareness` sit beside `HEXACO_Sincerity` under one convention and a measure can be told from a run field on sight. Times are milliseconds throughout and no column name says so. Nothing is left out to keep it narrow — an analysis selects from it rather than coming back for a second file, and width costs nothing to anything that is not Excel — and **nothing is worked out that the file does not already say**: no mean reaction time, no share of an instrument completed, no count of failed checks, no item counts, no minutes taken. Each is a line of R over the columns that are there, and which of them an analysis wants is the analysis's business; this reshapes rather than computes, and a file that counts things for you is a file whose counting has to be checked. (It was seven tables until 22 September 2026, and carried its own counts and shares for a few hours after that.) **`NA` is not the empty string in it**: an item never put on screen is NA, an optional item shown and deliberately left blank is `""`, and the saved file has always told those apart — writing NA as empty, which it did at first, made a question nobody was asked look like one somebody declined. **What is not data is said rather than filed**: the complaints go to the terminal where whoever ran the script is looking, since a `checks.csv` that is empty nine times in ten is a file somebody has to open to learn nothing. **Anything counting how much of an instrument somebody gave wants care, which
+| `data/synthetic/` | A second workbench, not part of the page: runs of the test answered by Claude in a sampled persona, written in the exact shape `container()` saves so that an analysis reads them with the same code as a real run. `codebook.js` (bun or node) reads every item out of `content/` the way `app.js` flattens it, so the requests cannot drift from what is asked; `synthesize.py` samples the demographics from the items' own options, has the model write a biography and answer the rest under a JSON schema of the items' own values, passes the attention checks, prunes closed branches, and writes `out/synthetic-<code>.json` — participant code prefixed `synthetic-`, a `synthetic` field naming model, batch, seed and biography, null times, null votes, null stars (`ratings`, one key per level screen). `work/` and `out/` are git-ignored. Its `FIGURE_VOTES` mirrors `feedbackKeys()` in `results.js` and has to move with it (the two `heads.js` keys went in under all three of level 9's questionnaires, September 2026). It writes `battery` (null), `source` (`"Synthetic"`), `levels` and `questionnaires` (the whole timeline, written order) the way `container()` does, and splices a `Level_<N>` item into `items[]` after each scored level, answered with the way on that level offers — every fork choice taken as recommended (`screens`, `walked`; `codebook.js` works `beneath` out from `WATER_SHARE` the way `waterLevels` does, for the floor's wording — the one rule this workbench restates rather than reads) — so a synthetic file reads with the same code. Never sent to DataPipe, never pooled with participants; its `README.md` says why. |
+| `data/collected/` | **A third workbench, and the way the answers come back**, in two steps: `download.py` fetches, `preprocess.R` makes tables of what it fetched. Both folders it writes, `raw/` and `clean/`, are git-ignored because they hold **real participant data that must never be committed**. **`preprocess.R`** ({jsonlite} and base R, the way `data/norms/make_norms.R` is) reads `raw/` and writes `clean/`: **`data.csv`, one row a participant and everything in it, and nothing else at all** — **a master file**, 719 columns: the run (participant, file, completed, version, testMode, synthetic, battery, source, formatMint, timeStart), the two sequence columns, a `Feedback_<reading>` apiece, a `Rating_<level key>` apiece, four `QC_<level key>_*` apiece (`RT_Mean`, `RT_SD`, `ChecksFailed`, `TimeFinished`), a column per item holding the words that were on screen, and an `<item>_RT` beside each one (a suffix, so an item and its time sort together). **One naming rule across it, and it is `content/`'s own**: what the run says about itself is lowercase (`participant`, `time_start`) and everything that is a *measure* is `Prefix_Subject_Field`, the prefix an acronym in capitals or a word in PascalCase exactly as an item key is written — so `QC_Character_RT_Mean` and `Feedback_BodilyAwareness` sit beside `HEXACO_Sincerity` under one convention and a measure can be told from a run field on sight. Times are milliseconds throughout and no column name says so. Nothing is left out to keep it narrow — an analysis selects from it rather than coming back for a second file, and width costs nothing to anything that is not Excel — and **nothing is worked out that the file does not already say**: no mean reaction time, no share of an instrument completed, no count of failed checks, no item counts, no minutes taken. Each is a line of R over the columns that are there, and which of them an analysis wants is the analysis's business; this reshapes rather than computes, and a file that counts things for you is a file whose counting has to be checked. (It was seven tables until 22 September 2026, and carried its own counts and shares for a few hours after that.) **`NA` is not the empty string in it**: an item never put on screen is NA, an optional item shown and deliberately left blank is `""`, and the saved file has always told those apart — writing NA as empty, which it did at first, made a question nobody was asked look like one somebody declined. **What is not data is said rather than filed**: the complaints go to the terminal where whoever ran the script is looking, since a `checks.csv` that is empty nine times in ten is a file somebody has to open to learn nothing. **Anything counting how much of an instrument somebody gave wants care, which
 is the other reason there is no column for it.** A partial holds only the items
 that were answered — that is what the staged records are — so a share worked out
 from one is 1 for every instrument it touched, however little was reached: a
@@ -51,7 +53,7 @@ real abandoned run of 22 September 2026 had answered three of the HEXACO's
 twenty-five and a share said 1 where a count said 3. The denominator that would
 settle it is the instrument's own length, which lives in `content/` and in no
 saved file. **The two sequence columns are how one row
-keeps what a row cannot hold**: which levels somebody walked and the order they met the items in are facts about a sequence, so they are joined with `" | "` into one cell each rather than spent as a column per item. `--long` also writes the tidy `responses.csv`, one row an item, which is the shape a mixed model wants. **A new item wants a key that is not already a column of this file** — nothing called `minutes` or `completed`, nothing ending `_RT`, nothing starting `done_`, `Feedback_`, `Rating_` or `QC_`. The `PREFIX_Name` convention every key in `content/` follows keeps that true without anybody thinking about it, and there is deliberately no guard: a check for something the naming makes impossible is one more thing to read. It **reads both shapes out of the deposit**: a finished run is a `container()`, and a `.partial.json` is **a bare JSON array of the staged records** — verified against a real one on 22 September 2026: no envelope, no wrapper, just the `frame` and `item` objects as the app staged them — which it puts back together by the rule they were staged under, the last frame and the last record under each key. That first real partial reassembled into a run of 28 items over five finished levels, **with the two fork choices in it** (`Level_4` answered "Character | Archetypes"), which is the whole point of the exercise: before streaming, a tab closed there left nothing at all. It checks rather than trusts (fields present, keys unique, `order` 1..n for a finished run and merely unique for a partial, one participant code per file, one app version across the set) and **prints** every file that fails instead of stopping on it or filing a report nobody opens. It drops a partial whose run also finished, and keeps test and synthetic runs out of `clean/` unless asked. **It does not score**, and the five things it cannot do are written at the foot of the file — the fifth being that `clean/` is not the public file: it still holds the `?sub=` id, the day of birth and the free-text comments, and the release step that takes them out is not written yet. `download.py` (standard library alone, no packages) fetches what DataPipe has filed in the Zenodo deposit, verifies each file against its checksum and leaves it in `raw/`. It runs again safely — a file already there with the right checksum is left alone — so it is the way to pull an ongoing study down each morning rather than a thing run once. **The deposit is a draft for the whole of a study** — DataPipe makes an unpublished deposition and never publishes it — and a draft is readable only by its owner, so the token is wanted throughout rather than at the end. It is looked for in `ZENODO_TOKEN` first and then in `~/.zenodo_token` (one line, nothing else), the second so that it outlives the shell it was typed into and anything run later finds it without being told. **Neither place is in this repository**: a secret in a folder git watches is committed sooner or later, and this one is inside Dropbox as well. `deposit:write` is the narrowest scope Zenodo offers for reading a draft and it can write to the account's depositions too, so it is worth rotating when a study ends. It unpacks DataPipe's `datapipe-batch-NNNN.zip` archives as they arrive, so `raw/` holds runs rather than archives however large the study grows. Its report is the reason it is a script rather than a download button: it counts complete runs apart from the partials of people who stopped, keeps **test runs out of the count** (`test-`, not data), and names any run that has **both** a complete file and a partial — one person and two files, which is a wrong n if both are counted (see **Where it goes**). |
+keeps what a row cannot hold**: which levels somebody walked and the order they met the items in are facts about a sequence, so they are joined with `" | "` into one cell each rather than spent as a column per item. `--long` also writes the tidy `responses.csv`, one row an item, which is the shape a mixed model wants. **A new item wants a key that is not already a column of this file** — nothing called `minutes` or `completed`, nothing ending `_RT`, nothing starting `done_`, `Feedback_`, `Rating_` or `QC_`. The `PREFIX_Name` convention every key in `content/` follows keeps that true without anybody thinking about it, and there is deliberately no guard: a check for something the naming makes impossible is one more thing to read. It **reads both shapes out of the deposit**: a finished run is a `container()`, and a `.partial.json` is **a bare JSON array of the staged records** — verified against a real one on 22 September 2026: no envelope, no wrapper, just the `frame` and `item` objects as the app staged them — which it puts back together by the rule they were staged under, the last frame and the last record under each key. That first real partial reassembled into a run of 28 items over five finished levels, **with the two fork choices in it** (`Level_4` answered "Character | Archetypes"), which is the whole point of the exercise: before streaming, a tab closed there left nothing at all. It checks rather than trusts (fields present, keys unique, `order` 1..n for a finished run and merely unique for a partial, one participant code per file, one app version across the set) and **prints** every file that fails instead of stopping on it or filing a report nobody opens. It drops a partial whose run also finished, and keeps test and synthetic runs out of `clean/` unless asked. **It does not score**, and the five things it cannot do are written at the foot of the file — the fifth being that `clean/` is not the public file: it still holds the `?sub=` id, the day of birth and the free-text comments, and the release step that takes them out is not written yet. `download.py` (standard library alone, no packages) fetches what DataPipe has filed in the Zenodo deposit, verifies each file against its checksum and leaves it in `raw/`. It runs again safely — a file already there with the right checksum is left alone — so it is the way to pull an ongoing study down each morning rather than a thing run once. **The deposit is a draft for the whole of a study** — DataPipe makes an unpublished deposition and never publishes it — and a draft is readable only by its owner, so the token is wanted throughout rather than at the end. It is looked for in `ZENODO_TOKEN` first and then in `~/.zenodo_token` (one line, nothing else), the second so that it outlives the shell it was typed into and anything run later finds it without being told. **Neither place is in this repository**: a secret in a folder git watches is committed sooner or later, and this one is inside Dropbox as well. `deposit:write` is the narrowest scope Zenodo offers for reading a draft and it can write to the account's depositions too, so it is worth rotating when a study ends. It unpacks DataPipe's `datapipe-batch-NNNN.zip` archives as they arrive, so `raw/` holds runs rather than archives however large the study grows. Its report is the reason it is a script rather than a download button: it counts complete runs apart from the partials of people who stopped, keeps **test runs out of the count** (`test_`, or `test-` before 23 September 2026; not data), and names any run that has **both** a complete file and a partial — one person and two files, which is a wrong n if both are counted (see **Where it goes**). |
 | `docs/` | **The documentation**: a deck about the app, for the people working on it, in the three files the app itself is in — `index.html`, `deck.css`, `deck.js` — plus `items.js` and a stretch of `index.html` that are **generated**, and the script that generates them. No build to open it, no dependency, no server. Two slides: the landing page of the app with **Documentation** under it, and **Content**, the table of everything the test asks — which lived in `README.md` until September 2026, and which is now written by `build_slides.py` rather than kept by hand. A slide is a `<section class="slide">` and adding one is writing another; `deck.js` counts them, moves between them with the arrow keys, keeps the slide showing in the address (`#2`, read on load and on `hashchange`, written back with `replaceState` so the back button stays clear) and never looks at what is inside. **The wheel is the other way on**: scrolling past the end of a slide moves to the next, but only once that slide has nothing left to scroll (so a long table is read to the bottom first), only past a deliberate push rather than the tick that arrives at the end, and not at all for a moment afterwards — a trackpad sends its momentum in a long tail, which would otherwise carry straight through the slide it just landed on. A slide that fits the window is at both ends at once, which is what makes the wheel work there. A slide arrives from the side it came from (`arrive-on` / `arrive-back`, the side written by `deck.js`; the slide a visit opens on has come from nowhere and arrives without one), and `.slide--on` centres with `justify-content: safe center`, so a slide taller than the window falls back to the top instead of overflowing past it where the first rows cannot be reached. **Picking a row of the table says what that instrument asks**, out of `items.js`. It is a **click** and not a hover (`aria-expanded` on the row, `aria-controls="items"`, Enter or Space when it has focus, and the same row again, Escape or leaving the slide to put it away): the list stays up, the text in it can be selected and copied, and forty-odd items can be scrolled without the pointer having to stay on the row it came from. The row and the list are one thing in two places and so are one colour, `--pick`, a blue of the deck's own between the app's cyan and its violet — the row filled with it and edged in it, the list bordered and numbered in it. That list sits beside the chrome rather than inside the slide, because a slide carries the arrival animation and an element with a transform on it is the containing block its `position: fixed` children are placed against. The look is the app's **restated, not imported** — the tokens are those in `css/style.css` and the hero is `.hero` from the root `index.html` — so nothing here can break the app, and a change to the app's look has to be brought across by hand; the three logos are the app's own files in `assets/`. No presenter notes, no transitions, no export: `@media print` and the browser's print-to-PDF are the export. It was a Slidev project for a day, which is why the root `.gitignore` no longer ignores `docs/`. |
 | `docs/build_slides.py` | **The Content table and `items.js`, written out of the app's own questions** — a workbench like `data/norms/` and `data/synthetic/`, run by hand when `content/` changes (`--check` says whether the deck is stale and exits 1 if it is). It reads the app **through `data/synthetic/codebook.js`** rather than parsing `content/` itself, so there is one reader of the questions and it is the one that already walks them the way `app.js` does; it needs bun or node for that, and nothing else. It sanitises what cannot go into a table: an item that words itself from an earlier answer becomes one of its wordings marked as such, `text` is HTML so the tags come off and the `<small>` gloss stays, and a reasoning item drawn as a picture is marked `[with a figure]` — four of them share a stem and would otherwise read as the same question four times. **`ROWS` is the one hand-written thing in it**, and has to be: a row's *reference* is nowhere in `content/`, and the table's unit is the instrument where the content's is the questionnaire — `singles` is one questionnaire holding eleven scales, `hexaco18` holds the HEX-ACO-18 and the KSE-G, `control` holds four two-item proxies. That mapping is **checked rather than trusted**: every item the app asks must be claimed by exactly one row and every row must claim at least one item, or the script stops and says which, so a questionnaire added to `content/` without a row is a failure rather than a table that quietly goes stale. |
 | `README.md` | The author's own notes: the aim, the batteries, and a long list of questionnaire ideas that are *not* in the test. Its **Includes** section is now a pointer to the deck's Content table, which is where the list of what *is* asked lives. Not documentation. |
@@ -66,6 +68,11 @@ as given — the birth month and day, for the star sign — through
 `QUESTIONNAIRES` — a `content/` global, for norms and section names — which is
 shared ground rather than app.js state, so it crosses no seam to get there.)
 Adding to the seam means adding to that object literal, so keep it small.
+**The one member that writes is `visit`** (23 September 2026): it tells the
+engine that somebody else's results, out of a shared link, are on screen, and
+while they are `score`, `total` and `answer` read the link's values rather than
+the run's (`visitor` in `app.js`, cleared by "Take the test yourself" before
+anything can be answered). See **Sharing a level**.
 
 **The second seam** runs from `results.js` down into `js/figures/`: `shared`,
 one object literal in `makeResults`, is the whole of what a figure file may
@@ -214,7 +221,11 @@ is put on screen: `"choice"` for option buttons, `"input"` for a typed field,
 place on a bell curve, `"slider"` for a point on a line between two ends
 (`renderSlider`: a range with no thumb and Continue held until it is touched,
 so the middle it starts at is never an answer; `min`, `max`, `step`, `unit`
-and `anchors` on the format; the CMQ's likelihood), `"briefing"` for a screen with nothing
+and `anchors` on the format; the CMQ's likelihood — and, since 23 September
+2026, a dashed ghost of the thumb following the pointer with the value a
+press there would give, the track filling to the thumb once pressed, a halo
+round the thumb that grows while it is held, and the spray coming out of the
+point chosen, `.slider__mark`, rather than out of Continue), `"briefing"` for a screen with nothing
 to answer on it. The first two need never be written in `content/` —
 `typeOf()` reads them off the format, since a question that said its own type
 as well would only be a second place for the two to disagree; the other four are
@@ -807,10 +818,12 @@ all the same, as every figure's is. The self-placement is read by nothing,
 and nothing on screen says so any more: a line at the foot did, and went in
 September 2026 as apparatus. The badge is a crop of the plane round the point, kept inside the
 plane (`youAt`, clamped in `renderBadge`). Locked: the title, the plane and
-the spectra from `teaseValue`, blurred, no votes. **The figure is not in the
-landing page's showcase**, on purpose: a political plot before the consent
-form tells a participant what kind of study this is before they have read
-what it is.
+the spectra from `teaseValue`, blurred, no votes. **The plane is in the
+landing page's showcase** (23 September 2026, the author's call; it was kept
+out until then, on the grounds that a political plot before the consent form
+says what kind of study this is before the form does): `.stance__map`, the
+plane and its four poles, each pole its one word, the gloss under it hidden
+by `intro.css`, which also re-lays the grid to fill the frame.
 
 **Two old theories.** The FIPI's section on level 1 is two readings older
 than any questionnaire, side by side, and nothing else (`renderOldTheories`,
@@ -874,8 +887,8 @@ file holds "-3" where that is what was on screen, and `container()` saves
 next rather than showing two at once: a full-window `.hero` carrying the title,
 the `.creed` (the Jung line, the first thing the scroll uncovers), the `.why` making the case for answering any of this — with, beside it, a
 taste of the far end (`.why__show`: the figures the levels close on — the
-whole-run web, the body, the climb's bar chart standing in for its hill, the
-temperament plane standing in for the sea, and the wheel — one at a time in
+whole-run web, the body, the temperament plane standing in for the sea, the
+opinions plane with its poles, the wheel and the compass — one at a time in
 one frame, cross-fading every `SHOWCASE_BEAT`, under one static caption,
 "Examples of feedback"; `renderShowcase` in
 `results.js` draws them from the same `teaseValue` a locked level uses, so
@@ -1143,7 +1156,7 @@ while a level screen is up or the run has ended and stops at the first item. The
 entry is pushed on a click, so Chrome does not treat it as one to skip past.
 Before the survey (the intro, somebody else's card) nothing is pushed and back
 is still the way out, since nothing has been answered that leaving would cost.
-`pushState` is called with no URL, which keeps `?sub=` and `?testMode=true` on
+`pushState` is called with no URL, which keeps `?sub=` and `?test=true` on
 it. That and the `replaceState` on leaving a shared card are the *only* two
 places the page touches history — a press can then only ever mean one thing, so
 keep it that way.
@@ -1348,7 +1361,35 @@ into `?card=1&s=Name~value,…`;
 `PROFILE` and numbers inside that dimension's own scale, so a link is
 never a way to get arbitrary text onto the page. A good link shows
 `screen-card` — somebody else's result, nothing recorded, with the way into the
-test underneath it.
+test underneath it. The link ends `&source=shared`, so a run begun from it is
+filed as one (see **Where it was handed out**).
+
+**Sharing a level** (23 September 2026). Every level whose results are open
+carries, under its stars and sealed and opened with them, **Share these
+results**: "Copy link" and "Copy as image" (`levelShare` in `results.js`,
+`.levelshare` in `results.css`). It is drawn by `renderResults` itself, so it
+is on the level screen and in the level's panel at any time afterwards, and
+never on anything locked. **The link** is `?card=1&level=<level key>&s=Name~value,…`
+with every scored dimension of that level (drawn or not, since a figure may
+read one it does not name), plus, for level 1, `m=` the birth month and `d=` a
+day on the same side of that month's cusp — the 1st or the 28th, 99 for "rather
+not say" (`birthdayStandIn` in `theories.js`) — so the star sign reads back and
+**the real birth day never goes into a link**; and `source=shared`. The level
+is named by its `key`, which is the same level for everybody, and
+`readLevelLink` finds it again in the visitor's own run, keeping only that
+level's dimensions and numbers inside their scales. The visitor's page is
+`screen-card` again, the level's own `renderResults` drawn through `visit` (see
+**The seam**) with the stars and the share taken out and every vote and every
+`*__ask` line hidden (`.visit__results`): the same figures, readings included,
+worded to "you", which the note above them explains. **The image** is the
+level's results as they stand, through `snapshot()` (`js/snapshot.js`), with
+the same things left out (`NOT_SHOWN`), on the card's dark with the test's name
+and the level's over it and the way to take it under it (`levelPicture`). It
+goes on the clipboard as a PNG where the browser allows it and is saved as a
+file where it does not. Neither records anything, and neither is in the saved
+file. **A new figure wants its picture looked at**: `snapshot` copies computed
+styles, which covers nearly everything, and the one thing found that computed
+styles do not say (an auto margin on a grid item) needed a special case.
 
 **Depth.** The run is dressed as a descent: `depth()` turns `descentShare()` —
 how far through the scored levels the run is, not how many items have been ticked off —
@@ -1432,7 +1473,8 @@ rather than a white film.
 the file, logged in `CHANGELOG.md`, so an export can always be matched back to
 the code that produced it — then `participant` and `testMode` — which run
 this is and whether it counts — then `battery` — the preset the link named,
-or null (see **Batteries**) — then `levels`, the levels of this run in the order walked, each its `key`, its `name` and its block list, which is what makes a `timeLevel<N>` or `qualityControl.<key>` below readable on its own — the key being what the file is written under and the name what the person read, so one can always be turned into the other, and `questionnaires`, the questionnaire keys in the order asked (`RUN`; the items' own `order` is theirs) — then `timeStart`, a `timeLevel<N>` per level —
+or null (see **Batteries**) — then `source` — where the link was handed out
+(see **Who is taking it**), `"Unknown"` where it named none — then `levels`, the levels of this run in the order walked, each its `key`, its `name` and its block list, which is what makes a `timeLevel<N>` or `qualityControl.<key>` below readable on its own — the key being what the file is written under and the name what the person read, so one can always be turned into the other, and `questionnaires`, the questionnaire keys in the order asked (`RUN`; the items' own `order` is theirs) — then `timeStart`, a `timeLevel<N>` per level —
 when that level was last left with nothing outstanding, stamped in `answer()`
 rather than on the level screen, which the last level never shows — `formatMint`,
 `qualityControl`, then `items[]`
@@ -1571,11 +1613,20 @@ A session is opened when the **Start** button is pressed rather than when the
 page loads — somebody who read the landing page and left is not a participant,
 and a session held open for them is one of the five hundred an experiment may
 have at once. `FILENAME` is worked out once, at load, and is both the name the
-session is opened under and the name the finished file is sent under: DataPipe
-refuses a name it has already taken, so the run's start time goes after the
-participant code (a `?sub=` code can come round twice), a test run is prefixed
-`test-` rather than `responses-` so that it can be picked out and binned, and a
-battery goes in the name so that a deposit sorts by study.
+session is opened under and the name the finished file is sent under. It is
+**`<when>_<source>_<participant>.json`** (23 September 2026; it was
+`responses-[<battery>-]<participant>_<when>.json` before): the run's start time
+first, so a deposit lists in the order runs began and a name is never taken
+twice (DataPipe refuses one it has, and a `?sub=` code can come round twice),
+then the source cut down to `[A-Za-z0-9-]` and 40 characters, accents off, so
+that one study's files can be picked out of the list by eye, then the code. A
+test run is prefixed `test_` in front of all of it, an underscore like the
+other gaps in the name (`test-` until 23 September 2026, which
+`data/collected/download.py` still reads as a test), and that prefix is what
+it picks test runs out by. The battery is no longer
+in the name — the source is what sorts a deposit by study now, and the file
+still carries `battery`. The failed-send download is saved under the same
+name.
 
 **The client is `js/vendor/datapipe-client.js`, and it is the one file on the
 page that is not ours.** Streaming is not a request anybody can hand-roll — a
@@ -1704,8 +1755,23 @@ drawn from an alphabet with no I, L, O, 0 or 1 in it — a code is read off a
 screen and typed back. A link may bring its own (`?sub=`), for a prewritten list
 or a platform putting its own id on the end: it is somebody else's text, so only
 `[A-Za-z0-9_-]` survives it and only 32 of those, and what is left of an empty
-or impossible one is a code of our own. It is also the name of the downloaded
-file (`responses-<code>.json`).
+or impossible one is a code of our own. It is also the last part of the
+file's name (see **Where it goes**).
+
+**Where it was handed out.** `?source=` says which project, experimenter or
+page the link came from, and is written into the file as `source` and into its
+name. It is never put on screen, so it may be words — letters of any alphabet,
+digits, spaces and a little punctuation (`_.,:;/@()+#&'-`) survive, 200
+characters of them — but it is somebody else's text like the code. **A real
+deployment always names one**, so a link without it is saved as `"Unknown"`
+rather than null: an Unknown in a deposit is a run nobody sent — a test, a link
+passed on, somebody guessing the address — and worth a second look. The
+links in `README.md` carry `?source=README`, so that a run begun from the
+repository's front page says so, and every link a participant shares (the
+card, a level) carries `?source=shared`, so that a run begun from somebody
+else's results says so too. The source is read once, when the page loads,
+which is why "Take the test yourself" can put the address back to bare
+without losing it.
 
 **Batteries.** A study need not ask the whole run. Which blocks a run asks is
 resolved once, at the top of `app.js`, from the link and nothing else, and
@@ -1752,9 +1818,9 @@ smaller web and a smaller set of feedback keys, which an analysis must expect;
 the star card is skipped (`starSign()` returns nothing without the birthday,
 and `feedbackKeys` adds `StarSign` only when `demographics1` is in the run,
 `STARS_FROM`); the FIPI's opening briefing, which frames the whole run, goes
-with the `fipi` block, which is accepted. The saved file carries `battery`, and
-the DataPipe filename carries the battery name after its
-prefix, so a deposit sorts by study. A shared card link is built from the
+with the `fipi` block, which is accepted. The saved file carries `battery`
+(the filename carried it too until 23 September 2026, and now carries the
+source instead). A shared card link is built from the
 origin and path alone, so it never carries a battery and always reads against
 the whole run's profile.
 
@@ -1800,7 +1866,9 @@ asked for "Disagree" among political statements, where an instruction stood
 out more than anywhere else and was the likeliest place for somebody to
 wonder what was being checked for, and the other measures are enough.
 
-**Test mode.** `?testMode=true` walks the run in miniature, so that every chart,
+**Test mode.** `?test=true` (or a bare `?test`; it was `?testMode=true` until
+23 September 2026, and the saved file's field is still `testMode`, which is
+data and did not move) walks the run in miniature, so that every chart,
 level and reading can be reached quickly: every questionnaire keeps
 `TEST_KEPT` (1) item, chosen at random, and `thinRun()` answers the rest at
 random and marks them `auto`. `shown()` returns
@@ -1814,10 +1882,10 @@ still opens on the answer that opens it, and `pruneBranches()` leaves `auto`
 answers alone. A test run is not data: it says so in the file (`testMode`) and
 across the top of the screen (`.banner__test`). Test mode also opens the consent
 gate without the form being read (`checkConsent`) — there is nobody there to
-consent — and the landing page carries **a temporary link into it**
-(`.testmode`, in the `.gate`), which is nothing but a link to `?testMode=true`,
-since that is the whole of the switch. **Take that link out of `index.html`
-before the study runs.**
+consent. **Nothing on the page leads into it** (23 September 2026): the landing
+page carried a "Test mode" link under the Start button until then, taken out so
+that no participant meets it, and the way in is now the address alone, which the
+README writes out in full.
 
 ## Conventions
 
@@ -2093,11 +2161,11 @@ before the study runs.**
   `download.py` reads `~/.zenodo_token` as `utf-8-sig` for that reason, and
   takes the quotes off a pasted value while it is there. Anything else that
   learns to read a secret out of a file on this machine wants the same.
-- **A test run opens a real session and leaves real files.** `?testMode=true`
+- **A test run opens a real session and leaves real files.** `?test=true`
   talks to the live experiment like any other run: pressing Start opens a
   staging session, and a test run abandoned halfway leaves a
-  `test-…partial.json` in the Zenodo deposit about fifteen minutes later, the
-  way a finished one leaves a `test-…json`. The `test-` prefix is what picks
+  `test_…partial.json` in the Zenodo deposit about fifteen minutes later, the
+  way a finished one leaves a `test_…json`. The `test_` prefix is what picks
   both out for binning; nothing else does. To exercise the wiring without
   sending anything, put a stub on `window.DataPipe` before pressing Start —
   `setBaseURL` doing nothing, `createSession` returning — synchronously, not
@@ -2118,8 +2186,9 @@ before the study runs.**
   the end holds all of it. That is the right way round — it is the same reason
   such an item carries null times and is passed over by the quality control —
   but it means a test partial is much thinner than a real one.
-- **The "Test mode" link on the landing page is temporary scaffolding**, and so
-  is test mode opening the consent gate. Both go before the study runs.
+- **Test mode opening the consent gate is temporary scaffolding**, and goes
+  before the study runs. (The "Test mode" link on the landing page that went
+  with it is already gone.)
 - The PHQ-4 uses the refined 5-option version, so `0.5` is a valid response and
   sums are not always whole (`tidy()`).
 - Items with no `dimension` (attention checks) are skipped by all scoring.
@@ -2245,11 +2314,17 @@ before the study runs.**
 - **`drawSpider`/`drawSoma` add their classes rather than setting them.** The
   same `<svg>` is found again by a class of its own (`.profile__web`), so
   writing `class` outright makes the second render of a profile throw.
+- **`--share` is taken, and not by sharing.** It is the registered property
+  (`@property`, a number) that the gauge's stops and the profile badge fill
+  their rings with, so a colour written under that name anywhere is quietly
+  coerced to `0`. The red every share button wears is `--sharing` for that
+  reason (23 September 2026). Any new custom property wants checking against
+  the `@property` rules in `style.css` first.
 - **A badge's crop is written in its figure's own coordinates**, and nothing
   checks it. Move a figure's centre, its radius or its viewBox and the badge
   goes on rendering — of whatever now happens to be in that square. After
   editing a figure, look at its badge. The quickest way is a finished
-  `?testMode=true` run: clone the `.shelf__badge` elements into a fixed
+  `?test=true` run: clone the `.shelf__badge` elements into a fixed
   overlay at 130px and rewrite a clone's `viewBox` until it frames what it
   should, then write those numbers into `renderBadge`.
 - **`.shelf__badge-emblem` is a class three files build**: `results.js` (the

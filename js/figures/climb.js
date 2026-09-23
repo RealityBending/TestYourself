@@ -361,11 +361,5 @@ function makeClimb(shared) {
         return all
     }
 
-    // The bar chart on its own, for the landing page's showcase: drawn from
-    // the stand-ins when teased, the way the locked scene is.
-    function renderBars(tease) {
-        return bars(year(tease))
-    }
-
-    return { CLIMB_OF: CLIMB_OF, CLIMB_KEY: CLIMB_KEY, climbed: climbed, renderClimb: renderClimb, renderBars: renderBars }
+    return { CLIMB_OF: CLIMB_OF, CLIMB_KEY: CLIMB_KEY, climbed: climbed, renderClimb: renderClimb }
 }

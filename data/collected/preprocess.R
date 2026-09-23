@@ -43,8 +43,8 @@
 #                reshape: many files of records into one table of people.
 #
 #                  the run       participant, file, completed, version,
-#                                test_mode, synthetic, battery, format_mint,
-#                                time_start
+#                                test_mode, synthetic, battery, source,
+#                                format_mint, time_start
 #                  sequences     levels_walked, order_walked (see below)
 #                  Feedback_*    one a reading: agree, disagree or nothing
 #                  Rating_*      one a level: the stars its results were given
@@ -259,6 +259,7 @@ participant_rows <- function(run, file, completed) {
     test_mode = isTRUE(run$testMode),
     synthetic = !is.null(run$synthetic),
     battery = as.character(run$battery %||% NA),
+    source = as.character(run$source %||% NA),
     format_mint = as.character(run$formatMint %||% NA),
     time_start = as.character(run$timeStart %||% NA),
     stringsAsFactors = FALSE

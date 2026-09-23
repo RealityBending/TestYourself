@@ -657,7 +657,8 @@
 }
 
 /* Held shut until the sections it is asked about have opened. */
-.rating--sealed {
+.rating--sealed,
+.levelshare--sealed {
     opacity: 0;
     transform: translateY(22px);
     pointer-events: none;
@@ -2678,6 +2679,49 @@
     color: rgba(134, 143, 166, 0.75);
 }
 
+/* Under the stars, on the same terms: a link to these results, or a picture
+   of them. Quieter than the way on, since it is not the way on. */
+.levelshare {
+    display: grid;
+    justify-items: center;
+    gap: 10px;
+    margin-top: 26px;
+    text-align: center;
+    transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.levelshare__head {
+    margin: 0;
+    font-size: 13px;
+    color: var(--muted);
+}
+
+.levelshare .share__note {
+    margin: 0;
+    min-height: 1.5em;
+}
+
+.levelshare .share__note:empty {
+    min-height: 0;
+}
+
+.levelshare__button {
+    padding: 9px 18px;
+    font-size: 13px;
+}
+
+/* Somebody else's level, opened from a link: the results as drawn, with
+   nothing on them that asks for an answer. */
+.visit__results {
+    text-align: left;
+}
+
+.visit__results .votes,
+.visit__results [class*="__ask"],
+.visit__results [class*="__vote"] {
+    display: none;
+}
+
 /* ------------------------------- the card ------------------------------- */
 
 /* The two buttons sit under the web they carry, with nothing between. */
@@ -2711,6 +2755,25 @@
 
 .share__actions .btn + .btn {
     margin-left: 0;
+}
+
+/* Sharing is red wherever it is offered — the profile's card and a level's
+   results alike — so it reads as one thing and never as the way on. Written
+   over the ghost button's own hover, which would otherwise wash it out. */
+.share__actions .btn,
+.share__actions .btn:hover:not(:disabled) {
+    color: #ffffff;
+    background: linear-gradient(135deg, color-mix(in srgb, var(--sharing) 80%, #ff9a8a), var(--sharing));
+    border-color: transparent;
+    font-weight: 600;
+}
+
+.share__actions .btn {
+    box-shadow: 0 14px 36px -18px var(--sharing), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.share__actions .btn:hover:not(:disabled) {
+    box-shadow: 0 20px 44px -16px var(--sharing), inset 0 1px 0 rgba(255, 255, 255, 0.4);
 }
 
 .share__note {
@@ -2833,7 +2896,8 @@
         animation: none;
     }
 
-    .rating {
+    .rating,
+    .levelshare {
         transition: none;
     }
 

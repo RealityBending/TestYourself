@@ -20,13 +20,15 @@ A study may ask a subset of the blocks above: `?battery=<name>` in the link pick
 | `personality` | demographics1, fipi, singles, demographics2, hexaco, archetypes |
 | `ai`          | demographics1, demographics2, bait                              |
 
+`?source=<text>` says where the link was handed out (a project, an experimenter, a page it was posted on). It is saved in the file and put in its name, `<date>_<source>_<participant>.json`, so that a deposit sorts by date and one study's files can be picked out. Every real deployment should name one: a run without it is saved as `Unknown`, which is worth a second look. The links below carry `source=README`.
+
 `?start=<block>` puts the level holding that block first, and the rest of the run follows in its usual order. For example, to open on the opinions level (Where You Stand):
 
-```
-http://localhost:8123/?start=opinions
-```
+https://realitybendinglab.com/TestYourself/?start=opinions&source=README
 
-It only reorders and never adds a block, so it combines with the others: `?battery=test&start=regulation` asks the `test` battery with Mind & Heart first, and `?testMode=true&start=opinions` gets to the opinions results quickly.
+It only reorders and never adds a block, so it combines with the others: https://realitybendinglab.com/TestYourself/?battery=test&start=regulation&source=README asks the `test` battery with Mind & Heart first, and https://realitybendinglab.com/TestYourself/?test=true&start=opinions&source=README gets to the opinions results quickly.
+
+Test mode walks the run in miniature (one item per questionnaire, the rest answered at random) and is not data. There is no button for it on the page; it is reached by the link alone: https://realitybendinglab.com/TestYourself/?test=true&source=README
 
 ## Questionnaire Ideas
 

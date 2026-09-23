@@ -25,6 +25,7 @@
     --gold-pale: #f6e6c4;
     /* Something done and confirmed — the form read, the link copied. */
     --done: #7fcb9b;
+    --sharing: #e5484d; /* every way of sharing a result, and nothing else */
     /* The average person, wherever they are drawn in for comparison. */
     --mean: #767c92;
     /* The house easing: how the water, the line and the depth move. */
@@ -216,7 +217,7 @@ body::after {
     color: transparent;
 }
 
-/* A run started with `?testMode=true` answers most of itself and is not data.
+/* A run started with `?test=true` answers most of itself and is not data.
    It is marked across the top for as long as it lasts. It sits on the left,
    the side the sidebar is not on, and shrinks with the screen: the title is
    centred, and there is less room beside it the narrower the page gets. */
@@ -1911,16 +1912,39 @@ h1 {
     border-radius: 14px;
 }
 
+/* The track lights up under the pointer, and once pressed it fills in the
+   answer's colour up to the thumb's centre — `--fill`, which travels the
+   width less one thumb as the thumb does. */
+.slider {
+    --tint: var(--selected, var(--accent));
+    --fill: calc(var(--thumb) / 2 + var(--at, 0.5) * (100% - var(--thumb)));
+    --track: var(--line);
+}
+
+.slider--hovered {
+    --track: rgba(255, 255, 255, 0.22);
+}
+
 .slider__range::-webkit-slider-runnable-track {
     height: 6px;
     border-radius: 3px;
-    background: var(--line);
+    background: var(--track);
+    transition: background 0.2s ease;
 }
 
 .slider__range::-moz-range-track {
     height: 6px;
     border-radius: 3px;
-    background: var(--line);
+    background: var(--track);
+    transition: background 0.2s ease;
+}
+
+.slider--touched .slider__range::-webkit-slider-runnable-track {
+    background: linear-gradient(to right, var(--tint) var(--fill), var(--track) var(--fill));
+}
+
+.slider--touched .slider__range::-moz-range-track {
+    background: linear-gradient(to right, var(--tint) var(--fill), var(--track) var(--fill));
 }
 
 .slider__range::-webkit-slider-thumb {
@@ -1930,9 +1954,9 @@ h1 {
     margin-top: calc(3px - var(--thumb) / 2);
     border: 2px solid #ffffff;
     border-radius: 50%;
-    background: var(--selected, var(--accent));
+    background: var(--tint);
     opacity: 0;
-    transition: opacity 0.16s ease;
+    transition: opacity 0.16s ease, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
 }
 
 .slider__range::-moz-range-thumb {
@@ -1940,17 +1964,108 @@ h1 {
     height: var(--thumb);
     border: 2px solid #ffffff;
     border-radius: 50%;
-    background: var(--selected, var(--accent));
+    background: var(--tint);
     opacity: 0;
-    transition: opacity 0.16s ease;
+    transition: opacity 0.16s ease, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
 }
 
 .slider--touched .slider__range::-webkit-slider-thumb {
     opacity: 1;
+    box-shadow: 0 0 0 0 transparent, 0 0 18px -2px var(--tint);
 }
 
 .slider--touched .slider__range::-moz-range-thumb {
     opacity: 1;
+    box-shadow: 0 0 0 0 transparent, 0 0 18px -2px var(--tint);
+}
+
+/* Over the line, the thumb wears a halo; held, it grows into it. */
+.slider--touched.slider--hovered .slider__range::-webkit-slider-thumb {
+    box-shadow: 0 0 0 7px color-mix(in srgb, var(--tint) 24%, transparent), 0 0 22px 0 var(--tint);
+}
+
+.slider--touched.slider--hovered .slider__range::-moz-range-thumb {
+    box-shadow: 0 0 0 7px color-mix(in srgb, var(--tint) 24%, transparent), 0 0 22px 0 var(--tint);
+}
+
+.slider--held .slider__range::-webkit-slider-thumb {
+    transform: scale(1.18);
+    box-shadow: 0 0 0 11px color-mix(in srgb, var(--tint) 20%, transparent), 0 0 28px 2px var(--tint);
+}
+
+.slider--held .slider__range::-moz-range-thumb {
+    transform: scale(1.18);
+    box-shadow: 0 0 0 11px color-mix(in srgb, var(--tint) 20%, transparent), 0 0 28px 2px var(--tint);
+}
+
+/* Taken: the thumb swells once as the spray comes out from under it. */
+.slider--taken .slider__range::-webkit-slider-thumb {
+    animation: slider-take 0.45s cubic-bezier(0.3, 1.5, 0.4, 1);
+}
+
+.slider--taken .slider__range::-moz-range-thumb {
+    animation: slider-take 0.45s cubic-bezier(0.3, 1.5, 0.4, 1);
+}
+
+@keyframes slider-take {
+    40% {
+        transform: scale(1.45);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* A hollow thumb where a press would land, with the value it would give over
+   it. It shows only while the pointer is over the line and nothing is being
+   dragged, and it is never where a press is caught: the range is. */
+.slider__ghost {
+    position: absolute;
+    top: calc(40px + var(--thumb) / 2);
+    left: calc(var(--thumb) / 2 + var(--over, 0.5) * (100% - var(--thumb)));
+    width: var(--thumb);
+    height: var(--thumb);
+    margin: calc(var(--thumb) / -2) 0 0 calc(var(--thumb) / -2);
+    border: 2px dashed color-mix(in srgb, var(--tint) 75%, #ffffff);
+    border-radius: 50%;
+    pointer-events: none;
+    opacity: 0;
+    transform: scale(0.7);
+    transition: opacity 0.16s ease, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.slider__ghost-reading {
+    position: absolute;
+    bottom: calc(100% + 10px);
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+    color: var(--muted);
+}
+
+.slider--hovered:not(.slider--held) .slider__ghost {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* Once there is a reading riding on the thumb, the ghost's own is one number
+   too many beside it. */
+.slider--touched .slider__ghost-reading {
+    display: none;
+}
+
+/* What the spray comes out of: nothing to see, riding under the thumb. It
+   carries the colour so the spray is thrown in it. */
+.slider__mark {
+    position: absolute;
+    top: calc(40px + var(--thumb) / 2);
+    left: var(--fill);
+    width: 0;
+    height: 0;
+    background: var(--tint);
+    pointer-events: none;
 }
 
 /* Over the thumb's centre, which travels the width less one thumb. */
@@ -1963,11 +2078,17 @@ h1 {
     font-weight: 600;
     color: var(--text);
     opacity: 0;
-    transition: opacity 0.16s ease;
+    transition: opacity 0.16s ease, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), color 0.2s ease;
 }
 
 .slider--touched .slider__reading {
     opacity: 1;
+}
+
+/* Lifted, and in the answer's colour, while it is being dragged. */
+.slider--held .slider__reading {
+    color: color-mix(in srgb, var(--tint) 55%, #ffffff);
+    transform: translateX(-50%) translateY(-4px) scale(1.12);
 }
 
 .slider__hint {
@@ -1982,7 +2103,8 @@ h1 {
     transition: opacity 0.16s ease;
 }
 
-.slider--touched .slider__hint {
+.slider--touched .slider__hint,
+.slider--hovered .slider__hint {
     opacity: 0;
 }
 

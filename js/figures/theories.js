@@ -147,6 +147,19 @@ function makeTheories(shared) {
         return { between: [first, second] }
     }
 
+    // What a shared link carries for the birthday: the month, and a day that
+    // falls on the same side of that month's cusp as the real one — the 1st or
+    // the 28th — so the same sign is read back and the day itself, which with
+    // the month and the age is most of a date of birth, never leaves the page.
+    // Null where there is no month to go on.
+    function birthdayStandIn() {
+        const month = answer("Demographics_BirthMonth")
+        if (!month) return null
+        const day = answer("Demographics_BirthDay")
+        const side = day >= 1 && day <= 31 ? (day < CUSPS[month - 1] ? 1 : 28) : day === undefined ? undefined : 99
+        return { month: month, day: side }
+    }
+
     const QUADRANT = 200
     const INSET = 22 // room for the axis words
 
@@ -321,5 +334,6 @@ function makeTheories(shared) {
         STARS_FROM: STARS_FROM,
         TEMPERAMENT_KEY: TEMPERAMENT_KEY,
         renderOldTheories: renderOldTheories,
+        birthdayStandIn: birthdayStandIn,
     }
 }

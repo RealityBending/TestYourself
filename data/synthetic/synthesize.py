@@ -557,6 +557,7 @@ def write_file(book, persona, given, bio, provenance):
     # The whole timeline, in its written order, which is what a synthetic run
     # walks: no battery, every level and questionnaire as written.
     file["battery"] = None
+    file["source"] = "Synthetic"  # the app writes a string here always, "Unknown" where the link named none
     file["levels"] = [{"key": level["key"], "name": level["name"], "blocks": level["blocks"]} for level in book["levels"]]
     file["questionnaires"] = list(book["run"])
     file["timeStart"] = now

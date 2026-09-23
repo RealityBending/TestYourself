@@ -43,10 +43,14 @@ Nothing here ever writes it, prints it or sends it anywhere but Zenodo.
 
 **What comes down.** One file per run:
 
-    responses-<CODE>_<WHEN>.json            somebody who finished
-    responses-<BATTERY>-<CODE>_<WHEN>.json  the same, in a study with a battery
-    test-...json                            a test run: not data, see AGENTS.md
+    <WHEN>_<SOURCE>_<CODE>.json             somebody who finished
+    test_...json                            a test run: not data, see AGENTS.md
     <the same name>-<id>.partial.json       somebody who stopped partway
+
+<SOURCE> is the link's `?source=`, or `Unknown` where it named none — which a
+real deployment always should, so an Unknown is worth a second look. Files
+written before 23 September 2026 are `responses-[<BATTERY>-]<CODE>_<WHEN>.json`,
+and their test runs `test-...json`; both prefixes are read as a test.
 
 and, once the deposit passes eighty files, `datapipe-batch-NNNN.zip`, into which
 DataPipe packs the older ones. Those are unpacked here as they arrive, so `raw/`
@@ -91,6 +95,10 @@ CHUNK = 1 << 16  # bytes a download is read in, so a big archive never lands in 
 # `.json` comes off, `-<id>.partial.json` goes on. Read back, it says which run
 # it is the staged copy of.
 PARTIAL = re.compile(r"^(?P<base>.+?)-(?P<id>[0-9a-f]+)\.partial\.json$")
+
+# A test run's name starts `test_`, and started `test-` before the names were
+# reordered on 23 September 2026; a deposit holds both.
+TEST_PREFIXES = ("test_", "test-")
 
 
 TOKEN_FILE = Path.home() / ".zenodo_token"
@@ -307,7 +315,7 @@ def report(names):
     """
     runs, partials, tests, test_partials, other = [], [], [], [], []
     for name in sorted(names):
-        is_test = name.startswith("test-")
+        is_test = name.startswith(TEST_PREFIXES)
         found = PARTIAL.match(name)
         if found:
             (test_partials if is_test else partials).append(found.group("base") + ".json")
@@ -361,7 +369,7 @@ def main():
     got, kept, failed, unpacked = 0, 0, 0, []
 
     for entry in files:
-        if args.skip_test and entry["name"].startswith("test-"):
+        if args.skip_test and entry["name"].startswith(TEST_PREFIXES):
             continue
         target = args.into / entry["name"]
         if settled(target, entry["size"], entry["md5"]):

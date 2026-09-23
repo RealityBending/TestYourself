@@ -229,16 +229,37 @@ body[data-screen="intro"] #app {
     box-shadow: none;
 }
 
-/* The climb's bar chart, sized to the frame rather than to its card. */
-.why__slide .climbview__bars {
+/* The opinions plane with its poles round it, sized to the frame rather than
+   to its card: the plane takes whatever height the poles leave, and each pole
+   is its one word, the gloss under it being more than a frame this size holds.
+   The areas are written again because a phone's card stacks the side poles
+   under the plane, and here there is room for them either side. */
+.why__slide .stance__map {
     width: 100%;
-    max-width: 440px;
-    margin: 0;
+    height: 100%;
+    /* A grid item grows to its content by default, which would push the
+       bottom pole out of the frame. */
+    min-height: 0;
+    max-width: none;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+        ". top ."
+        "left plane right"
+        ". bottom .";
+    gap: 8px 10px;
 }
 
-.why__slide .climbview__track {
-    height: 190px;
-    max-width: 74px;
+.why__slide .stance__plane {
+    justify-self: center;
+    width: auto;
+    max-width: 100%;
+    min-height: 0;
+    filter: none;
+}
+
+.why__slide .stance__pole span {
+    display: none;
 }
 
 /* The body's stand-in standings ("higher than 00% of people") and readings
@@ -457,29 +478,6 @@ body.sinking #screen-intro::after {
 
 .consent__hint--read {
     color: var(--done);
-}
-
-/* TEMPORARY, and it should look it: the way into a test run is a line of small
-   print under the button everybody else presses, not a second way in. */
-.testmode {
-    align-self: center;
-    margin-top: 18px;
-    padding: 4px 10px;
-    border: 1px dashed rgba(217, 164, 65, 0.45);
-    border-radius: 999px;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.2em;
-    text-indent: 0.2em;
-    text-transform: uppercase;
-    color: rgba(217, 164, 65, 0.75);
-    text-decoration: none;
-    transition: color 0.25s, border-color 0.25s;
-}
-
-.testmode:hover {
-    border-color: rgba(217, 164, 65, 0.9);
-    color: var(--gold);
 }
 
 /* Once the form has been read, the way in should be hard to miss. */
