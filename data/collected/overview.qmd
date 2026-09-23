@@ -11,15 +11,11 @@ execute:
 ---
 
 <!--
-How long each level takes, read off what preprocess.R wrote. Run that first,
-with --long, since the times an item was shown are in the long table alone:
-
     Rscript data/collected/preprocess.R --long
     quarto render data/collected/overview.qmd
 
-Base R and nothing else, like preprocess.R. The page it renders is aggregates
-only, but out of a handful of people an aggregate is close to a person, so it
-is git-ignored beside clean/ and not to be committed.
+Base R only. The rendered page is git-ignored: out of a handful of people an
+aggregate is close to a person.
 -->
 
 ```{r}
@@ -34,6 +30,7 @@ if (!file.exists(long_file)) {
 
 long <- read.csv(long_file, stringsAsFactors = FALSE, na.strings = "NA")
 wide <- read.csv(wide_file, stringsAsFactors = FALSE, na.strings = "NA")
+
 SEP <- " | "
 when <- function(x) as.POSIXct(x, format = "%Y-%m-%dT%H:%M:%OS", tz = "UTC")
 ```
@@ -41,12 +38,9 @@ when <- function(x) as.POSIXct(x, format = "%Y-%m-%dT%H:%M:%OS", tz = "UTC")
 ```{r}
 #| label: levels
 
-# Which level an item was on is not a column of either table, and does not
-# have to be: every level screen (`Level_<N>`) stands in the file after the
-# last item of the level it showed, so the items between two screens are one
-# level, and the Nth run of them is the Nth level in `levels_walked`. The
-# items after the last screen are the level being answered when the file was
-# written (or, in a finished run, the closing level, which has no screen).
+# Which level an item was on: each level screen (`Level_<N>`) follows the last
+# item of its level, so the Nth run of items between screens is the Nth level
+# in `levels_walked`.
 levels_of <- function(one) {
   row <- wide[wide$participant == one, ]
   walked <- strsplit(row$levels_walked, SEP, fixed = TRUE)[[1]]
@@ -67,18 +61,13 @@ levels_of <- function(one) {
 }
 items <- do.call(rbind, lapply(unique(wide$participant), levels_of))
 
-# A level counts once it was finished: every item of it answered, which is
-# what `QC_<key>_TimeFinished` says. A level left partway would put the time
-# somebody gave up into the figure for how long the level takes.
+# Only finished levels are timed, or the moment somebody gave up would count.
 finished <- function(one, key) {
   column <- paste0("QC_", key, "_TimeFinished")
   column %in% names(wide) && !is.na(wide[wide$participant == one, column])
 }
 
-# From the first item of the level being put on screen to the last being
-# answered, briefings included and the results screen after it not: wall time,
-# so a pause in the middle is in it. An item shown again has its onset
-# re-stamped later, which the earliest onset of the level mostly survives.
+# Wall time from the level's first onset to its last response, briefings in.
 spans <- do.call(rbind, lapply(split(items[!items$screen, ], list(items$participant[!items$screen], items$level[!items$screen]), drop = TRUE), function(one) {
   data.frame(
     participant = one$participant[1],
@@ -91,8 +80,6 @@ spans <- do.call(rbind, lapply(split(items[!items$screen, ], list(items$particip
 }))
 done <- spans[spans$finished, ]
 
-# The results screen of a level, from its being uncovered to the way on being
-# pressed: the one place the file measures how long results were read.
 screens <- items[items$screen & !is.na(items$onset) & !is.na(items$response), ]
 screens$minutes <- as.numeric(difftime(screens$response, screens$onset, units = "mins"))
 ```
@@ -100,9 +87,6 @@ screens$minutes <- as.numeric(difftime(screens$response, screens$onset, units = 
 ```{r}
 #| label: summary
 
-# Answering is in minutes and the results screen in seconds: the one runs to
-# half an hour a level, the other to a minute or two, and neither reads well
-# in the other's unit.
 summarise <- function(frame, unit = "minutes") {
   if (!nrow(frame)) return(data.frame(level = character(), n = integer(), median = numeric(), min = numeric(), max = numeric()))
   do.call(rbind, lapply(split(frame, frame$level), function(one) {
@@ -111,8 +95,7 @@ summarise <- function(frame, unit = "minutes") {
   }))
 }
 
-# Levels are listed in the order they were met on average, since the order is
-# drawn and partly chosen and no one person's order is the order.
+# In the order levels were met on average: no one person's order is the order.
 table <- summarise(done)
 where <- tapply(done$position, done$level, mean)
 table <- table[order(where[table$level]), ]
@@ -123,20 +106,18 @@ reading <- reading[match(table$level, reading$level), ]
 reading$level <- table$level
 reading$n[is.na(reading$n)] <- 0L
 
-# A level finished whose screen was never left: the way on is staged only when
-# it is pressed, so a finished level with no screen in the file is somebody who
-# closed the tab on its results (or is still reading them). Only a run that
-# stopped can do that; a finished run has left every screen.
+# A finished level with no screen in the file: the way on is only staged once
+# pressed, so the tab was closed on its results.
 left <- paste(screens$participant, screens$level)
 stopped_on <- done[!paste(done$participant, done$level) %in% left, ]
 reading$closed <- as.integer(table(factor(stopped_on$level, levels = table$level)))
 ```
 
-`r nrow(wide)` run(s), `r sum(wide$completed)` finished and `r sum(!wide$completed)` stopped partway; `r nrow(done)` level(s) finished between them, out of `r nrow(spans)` begun. Test and synthetic runs are left out unless `preprocess.R` was run with `--include-test`.
+`r nrow(wide)` runs: `r sum(wide$completed)` finished, `r sum(!wide$completed)` stopped partway.
 
 ## How long a level takes
 
-Two times for each level, each on its own scale. **Answering**, in minutes, runs from the first item of the level appearing to its last being answered, over the runs that finished that level; a level begun and left is not counted. **Results**, in seconds, runs from the level's results being uncovered to the way on being pressed, over those who pressed it.
+Answering: first item shown to last answer, finished levels only. Results screen: until the way on was pressed.
 
 ```{r}
 #| label: plot
@@ -146,9 +127,6 @@ Two times for each level, each on its own scale. **Answering**, in minutes, runs
 ANSWERING <- c(line = "#a58bff", dot = "#7c5cff80", median = "#5b3fd6")
 RESULTS <- c(line = "#e8c77a", dot = "#d9a44180", median = "#b07d1c")
 
-# One panel a measure, side by side on a shared row a level, each on an axis
-# of its own: a line from the fastest run to the slowest, a dot a run and the
-# median ringed. Only the left panel names the levels.
 panel <- function(summary, runs, unit, title, colours, named) {
   y <- rev(seq_len(nrow(summary)))
   has <- summary$n > 0
@@ -165,8 +143,7 @@ panel <- function(summary, runs, unit, title, colours, named) {
 }
 
 if (nrow(table)) {
-  # The left panel is wider by the names it carries, so the two plots
-  # themselves come out the same width.
+  # Wider by the names, so the two plots come out the same width.
   op <- par(no.readonly = TRUE)
   layout(matrix(1:2, 1), widths = c(1.45, 1))
   panel(table, done, "minutes", "Answering", ANSWERING, TRUE)
@@ -198,4 +175,112 @@ shown <- data.frame(
 knitr::kable(shown, align = "lrrrrrrr")
 ```
 
-*Closed on results* counts the runs that finished the level and never pressed the way on from its results, which is where a run stopped partway most often ends; they are not in the results times, having no end to measure.
+## Opinions
+
+Mean and 95% CI, each item as a share of its own scale, as answered (reversed items not flipped).
+
+```{r}
+#| label: opinions-read
+
+# The saved words back into numbers — a copy of content/block_opinions.js,
+# which the file does not carry. An unknown label is reported, not dropped.
+AGREE <- c("Disagree strongly" = 1, "Disagree" = 2, "Neither agree nor disagree" = 3, "Agree" = 4, "Agree strongly" = 5)
+DIET <- c("I eat meat most days" = 1, "I eat meat, but try to eat less of it" = 2,
+          "I eat fish, but not meat" = 3, "Vegetarian" = 4, "Vegan" = 5)
+NUMBERED <- list(Opinion_ESS_LeftRight = c(0, 10), Opinion_Parity_Diversity = c(1, 5),
+                 Opinion_Conspiracy_1 = c(0, 100), Opinion_Conspiracy_2 = c(0, 100), Opinion_Conspiracy_3 = c(0, 100))
+
+opinion_keys <- sort(grep("^Opinion_", names(wide), value = TRUE))
+opinion_keys <- opinion_keys[!grepl("_RT$", opinion_keys)]
+unread <- character()
+reach <- function(key, given) {
+  if (key %in% names(NUMBERED)) {
+    range <- NUMBERED[[key]]
+    value <- suppressWarnings(as.numeric(sub("%$", "", given)))
+  } else {
+    range <- c(1, 5)
+    words <- if (key == "Opinion_Animals_Diet") DIET else AGREE
+    given <- as.character(given) # a numbered column reads as integers, which would index by position
+    value <- unname(words[given])
+    stray <- !is.na(given) & is.na(value) & !(key == "Opinion_Animals_Diet" & given == "Something else")
+    if (any(stray)) unread <<- c(unread, paste0(key, ": ", given[stray]))
+  }
+  (value - range[1]) / (range[2] - range[1])
+}
+reaches <- sapply(opinion_keys, function(key) reach(key, wide[[key]]))
+reaches <- matrix(reaches, ncol = length(opinion_keys), dimnames = list(NULL, opinion_keys))
+
+# A scale is the key without its last part.
+scale_of <- function(key) {
+  parts <- strsplit(key, "_", fixed = TRUE)[[1]]
+  if (length(parts) > 2) paste(parts[-length(parts)], collapse = "_") else key
+}
+opinions <- data.frame(
+  key = opinion_keys,
+  scale = vapply(opinion_keys, scale_of, ""),
+  n = colSums(!is.na(reaches)),
+  mean = colMeans(reaches, na.rm = TRUE),
+  sd = apply(reaches, 2, sd, na.rm = TRUE),
+  stringsAsFactors = FALSE
+)
+half <- ifelse(opinions$n > 1, qt(0.975, opinions$n - 1) * opinions$sd / sqrt(opinions$n), NA)
+opinions$low <- pmax(0, opinions$mean - half)
+opinions$high <- pmin(1, opinions$mean + half)
+```
+
+```{r}
+#| label: opinions-radar
+#| fig-width: 8.5
+#| fig-height: 8.5
+
+if (!length(opinion_keys) || all(opinions$n == 0)) {
+  cat("Nobody has answered the opinions level yet.")
+} else {
+  k <- nrow(opinions)
+  angle <- pi / 2 - 2 * pi * (seq_len(k) - 1) / k
+  at <- function(r) cbind(r * cos(angle), r * sin(angle))
+  scales <- unique(opinions$scale)
+  hues <- hcl.colors(length(scales), "Dark 3")
+  hue <- hues[match(opinions$scale, scales)]
+
+  op <- par(mar = c(1, 1, 1, 1), xpd = TRUE)
+  plot(NULL, xlim = c(-1.5, 1.5), ylim = c(-1.4, 1.4), asp = 1, axes = FALSE, xlab = "", ylab = "")
+  for (r in c(0.25, 0.5, 0.75, 1)) {
+    ring <- at(rep(r, k))
+    polygon(ring, border = if (r == 0.5) "grey75" else "grey88", lty = if (r == 0.5) 2 else 1)
+  }
+  segments(0, 0, cos(angle), sin(angle), col = "grey90")
+  text(0.02, c(0.25, 0.5, 0.75, 1) + 0.03, c("", "middle", "", "top"), cex = 0.6, col = "grey55", adj = 0)
+
+  # Where a spoke has no interval the band pinches to the mean.
+  has <- opinions$n > 0
+  high <- ifelse(is.na(opinions$high), opinions$mean, opinions$high)
+  low <- ifelse(is.na(opinions$low), opinions$mean, opinions$low)
+  if (all(has)) {
+    polypath(rbind(at(high), NA, at(low)[k:1, ]), col = "#7c5cff2e", border = NA, rule = "evenodd")
+    polygon(at(high), border = "#7c5cff55", lwd = 0.8)
+    polygon(at(low), border = "#7c5cff55", lwd = 0.8)
+  }
+  polygon(at(ifelse(has, opinions$mean, NA)), border = "#5b3fd6", lwd = 2)
+  points(at(opinions$mean), pch = 21, bg = hue, col = "white", cex = 1.1)
+
+  # Read outwards, never upside down.
+  degrees <- angle * 180 / pi
+  flip <- cos(angle) < 0
+  place <- at(rep(1.06, k))
+  for (i in seq_len(k)) {
+    text(place[i, 1], place[i, 2], sub("^Opinion_", "", opinions$key[i]), cex = 0.62, col = hue[i],
+         srt = if (flip[i]) degrees[i] + 180 else degrees[i], adj = if (flip[i]) 1 else 0)
+  }
+  par(op)
+}
+```
+
+```{r}
+#| label: opinions-said
+#| results: asis
+
+if (length(unread)) {
+  cat("\n\n**Answers not read** (a key or label missing from `NUMBERED`, `AGREE` or `DIET`): ", paste(unique(unread), collapse = "; "), "\n", sep = "")
+}
+```

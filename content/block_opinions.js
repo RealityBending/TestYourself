@@ -69,13 +69,41 @@
 // whole level can be picked out of a saved file by its prefix, the way the
 // three demographics questionnaires are by `Demographics_`. This bends the
 // rule that a key's prefix is the instrument: most of what is asked here is
-// custom, and the level is its instrument. Where an item does come out of a
-// published scale, the source is the second segment — `Opinion_ESS_LeftRight`,
-// `Opinion_CMQ_1`, `Opinion_BSA_LibAuth_2` — so the file still says where it
-// came from; a custom scale's second segment is its dimension
-// (`Opinion_Parity_1`). Renamed before any run was saved under the old keys
-// (`BSA_`, `CMQ_`, `ESS_`, `Frontiers_`, `Outcomes_`, `Nature_`, `Beauty_`), so
-// there is nothing to coalesce.
+// custom, and the level is its instrument. The second segment is the scale
+// the item belongs to — `Opinion_LeftRight_`, `Opinion_LibAuth_`,
+// `Opinion_Conspiracy_`, `Opinion_Parity_` and the rest — and the third says
+// which item it is: a word for what it asks where the items were written or
+// rewritten one by one (`Opinion_LibAuth_Surveillance`), a number where they
+// are a run of like statements (`Opinion_Parity_1`, `Opinion_Conspiracy_1`).
+// The three unscored items sit under the scale they are nearest
+// (`Opinion_Parity_Diversity`, `Opinion_Planet_Nuclear`,
+// `Opinion_Animals_Diet`). **Where an item comes from a published scale is
+// said in the comment beside it, not in its key** — the BSA and CMQ items
+// were adapted until the source's name in the key promised more than the
+// item kept. The one exception is `Opinion_ESS_LeftRight`, which is the
+// ESS's item verbatim and whose key says so.
+//
+// **Renamed twice.** First from bare prefixes (`BSA_`, `CMQ_`, `ESS_`,
+// `Frontiers_`, `Outcomes_`, `Nature_`, `Beauty_`) to `Opinion_`, before any
+// run was saved. Then, on 23 September 2026, after the pilot runs of that day
+// had been saved, from source-named keys to the scheme above:
+//
+//   Opinion_BSA_LeftRight_1          -> Opinion_LeftRight_Redistribution
+//   Opinion_BSA_LeftRight_3          -> Opinion_LeftRight_FairShare
+//   Opinion_BSA_LeftRight_Markets    -> Opinion_LeftRight_Markets
+//   Opinion_BSA_LibAuth_2            -> Opinion_LibAuth_Sentences
+//   Opinion_BSA_LibAuth_5            -> Opinion_LibAuth_Obedience
+//   Opinion_BSA_LibAuth_Surveillance -> Opinion_LibAuth_Surveillance
+//   Opinion_BSA_LibAuth_Tradition    -> Opinion_LibAuth_Tradition
+//   Opinion_CMQ_1                    -> Opinion_Conspiracy_1
+//   Opinion_CMQ_4                    -> Opinion_Conspiracy_2
+//   Opinion_CMQ_5                    -> Opinion_Conspiracy_3
+//   Opinion_Diversity                -> Opinion_Parity_Diversity
+//   Opinion_Nuclear                  -> Opinion_Planet_Nuclear
+//   Opinion_Diet                     -> Opinion_Animals_Diet
+//
+// The pilot files that carried the old keys were deleted from the deposit,
+// so nothing downstream reads them.
 //
 // **Trimmed from 43 items to 35** (September 2026): the level was asked with
 // no scale under three items and one at seven, and the cuts were made for
@@ -162,8 +190,8 @@ defineBlock("opinions", [
     // half of that remedy. Item 2 was also what made the scale a stand-in
     // for distrust of those in charge, which it now is only loosely.
     //
-    // In the English version's wording except the fourth, reworded (key
-    // unchanged): verbatim "I think that events which superficially seem
+    // In the English version's wording except the fourth, reworded:
+    // verbatim "I think that events which superficially seem
     // to lack a connection are often the result of secret activities",
     // which read as stilted and hard to parse. No examples were added to it: any named
     // event would ask about that event's own conspiracy theory rather than
@@ -188,8 +216,11 @@ defineBlock("opinions", [
     // "Certainly false" and "Certainly true", the two poles of the question
     // asked. The paper's own instruction ("how likely it is in your opinion
     // that the statement is true") shows the likelihood reading is the one
-    // meant. Keys unchanged, but none of the three is now the published
-    // item, and none is pooled with CMQ data as though it were.
+    // meant. None of the three is now the published item, and none is
+    // pooled with CMQ data as though it were — which is why their keys no
+    // longer carry the CMQ's name or numbers (they were `Opinion_CMQ_1`,
+    // `_4` and `_5` until 23 September 2026). Which CMQ item each came from
+    // is written beside it.
     //
     // One dimension under a plain name, Suspicion. Read back as one of the
     // spectra.
@@ -215,21 +246,24 @@ defineBlock("opinions", [
 
         items: [
             {
-                key: "Opinion_CMQ_1",
+                key: "Opinion_Conspiracy_1",
                 dimension: "Suspicion",
-                // Source: "I think that many very important things happen in the
+                // CMQ item 1: "I think that many very important things happen in the
                 // world, which the public is never informed about."
                 text: "Many very important things happen in the world which the public is never informed about",
             },
             {
-                key: "Opinion_CMQ_4",
+                key: "Opinion_Conspiracy_2",
                 dimension: "Suspicion",
+                // CMQ item 4, reworded (see above): "I think that events which
+                // superficially seem to lack a connection are often the result
+                // of secret activities."
                 text: "Many events which seem unrelated or accidental are in fact the result of secret activities",
             },
             {
-                key: "Opinion_CMQ_5",
+                key: "Opinion_Conspiracy_3",
                 dimension: "Suspicion",
-                // Source: "I think that there are secret organizations that
+                // CMQ item 5: "I think that there are secret organizations that
                 // greatly influence political decisions."
                 text: "There are secret organizations that greatly influence political decisions",
             },
@@ -304,10 +338,11 @@ defineBlock("opinions", [
             // item a side is reversed.
             //
             // **Adapted, not verbatim** (September 2026): each item quotes its
-            // source and says why it changed. The keys keep the BSA prefix and
-            // the BSA's item number where the item is still recognisably the
-            // BSA's; the ones written for the scale say what they are about in
-            // their key instead.
+            // source and says why it changed. The keys name the scale and what
+            // the item asks (`Opinion_LeftRight_`, `Opinion_LibAuth_`), whether
+            // or not it came from the BSA; which BSA item each came from, if
+            // any, is said in the comment beside it. (They carried `BSA_` and
+            // the BSA's item numbers until 23 September 2026.)
             //
             // **Source wordings verified on 23 September 2026** against the
             // scales as the BSA and the Scottish Social Attitudes survey
@@ -316,7 +351,8 @@ defineBlock("opinions", [
             // should always be obeyed…" is the libertarian-authoritarian
             // scale's item **5**, item 4 being "Schools should teach
             // children to obey authority", and it was keyed `_4`; renamed
-            // `_5` the same day, before any run was saved under it. The
+            // `_5` the same day, before any run was saved under it, and
+            // `Opinion_LibAuth_Obedience` since. The
             // BSA's order, for the record — left-right: redistribute, big
             // business, fair share, one law, management; libertarian-
             // authoritarian: traditional values, stiffer sentences, death
@@ -340,21 +376,21 @@ defineBlock("opinions", [
             // reversed, with an example that would have carried the response.
             // Order has four items and Sharing three, one of each reversed.
 
-            // BSA: "Government should redistribute income from the better off
+            // BSA left-right item 1: "Government should redistribute income from the better off
             // to those who are less well off". As published it can be agreed
             // with as an ideal by somebody who thinks their country already
             // does too much of it; what divides people is whether it should do
             // more than it does now.
             {
-                key: "Opinion_BSA_LeftRight_1",
+                key: "Opinion_LeftRight_Redistribution",
                 dimension: "Sharing",
                 instructions: "In the country I live in…",
                 text: "The government should do more to redistribute income from the better off to those who are less well off",
             },
-            // BSA, "the nation's wealth" made "the country's", the frame having
-            // said which country. The BSA's item 3, kept under its number.
+            // BSA left-right item 3, "the nation's wealth" made "the
+            // country's", the frame having said which country.
             {
-                key: "Opinion_BSA_LeftRight_3",
+                key: "Opinion_LeftRight_FairShare",
                 dimension: "Sharing",
                 instructions: "In the country I live in…",
                 text: "Ordinary working people do not get their fair share of the country's wealth",
@@ -364,14 +400,15 @@ defineBlock("opinions", [
             // slogan more than a position, and the same unfairness the other
             // two already ask about.
             {
-                key: "Opinion_BSA_LeftRight_Markets",
+                key: "Opinion_LeftRight_Markets",
                 dimension: "Sharing",
                 reverse: true,
                 instructions: "In the country I live in…",
                 text: "Businesses should be free to make as much profit as they can, with as little interference from government as possible",
             },
-            // In place of the BSA's "Young people today don't have enough
-            // respect for traditional values", and reversed: agreeing is the
+            // In place of the BSA's libertarian-authoritarian item 1, "Young
+            // people today don't have enough respect for traditional values",
+            // and reversed: agreeing is the
             // freedom end. As published it is close to a claim of fact —
             // somebody may agree that respect has declined and be glad of it.
             // A normative rewrite with examples ("Society is better off when
@@ -387,27 +424,28 @@ defineBlock("opinions", [
             // The item names the country itself, so it takes no "In the
             // country I live in…" over it.
             {
-                key: "Opinion_BSA_LibAuth_Tradition",
+                key: "Opinion_LibAuth_Tradition",
                 dimension: "Order",
                 reverse: true,
                 text: "How people choose to live, marry or raise a family is their own business, even when it goes against my country's tradition and culture",
             },
-            { key: "Opinion_BSA_LibAuth_2", dimension: "Order", instructions: "In the country I live in…", text: "People who break the law should be given stiffer sentences" },
-            // BSA item 5: "…even if a particular law is wrong". Wrong by whose
+            // BSA libertarian-authoritarian item 2, verbatim.
+            { key: "Opinion_LibAuth_Sentences", dimension: "Order", instructions: "In the country I live in…", text: "People who break the law should be given stiffer sentences" },
+            // BSA libertarian-authoritarian item 5: "…even if a particular law is wrong". Wrong by whose
             // lights is the whole question, so it is the person's own.
             {
-                key: "Opinion_BSA_LibAuth_5",
+                key: "Opinion_LibAuth_Obedience",
                 dimension: "Order",
                 instructions: "In the country I live in…",
                 text: "The law should always be obeyed, even if I think a particular law is wrong",
             },
-            // Not the BSA's, in place of "Schools should teach children to obey
-            // authority", which reads as either unobjectionable (children do
+            // Not the BSA's, in place of its libertarian-authoritarian item 4,
+            // "Schools should teach children to obey authority", which reads as either unobjectionable (children do
             // what the teacher says) or sinister (blind obedience) depending on
             // the reader. Order against freedom as it is argued now: security
             // against privacy, a trade-off with no decent end.
             {
-                key: "Opinion_BSA_LibAuth_Surveillance",
+                key: "Opinion_LibAuth_Surveillance",
                 dimension: "Order",
                 instructions: "In the country I live in…",
                 text: "The police should have more power to monitor people's activities to prevent crime, even at the cost of privacy",
@@ -458,7 +496,7 @@ defineBlock("opinions", [
             // obvious one; now each end is stated plainly and the trade-off
             // left to the question.
             {
-                key: "Opinion_Diversity",
+                key: "Opinion_Parity_Diversity",
                 text: "When choosing the members of a body such as a parliament, a company board or a panel of experts, which matters more to you: that they bring a range of different views, or that they come from a range of different backgrounds?",
                 format: {
                     options: [1, 2, 3, 4, 5],
@@ -580,12 +618,12 @@ defineBlock("opinions", [
             //            fact rather than a trade-off, and a fourth, if it is
             //            wanted, should be on the giving-more side.
             //
-            // `Opinion_Nuclear` carries **no dimension**: a place where people
+            // `Opinion_Planet_Nuclear` carries **no dimension**: a place where people
             // who care about the environment disagree with one another (the
             // waste against the emissions). A second such probe, the turbines
             // against a beautiful landscape, went in September 2026: read back
             // to nobody, and a beauty-against-utility trade-off that would
-            // have cross-loaded on Beauty under a Planet key. `Opinion_Diet` is
+            // have cross-loaded on Beauty under a Planet key. `Opinion_Animals_Diet` is
             // a behaviour, asked on its own options, written last and held
             // there (`shuffle: false`) so that it comes after the statements
             // rather than in among them; it stays as the one known-groups
@@ -633,7 +671,7 @@ defineBlock("opinions", [
                 text: "People matter more than animals, and it is right to put our needs first",
             },
             {
-                key: "Opinion_Nuclear",
+                key: "Opinion_Planet_Nuclear",
                 text: "The country I live in should build more nuclear power stations",
             },
 
@@ -673,7 +711,7 @@ defineBlock("opinions", [
 
             // Last, and held there (see Planet and Animals, above).
             {
-                key: "Opinion_Diet",
+                key: "Opinion_Animals_Diet",
                 shuffle: false,
                 text: "Which best describes what you eat?",
                 format: {

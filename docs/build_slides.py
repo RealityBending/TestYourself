@@ -97,11 +97,11 @@ ROWS = [
     (
         "British Social Attitudes left-right and libertarian-authoritarian scales, adapted (BSA; Evans et al., 1996)",
         ["views"],
-        ["Opinion_BSA_"],
+        ["Opinion_LeftRight_", "Opinion_LibAuth_"],
     ),
-    ("Equality of outcomes between groups", ["views"], ["Opinion_Parity_", "Opinion_Diversity"]),
+    ("Equality of outcomes between groups", ["views"], ["Opinion_Parity_"]),
     ("Human enhancement and heredity beliefs", ["views"], ["Opinion_Enhancement_", "Opinion_Heredity_"]),
-    ("Climate, animals and the environment", ["views"], ["Opinion_Planet_", "Opinion_Animals_", "Opinion_Nuclear", "Opinion_Diet"]),
+    ("Climate, animals and the environment", ["views"], ["Opinion_Planet_", "Opinion_Animals_"]),
     ("Beauty against purpose", ["views"], ["Opinion_Beauty_"]),
     ("Closing items", ["closing"], None),
 ]
