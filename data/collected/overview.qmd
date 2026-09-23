@@ -1,0 +1,201 @@
+---
+title: "The Abyss Test: collection overview"
+date: today
+format:
+  html:
+    embed-resources: true
+    toc: false
+execute:
+  echo: false
+  warning: false
+---
+
+<!--
+How long each level takes, read off what preprocess.R wrote. Run that first,
+with --long, since the times an item was shown are in the long table alone:
+
+    Rscript data/collected/preprocess.R --long
+    quarto render data/collected/overview.qmd
+
+Base R and nothing else, like preprocess.R. The page it renders is aggregates
+only, but out of a handful of people an aggregate is close to a person, so it
+is git-ignored beside clean/ and not to be committed.
+-->
+
+```{r}
+#| label: read
+
+clean <- "clean"
+long_file <- file.path(clean, "responses.csv")
+wide_file <- file.path(clean, "data.csv")
+if (!file.exists(long_file)) {
+  stop("No clean/responses.csv: run `Rscript data/collected/preprocess.R --long` first.")
+}
+
+long <- read.csv(long_file, stringsAsFactors = FALSE, na.strings = "NA")
+wide <- read.csv(wide_file, stringsAsFactors = FALSE, na.strings = "NA")
+SEP <- " | "
+when <- function(x) as.POSIXct(x, format = "%Y-%m-%dT%H:%M:%OS", tz = "UTC")
+```
+
+```{r}
+#| label: levels
+
+# Which level an item was on is not a column of either table, and does not
+# have to be: every level screen (`Level_<N>`) stands in the file after the
+# last item of the level it showed, so the items between two screens are one
+# level, and the Nth run of them is the Nth level in `levels_walked`. The
+# items after the last screen are the level being answered when the file was
+# written (or, in a finished run, the closing level, which has no screen).
+levels_of <- function(one) {
+  row <- wide[wide$participant == one, ]
+  walked <- strsplit(row$levels_walked, SEP, fixed = TRUE)[[1]]
+  items <- long[long$participant == one, ]
+  items <- items[order(items$order), ]
+  screen <- grepl("^Level_[0-9]+$", items$key)
+  at <- 1 + cumsum(screen) - screen
+  data.frame(
+    participant = one,
+    key = items$key,
+    screen = screen,
+    level = walked[at],
+    position = at,
+    onset = when(items$time_onset),
+    response = when(items$time_response),
+    stringsAsFactors = FALSE
+  )
+}
+items <- do.call(rbind, lapply(unique(wide$participant), levels_of))
+
+# A level counts once it was finished: every item of it answered, which is
+# what `QC_<key>_TimeFinished` says. A level left partway would put the time
+# somebody gave up into the figure for how long the level takes.
+finished <- function(one, key) {
+  column <- paste0("QC_", key, "_TimeFinished")
+  column %in% names(wide) && !is.na(wide[wide$participant == one, column])
+}
+
+# From the first item of the level being put on screen to the last being
+# answered, briefings included and the results screen after it not: wall time,
+# so a pause in the middle is in it. An item shown again has its onset
+# re-stamped later, which the earliest onset of the level mostly survives.
+spans <- do.call(rbind, lapply(split(items[!items$screen, ], list(items$participant[!items$screen], items$level[!items$screen]), drop = TRUE), function(one) {
+  data.frame(
+    participant = one$participant[1],
+    level = one$level[1],
+    position = one$position[1],
+    minutes = as.numeric(difftime(max(one$response, na.rm = TRUE), min(one$onset, na.rm = TRUE), units = "mins")),
+    finished = finished(one$participant[1], one$level[1]),
+    stringsAsFactors = FALSE
+  )
+}))
+done <- spans[spans$finished, ]
+
+# The results screen of a level, from its being uncovered to the way on being
+# pressed: the one place the file measures how long results were read.
+screens <- items[items$screen & !is.na(items$onset) & !is.na(items$response), ]
+screens$minutes <- as.numeric(difftime(screens$response, screens$onset, units = "mins"))
+```
+
+```{r}
+#| label: summary
+
+# Answering is in minutes and the results screen in seconds: the one runs to
+# half an hour a level, the other to a minute or two, and neither reads well
+# in the other's unit.
+summarise <- function(frame, unit = "minutes") {
+  if (!nrow(frame)) return(data.frame(level = character(), n = integer(), median = numeric(), min = numeric(), max = numeric()))
+  do.call(rbind, lapply(split(frame, frame$level), function(one) {
+    time <- one[[unit]]
+    data.frame(level = one$level[1], n = nrow(one), median = median(time), min = min(time), max = max(time))
+  }))
+}
+
+# Levels are listed in the order they were met on average, since the order is
+# drawn and partly chosen and no one person's order is the order.
+table <- summarise(done)
+where <- tapply(done$position, done$level, mean)
+table <- table[order(where[table$level]), ]
+rownames(table) <- NULL
+screens$seconds <- screens$minutes * 60
+reading <- summarise(screens, "seconds")
+reading <- reading[match(table$level, reading$level), ]
+reading$level <- table$level
+reading$n[is.na(reading$n)] <- 0L
+
+# A level finished whose screen was never left: the way on is staged only when
+# it is pressed, so a finished level with no screen in the file is somebody who
+# closed the tab on its results (or is still reading them). Only a run that
+# stopped can do that; a finished run has left every screen.
+left <- paste(screens$participant, screens$level)
+stopped_on <- done[!paste(done$participant, done$level) %in% left, ]
+reading$closed <- as.integer(table(factor(stopped_on$level, levels = table$level)))
+```
+
+`r nrow(wide)` run(s), `r sum(wide$completed)` finished and `r sum(!wide$completed)` stopped partway; `r nrow(done)` level(s) finished between them, out of `r nrow(spans)` begun. Test and synthetic runs are left out unless `preprocess.R` was run with `--include-test`.
+
+## How long a level takes
+
+Two times for each level, each on its own scale. **Answering**, in minutes, runs from the first item of the level appearing to its last being answered, over the runs that finished that level; a level begun and left is not counted. **Results**, in seconds, runs from the level's results being uncovered to the way on being pressed, over those who pressed it.
+
+```{r}
+#| label: plot
+#| fig-width: 8
+#| fig-height: !expr max(2.4, 0.55 * nrow(table) + 1.4)
+
+ANSWERING <- c(line = "#a58bff", dot = "#7c5cff80", median = "#5b3fd6")
+RESULTS <- c(line = "#e8c77a", dot = "#d9a44180", median = "#b07d1c")
+
+# One panel a measure, side by side on a shared row a level, each on an axis
+# of its own: a line from the fastest run to the slowest, a dot a run and the
+# median ringed. Only the left panel names the levels.
+panel <- function(summary, runs, unit, title, colours, named) {
+  y <- rev(seq_len(nrow(summary)))
+  has <- summary$n > 0
+  top <- if (any(has)) max(summary$max[has]) else 1
+  par(mar = c(4, if (named) 9 else 1.5, 2, 1.5))
+  plot(NULL, xlim = c(0, top * 1.1), ylim = c(0.5, nrow(summary) + 0.5),
+       yaxt = "n", xlab = tools::toTitleCase(unit), ylab = "", bty = "n")
+  title(main = title, font.main = 1, cex.main = 1, adj = 0)
+  if (named) axis(2, at = y, labels = summary$level, las = 1, tick = FALSE)
+  abline(h = y, col = "grey93")
+  segments(summary$min[has], y[has], summary$max[has], y[has], lwd = 3, col = colours["line"])
+  points(runs[[unit]], y[match(runs$level, summary$level)], pch = 16, cex = 0.7, col = colours["dot"])
+  points(summary$median[has], y[has], pch = 21, bg = colours["median"], col = "white", cex = 1.6)
+}
+
+if (nrow(table)) {
+  # The left panel is wider by the names it carries, so the two plots
+  # themselves come out the same width.
+  op <- par(no.readonly = TRUE)
+  layout(matrix(1:2, 1), widths = c(1.45, 1))
+  panel(table, done, "minutes", "Answering", ANSWERING, TRUE)
+  panel(reading, screens[screens$level %in% table$level, ], "seconds", "Results screen", RESULTS, FALSE)
+  par(op)
+} else {
+  cat("No level has been finished yet.")
+}
+```
+
+```{r}
+#| label: table
+
+span <- function(summary, digits = 1) {
+  ifelse(summary$n > 0, sprintf("%.*f to %.*f", digits, summary$min, digits, summary$max), "")
+}
+middle <- function(summary, digits = 1) ifelse(summary$n > 0, sprintf("%.*f", digits, summary$median), "")
+shown <- data.frame(
+  Level = table$level,
+  `Answering: n` = table$n,
+  `median (min)` = middle(table),
+  `range (min)` = span(table),
+  `Results: n` = reading$n,
+  `median (s)` = middle(reading, 0),
+  `range (s)` = span(reading, 0),
+  `Closed on results` = reading$closed,
+  check.names = FALSE
+)
+knitr::kable(shown, align = "lrrrrrrr")
+```
+
+*Closed on results* counts the runs that finished the level and never pressed the way on from its results, which is where a run stopped partway most often ends; they are not in the results times, having no end to measure.

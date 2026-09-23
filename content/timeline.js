@@ -129,7 +129,7 @@
 
    ...or, for `type: "slider"`, a point on a line between two ends:
 
-     format: { min: 0, max: 100, step: 1, unit: "%", anchors: ["Certainly not", "Certain"], color: "#6aa7f0" }
+     format: { min: 0, max: 100, step: 1, unit: "%", anchors: ["Certainly false", "Certainly true"], color: "#6aa7f0" }
 
    Nothing is answered until the line is touched, and Continue takes it. What
    is saved is the number; `unit` is only written after it on screen.

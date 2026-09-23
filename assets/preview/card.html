@@ -1,0 +1,216 @@
+<!doctype html>
+<!-- The picture a link to the test is shown with on social media, a chat or
+     anywhere else that unfurls one (og:image in the root index.html). It is
+     the landing page's hero redrawn at 1200×630, the size those previews are
+     cut to, and it is not part of the page: nothing loads it. card.jpg beside
+     it is this, photographed by make.py — change this file, run that, and
+     commit both. The look is the app's restated rather than imported, the way
+     docs/ does it, so the app's stylesheet can move without moving this. -->
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>The Abyss Test: preview card</title>
+        <style>
+            :root {
+                --bg: #05070d;
+                --muted: #d2d8e7;
+                --accent: #7c5cff;
+                --accent-2: #22d3ee;
+                --gold: #d9a441;
+                --serif: ui-serif, "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+            }
+
+            html,
+            body {
+                margin: 0;
+                width: 1200px;
+                height: 630px;
+                overflow: hidden;
+                background: var(--bg);
+            }
+
+            /* The water the landing page opens on: body[data-screen="intro"]::before. */
+            .card {
+                position: relative;
+                width: 1200px;
+                height: 630px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                text-align: center;
+                font-family: ui-sans-serif, system-ui, sans-serif;
+                color: var(--muted);
+                background-image: radial-gradient(120% 70% at 50% -10%, rgba(124, 92, 255, 0.24), transparent 60%),
+                    radial-gradient(90% 55% at 12% 8%, rgba(34, 211, 238, 0.13), transparent 62%),
+                    radial-gradient(140% 100% at 50% 120%, rgba(3, 4, 8, 0.9), transparent 55%),
+                    linear-gradient(180deg, #090d18 0%, var(--bg) 45%, #020308 100%);
+            }
+
+            /* The iris behind the name, held at the wide end of its dilation. */
+            .iris {
+                position: absolute;
+                top: 48%;
+                left: 50%;
+                width: 760px;
+                aspect-ratio: 1;
+                transform: translate(-50%, -50%);
+                border-radius: 50%;
+                background: radial-gradient(circle, rgba(124, 92, 255, 0.2) 0%, rgba(124, 92, 255, 0.07) 38%, transparent 66%);
+            }
+
+            /* The wheel inside the iris, as on the page (.hero__web), open and still. */
+            .web {
+                position: absolute;
+                inset: 22%;
+                overflow: visible;
+                -webkit-mask-image: radial-gradient(circle, #000 52%, transparent 72%);
+                mask-image: radial-gradient(circle, #000 52%, transparent 72%);
+            }
+
+            .web * {
+                vector-effect: non-scaling-stroke;
+            }
+
+            .web__ring {
+                fill: none;
+                stroke: rgba(176, 160, 255, 0.07);
+            }
+
+            .web__petal {
+                fill: var(--petal);
+                fill-opacity: 0.14;
+                stroke: var(--petal);
+                stroke-opacity: 0.34;
+                stroke-linejoin: round;
+            }
+
+            .logos {
+                position: absolute;
+                top: 34px;
+                left: 44px;
+                display: flex;
+                align-items: center;
+                gap: 22px;
+            }
+
+            .logos img {
+                height: 58px;
+                width: auto;
+            }
+
+            .the {
+                position: relative;
+                font-size: 22px;
+                font-weight: 600;
+                letter-spacing: 0.62em;
+                text-indent: 0.62em;
+                text-transform: uppercase;
+                margin: 44px 0 10px;
+            }
+
+            .title {
+                position: relative;
+                font-family: var(--serif);
+                font-size: 212px;
+                line-height: 0.9;
+                letter-spacing: 0.06em;
+                text-indent: 0.06em;
+                text-transform: uppercase;
+                background: linear-gradient(178deg, #ffffff 4%, #c3cdeb 34%, rgba(120, 133, 175, 0.76) 66%, rgba(88, 98, 140, 0.36) 96%);
+                -webkit-background-clip: text;
+                background-clip: text;
+                color: transparent;
+            }
+
+            .sub {
+                position: relative;
+                margin: 26px 0 0;
+                font-family: var(--serif);
+                font-size: 32px;
+                font-style: italic;
+                color: #c8cfe4;
+            }
+
+            .meta {
+                position: relative;
+                margin: 22px 0 0;
+                font-size: 17px;
+                letter-spacing: 0.16em;
+                text-transform: uppercase;
+            }
+
+            .meta i {
+                font-style: normal;
+                opacity: 0.45;
+                margin: 0 6px;
+            }
+
+            /* The favicon's three waves, going down in the descent's colours. */
+            .waves {
+                position: absolute;
+                right: 46px;
+                top: 30px;
+                width: 66px;
+                height: 66px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="card">
+            <div class="iris">
+                <svg class="web" viewBox="-102 -102 204 204">
+                    <defs>
+                        <radialGradient id="hole" gradientUnits="userSpaceOnUse" cx="0" cy="0" r="100">
+                        <stop offset="0" stop-color="#020308" stop-opacity="0.660" />
+                        <stop offset="0.125" stop-color="#020308" stop-opacity="0.632" />
+                        <stop offset="0.25" stop-color="#020308" stop-opacity="0.557" />
+                        <stop offset="0.375" stop-color="#020308" stop-opacity="0.451" />
+                        <stop offset="0.5" stop-color="#020308" stop-opacity="0.330" />
+                        <stop offset="0.625" stop-color="#020308" stop-opacity="0.209" />
+                        <stop offset="0.75" stop-color="#020308" stop-opacity="0.103" />
+                        <stop offset="0.875" stop-color="#020308" stop-opacity="0.028" />
+                        <stop offset="1" stop-color="#020308" stop-opacity="0.000" />
+                        </radialGradient>
+                    </defs>
+                    <circle class="web__ring" r="33.3" />
+                    <circle class="web__ring" r="66.7" />
+                    <circle class="web__ring" r="100.0" />
+                    <path class="web__petal" style="--petal: #5b3fd6" d="M0 0L-14.4 -64.4A66.0 66.0 0 0 1 14.4 -64.4Z" />
+                    <path class="web__petal" style="--petal: #a58bff" d="M0 0L26.3 -84.0A88.0 88.0 0 0 1 59.6 -64.8Z" />
+                    <path class="web__petal" style="--petal: #6d4be0" d="M0 0L38.3 -35.2A52.0 52.0 0 0 1 49.6 -15.6Z" />
+                    <path class="web__petal" style="--petal: #c3a8ff" d="M0 0L72.2 -16.1A74.0 74.0 0 0 1 72.2 16.1Z" />
+                    <path class="web__petal" style="--petal: #7c5cff" d="M0 0L91.6 28.7A96.0 96.0 0 0 1 70.7 65.0Z" />
+                    <path class="web__petal" style="--petal: #9d7bf0" d="M0 0L40.6 44.2A60.0 60.0 0 0 1 17.9 57.3Z" />
+                    <path class="web__petal" style="--petal: #6a3fc2" d="M0 0L17.9 80.0A82.0 82.0 0 0 1 -17.9 80.0Z" />
+                    <path class="web__petal" style="--petal: #b89cff" d="M0 0L-14.4 45.8A48.0 48.0 0 0 1 -32.5 35.3Z" />
+                    <path class="web__petal" style="--petal: #8455e8" d="M0 0L-51.5 47.4A70.0 70.0 0 0 1 -66.8 20.9Z" />
+                    <path class="web__petal" style="--petal: #a07ae8" d="M0 0L-87.8 19.6A90.0 90.0 0 0 1 -87.8 -19.6Z" />
+                    <path class="web__petal" style="--petal: #7448d1" d="M0 0L-53.4 -16.7A56.0 56.0 0 0 1 -41.2 -37.9Z" />
+                    <path class="web__petal" style="--petal: #8a6cff" d="M0 0L-52.8 -57.4A78.0 78.0 0 0 1 -23.3 -74.4Z" />
+                    <!-- The middle is a hole: dark at the centre, gone by the petals' tips. -->
+                    <circle class="web__hole" r="100" fill="url(#hole)" />
+                </svg>
+            </div>
+
+            <div class="logos">
+                <img src="../logo_sussex.svg" alt="" />
+                <img src="../logo_researchplus.png" alt="" />
+                <img src="../logo_rebel.png" alt="" />
+            </div>
+
+            <svg class="waves" viewBox="0 0 32 32" aria-hidden="true">
+                <g fill="none" stroke-linecap="round" stroke-width="2.6">
+                    <path d="M3 11c2.6-3.4 5.2-3.4 7.8 0s5.2 3.4 7.8 0 5.2-3.4 7.8 0" stroke="#22d3ee" />
+                    <path d="M3 18c2.6-3.4 5.2-3.4 7.8 0s5.2 3.4 7.8 0 5.2-3.4 7.8 0" stroke="#7c5cff" />
+                    <path d="M3 25c2.6-3.4 5.2-3.4 7.8 0s5.2 3.4 7.8 0 5.2-3.4 7.8 0" stroke="#d9a441" opacity=".75" />
+                </g>
+            </svg>
+
+            <div class="the">The</div>
+            <div class="title">Abyss</div>
+            <p class="sub">The Science-based Assessment of Deep Personality</p>
+            <p class="meta">Research-grade measures <i>·</i> immediate results <i>·</i> entirely anonymous</p>
+        </div>
+    </body>
+</html>

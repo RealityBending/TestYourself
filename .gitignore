@@ -63,3 +63,6 @@ __pycache__/
 # machine and in the deposit, never here.
 data/collected/raw/
 data/collected/clean/
+# ...and the overview rendered out of them: aggregates, but of a handful of people.
+data/collected/overview.html
+data/collected/overview_files/

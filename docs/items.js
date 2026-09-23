@@ -373,9 +373,9 @@ const ITEMS = {
         "In politics people sometimes talk of \"left\" and \"right\". Where would you place yourself on this scale, where 0 means the left and 10 means the right?"
     ],
     "r33": [
-        "I think that many very important things happen in the world, which the public is never informed about",
-        "I think that many events which seem unrelated or accidental are in fact the result of secret activities",
-        "I think that there are secret organizations that greatly influence political decisions"
+        "Many very important things happen in the world which the public is never informed about",
+        "Many events which seem unrelated or accidental are in fact the result of secret activities",
+        "There are secret organizations that greatly influence political decisions"
     ],
     "r34": [
         "The government should do more to redistribute income from the better off to those who are less well off",

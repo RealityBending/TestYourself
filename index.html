@@ -5,6 +5,25 @@
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>The Abyss Test</title>
         <meta name="description" content="The Abyss Test: a science-based assessment of personality, with your results as you go." />
+        <!-- What a link to the test unfurls into on social media and in chats.
+             Read by crawlers that run no script, so it is the same for every
+             link whatever its query says. The image wants an absolute address,
+             and is made from assets/preview/card.html by make.py beside it.
+             There is no og:url on purpose: Facebook treats it as the address
+             being shared, which would take ?source= and ?start= off the link. -->
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="The Abyss Test" />
+        <meta property="og:title" content="The Abyss Test" />
+        <meta
+            property="og:description"
+            content="The science-based assessment of deep personality: research-grade measures, immediate results, entirely anonymous."
+        />
+        <meta property="og:image" content="https://realitybendinglab.com/TestYourself/assets/preview/card.jpg" />
+        <meta property="og:image:type" content="image/jpeg" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="The Abyss: the science-based assessment of deep personality" />
+        <meta name="twitter:card" content="summary_large_image" />
         <!-- Three waves going down, in the three colours the descent is lit by.
              Written into the page rather than fetched: there is nothing to build
              here, and a file for sixteen pixels is a file too many. -->
@@ -78,7 +97,44 @@
                  the end before the test will open -->
             <section class="screen screen--active" id="screen-intro">
                 <div class="hero" id="hero">
-                    <div class="hero__iris" aria-hidden="true"></div>
+                    <!-- Inside the iris, a wheel: what the descent is for, charted
+                         faintly behind the name, its petals dealt out clockwise as it surfaces.
+                         It is the archetypes' wheel in twelve shades of violet, and
+                         it is nobody's result — the lengths are made up. -->
+                    <div class="hero__iris" aria-hidden="true">
+                        <svg class="hero__web" viewBox="-102 -102 204 204">
+                            <defs>
+                                <radialGradient id="hero-hole" gradientUnits="userSpaceOnUse" cx="0" cy="0" r="100">
+                                <stop offset="0" stop-color="#020308" stop-opacity="0.660" />
+                                <stop offset="0.125" stop-color="#020308" stop-opacity="0.632" />
+                                <stop offset="0.25" stop-color="#020308" stop-opacity="0.557" />
+                                <stop offset="0.375" stop-color="#020308" stop-opacity="0.451" />
+                                <stop offset="0.5" stop-color="#020308" stop-opacity="0.330" />
+                                <stop offset="0.625" stop-color="#020308" stop-opacity="0.209" />
+                                <stop offset="0.75" stop-color="#020308" stop-opacity="0.103" />
+                                <stop offset="0.875" stop-color="#020308" stop-opacity="0.028" />
+                                <stop offset="1" stop-color="#020308" stop-opacity="0.000" />
+                                </radialGradient>
+                            </defs>
+                            <circle class="web__ring" r="33.3" />
+                            <circle class="web__ring" r="66.7" />
+                            <circle class="web__ring" r="100.0" />
+                            <path class="web__petal" style="--petal: #5b3fd6; --i: 0" d="M0 0L-14.4 -64.4A66.0 66.0 0 0 1 14.4 -64.4Z" />
+                            <path class="web__petal" style="--petal: #a58bff; --i: 1" d="M0 0L26.3 -84.0A88.0 88.0 0 0 1 59.6 -64.8Z" />
+                            <path class="web__petal" style="--petal: #6d4be0; --i: 2" d="M0 0L38.3 -35.2A52.0 52.0 0 0 1 49.6 -15.6Z" />
+                            <path class="web__petal" style="--petal: #c3a8ff; --i: 3" d="M0 0L72.2 -16.1A74.0 74.0 0 0 1 72.2 16.1Z" />
+                            <path class="web__petal" style="--petal: #7c5cff; --i: 4" d="M0 0L91.6 28.7A96.0 96.0 0 0 1 70.7 65.0Z" />
+                            <path class="web__petal" style="--petal: #9d7bf0; --i: 5" d="M0 0L40.6 44.2A60.0 60.0 0 0 1 17.9 57.3Z" />
+                            <path class="web__petal" style="--petal: #6a3fc2; --i: 6" d="M0 0L17.9 80.0A82.0 82.0 0 0 1 -17.9 80.0Z" />
+                            <path class="web__petal" style="--petal: #b89cff; --i: 7" d="M0 0L-14.4 45.8A48.0 48.0 0 0 1 -32.5 35.3Z" />
+                            <path class="web__petal" style="--petal: #8455e8; --i: 8" d="M0 0L-51.5 47.4A70.0 70.0 0 0 1 -66.8 20.9Z" />
+                            <path class="web__petal" style="--petal: #a07ae8; --i: 9" d="M0 0L-87.8 19.6A90.0 90.0 0 0 1 -87.8 -19.6Z" />
+                            <path class="web__petal" style="--petal: #7448d1; --i: 10" d="M0 0L-53.4 -16.7A56.0 56.0 0 0 1 -41.2 -37.9Z" />
+                            <path class="web__petal" style="--petal: #8a6cff; --i: 11" d="M0 0L-52.8 -57.4A78.0 78.0 0 0 1 -23.3 -74.4Z" />
+                            <!-- The middle is a hole: dark at the centre, gone by the petals' tips. -->
+                            <circle class="web__hole" r="100" fill="url(#hero-hole)" />
+                        </svg>
+                    </div>
 
                     <!-- Who stands behind the study, so the case for taking it is
                          not just the page's own word for it. -->

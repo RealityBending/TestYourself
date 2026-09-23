@@ -30,6 +30,7 @@ function makeResults(engine) {
     const levelProgress = engine.levelProgress
     const answer = engine.answer
     const visit = engine.visit
+    const noted = engine.noted
     const showScreen = engine.showScreen
     const burst = engine.burst
     const still = engine.still
@@ -197,6 +198,7 @@ function makeResults(engine) {
             button.addEventListener("click", () => {
                 feedback[key] = feedback[key] === choice.value ? null : choice.value
                 show()
+                noted()
             })
             votes.appendChild(button)
         }
@@ -283,6 +285,7 @@ function makeResults(engine) {
                 const given = ratings[key] === at ? null : at
                 ratings[key] = given
                 paint()
+                noted()
                 if (given) light(given, button)
             })
             button.addEventListener("mouseenter", () => paint(at))

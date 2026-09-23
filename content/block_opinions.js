@@ -163,20 +163,33 @@ defineBlock("opinions", [
     // for distrust of those in charge, which it now is only loosely.
     //
     // In the English version's wording except the fourth, reworded (key
-    // unchanged): verbatim "events which superficially seem to lack a
-    // connection are often the result of secret activities", which read as
-    // stilted and hard to parse. No examples were added to it: any named
+    // unchanged): verbatim "I think that events which superficially seem
+    // to lack a connection are often the result of secret activities",
+    // which read as stilted and hard to parse. No examples were added to it: any named
     // event would ask about that event's own conspiracy theory rather than
     // the general disposition the scale is for.
     //
     // **Verified against the English items in Bruder et al. (2013, Table 1)
-    // on 23 September 2026**: items 1 and 5 are verbatim, stem included; item
-    // 4 is the reworded one, as said above; the endpoints are the paper's
-    // ("certainly not", "certain"), and the item-total correlations quoted
-    // above are its. The paper's instruction is "please use the respective
+    // on 23 September 2026**: items 1 and 5 were verbatim, stem included,
+    // until adapted below; item 4 is the reworded one, as said above; the
+    // endpoints were the paper's ("certainly not", "certain"), and the
+    // item-total correlations quoted above are its. The paper's instruction is "please use the respective
     // rating scale to indicate how likely it is in your opinion that the
     // statement is true"; the one-line stem over the slider says the same
     // thing shorter.
+    //
+    // **Adapted since** (23 September 2026, after a participant's report):
+    // the stem and the ends did not agree. "How likely is it that this is
+    // true?" asks for a probability, while "I think that…" at the head of
+    // each item asked whether the person agrees, and "certainly not" against
+    // "certain" are not two ends of one thing. So the "I think that" is
+    // gone from all three — what is judged is the claim, and the stem
+    // already says it is the person's judgement — and the ends are
+    // "Certainly false" and "Certainly true", the two poles of the question
+    // asked. The paper's own instruction ("how likely it is in your opinion
+    // that the statement is true") shows the likelihood reading is the one
+    // meant. Keys unchanged, but none of the three is now the published
+    // item, and none is pooled with CMQ data as though it were.
     //
     // One dimension under a plain name, Suspicion. Read back as one of the
     // spectra.
@@ -190,7 +203,7 @@ defineBlock("opinions", [
             min: 0,
             max: 100,
             unit: "%",
-            anchors: ["Certainly not", "Certain"],
+            anchors: ["Certainly false", "Certainly true"],
             color: "#6aa7f0",
         },
 
@@ -204,17 +217,21 @@ defineBlock("opinions", [
             {
                 key: "Opinion_CMQ_1",
                 dimension: "Suspicion",
-                text: "I think that many very important things happen in the world, which the public is never informed about",
+                // Source: "I think that many very important things happen in the
+                // world, which the public is never informed about."
+                text: "Many very important things happen in the world which the public is never informed about",
             },
             {
                 key: "Opinion_CMQ_4",
                 dimension: "Suspicion",
-                text: "I think that many events which seem unrelated or accidental are in fact the result of secret activities",
+                text: "Many events which seem unrelated or accidental are in fact the result of secret activities",
             },
             {
                 key: "Opinion_CMQ_5",
                 dimension: "Suspicion",
-                text: "I think that there are secret organizations that greatly influence political decisions",
+                // Source: "I think that there are secret organizations that
+                // greatly influence political decisions."
+                text: "There are secret organizations that greatly influence political decisions",
             },
         ],
     },

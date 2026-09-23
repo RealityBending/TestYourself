@@ -586,16 +586,20 @@
     }
 
     // Both times are in milliseconds, over the items of the level that were both
-    // shown and answered.
+    // shown and answered. The checks failed are counted over the checks that
+    // were answered, and are null where none was — a level not reached, left
+    // before its check came up, or carrying none — since a 0 there would read
+    // as a check passed that nobody was ever set.
     function qualityControl(level) {
         const asked = askedIn(level)
         const times = asked.map(took).filter((spent) => spent !== null)
         const spread = deviation(times)
+        const checks = asked.filter((question) => question.check !== undefined && responses[question.key] !== undefined)
 
         return {
             responseTimeMean: times.length ? Math.round(mean(times)) : null,
             responseTimeSD: spread === null ? null : Math.round(spread),
-            attentionChecksFailed: asked.filter((question) => question.check !== undefined).filter(failedCheck).length,
+            attentionChecksFailed: checks.length ? checks.filter(failedCheck).length : null,
         }
     }
 
@@ -2547,6 +2551,29 @@
         stage("frame", body)
     }
 
+    // A vote or a star given on a results screen goes out on its own, rather
+    // than waiting for the level to be left: a results screen is where people
+    // put the test down, and a tab closed there took everything voted on it
+    // with it (three pilot runs of 23 September 2026 all stopped on one). It
+    // waits for the pressing to settle, since stars are tried out and votes
+    // taken back, and the frame deduplication above only catches a frame that
+    // is the same as the last. What is still waiting when the tab is hidden is
+    // staged then (see the wiring).
+    const NOTED_DELAY = 1200
+    let noting = null
+
+    function noted() {
+        clearTimeout(noting)
+        noting = setTimeout(stageNoted, NOTED_DELAY)
+    }
+
+    function stageNoted() {
+        if (noting === null) return
+        clearTimeout(noting)
+        noting = null
+        stageFrame()
+    }
+
     // An item is staged as the file's own entry for it, found in the file rather
     // than made again here, for the same reason. One answered a second time —
     // gone back to, or a branch closing behind it and taking its answer with it
@@ -2698,12 +2725,20 @@
         visit: (shown) => {
             visitor = shown
         },
+        // A vote or a star has been given or taken back: stage it (`noted`).
+        noted: noted,
         showScreen: showScreen,
         burst: burst,
         still: still,
     })
 
     /* ------------------------------- wiring ------------------------------ */
+
+    // A tab hidden is the last moment a page can be sure of being able to do
+    // anything, so a vote still waiting to be staged goes now.
+    document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "hidden") stageNoted()
+    })
 
     document.addEventListener("keydown", (e) => {
         if (e.metaKey || e.ctrlKey || e.altKey) return

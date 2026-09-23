@@ -567,8 +567,15 @@ def write_file(book, persona, given, bio, provenance):
     # Keyed by the level's key, the way `container()` keys it: a number is a
     # place in one person's run, a key is the same level for everybody, and the
     # name beside it is prose that may be reworded without moving a column.
+    # Every check is passed, so a level carrying one failed none, and a level
+    # carrying none has null there, the way `qualityControl` writes it.
+    checked = {item["level"] for item in book["items"] if item["check"] is not None}
     file["qualityControl"] = {
-        level["key"]: {"responseTimeMean": None, "responseTimeSD": None, "attentionChecksFailed": 0}
+        level["key"]: {
+            "responseTimeMean": None,
+            "responseTimeSD": None,
+            "attentionChecksFailed": 0 if level["level"] in checked else None,
+        }
         for level in book["levels"]
     }
     file["items"] = [

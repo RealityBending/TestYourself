@@ -34,7 +34,8 @@ body[data-screen="intro"] #app {
     transform: translate(-50%, -50%);
     border-radius: 50%;
     pointer-events: none;
-    background: radial-gradient(circle, rgba(124, 92, 255, 0.17) 0%, rgba(34, 211, 238, 0.07) 38%, transparent 66%);
+    /* Violet all the way out: a cyan stop here drew a teal ring round the wheel. */
+    background: radial-gradient(circle, rgba(124, 92, 255, 0.17) 0%, rgba(124, 92, 255, 0.06) 38%, transparent 66%);
     animation: iris 11s ease-in-out infinite alternate;
 }
 
@@ -46,6 +47,59 @@ body[data-screen="intro"] #app {
     to {
         transform: translate(-50%, -50%) scale(1.08);
         opacity: 1;
+    }
+}
+
+/* The wheel inside the iris, after the archetypes' (.wheel__petal): twelve
+   petals in shades of violet, all but gone into the dark, over three rings that
+   are barely there, and falling into a hole at the middle (.web__hole), lit
+   at the tips and dark at the centre. It breathes with the iris, being inside
+   it. The mask fades it towards the rim. */
+.hero__web {
+    position: absolute;
+    inset: 22%;
+    overflow: visible;
+    -webkit-mask-image: radial-gradient(circle, #000 52%, transparent 72%);
+    mask-image: radial-gradient(circle, #000 52%, transparent 72%);
+}
+
+.web__ring {
+    fill: none;
+    stroke: rgba(176, 160, 255, 0.07);
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+}
+
+.web__petal {
+    fill: var(--petal);
+    fill-opacity: 0.14;
+    stroke: var(--petal);
+    stroke-opacity: 0.34;
+    stroke-width: 1;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+}
+
+/* Charted as the name surfaces: the rings and the hole come up, and the petals
+   are dealt out one after another, clockwise from twelve o'clock, like cards —
+   each turning in from behind the last as it grows out of the middle. The
+   order is the markup's (--i on each petal). The origin is the centre of the
+   wheel, the viewBox being centred on it. */
+.hero__web .web__ring,
+.hero__web .web__hole {
+    animation: fade 2.4s 0.3s both;
+}
+
+.hero__web .web__petal {
+    transform-box: view-box;
+    transform-origin: 0 0;
+    animation: deal 0.75s calc(0.5s + var(--i) * 0.09s) cubic-bezier(0.2, 0.9, 0.3, 1.12) both;
+}
+
+@keyframes deal {
+    from {
+        opacity: 0;
+        transform: rotate(-28deg) scale(0.1);
     }
 }
 
@@ -65,8 +119,10 @@ body[data-screen="intro"] #app {
     animation: surface 1.6s 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
+/* Three marks side by side are thirteen of their heights wide, so the height
+   comes down with the window to keep them one row above the title. */
 .hero__logo img {
-    height: 95px;
+    height: clamp(40px, 7vw - 12px, 95px);
     width: auto;
     max-width: 460px;
     object-fit: contain;
@@ -95,13 +151,13 @@ body[data-screen="intro"] #app {
     margin-bottom: 0.9em;
 }
 
-/* The name itself, sunk into the dark: pale at the top, gone by the bottom. */
+/* The name itself, sunk into the dark: pale at the top, dim by the bottom. */
 .hero__title {
     font-size: clamp(94px, 19vw, 280px);
     letter-spacing: 0.06em;
     text-indent: 0.06em;
     text-transform: uppercase;
-    background: linear-gradient(178deg, #ffffff 4%, #c3cdeb 30%, rgba(120, 133, 175, 0.55) 62%, rgba(80, 90, 130, 0) 92%);
+    background: linear-gradient(178deg, #ffffff 4%, #c3cdeb 30%, rgba(120, 133, 175, 0.72) 62%, rgba(88, 98, 140, 0.3) 94%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -697,8 +753,27 @@ body.sinking #screen-intro::after {
     animation: fade 1.2s 1.6s ease both;
 }
 
+/* On a phone the row cannot be one row, and an absolute block that wraps
+   grows down over the title — which is what somebody reported, the three
+   marks stacked on the name. So they go into the flow above it, wrapping as
+   they need to, and the hero centres the whole column. */
+@media (max-width: 640px) {
+    .hero__logos {
+        position: static;
+        justify-content: center;
+        gap: 12px 18px;
+        margin-bottom: clamp(32px, 7vh, 64px);
+    }
+
+    .hero__logo img {
+        height: 36px;
+    }
+}
+
 @media (prefers-reduced-motion: reduce) {
     .hero__iris,
+    .hero__web,
+    .hero__web *,
     .hero__cue i {
         animation: none;
     }
