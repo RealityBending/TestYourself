@@ -2,6 +2,75 @@
 
 The big dispositional characteristics survey.
 
+## Levels
+
+Every level closes on results of its own. Each link below starts the test on that level, and the rest of the run follows (see `?start=` under [Batteries](#batteries)).
+
+<table>
+  <tr>
+    <td align="center" width="50%">
+      <b>General</b><br>
+      <a href="https://realitybendinglab.com/TestYourself/?source=README"><img src="assets/readme/general.jpg" alt="The results of General" width="100%"></a><br>
+      <a href="https://realitybendinglab.com/TestYourself/?source=README"><b>Take the Star Sign Test!</b></a>
+    </td>
+    <td align="center" width="50%">
+      <b>Brain-Body Axis</b><br>
+      <a href="https://realitybendinglab.com/TestYourself/?start=demographics2&amp;source=README"><img src="assets/readme/brainbody.jpg" alt="The results of Brain-Body Axis" width="100%"></a><br>
+      <a href="https://realitybendinglab.com/TestYourself/?start=demographics2&amp;source=README"><b>Take the Body Awareness Test!</b></a>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="50%">
+      <b>AI Expertise &amp; Usage</b><br>
+      <a href="https://realitybendinglab.com/TestYourself/?start=bait&amp;source=README"><img src="assets/readme/aiexpertise.jpg" alt="The results of AI Expertise &amp; Usage" width="100%"></a><br>
+      <a href="https://realitybendinglab.com/TestYourself/?start=bait&amp;source=README"><b>Take the AI Test!</b></a>
+    </td>
+    <td align="center" width="50%">
+      <b>Mood &amp; Health</b><br>
+      <a href="https://realitybendinglab.com/TestYourself/?start=demographics3&amp;source=README"><img src="assets/readme/moodhealth.jpg" alt="The results of Mood &amp; Health" width="100%"></a><br>
+      <a href="https://realitybendinglab.com/TestYourself/?start=demographics3&amp;source=README"><b>Take the Wellbeing Test!</b></a>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="50%">
+      <b>Character</b><br>
+      <a href="https://realitybendinglab.com/TestYourself/?start=hexaco&amp;source=README"><img src="assets/readme/character.jpg" alt="The results of Character" width="100%"></a><br>
+      <a href="https://realitybendinglab.com/TestYourself/?start=hexaco&amp;source=README"><b>Take the Personality Test!</b></a>
+    </td>
+    <td align="center" width="50%">
+      <b>Archetypes</b><br>
+      <a href="https://realitybendinglab.com/TestYourself/?start=archetypes&amp;source=README"><img src="assets/readme/archetypes.jpg" alt="The results of Archetypes" width="100%"></a><br>
+      <a href="https://realitybendinglab.com/TestYourself/?start=archetypes&amp;source=README"><b>Take the Archetype Test!</b></a>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="50%">
+      <b>The World</b><br>
+      <a href="https://realitybendinglab.com/TestYourself/?start=primals&amp;source=README"><img src="assets/readme/world.jpg" alt="The results of The World" width="100%"></a><br>
+      <a href="https://realitybendinglab.com/TestYourself/?start=primals&amp;source=README"><b>Take the Worldview Test!</b></a>
+    </td>
+    <td align="center" width="50%">
+      <b>How You Think</b><br>
+      <a href="https://realitybendinglab.com/TestYourself/?start=icar&amp;source=README"><img src="assets/readme/reasoning.jpg" alt="The results of How You Think" width="100%"></a><br>
+      <a href="https://realitybendinglab.com/TestYourself/?start=icar&amp;source=README"><b>Take the Thinking Style Test!</b></a>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="50%">
+      <b>Mind &amp; Heart</b><br>
+      <a href="https://realitybendinglab.com/TestYourself/?start=regulation&amp;source=README"><img src="assets/readme/regulation.jpg" alt="The results of Mind &amp; Heart" width="100%"></a><br>
+      <a href="https://realitybendinglab.com/TestYourself/?start=regulation&amp;source=README"><b>Take the Mind &amp; Heart Test!</b></a>
+    </td>
+    <td align="center" width="50%">
+      <b>Where You Stand</b><br>
+      <a href="https://realitybendinglab.com/TestYourself/?start=opinions&amp;source=README"><img src="assets/readme/opinions.jpg" alt="The results of Where You Stand" width="100%"></a><br>
+      <a href="https://realitybendinglab.com/TestYourself/?start=opinions&amp;source=README"><b>Take the Political Test!</b></a>
+    </td>
+  </tr>
+</table>
+
+The pictures are drawn from stand-in scores, not anybody's answers, by `assets/readme/make.py`; rerun it when a figure changes.
+
 ## Includes
 
 What the test currently asks — every questionnaire, its reference and its
