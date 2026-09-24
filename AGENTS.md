@@ -466,7 +466,11 @@ that emerged through your answers"), then the four channels as a bar chart
 under *that* (`bars`, `.climbview__bars`: a column apiece filled from the foot
 to the value the scene is drawn from, named underneath, and explained in the
 shared tooltip on hover or focus — the explanation lives there rather than on
-the page, so the chart is four bars and four names; hovering or focusing a
+the page, so the chart is four bars and four names. **Neither the tooltip nor
+the column's `aria-label` carries the number** (24 September 2026; they said
+"Emotional Intensity: 84%." before): three of the four are percentiles against
+other people, and the ethics application's A4 says the symptom feedback shows
+no score, percentile or ranking, so keep it that way. Hovering or focusing a
 column also lifts its track, brightens its fill and runs a band of light up it
 once, `climb-sheen`, which is on the fill's `::after` and moved by `translate`
 rather than `transform`, since the fill is parked on the last frame of
@@ -1746,10 +1750,9 @@ they are given, that stopping partway leaves what was already answered, and that
 an anonymous answer cannot be taken back once given. **The point of no return is
 now the first answer rather than the last**, which is the one thing about this
 study that changed for the person taking it. `ethics/mint_followup/application_draft.md`
-was moved with it — B11a (how data are transmitted), B16 and B17 (what they are
-told about withdrawing), and F1, which was the blocking issue and is now done —
-and **the committee has not seen any of it yet**, which is the [CONFIRM] left on
-B16. (What is staged is what the file holds: no answer leaves the page that
+was moved with it — B11a (how data are transmitted), and B16 and B17 (what they
+are told about withdrawing) — and **the committee has not seen any of it yet**,
+which is why B16 says it should be flagged to them. (What is staged is what the file holds: no answer leaves the page that
 would not have left it at the end.)
 
 **Done, September 2026: saving at every level.** What is above is what the note
@@ -2162,9 +2165,11 @@ README writes out in full.
   have completed it", which stopped being true when answers began going out as
   they are given, so it now says "once it has been given, whether or not I
   finish the study" (22 September 2026). A reviewer should be told which one
-  was amended and why, and the rest are still to be left alone. **Three things
-  in it are still blanks**: the second contact, the C-REC reference, and the
-  duration, which is an estimate until somebody has timed a pilot run. The banner that said the
+  was amended and why, and the rest are still to be left alone. **Two things
+  in it are still blanks**: the C-REC reference, and the duration, which is an
+  estimate until somebody has timed a pilot run. The second contact is Asel
+  Tohlukov (at775@sussex.ac.uk), the student submitting the application, filled
+  in on 24 September 2026. The banner that said the
   wording was a placeholder was taken off at the author's request, so nothing on
   screen flags any of this. The Start button stays disabled until the form has
   been scrolled to the end (`checkConsent`), which then rewrites the hint under

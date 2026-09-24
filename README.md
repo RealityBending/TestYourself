@@ -99,6 +99,13 @@ It only reorders and never adds a block, so it combines with the others: https:/
 
 Test mode walks the run in miniature (one item per questionnaire, the rest answered at random) and is not data. There is no button for it on the page; it is reached by the link alone: https://realitybendinglab.com/TestYourself/?test=true&source=README
 
+## Similar tests online
+
+Worth going back to for what to add next and how to present it.
+
+- **[TakeTest](https://taketest.xyz/)**: some forty free tests, most of them published instruments — the BFI-2, the IPIP-NEO-300, the Short Dark Triad, the ICAR-16 and ICAR-60, the MMPI-2 in full and short, the Autism-Spectrum Quotient, the Moral Foundations Questionnaire-2, right- and left-wing authoritarianism, conspiracy and paranormal belief scales, vocabulary and civics tests. Each is scored against a large normed sample (the UK Biobank, the General Social Survey), results collect in one place across tests, and signing in keeps them across devices. Ideas for tests, and for where real norms come from.
+- **[Dimensional](https://www.dimensional.me/)** (an app): fifteen dimensions and "over 200 traits", from personality and values to love styles, attachment, attitudes to sexuality and political ideology, with profiles compared between friends and "compatibility" readings. No science claimed. Ideas for features: comparing with somebody else, and a reason to come back.
+
 ## Questionnaire Ideas
 
 

@@ -284,7 +284,10 @@ function makeClimb(shared) {
     // The four channels as a bar chart under the hill: a column apiece, filled
     // from the foot to the value the scene is drawn from, named underneath,
     // and explained on hover — the explanation is in the tooltip rather than
-    // on the page, so the chart stays four bars and four names.
+    // on the page, so the chart stays four bars and four names. Neither the
+    // tooltip nor the label says the number: three of the four are standings
+    // against other people, and this figure shows no score, percentile or
+    // ranking on a symptom measure, which is what the ethics application says.
     function bars(now) {
         const chart = document.createElement("div")
         chart.className = "climbview__bars"
@@ -292,7 +295,7 @@ function makeClimb(shared) {
 
         for (const channel of CHANNELS) {
             const share = Math.round(now[channel.key] * 100)
-            const told = channel.name + ": " + share + "%. " + channel.what
+            const told = channel.name + ": " + channel.what
             const column = document.createElement("div")
             column.className = "climbview__col"
             column.setAttribute("role", "listitem")

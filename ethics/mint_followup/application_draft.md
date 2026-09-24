@@ -8,16 +8,42 @@ questionnaire"; <https://github.com/RealityBending/InteroceptionScale>).
 
 ## 0. Remaining to do
 
-**Before submission**
+**The aim is an approval with as little friction as possible** (the author's
+call, 24 September 2026). This list holds factual errors in the draft and
+things the study cannot run without, not disclosures for their own sake:
+implementation details (the share links, DataPipe's infrastructure) stay out of
+the application, and nothing is added to the consent sheet that would raise a
+reviewer's suspicion over something trivial. Anonymity is argued at the level
+of the compiled data file, which a script makes from the raw files and which is
+where the researchers work.
 
-- **Applicant and co-applicant.** Two students, names and emails. Applicant
-  status UG or PG, as in ER/MB2021/2 where the student was first applicant.
-- **Consent sheet blanks** (in `index.html`): the second contact (the student),
-  the C-REC reference, and the duration.
+**Checked against the app on 24 September 2026** (commit `d97e715` plus that
+day's edits): the item counts in §6, the three core attention checks, the level
+order and the measures listed in the Project Description all match `content/`;
+the Content table is up to date (`build_slides.py --check`) and the published
+deck and app are the same as the repository. Corrected that day: DataPipe's
+operator (B11a, which had it as a Princeton department), the ERS being six
+items and not the whole scale, the CMQ items being adapted, the opinions
+level's item formats, the order the demographics fall in, the fork in the
+optional set, the seriousness question at the end, and the two self-placements
+among the single items.
+
+**Before submission — still to fill in**
+
+- **Applicant status** for Asel Tohlukov (UG or PG), and **whether there is a
+  co-applicant** at all: the draft was written for two students.
+- **Consent sheet blanks** (in `index.html`): the C-REC reference and the
+  duration. The second contact is filled in (Asel Tohlukov).
 - **Timed pilot**, for the duration quoted in the consent sheet and the SONA
   advert, and hence for the SONA credit and the Prolific rate (see §6).
-- **Debrief.pdf** — write it as a brief paragraph as part of the interim compensation page (where we give participants their reward). Aim of the study, what interoception is, the
-  confidentiality reminder, contacts, and signposting to support services.
+- **Debrief** — a brief paragraph on the completion screen (where participants
+  get their reward): aim of the study, what interoception is, the
+  confidentiality reminder, contacts, and signposting to support services. The
+  parent study's `ethics/mint_validation/Debrief.pdf` is the model, but it
+  signposts nothing, and B5 promises the Samaritans, Mind and the University's
+  wellbeing service.
+- **Project start date.** 01-Oct-2026 is a week away, and nothing may be
+  collected before approval. Move it, or write "on approval".
 - **Confirm the answer to A5.** The opinions level (Where You Stand,
   `content/block_opinions.js`) went into the Project Description, A5, A6, A10
   and §6 on 23 September 2026, once its items were final (35 items). A5 is
@@ -26,26 +52,104 @@ questionnaire"; <https://github.com/RealityBending/InteroceptionScale>).
   about beliefs while asking thirty political statements would be the thing
   a reviewer picked up; the explanation says why no disclosure carries a
   risk. That is a drafting call and wants the applicant's own decision.
-- **Item list** - : let's print the deck (`@media print`) and attach that PDF.
-- **Re-run `python docs/build_slides.py` and push**, so the published table the
-  application links to matches `content/` at the moment of submission.
+- **Item list**: print the deck (`@media print`) and attach that PDF beside the
+  link (§5).
+- **Re-check `python docs/build_slides.py --check` and push** on the day of
+  submission, so the published table matches `content/` at that moment.
 
+**Before submission — where the draft and the app disagree**
+
+- **The political feedback does show the average person.** The Project
+  Description says "no position on them is compared with anybody else's in the
+  feedback" and A10 "never a comparison with other people", but the Where You
+  Stand figure draws "The average person" as a dashed ring on the plane and a
+  tick on each spectrum (`js/figures/stance.js`). Either take the average out
+  of the figure, or say "with no percentile or ranking" instead, which is true
+  with it there. (The symptom feedback had the same problem, a percentile in
+  the bars' tooltip; the number was taken out on 24 September 2026 and A4 now
+  says "no score, percentile or ranking".)
+- **The parent study's consent sheet may not be the parent study's.**
+  `ethics/mint_validation/Consent.pdf` carries the reference ER/EB672/2 and
+  names Ana Neves as contact, while the parent application is ER/MB2021/2
+  (Maisie Bennett). §5 and the comment in `index.html` call it "the MINT
+  study's own sheet". Check which study it came from before saying so to the
+  committee.
+
+**Parked**
+
+- **Attention checks are not disclosed to participants**, though the Project
+  Description says they are told that failing them may mean withholding credit
+  or payment. The parent study said it on the screen after consent: "Please
+  note that various checks will be performed to ensure the validity of the
+  data. We reserve the right to withhold credit awards or reimbursement should
+  we detect non-valid responses (e.g., random patterns of answers, instructions
+  not read, failed attention checks...)". Either the app says it or the
+  description stops claiming it.
+- **Where the debrief and the closing questions fall** (a real issue, parked
+  for brainstorming on 24 September 2026). The run is: the core (levels 1–4),
+  then the completion screen (not built yet), then the optional levels 5–10,
+  then the closing level (11: "Did you take the test seriously?" and the
+  comments box), then the end. The Project Description puts the seriousness
+  question, the comments box and the debrief at the end. Most participants
+  will take their credit at the completion screen and stop, so as things stand
+  they are **not debriefed** (the committee is told everybody is), **most of
+  the core sample has no seriousness answer** (a data problem: it is the one
+  self-reported quality check), and they never see the comments box (minor:
+  the stars under each level already say how they found it). Suggestions:
+  - **The debrief goes on the completion screen**, which everybody who
+    finishes the core passes, whether or not they go on. Those who continue
+    can see it again at the end, or a line pointing back to it. People who
+    leave during the core get none, as in any online study; the consent sheet
+    carries the contacts.
+  - **The seriousness question is asked at the end of the core**, as the first
+    thing on the completion screen or the item just before it. It cannot be
+    written as the last item of level 4, since levels 2–4 are drawn in a random
+    order and the last is a different level for each person; it belongs to the
+    completion screen, saved as that screen's own item the way a level
+    screen's way on is (`Level_<N>`).
+  - **Ask it again at the end** for those who went on, under a second key, so
+    each stretch has its own answer: somebody tired by level 9 may say so, and
+    that should not cast doubt on their core.
+  - **One comments box**, either at the end as now or as an optional field on
+    the completion screen, not both.
+  - **The fork meets it.** The first choice of the fork is made at the end of
+    level 4, so the completion screen falls between level 4's results and that
+    choice: "continue" could lead to the "What next?" cards, or the cards could
+    sit on the completion screen under "If you would like to go on".
+  - **Then the Project Description** lists the parts as consent, demographics,
+    core, feedback with the debrief and the credit, then the optional set (with
+    its own closing comments), and its "Feedback and debriefing" paragraph says
+    the debrief comes at the end of the core.
 
 **Before launch**
 
 - **Completion screen.** After the fourth level: a "you have completed the
   study" message, the way to claim the reward (SONA credit link or Prolific
-  completion URL, in a new tab), and the choice to continue or stop. The app has
-  no such screen, and **where it falls is the only thing that defines the core**,
-  since the recruitment link asks for the whole timeline (no battery). Until it
-  exists, no participant is told they have finished and no reward can be granted.
-- **Record recruitment-platform identifiers.** The app reads `?sub=` and nothing
-  else. It needs a small named set of URL variables — a SONA survey code, a
-  Prolific PID, and Prolific's study and session ids — saved beside the
-  participant code, sanitised the way `?sub=` already is, and listed in
-  `AGENTS.md` under **Who is taking it**.
-- **Remove the "Test mode" link** from the landing page, and the test-mode
-  consent bypass.
+  completion URL, in a new tab), the debrief, the seriousness question, and the
+  choice to continue or stop (see **Parked**, on where the debrief and the
+  closing questions fall). The app has no such screen, and **where it falls
+  is the only thing that defines the core**, since the recruitment link asks
+  for the whole timeline (no battery). Until it exists, no participant is told
+  they have finished and no reward can be granted.
+- **Record recruitment-platform identifiers.** The app reads `?sub=` (the
+  participant code) and `?source=` (where the link was handed out, which is
+  what keeps the SONA, Prolific and social-media samples apart, as B2
+  promises). It records no platform identifier as such. Two ways to do it: put
+  the platform's own placeholder into `?sub=` (SONA's `%SURVEY_CODE%`,
+  Prolific's `{{%PROLIFIC_PID%}}`, both of which pass the 32-character
+  `[A-Za-z0-9_-]` rule), which needs no code but replaces the random code with
+  the platform's, contrary to B7's "and"; or add a small named set of URL
+  variables saved beside the participant code, sanitised the same way and
+  listed in `AGENTS.md` under **Who is taking it**. Either way, the completion
+  screen has to build the SONA credit URL from the survey code.
+- **Real norms, after the pilot.** All but the MINT's and the HiTOP-BR's are
+  placeholders, and the feedback reads them to participants as comparisons
+  with other people ("Higher than 84% of people").
+- **The test-mode consent bypass** (`checkConsent` in `js/app.js`) goes. The
+  "Test mode" link on the landing page is already gone (23 September 2026);
+  the bypass is now reachable only by typing `?test=true`.
+- Optional: **"Prefer not to say"** on gender and on the diagnoses and
+  treatment questions, which have none (ethnicity and the day of birth do).
 
 ---
 
@@ -57,10 +161,11 @@ questionnaire"; <https://github.com/RealityBending/InteroceptionScale>).
 Placement Project: MINT questionnaire validation follow-up
 ```
 
-- **Applicant** — [student name and email]
-- **Co-applicant** — [second student name]. Dr Dominique Makowski
-  (<d.makowski@sussex.ac.uk>) is the supervisor, and the contact named on the
-  consent and debriefing documents.
+- **Applicant** — Asel Tohlukov (<at775@sussex.ac.uk>)
+- **Applicant Status** — [UG or PG]
+- **Co-applicant** — [second student, if there is one]. Dr Dominique Makowski
+  (<d.makowski@sussex.ac.uk>) is the supervisor. He and Asel Tohlukov are the
+  two contacts named on the consent sheet, and will be on the debrief.
 - **Department** — Psychology
 - **Project Start Date** — 01-Oct-2026
 - **Project End Date** — 01-Oct-2028
@@ -106,10 +211,11 @@ the same or near-identical in the two studies:
 - A single-item measure of life satisfaction.
 - The Primals Inventory-18 (Clifton & Yaden, 2021), measuring beliefs about the
   character of the world.
-- The Cognitive Emotion Regulation Questionnaire (Garnefski & Kraaij), in its
-  short form here.
-- A measure of emotion reactivity: the Emotion Reactivity Scale (Nock et al.,
-  2008) here, a brief version of the same construct in the previous study.
+- The Cognitive Emotion Regulation Questionnaire (Garnefski & Kraaij, 2006), in
+  its short form here.
+- A measure of emotion reactivity: six items of the Emotion Reactivity Scale
+  (Nock et al., 2008), two per facet, here, and a brief version of the same
+  construct in the previous study.
 - Mental health history: reported psychiatric diagnoses and treatment.
 - Somatic and psychosomatic complaints, measured here by the somatic scale of
   the HiTOP Brief Report.
@@ -146,7 +252,8 @@ The core set, completed by all participants, is:
   al., 2003) and a set of single-item trait scales measuring self-esteem,
   self-concept clarity, self-efficacy, meaning in life, life satisfaction,
   narcissism, self-rated health, perceived stress and the valuing and seeking
-  of beauty.
+  of beauty, and two self-placements (how intelligent and how attractive the
+  participant thinks they are, compared with other people).
 - A questionnaire on beliefs about artificial intelligence technology (BAIT).
 - Symptom measures: the PHQ-4, a single-item measure of sleep quality, reported
   mental health history, and the HiTOP Brief Report (Simms et al., 2026), which
@@ -161,28 +268,34 @@ The optional set, offered after the core set, is:
 - A short untimed reasoning test (ICAR-16 Sample Test; Condon & Revelle, 2014).
 - Brief measures of attention and self-control (two items each from the ASRS,
   the Cognitive Failures Questionnaire, the Mind Wandering Scale and the Brief
-  Self-Control Scale), the Emotion Reactivity Scale and the short form of the
-  CERQ.
+  Self-Control Scale), six items of the Emotion Reactivity Scale and the short
+  form of the CERQ.
 - A set of questions on social and political views: a left-right
-  self-placement (the European Social Survey item), three items of the
-  Conspiracy Mentality Questionnaire (Bruder et al., 2013), and thirty-one
+  self-placement (the European Social Survey item), three items adapted from
+  the Conspiracy Mentality Questionnaire (Bruder et al., 2013), twenty-nine
   agree/disagree statements on economic redistribution and social order
   (adapted from the British Social Attitudes scales; Evans et al., 1996),
   equality of outcomes between groups, human enhancement and heredity, the
-  climate and the moral standing of animals, and how much beauty should
-  count against cost and use, most of them written or adapted for this
-  study. These are political opinions and are treated as special category
+  climate, nuclear power and the moral standing of animals, and how much
+  beauty should count against cost and use, a question on whether a range of
+  views or a range of backgrounds matters more, and a question on diet, most
+  of them written or adapted for this study. These are political opinions and are treated as special category
   data (see A5, A6 and A10); they are collected anonymously like the health
   items, and no position on them is compared with anybody else's in the
   feedback.
 
-The survey always opens with the demographic questions and the brief trait
-scales. The three remaining parts of the core set — the MINT, the AI beliefs
-questionnaire, and the symptom measures — are then presented in an order drawn
-at random for each participant, so that no one instrument is always answered
-first and none always answered last. The items within each questionnaire are
-likewise presented in a random order, except where an instrument was validated
-in a fixed order, in which case that order is kept.
+The survey always opens with age, month and day of birth and gender, and the
+brief trait scales. The three remaining parts of the core set — the MINT, the
+AI beliefs questionnaire, and the symptom measures — are then presented in an
+order drawn at random for each participant, so that no one instrument is always
+answered first and none always answered last; the other demographic questions
+open the MINT's part (education, field of study, student status, ethnicity and
+country) and the symptom part (financial comfort and social status), and so
+move with them. The items within each questionnaire are likewise presented in
+a random order, except where an instrument was validated in a fixed order, in
+which case that order is kept. The optional questionnaires are offered two at
+a time, the participant choosing which to answer next; the choice changes only
+the order, never what is asked.
 
 The complete list of every questionnaire and every item asked, with its source
 and reference, is published as part of the study documentation and can be
@@ -207,10 +320,11 @@ themselves informative about how well the measures describe people. The summary
 is descriptive and explicitly non-diagnostic: no clinical label, cut-off or risk
 score is shown at any point.
 
-At the end, participants may write any comments they wish to share, and are then
-shown a debriefing screen stating the aim of the survey, giving further
-information about interoception, reminding them that their data are anonymised,
-and signposting sources of support.
+At the end, participants are asked whether they took the survey seriously, may
+write any comments they wish to share, and are then shown a debriefing screen
+stating the aim of the survey, giving further information about interoception,
+reminding them that their data are anonymised, and signposting sources of
+support.
 ```
 
 ---
@@ -236,8 +350,8 @@ and signposting sources of support.
   The items are standard screening items of the kind used in general population
   surveys, and the feedback presents no clinical label, cut-off or risk score,
   never characterises a pattern of answers as a disorder, and on the symptom and
-  health measures shows no comparison with anybody else — no percentile, no
-  ranking, and no place on the whole-survey summary. See B5 and A10.
+  health measures shows no score, percentile or ranking, and no place on the
+  whole-survey summary. See B5 and A10.
 - **A5. Risk of disclosures about beliefs, illegal actions, or threats to self/others?** — **Yes**,
   as to beliefs: the optional continuation includes a set of questions on
   social and political views (redistribution, law and order, equality between
@@ -308,6 +422,16 @@ comparison with other people.
 The graphical summary shown to participants at the end of each block is
 descriptive and explicitly non-diagnostic: no clinical label, cut-off or risk
 score is shown at any point. The debriefing page signposts sources of support.
+
+Questionnaires of this kind, with immediate personal feedback, are widely and
+freely available online, including on mental health and political attitudes:
+NHS services offer anonymous online low-mood and anxiety questionnaires that
+return a score, Project Implicit has long given the public feedback on their
+implicit attitudes about race, gender and sexuality, and sites such as
+taketest.xyz score several of the instruments used here against normed
+samples. Taking part therefore exposes participants to nothing beyond what
+they encounter in everyday life, and the feedback here is more cautious than
+most, presenting no score, percentile or ranking on the symptom measures.
 ```
 
 ---
@@ -412,16 +536,17 @@ The survey is anonymous: no name, email address or IP address is collected. Each
 set of responses carries only a randomly generated participant code, which is
 created by the survey itself and is not linked to any identifying information.
 
-Responses are transmitted through DataPipe, a service run by the Department of
-Psychology at Princeton University which forwards data from browser-based
-studies to a data repository without the researchers operating a server of their
+Responses are transmitted through DataPipe (pipe.jspsych.org), a free,
+open-source service run by the developers of the jsPsych library, which
+forwards data from browser-based studies to a data repository, keeping no copy
+once they are delivered, without the researchers operating a server of their
 own. Each response is transmitted as it is given, and the complete set is
 transmitted again when the survey is finished, so that a participant who stops
 partway through still contributes the answers they had given. The data are
-deposited in a repository record held by the research group: one file for a
-participant who finishes, and, for one who stops partway, a file of the
-responses given up to that point, written about fifteen minutes after they
-stop.
+deposited in a Zenodo record (Zenodo being the research data repository
+operated by CERN) held by the research group: one file for a participant who
+finishes, and, for one who stops partway, a file of the responses given up to
+that point, written about fifteen minutes after they stop.
 
 That repository record is unpublished and private for the whole of data
 collection: it has no public address, it is not indexed, and it is readable only
@@ -519,8 +644,9 @@ page signposts sources of support.
 
 ## 5. Supporting documents
 
-- **Consent sheet — drafted, in `index.html`.** Modelled on the MINT study's own
-  sheet (`ethics/mint_validation/Consent.pdf`): the same headings in the same
+- **Consent sheet — drafted, in `index.html`.** Modelled on the sheet in
+  `ethics/mint_validation/Consent.pdf` (which carries ER/EB672/2 rather than
+  the parent study's ER/MB2021/2 — see §0): the same headings in the same
   order, the six consent statements kept as the committee's wording, and the
   text around them describing this study. The third statement is the one
   exception — it said withdrawal was impossible "once I have completed it",
@@ -528,21 +654,23 @@ page signposts sources of support.
   it now reads "once it has been given, whether or not I finish the study".
   Tell the reviewer which one was amended and why. Print the `.gate` to PDF for
   the attachment, or lift the text.
-  - Three blanks remain: the second contact, the C-REC reference, and the
-    duration.
+  - Two blanks remain: the C-REC reference and the duration. The second
+    contact is Asel Tohlukov (at775@sussex.ac.uk).
   - The DataPipe/Zenodo route is not named on the sheet: the standard statement
     it carries ("De-identified data may be made publicly available through
     secured scientific online data repositories") is the committee's own wording
     and covers it, and B11a names both services to the reviewers.
 - **Debrief.pdf** — to be written; see §0. The app has no debriefing screen at
   all.
-- **Item list — a link, not an attachment.** The Content table in
+- **Item list — a link, and a PDF of it.** The Content table in
   `docs/index.html` is generated from the app's own questions by
   `docs/build_slides.py`, so it cannot drift from what is asked; picking a row
-  shows every item of that instrument. The Project Description points at it
-  rather than carrying a PDF that would go stale the moment a block changes.
+  shows every item of that instrument. The Project Description points at it,
+  and a PDF printed from the deck (`@media print`) on the day of submission is
+  attached beside it, so the committee has a fixed copy of what it approved.
   The deck is live at <https://realitybendinglab.com/TestYourself/docs/> and the
-  app at <https://realitybendinglab.com/TestYourself/>.
+  app at <https://realitybendinglab.com/TestYourself/>; both matched the
+  repository on 24 September 2026.
 
 ---
 
