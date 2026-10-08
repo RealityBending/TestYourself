@@ -330,6 +330,11 @@
                                 impossible to withdraw my data once it has been given, whether or not I finish the study.
                             </li>
                             <li>
+                                I understand that some of the questions ask about intimate matters (such as sexuality and bodily
+                                functions) or sensitive topics related to mental health (such as hallucinations and thoughts about
+                                death), and that I can stop at any point if I would rather not answer them.
+                            </li>
+                            <li>
                                 I understand that my personal data will be used for the purposes of this research study and will be handled
                                 in accordance with Data Protection legislation. I understand that the University's Privacy Notice provides
                                 further information on how the University uses personal data in its research.
@@ -595,6 +600,12 @@
              code that was reviewed. Nothing below reads it at load; `app.js`
              asks for it by name when the test begins. -->
         <script src="js/vendor/datapipe-client.js"></script>
+
+        <!-- The participant's account on the lab's hub (a copy of
+             RealityBending/me's client, edited there and not here), a pilot
+             asked for by `?account` alone. Before resume.js, which lets go of
+             the account's copy of the run whenever it lets go of its own. -->
+        <script src="js/account.js" data-app="abyss"></script>
 
         <!-- A run left partway through and kept in this browser, and the seed
              every draw of the run comes off: it has to be known before the

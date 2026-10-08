@@ -4,7 +4,8 @@ The one set of notes on this project. `CLAUDE.md` is a pointer to this file, not
 a second copy — write here and nowhere else, or the two will drift.
 
 Single-page survey app. No build, no dependencies, no framework, no tests.
-`index.html` loads `js/resume.js` first (a run kept in this browser, and the
+`index.html` loads `js/account.js` first (the participant's account on the lab's
+hub, a pilot asked for by `?account` alone), then `js/resume.js` (a run kept in this browser, and the
 seed every draw of the run comes off), then the content (`content/timeline.js`, then a
 `content/block_*.js` per block of questions), then `js/draw.js` (stateless
 drawing helpers everything below it uses), then `js/snapshot.js` (a piece of
@@ -30,6 +31,7 @@ A change usually needs one file out of one of them.
 | `content/timeline.js` | **The frame the rest of `content/` is written into, and what is asked when.** **There is a timeline per battery**, `TIMELINE_ALL` (everything, General then every other level in one fork of three, and what a link naming none walks) and `TIMELINE_MINT` (the study the ethics application is written for, asked only by `?project=mint`), written out in full each rather than one derived from the other, and `BATTERIES` naming them; also `ASIDE`, blocks no battery asks, `HELD_TOGETHER`, the blocks that come and go as one (see **Batteries**), and `DEMOGRAPHICS`, the three blocks written on no level that open the run's first three places, whatever levels stand in them (see **The demographics open places**). A timeline is one entry per level, in order, naming that level's blocks — moving a block is moving its name from one line to another, and a block named nowhere here is never asked — **except an entry written `interlude: true`**, which is no level but blocks asked between the level before it and the one after (the interim on `mint`, see **The interim**). Each level also carries a `key` and a `name`: the key is what the saved file is written under (`ratings`, `qualityControl`) and never changes for the sake of the person reading it, the name is what the gauge's hover card, the results panel and the level screen call it (`levelName`, `levelTitle` in `app.js`) and is prose that may — and may carry `fork: n`, which puts it in order with the levels written next to it under the same `n`, the person choosing among `n` at a time (see **The fork**). A run of levels wrapped in `shuffle()` is asked in an order drawn for them instead (see **The drawn order**), which is why a timeline ends `.flat()`. Also `shuffle()` itself, which **draws nothing outside a browser** and hands the written order back — `data/synthetic/codebook.js` and `docs/build_slides.py` read this file too, and what they describe is what is asked rather than one draw of it. Also `WATER_SHARE`, the share of the scored levels that are in the water rather than in the rock (see **Beneath the floor**) — where the seabed falls is a share and not a flag on any level. Its colour on the gauge is not content — the stops run through one gradient by position (`levelColour`). Also `defineBlock()` and the `QUESTIONNAIRES` / `BLOCKS` the block files fill, `answerKey()` (the hash an item with a right answer carries in place of it — see **Right answers**, below), and, at the head of the file, an annotated skeleton of every field a block may carry. **Read that before editing anything in `content/`**; it says what the fields are, and this file says why. |
 | `content/block_*.js` | Every question, scale, colour and norm, **split by block** — one stretch of the run that moves as a piece — so the file to open is the thing being changed rather than the position it happens to be asked in. **Content changes go here and nowhere else.** Each is one `defineBlock("name", [ … ])` over an ordered list of entries: briefings and questionnaires, each carrying its own `key`. |
 | `content/block_UNUSED.js` | Questionnaires written but not asked, commented out, waiting on whatever they want before they can go in. Nothing in it defines a block, so nothing in it can be reached. |
+| `js/account.js` | **The participant's account on the lab's hub, a copy of the hub's client** (`RealityBending/me`, edited there and never here; see **The account is the lab's, not this test's**). One global, `ACCOUNT` — `on` (the link carries `?account`, a pilot no participant meets), `signIn`, `claim`, `save` (the state and the dashboard's summary in one request), `loadState`, `dropState` — plain `fetch` against Firebase and no SDK. Its tag names the app (`data-app="abyss"`). `app.js` calls it from `stow()`, `summary()`, `fetchKept()`, the Start button and the end of the run; `js/resume.js`'s `forgetRun` drops the state with the browser's copy, which is why it is loaded before that file. |
 | `js/resume.js` | **A run left partway through, kept in this browser, and the draws it was made from** (see **Carrying on**). Loaded before `content/`, since the seed has to be known before the timeline draws anything. It reads the kept run out of `localStorage` (`KEPT_RUN`, dropped once a week old or of another `RESUME_SHAPE`), decides whether this load carries it on (`RESUMED`: the tab was marked live and the link is the one the run began from), seeds `chance()` from it or afresh (`RUN_SEED`), and gives `forgetRun()`. Every draw that shapes a run comes off `chance()` — `shuffle()` in `content/timeline.js`, `formatMint`, and the item order and test-mode thinning in `app.js` — and nothing else in the file touches the run: what is kept and put back is `keep()` and `restore()` in `app.js`. Not an IIFE, for `draw.js`'s reason. |
 | `js/draw.js` | Three helpers that draw rather than decide — `SVG`, `draw()` (an SVG element with its attributes on it) and `mix()` (a colour between two others, reading either a `#rrggbb` out of `content/` or its own `rgb(…)` back, so a tint can be darkened in a second pass; `channelsOf()` is the reader, and the fourth name it takes) — held in common by the two files below it. It reads nothing and keeps nothing, which is the whole reason it can sit under both of them; **nothing else belongs in it**, and a helper only moves down here because `app.js` and `results.js` both want it. Not an IIFE: it takes those names in the globals every file on the page shares, so nothing in `content/` may take them too. |
 | `js/snapshot.js` | **A piece of the page turned into a picture**, which is how a level's results are copied as an image (see **Sharing a level**). One global, `snapshot(element, {skip, ratio})`, resolving to a canvas: the element is cloned with every style it is drawn with written onto the clone as computed, the clone goes in an SVG `<foreignObject>`, and the SVG is drawn onto a canvas. It reads nothing of the run and keeps nothing, like `draw.js`, but is not in it, since only `results.js` wants it. **What it has to get right**: defaults are read on a blank iframe of its own, since this page's stylesheet reaches any box on it (`* { box-sizing: border-box }` would pass for a default, never be copied, and every padded card come out wider than its column); a property is written unless it equals both the tag's default and the parent's value, which keeps an inherited value from being dropped; anything still arriving is `finish()`ed first, or a section mid-fade is copied blank; the size is the layout box (`offsetWidth`), not the bounding one, which a panel still growing out of its badge has scaled; the height is measured on the clone in that iframe, since a margin that collapsed out of the element on the page stays inside the picture; what is skipped is hidden on the page for the moment of copying so the rest closes up over it; one-line text is held to one line (it is drawn a hair wider in an image); and an **auto margin**, which Chrome reports on a grid item as `0px`, is recovered by asking the page's rules — only those that set a margin to `auto` — whether they match. Pseudo-elements are written as rules against a class made for each; an `<img>` or `<canvas>` becomes a data URL, and so does an SVG `<image>` (the woodcut the temperament's plane is drawn on), which has to be loaded again to be read and is why `snapshot` is `async`: every one in the element is read out before the copy starts, a JPEG as a JPEG. |
@@ -1932,7 +1934,7 @@ file. **A new figure wants its picture looked at**: `snapshot` copies computed
 styles, which covers nearly everything, and the one thing found that computed
 styles do not say (an auto margin on a grid item) needed a special case.
 
-**Comparing with a friend is not built, and is meant to wait for a server.**
+**Comparing with a friend is not built, and waits on the hub.**
 It is wanted on every results screen, as a way of recruiting by word of
 mouth: somebody's results side by side with a friend's, level by level. Done
 with links alone it goes wrong. A link that starts the friend on the level it
@@ -1941,121 +1943,55 @@ person for another level is a second run, and one friend answering three
 links is three participants in the deposit — which is the wrong n, and
 nothing in the files can tell it apart. A link also cannot carry a name
 safely (nothing from a link is written on screen), cannot be taken back, and
-puts one person's scores in whatever the friend forwards it to. **The shape
-it should take** is a small server run at Sussex: a light account for each of
-the two, the friend agreeing before anything of theirs is shown, and the
-comparison on a page of each account's own, with a run tied to its account
-so that the same person coming back through another link carries on the one
-run instead of starting a second. That is the account, the consent to be
-shown and the one run per person — three things a link cannot do. It needs
-the ethics application to say so, since it would be the first thing here
-holding who somebody is beside what they answered. Until then the level and
-card links (above) are the way results travel, and they stay one-way.
+puts one person's scores in whatever the friend forwards it to. It wants an
+account for each of the two, the friend agreeing before anything of theirs is
+shown, and one run per person — three things a link cannot do and the hub
+(below) is for. Until then the level and card links (above) are the way
+results travel, and they stay one-way.
 
-**Accounts are not built either, and are the same server.** None of this is a
-short-term plan; it is written down so that whatever is built first does not
-close the door on the rest. Three uses, in the order they could come:
+**The account is the lab's, not this test's.** A participant's account lives
+on the **Rebel Participant Hub** (`RealityBending/me`, served at
+`realitybendinglab.com/me/`, its own notes in its own `AGENTS.md`), of which
+this test is the first app. **Everything about accounts that is not this
+test's own is written there and not here**: the backend (Firebase,
+`reality-bending-lab`, Firestore in London), the database's layout and rules,
+claims, the summary the dashboard reads, what has been decided (a platform id
+is a label and never a key; email linking for SONA and never Prolific; the
+dashboard shows levels and never lets them be picked), the ethics and what is
+next. A pilot, asked for by `?account` alone (October 2026).
 
-- **Carrying on later, on another device.** At thirty or forty minutes a run
-  is long enough to want leaving and coming back to. On the same device that
-  is built, with no server (see **Carrying on**); on another it wants an
-  account. This is the first use and the one the rest hang off.
-- **The lab's other tasks on the same account.** The Reality Bending Lab has
-  other experiments and games — DoggoNogo among them — that somebody could do
-  from the same place, their data linked to the same person's run here by one
-  id rather than matched up afterwards. That makes the account a lab platform
-  rather than this test's, and it should be designed as one from the start: an
-  account that belongs to the platform, a run per task that belongs to the
-  account, and nothing about any one task in the account itself.
-- **Far off, and a different project: people seeing each other.** Signing in,
-  adding a profile picture, and agreeing to be shown to — and to see — other
-  profiles that come out "close" or "compatible" on what was measured. A more
-  commercial use of the platform than a study. It would want an ethics
-  application of its own, a whole different one, since it puts who somebody is
-  in front of strangers beside what they answered, and nothing above should be
-  built as though it were coming.
+What this test does with it:
 
-**What carrying on across devices would take.** The engine half is done: a
-run carried on on the same device (**Carrying on**, below) is already rebuilt
-from a seed and a small kept state, and a server would hold the same object
-`keep()` writes to `localStorage` and hand it to `restore()` — the kept run
-would be fetched before `js/resume.js` seeds anything, so signing in comes
-before a reload. **DataPipe stays the research record** and the server only
-holds what the person needs to carry on. For the server,
-authentication is not something to write by hand: a managed backend in a UK or
-EU region (Supabase: Postgres, sign-in and row-level security, one `runs`
-table, a policy that each account reads and writes its own rows) or, if the
-data must stay on Sussex's machines, PocketBase on a university VM. Its client
-would be the page's second dependency, and wants the three things the first
-has (see **Conventions**). **The ethics are the long part**: an account makes
-the answers pseudonymous rather than anonymous, on a page holding Article 9
-data (diagnoses, political opinions), so it wants a DPIA with the DPO and an
-amendment — and the consent form's "cannot be taken back once given" stops
-being true, since an account's data can be deleted and then has to be
-deletable. The least identifying way in is a **resume key** — a long random
-secret shown once, kept as a link or in a password manager — rather than an
-email, which keeps no identity on the server at all; an email is easier for
-people and is an identity. The profiles would need an identity anyway, which
-is one more reason they are a different project.
+- **`js/account.js` is a copy of the hub's client, edited there and not
+  here**: version `0.1.0`, sha256 `4a4a1622…8f1fda70`. Its tag names the app
+  (`data-app="abyss"`), which is where the test's documents go on the account.
+  Updating it is copying the hub's file over this one and writing the new
+  version and hash here.
+- **On Start**, with `?account`: signed into anonymously, once a browser
+  (`signIn`, handed `source`), and a link that brought a platform's id
+  (`?pid=`) claims it (`claim`). A claim come back `"taken"` is warned in the
+  console and the run goes on; what to show then is not built.
+- **`stow()`** sends the object `keep()` writes as the app's state, with the
+  dashboard's summary beside it (`summary()`: the scored levels in the places
+  they stand, done or not, core or not, and the run's link), in one request —
+  at the end of a level, as a level screen is left and as the tab is hidden,
+  never on every `keep()`. **The end of the run** writes the summary
+  `finished` and `forgetRun()` drops the state with the browser's copy, so the
+  dashboard can still say the run was finished.
+- **`fetchKept()`**: a landing page with no run kept in this browser but one
+  on the account writes it into the browser and loads again, and it is offered
+  like any kept run — `js/resume.js` reads the kept run at load and only then,
+  so that is the one way in. Only a run `js/resume.js` will take (of its
+  `RESUME_SHAPE` and inside the week), or the page would load again for ever.
 
-**The plan, if it is built (September 2026, discussed and not started).** What
-was wanted is accounts with a **dashboard**: a signed-in home page with every
-level on it, the ones done and the ones remaining. **That is compatible with
-the fork only if it shows the remaining levels and does not let them be
-picked**: a free pick among everything left replaces the fork (two or three
-offered at a time), and with it the core's counterbalancing, the demographics
-tied to places 1–3, depth belonging to a place, and what the **Choices**
-section of `overview.qmd` measures. Shown and not picked, the dashboard is the
-gauge and the shelf on a page of their own, and `renderBadge` and
-`renderTeaser` already draw its pieces. **The backend would be piloted on
-Firebase and the study run on Supabase**, the choice between them the DPO's
-rather than the price's. Firebase's free plan (Spark) never pauses a project
-and covers a study this size — sign-in free to 50,000 monthly users, anonymous
-and email included; Firestore 1 GiB, 50,000 reads and 20,000 writes a day —
-but its paid plan has budget alerts and no cap, the free plan has no backups,
-and its sign-in service is probably not pinned to a region, so an email held
-there is held by Google, likely in the US. Supabase's free plan pauses a
-project after a week untouched, so a live study wants Pro (from $25 a month,
-never paused, daily backups kept seven days, a spend cap on by default), in
-London (`eu-west-2`), with the whole thing in one UK region. Those figures are
-as of September 2026 and want checking again. Either can be driven with plain
-`fetch` and no new dependency; the Firebase inside the vendored DataPipe
-client is its own and not for the page to reuse. **Four things were settled
-so that the pilot does not decide the study:**
-
-- **Everything that talks to the backend is one file**, `js/account.js`,
-  handing `app.js` a handful of functions — sign in, sign out, who is signed
-  in, load the run, save the run — and `app.js` calling nothing else, the way
-  DataPipe is one section of it. Moving from Firebase to Supabase is then that
-  file rewritten.
-- **The participant code stays the key and the provider's user id never
-  leaves the account file**: not into `container()`, not into DataPipe, not
-  into a `?pid=`. The two providers' ids differ and change with a move, and
-  one leaked into the saved files would stop the pilot's data and the study's
-  joining up.
-- **Sign-in is an emailed magic link, or anonymous with an email attached
-  when somebody wants another device, and never a password.** A magic-link
-  account moves between providers by its email; a password's hash moves only
-  with care; an anonymous account is a token in one browser and does not move
-  at all.
-- **The pilot's accounts are not migrated.** A kept run is dropped by the
-  `dealt` check on any deploy that changes the draw (see **Carrying on**), and
-  the content will change between the pilot and the study, so no pilot run
-  would survive the move whatever held it. The answers are in the deposit;
-  Supabase starts empty.
-
-Two things any version has to get right. **`keep()` is called on every item
+Two things this test has to get right. **`keep()` is called on every item
 shown and every answer**, two writes an item, several hundred a run, which
-would spend Spark's 20,000 writes a day on a few dozen runs: `localStorage`
-goes on taking every one, and the server is written at the end of a level and
-when the tab is hidden, a dozen or so a run. And **a run kept on an account
-outlives deploys** where one kept for a week in a browser mostly does not, so
-the `dealt` check that is harmless now would throw away weeks of somebody's
-answers: while a study runs `content/` is frozen, or each run is pinned to the
-version it began on. Last, the backend's public key is in the page, so **the
-access rules are the whole of the security** — each account reads and writes
-its own row and nothing else — and one missing rule makes every run readable,
-on a page holding Article 9 data.
+would spend the free plan's 20,000 writes a day on a few dozen runs:
+`localStorage` goes on taking every one, and the account is written a dozen or
+so times a run. And **a run kept on an account outlives deploys** where one
+kept for a week in a browser mostly does not, so the `dealt` check that is
+harmless now would throw away weeks of somebody's answers: while a study runs
+`content/` is frozen, or each run is pinned to the version it began on.
 
 **Carrying on.** A run left partway — the tab closed, the browser quit, the
 page reloaded — is kept in the browser's `localStorage` (`abyss:run`) and can
@@ -2948,12 +2884,16 @@ it: the way in is the address alone, which the README writes out in full.
   committee's own wording rather than reworded, since that is what a reviewer
   reads for — and what is written around them describes *this* study, so it has
   to keep agreeing with the Project Description in
-  `ethics/mint_followup/application_draft.md`. **One of the six is no longer
-  the committee's wording**: the committee's third says withdrawal is
+  `ethics/mint_followup/application_draft.md`. **Two of the seven are not
+  the committee's standard wording**: the committee's third says withdrawal is
   impossible "once I have completed it", which is not true when answers go out
   as they are given, so this one says "once it has been given, whether or not I
-  finish the study" instead. A reviewer should be told which one
-  was amended and why, and the rest are still to be left alone. **One thing
+  finish the study" instead; and the fourth is added, at the committee's request
+  (October 2026), saying up front that some questions are about intimate matters
+  (sexuality, bodily functions) or sensitive mental-health topics
+  (hallucinations, thoughts about death). It sits fourth so that the third keeps
+  its number, which the application and these notes refer to. A reviewer should be told which ones
+  were changed and why (7.5.2 does), and the rest are still to be left alone. **One thing
   in it is still a blank**: the reference, which the Faculty Research Ethics
   Committee: Science, Engineering and Technology (F-REC, formerly the C-REC)
   gives on approval. The duration it gives, 30 minutes, is the time rewarded (two SONA

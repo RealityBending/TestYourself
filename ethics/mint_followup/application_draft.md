@@ -523,7 +523,7 @@ and is attached under 6.6.1.
 ```
 
 - **6.8** — Yes. OK.
-- **6.8.1** — **Upload** `consent_form.docx` version 2 (beside this file):
+- **6.8.1** — **Upload** `consent_form.docx` version 3 (beside this file):
   this study's information sheet and consent form, which are one document.
 - **6.9** — No, to match 1.0. Done.
 - **6.10** — No. OK. **6.11** — No. OK. **6.12** — No. OK.
@@ -531,7 +531,7 @@ and is attached under 6.6.1.
 ### Informed consent and withdrawal
 
 - **7.0** — Yes. OK. **7.0.2** — In writing/online form. OK.
-- **7.0.4** — `consent_form.docx`: **replace** version 1 with version 2.
+- **7.0.4** — `consent_form.docx`: **replace** version 1 with version 3.
 - **7.1** — Yes. OK.
 
 ### 7.2 Suitable format — done
@@ -583,7 +583,11 @@ This differs from the previous study (ER/MB2021/2), where answers were saved
 only at the end. The consent statements are the University's standard wording
 except the third, which said that withdrawing data would be impossible "once I
 have completed it" and now says "once it has been given, whether or not I
-finish the study".
+finish the study". A fourth statement has been added, telling participants
+before they start that some of the questions ask about intimate matters (such
+as sexuality and bodily functions) or sensitive topics related to mental
+health (such as hallucinations and thoughts about death), and that they can
+stop at any point if they would rather not answer them.
 ```
 - **7.6** — Yes.
 

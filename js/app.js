@@ -2937,6 +2937,7 @@
         // whatever was voted and starred on it.
         stageFrame()
         keep()
+        stow()
 
         $("level-title").textContent = "Level " + level + " Unlocked"
         $("level-name").textContent = levelName(level)
@@ -3238,7 +3239,10 @@
         if (next === -1) {
             locked = true // there is nothing after this, and nothing to answer
             // Nothing is left to carry on, and what was kept is somebody's
-            // answers on a device others may use.
+            // answers on a device others may use. The account keeps the
+            // summary, finished, so the dashboard can say so; the state goes
+            // with the browser's copy (`forgetRun`).
+            if (ACCOUNT.on && ACCOUNT.who()) ACCOUNT.save({ summary: summary(true) }).catch((e) => console.warn(e))
             keeping = false
             forgetRun()
             saved("sending")
@@ -3550,10 +3554,43 @@
             })),
             sounded: sounded,
         }
+        lastKept = kept
         try {
             localStorage.setItem(RESUME_KEY, JSON.stringify(kept))
             sessionStorage.setItem(RESUME_TAB, "1")
         } catch (e) {} // refused or full: the run goes on, unkept
+    }
+
+    // The same, sent to the participant's account on the lab's hub
+    // (js/account.js, a pilot asked for by `?account`) as the app's state,
+    // with the summary the hub's dashboard reads beside it — but only at the
+    // end of a level and as the tab is hidden, not every time `keep()` is:
+    // that is twice an item, several hundred writes a run, and a free plan
+    // allows 20,000 a day.
+    let lastKept = null
+
+    function stow() {
+        if (!keeping || !lastKept || !ACCOUNT.on || !ACCOUNT.who()) return
+        ACCOUNT.save({ summary: summary(false), state: lastKept }).catch((e) => console.warn(e))
+    }
+
+    // What the dashboard shows of this run (the hub's AGENTS.md, **The
+    // summary**): the levels in the places they stand now, which are done,
+    // which are the core, and the link to carry the run on. Nothing anybody
+    // answered. A place a fork has yet to fill shows whatever stands in it,
+    // which is not a promise of what will be chosen there.
+    function summary(finished) {
+        return {
+            title: "The Abyss Test",
+            url: location.origin + location.pathname + loadedSearch,
+            finished: finished,
+            levels: scoredLevels.map((level) => ({
+                key: levelKey(level),
+                name: levelName(level),
+                done: levelProgress(level).unlocked,
+                core: inCore(level),
+            })),
+        }
     }
 
     // A kept run put back: the forks replayed onto the plan, so every level
@@ -3671,7 +3708,7 @@
     // it on loads the link it began from with this tab marked, and the page
     // that comes up picks it up (js/resume.js); starting again lets it go.
     function offerResume() {
-        if (!KEPT_RUN) return
+        if (!KEPT_RUN) return fetchKept()
         $("resume").hidden = false
 
         $("resume-go").addEventListener("click", () => {
@@ -3684,6 +3721,22 @@
             forgetRun()
             $("resume").hidden = true
         })
+    }
+
+    // No run kept in this browser, but one on the account: it is written into
+    // this browser as if it had been kept here, and the page loaded again,
+    // which then offers it like any other (js/resume.js reads it at load, and
+    // can only read it at load). Only a run js/resume.js will take — of its
+    // shape and inside the week — or the page would load again for ever.
+    function fetchKept() {
+        if (!ACCOUNT.on || !ACCOUNT.who()) return
+        ACCOUNT.loadState()
+            .then((kept) => {
+                if (!kept || kept.shape !== RESUME_SHAPE || !(Date.now() - new Date(kept.keptAt).getTime() < KEPT_FOR)) return
+                localStorage.setItem(RESUME_KEY, JSON.stringify(kept))
+                location.reload()
+            })
+            .catch((e) => console.warn(e))
     }
 
     // The end of the run. The whole file goes under the session — which is what
@@ -3844,6 +3897,7 @@
         if (document.visibilityState !== "hidden") return
         stageNoted()
         keep()
+        stow()
     })
 
     document.addEventListener("keydown", (e) => {
@@ -4103,6 +4157,19 @@
         $("resume").hidden = true
         keeping = true
         keep()
+        // An account to keep the run on, where the link asks for one: signed
+        // into anonymously, and only the first time in this browser. A link
+        // that brought a platform's id claims it for the account, so that the
+        // same id arriving on a second one is told apart (what to show it then
+        // is not built yet, and the run goes on).
+        if (ACCOUNT.on) {
+            ACCOUNT.signIn(source)
+                .then(() => (inLink("participant") ? ACCOUNT.claim(source, participant) : null))
+                .then((claim) => {
+                    if (claim === "taken") console.warn("account: this participant id is already claimed by another account")
+                })
+                .catch((e) => console.warn(e))
+        }
 
         document.body.classList.add("sinking")
         // Reading the height settles the water that class just opened, so the
@@ -4152,6 +4219,7 @@
         if (screen) stageItems([screen.key])
         stageFrame()
         keep()
+        stow()
 
         suckLevel(levelShowing, () => {
             const resume = () => {

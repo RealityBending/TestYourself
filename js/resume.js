@@ -45,12 +45,15 @@ function storage(kind) {
 }
 
 // Let go of the kept run: at the end of the test, on "Start again", and when
-// a kept run no longer matches the test it was taken on.
+// a kept run no longer matches the test it was taken on. The copy on an
+// account goes with it (js/account.js), or the landing page would fetch it
+// back and offer it again.
 function forgetRun() {
     try {
         storage("localStorage").removeItem(RESUME_KEY)
         storage("sessionStorage").removeItem(RESUME_TAB)
     } catch (e) {}
+    if (ACCOUNT.on && ACCOUNT.who()) ACCOUNT.dropState().catch((e) => console.warn(e))
 }
 
 // The run kept in this browser, if there is one still worth offering.
