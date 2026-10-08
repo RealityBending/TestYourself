@@ -4190,6 +4190,8 @@
     // Every way in is also the way out: pressing a lit button shuts what it lit.
     $("profile").addEventListener("click", () => (panel === "profile" ? closePanel() : openProfile()))
     $("raw").addEventListener("click", () => (panel === "raw" ? closePanel() : openRaw()))
+    // The way to the hub's dashboard, for a link that asks for the account.
+    $("account").hidden = !ACCOUNT.on
     // The way out of the level screen — the one button, or either side of a
     // fork: the screen is drawn into its stop on the gauge and the item waiting
     // behind it is put up.

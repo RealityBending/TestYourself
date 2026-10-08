@@ -106,8 +106,20 @@
 
             <!-- The raw file, as an icon and a word: braces. The profile is not
                  here but at the head of the shelf, over the badges it draws
-                 together. -->
+                 together. Above it, where the link asks for the account
+                 (`?account`, app.js), the way to the lab's hub: its dashboard,
+                 where an account is made or signed into and the lab's other
+                 apps are. It leaves in the same tab: the run is kept as it
+                 goes, so leaving it there is leaving it as a closed tab would,
+                 and "Carry on" on the dashboard brings it back. -->
             <div class="sidebar__links">
+                <a class="sidebar__link" id="account" href="../me/?account" hidden>
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <circle cx="12" cy="8.5" r="3.5" />
+                        <path d="M5 20c0-3.9 3.1-7 7-7s7 3.1 7 7" />
+                    </svg>
+                    <span>Account</span>
+                </a>
                 <button class="sidebar__link" id="raw" aria-expanded="false">
                     <svg viewBox="0 0 24 24" aria-hidden="true">
                         <path d="M8.5 4C6.5 4 5.5 5 5.5 7v2.4c0 1.6-.9 2.6-2.5 2.6 1.6 0 2.5 1 2.5 2.6V17c0 2 1 3 3 3" />

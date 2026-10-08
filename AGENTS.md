@@ -1710,8 +1710,9 @@ empty, so the line starts at the banner's lower edge with no gap and nothing
 lies over the top of it; the descent running along the sidebar's left edge,
 the edge the page sits against, carrying the fill and the stops and nothing
 else — the landmarks stand out in the middle of the bar (see **Landmarks**) — then
-the Data button at the foot, an inline SVG icon and a word; the Profile
-button is at the head of the shelf. The
+the Data button at the foot, an inline SVG icon and a word, with the Account
+link above it where the link asks for the account (see **The account is the
+lab's, not this test's**); the Profile button is at the head of the shelf. The
 line is divided **equally between the levels**, so a level's stop sits at the
 same point on it however many items it holds: with two levels they are at 50%
 and 100%, and what a long level buys is a slower stretch of water rather than
@@ -1983,6 +1984,15 @@ What this test does with it:
   like any kept run — `js/resume.js` reads the kept run at load and only then,
   so that is the one way in. Only a run `js/resume.js` will take (of its
   `RESUME_SHAPE` and inside the week), or the page would load again for ever.
+- **The Account link** (`#account`, at the foot of the gauge over Data, a
+  person drawn as an icon) goes to the hub's dashboard (`../me/?account`),
+  where an account is made or signed into and the lab's other apps are. Shown
+  only with `?account`. An `<a>`, not a panel, and **in the same tab**: the run
+  is kept as it goes, so leaving it there is leaving it as a closed tab would,
+  and the dashboard's "Carry on" brings it back. A new tab would leave two
+  copies of the run open, both keeping. On port 8123 alone (the
+  `testyourself` config) it goes nowhere: the hub is found beside the test, as
+  on the lab's domain and on the hub's `localhost:8000`.
 
 Two things this test has to get right. **`keep()` is called on every item
 shown and every answer**, two writes an item, several hundred a run, which

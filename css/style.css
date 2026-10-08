@@ -788,6 +788,16 @@ body[data-screen="card"] {
     transition: color 0.15s, border-color 0.15s, background 0.15s;
 }
 
+/* The account is a link out rather than a panel, so it is an <a> dressed as
+   the button beside it, and shown only where the link asks for it. */
+a.sidebar__link {
+    text-decoration: none;
+}
+
+.sidebar__link[hidden] {
+    display: none;
+}
+
 .sidebar__link svg,
 .shelf__link svg {
     width: 20px;
