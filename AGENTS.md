@@ -1958,13 +1958,13 @@ test's own is written there and not here**: the backend (Firebase,
 `reality-bending-lab`, Firestore in London), the database's layout and rules,
 claims, the summary the dashboard reads, what has been decided (a platform id
 is a label and never a key; email linking for SONA and never Prolific; the
-dashboard shows levels and never lets them be picked), the ethics and what is
+dashboard picks a level for this test, from 10 October 2026), the ethics and what is
 next. A pilot, asked for by `?account` alone (October 2026).
 
 What this test does with it:
 
 - **`js/account.js` is a copy of the hub's client, edited there and not
-  here**: version `0.1.0`, sha256 `4a4a1622…8f1fda70`. Its tag names the app
+  here**: version `0.4.0`, sha256 `3ce3c9bf…5c4f8d69`. Its tag names the app
   (`data-app="abyss"`), which is where the test's documents go on the account.
   Updating it is copying the hub's file over this one and writing the new
   version and hash here.
@@ -1979,6 +1979,27 @@ What this test does with it:
   never on every `keep()`. **The end of the run** writes the summary
   `finished` and `forgetRun()` drops the state with the browser's copy, so the
   dashboard can still say the run was finished.
+- **Levels taken one by one from the dashboard** (10 October 2026; the hub's
+  **The summary**, under Subtests). `summary()` writes, beside the run,
+  every level there is (`SUBTESTS`: `all`'s, without the ASIDE levels and the
+  closing, the levels outside the fork first and the rest by name) and
+  `pick`, the link that starts a run on any one of them:
+  `?account&source=hub&start={key}&skip={done}`, the dashboard putting in the
+  level's key and the keys of the levels done. **`?start=`, `?skip=` and
+  `?only=` take a level's `key`** as well as a block's name (`blocksIn`), the
+  key standing for the level's blocks as this timeline has them, and for
+  `start` its first. Such a run walks `all`, opens on the level chosen, asks
+  none of those done, asks the demographics again, and says `source=hub`, since
+  it was not counterbalanced by the forks. And `stow()` and the end of the run
+  hand the account `done` (`finishedLevels()`): each level finished in this
+  run, when (`levelTimes`) and the link to its results, which the client merges
+  into what earlier runs left rather than writing over it.
+- **Your results, from the dashboard.** A level's `results` is its share link
+  (`levelLink(level, true)`) with `own=1` where a shared one says its source.
+  `readLevelLink` reads it, and `showLevelVisit` draws it as the participant's
+  own: "Your results" over it, no note, and "Back to your profile"
+  (`../me/?account`) in place of taking the test. Anybody can write `own=1`
+  on a link; all it changes is the words.
 - **`fetchKept()`**: a landing page with no run kept in this browser but one
   on the account writes it into the browser and loads again, and it is offered
   like any kept run — `js/resume.js` reads the kept run at load and only then,

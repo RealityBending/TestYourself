@@ -24,11 +24,13 @@
    ========================================================================= */
 
 const ACCOUNT = (() => {
-    const VERSION = "0.1.0"
+    const VERSION = "0.4.0"
 
     const KEY = "AIzaSyCADzQruhIHAW27TTIjmdrmeQY_KB6-bwk"
     const PROJECT = "reality-bending-lab"
     const SIGN_UP = "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=" + KEY
+    const SIGN_IN_WITH_PASSWORD = "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=" + KEY
+    const SEND_CODE = "https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=" + KEY
     const REFRESH = "https://securetoken.googleapis.com/v1/token?key=" + KEY
     const DATABASE = "projects/" + PROJECT + "/databases/(default)/documents"
     const API = "https://firestore.googleapis.com/v1/"
@@ -71,6 +73,7 @@ const ACCOUNT = (() => {
             const why = body.error ? body.error.status || body.error.message || "" : ""
             const error = new Error("account: " + response.status + " " + why)
             error.status = response.status
+            error.reason = why
             throw error
         }
         return body
@@ -151,6 +154,12 @@ const ACCOUNT = (() => {
     // and writes where the participant first came from (`source`, the app's
     // own reading of its link), which is what later decides whether linking
     // an email may be offered — never to anybody from Prolific.
+    //
+    // The account is held only once its document is written, so an account
+    // in this browser always has one: a write that fails drops the account,
+    // leaving an empty sign-in record behind, and the next sign-in makes
+    // another. The document is written once (`exists=false`), which is what
+    // rules holding it to that would ask for.
     async function signIn(source) {
         if (held()) return held().uid
         const body = await reply(
@@ -160,20 +169,23 @@ const ACCOUNT = (() => {
                 body: JSON.stringify({ returnSecureToken: true }),
             }),
         )
-        const account = { uid: body.localId, token: body.idToken, refresh: body.refreshToken, until: Date.now() + (body.expiresIn - 60) * 1000 }
+        const account = fromSignIn(body)
+        await register(account, source)
         hold(account)
-        await reply(
-            await fetch(API + accountDoc(account.uid), {
-                method: "PATCH",
-                headers: asked(account, { "Content-Type": "application/json" }),
-                body: JSON.stringify({ fields: fieldsOf({ created: new Date(), source: source || null, app: app }) }),
-            }),
-        )
         return account.uid
     }
 
+    function register(account, source) {
+        return fetch(API + accountDoc(account.uid) + "?currentDocument.exists=false", {
+            method: "PATCH",
+            headers: asked(account, { "Content-Type": "application/json" }),
+            body: JSON.stringify({ fields: fieldsOf({ created: new Date(), source: source || null, app: app }) }),
+        }).then(reply)
+    }
+
     // Signing out forgets the account in this browser. An anonymous account
-    // forgotten cannot be signed back into, so what it held is out of reach.
+    // forgotten cannot be signed back into, so what it held is out of reach;
+    // one with an email is signed back into with it.
     function signOut() {
         try {
             localStorage.removeItem(HELD)
@@ -183,6 +195,86 @@ const ACCOUNT = (() => {
     function who() {
         const account = held()
         return account ? account.uid : null
+    }
+
+    // The email of the account held, or null for an anonymous one. Read off
+    // the id token, which carries it, before what was kept beside it at
+    // sign-in: a copy of this file from before emails, refreshing the token in
+    // another app, keeps the token and drops the rest.
+    function email() {
+        const account = held()
+        if (!account) return null
+        try {
+            return said(account.token).email || account.email || null
+        } catch (e) {
+            return account.email || null
+        }
+    }
+
+    // What a token says of itself: the middle of the three parts of a JWT.
+    // Read, not checked; the backend checks what is sent to it.
+    function said(token) {
+        return JSON.parse(atob(token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")))
+    }
+
+    function fromSignIn(body, address) {
+        return {
+            uid: body.localId,
+            token: body.idToken,
+            refresh: body.refreshToken,
+            until: Date.now() + (body.expiresIn - 60) * 1000,
+            email: body.email || address || null,
+        }
+    }
+
+    function post(url, request) {
+        return fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(request),
+        }).then(reply)
+    }
+
+    /* ------------------------ signing in with an email -------------------- */
+
+    // An address and a password, kept by Firebase with its sign-in records
+    // (the password hashed; see AGENTS.md, **Signing in with an email**).
+    // Firebase's reason for a refusal — EMAIL_EXISTS, INVALID_LOGIN_CREDENTIALS,
+    // WEAK_PASSWORD and the rest — is on the error as `reason`, for the page to
+    // put in its own words.
+    //
+    // Making one **links** the account already held in this browser, the
+    // anonymous one an app made, so that what it has goes with it; with none
+    // held, a new account is made and its document written as `signIn`'s is.
+    // Hands back "linked" or "made". An address already on an account of its
+    // own is refused (EMAIL_EXISTS), and signing into that one instead is the
+    // page's to offer.
+    async function signUpWithEmail(address, password) {
+        if (email()) throw new Error("account: this account has an email already")
+        const linking = held() ? await signedIn() : null
+        const request = { email: address, password: password, returnSecureToken: true }
+        if (linking) request.idToken = linking.token
+        const account = fromSignIn(await post(SIGN_UP, request), address)
+        if (!linking) await register(account, null)
+        hold(account)
+        return linking ? "linked" : "made"
+    }
+
+    // Signing back in. An account held in this browser that is not this one is
+    // let go of — an anonymous one for good, which is the page's to warn of.
+    // A sign-up whose document was never written gets it now.
+    async function signInWithEmail(address, password) {
+        const request = { email: address, password: password, returnSecureToken: true }
+        const account = fromSignIn(await post(SIGN_IN_WITH_PASSWORD, request), address)
+        const has = await fetch(API + accountDoc(account.uid), { headers: asked(account) })
+        if (has.status === 404) await register(account, null)
+        else await reply(has)
+        hold(account)
+    }
+
+    // Firebase emails a link to a page of its own for choosing a new password.
+    async function resetPassword(address) {
+        await post(SEND_CODE, { requestType: "PASSWORD_RESET", email: address })
     }
 
     /* ------------------------------- claims ------------------------------- */
@@ -224,18 +316,36 @@ const ACCOUNT = (() => {
 
     /* ------------------------------ an app's own -------------------------- */
 
+    // A field's path as Firestore reads one: a name that is not a plain
+    // identifier goes in backticks.
+    function fieldPath(...names) {
+        return names.map((name) => (/^[A-Za-z_][A-Za-z0-9_]*$/.test(name) ? name : "`" + name.replace(/[\\`]/g, "\\$&") + "`")).join(".")
+    }
+
     // What an app writes, in one request: its **summary**, the small document
     // the dashboard reads (`apps/<app>`, see AGENTS.md, **The summary**), and
     // its **state**, whatever it needs to carry a participant on, which only
     // the app reads and which goes as one string (`private/state`). Either may
     // be left out; a `state` of null deletes it. `keepalive` lets a save sent
     // as the tab is hidden outlive the tab.
+    //
+    // **`done`** is the subtests finished, by key (`{ key: { at, results } }`),
+    // and is merged into the summary's rather than written over it, so what
+    // was done in one run is still there once another has begun, on this
+    // device or another, with nothing read first. The summary's own fields are
+    // written by name for the same reason, leaving `done` as it was.
     async function save(what) {
         const account = await signedIn()
         const writes = []
-        if (what.summary) {
-            const summary = Object.assign({}, what.summary, { updatedAt: new Date() })
-            writes.push({ update: { name: summaryDoc(account.uid), fields: fieldsOf(summary) } })
+        if (what.summary || what.done) {
+            const summary = what.summary ? Object.assign({}, what.summary, { updatedAt: new Date() }) : {}
+            delete summary.done
+            const paths = Object.keys(summary).map((name) => fieldPath(name))
+            const done = what.done || {}
+            for (const key of Object.keys(done)) paths.push(fieldPath("done", key))
+            const fields = fieldsOf(summary)
+            if (Object.keys(done).length) fields.done = typed(done)
+            writes.push({ update: { name: summaryDoc(account.uid), fields: fields }, updateMask: { fieldPaths: paths } })
         }
         if (what.state) {
             writes.push({ update: { name: stateDoc(account.uid), fields: fieldsOf({ state: JSON.stringify(what.state), savedAt: new Date() }) } })
@@ -273,5 +383,21 @@ const ACCOUNT = (() => {
         return (body.documents || []).map((doc) => Object.assign({ app: doc.name.split("/").pop() }, plainOf(doc.fields || {})))
     }
 
-    return { VERSION, app, on, signIn, signOut, who, claim, save, loadState, dropState, summaries }
+    return {
+        VERSION,
+        app,
+        on,
+        signIn,
+        signUpWithEmail,
+        signInWithEmail,
+        resetPassword,
+        signOut,
+        who,
+        email,
+        claim,
+        save,
+        loadState,
+        dropState,
+        summaries,
+    }
 })()

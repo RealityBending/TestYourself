@@ -1273,7 +1273,11 @@ function makeResults(engine) {
         return entry ? entry.name : key
     }
 
-    function levelLink(level) {
+    // `own` is the same link for the participant's own account to keep (the
+    // hub's dashboard opens it from a level done): it says `own` where a
+    // shared one says where it came from, and is drawn as their results, not
+    // somebody else's (`showLevelVisit`).
+    function levelLink(level, own) {
         const pairs = dimensionOrder
             .filter((dimension) => dimensions[dimension][0].level === level && score(dimension) !== undefined)
             .map((dimension) => dimension + "~" + +score(dimension).toFixed(3))
@@ -1281,7 +1285,7 @@ function makeResults(engine) {
 
         const birthday = onLevel(dimensionsOf(theories.OLD_THEORIES_OF), level) && theories.birthdayStandIn()
         if (birthday) link += "&m=" + birthday.month + (birthday.day === undefined ? "" : "&d=" + birthday.day)
-        return link + "&source=" + SHARED_SOURCE
+        return link + (own ? "&own=1" : "&source=" + SHARED_SOURCE)
     }
 
     // A link is somebody else's text: only a level this build has, only its
@@ -1314,16 +1318,21 @@ function makeResults(engine) {
             answers["Demographics_BirthMonth"] = month
             if (Number.isInteger(day) && ((day >= 1 && day <= 31) || day === 99)) answers["Demographics_BirthDay"] = day
         }
-        return { level: level, key: key, values: values, answers: answers }
+        return { level: level, key: key, values: values, answers: answers, own: query.get("own") === "1" }
     }
 
     // Somebody else's level, opened from a link: nothing is recorded, and
-    // nothing on it can be pressed.
+    // nothing on it can be pressed. Or the participant's own, opened from the
+    // hub's dashboard (`own`), drawn the same way from the scores the link
+    // carries, and with the way back there in place of taking the test.
     function showLevelVisit(shared) {
         visit({ values: shared.values, answers: shared.answers })
         const name = nameOfLevel(shared.key)
         $("visit-title").textContent = name
-        $("visit-note").textContent = "Somebody has shared their results on " + name + " with you. Take the test to see your own."
+        $("visit-eyebrow").textContent = shared.own ? "Your results" : "Shared with you"
+        $("visit-note").textContent = shared.own ? "" : "Somebody has shared their results on " + name + " with you. Take the test to see your own."
+        $("visit-note").hidden = shared.own
+        $("visit-start").textContent = shared.own ? "Back to your profile" : "Take the test yourself"
         const holder = $("visit-card")
         holder.className = "visit__results"
         renderResults(holder, shared.level, false)
@@ -1725,6 +1734,7 @@ function makeResults(engine) {
         readCardLink: readCardLink,
         showVisit: showVisit,
         readLevelLink: readLevelLink,
+        levelLink: levelLink,
         showLevelVisit: showLevelVisit,
         hideTip: hideTip,
     }

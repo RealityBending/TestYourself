@@ -141,14 +141,29 @@
     // level after it.
     const INTERLUDED = everywhere.filter((entry) => entry.interlude).flatMap((entry) => entry.blocks)
 
+    // A link may name a level by its `key` where it would name a block, which
+    // is how the hub's dashboard asks for one (`?start=Character&skip=General`,
+    // see `summary()`): a key stands for the level's blocks, as this timeline
+    // has them (a level's blocks may be drawn in another order on another),
+    // and for `start` its first, which brings the whole level forward all the
+    // same. Keys are capitalised and block names are not, so the two never
+    // meet. An interlude has no key.
+    function blocksIn(param, first) {
+        return namesIn(param).flatMap((name) => {
+            const level = TIMELINE.find((entry) => entry.key === name) || everywhere.find((entry) => entry.key === name)
+            if (!level) return [name]
+            return first ? level.blocks.slice(0, 1) : level.blocks
+        })
+    }
+
     const asked = new Set(named.filter((name) => ASIDE.indexOf(name) === -1))
-    const only = namesIn("only")
+    const only = blocksIn("only")
     if (only.length) {
         asked.clear()
         for (const name of only) asked.add(name)
     }
     for (const group of HELD_TOGETHER) if (group.some((name) => asked.has(name))) for (const name of group) asked.add(name)
-    for (const name of namesIn("skip")) {
+    for (const name of blocksIn("skip")) {
         const group = HELD_TOGETHER.find((one) => one.indexOf(name) !== -1) || [name]
         for (const one of group) asked.delete(one)
     }
@@ -164,7 +179,7 @@
     // the landing page. "Take the test yourself" then opens on it by `?start=`.
     const sharedLevel =
         query.get("card") === "1" && query.get("s") ? everywhere.find((entry) => entry.key === query.get("level")) : undefined
-    const brought = namesIn("start").concat(sharedLevel ? sharedLevel.blocks : [])
+    const brought = blocksIn("start", true).concat(sharedLevel ? sharedLevel.blocks : [])
     for (const name of brought) {
         if (name === "closing" || !elsewhere(name) || INTERLUDED.indexOf(name) !== -1) continue
         const group = HELD_TOGETHER.find((one) => one.indexOf(name) !== -1) || [name]
@@ -221,7 +236,7 @@
         const plan = written.filter((entry) => !entry.interlude)
         const interludes = written.filter((entry) => entry.interlude)
 
-        const starts = namesIn("start").filter((name) => {
+        const starts = blocksIn("start", true).filter((name) => {
             if (name === "closing") console.warn("closing is where the run ends, so it cannot start it; ignored")
             else if (DEMOGRAPHICS.indexOf(name) !== -1) console.warn(name + " opens a place, not a level, so it cannot start the run; ignored")
             else if (INTERLUDED.indexOf(name) !== -1) console.warn(name + " is asked between levels, not as one, so it cannot start the run; ignored")
@@ -3242,7 +3257,7 @@
             // answers on a device others may use. The account keeps the
             // summary, finished, so the dashboard can say so; the state goes
             // with the browser's copy (`forgetRun`).
-            if (ACCOUNT.on && ACCOUNT.who()) ACCOUNT.save({ summary: summary(true) }).catch((e) => console.warn(e))
+            if (ACCOUNT.on && ACCOUNT.who()) ACCOUNT.save({ summary: summary(true), done: finishedLevels() }).catch((e) => console.warn(e))
             keeping = false
             forgetRun()
             saved("sending")
@@ -3571,7 +3586,7 @@
 
     function stow() {
         if (!keeping || !lastKept || !ACCOUNT.on || !ACCOUNT.who()) return
-        ACCOUNT.save({ summary: summary(false), state: lastKept }).catch((e) => console.warn(e))
+        ACCOUNT.save({ summary: summary(false), done: finishedLevels(), state: lastKept }).catch((e) => console.warn(e))
     }
 
     // What the dashboard shows of this run (the hub's AGENTS.md, **The
@@ -3579,6 +3594,14 @@
     // which are the core, and the link to carry the run on. Nothing anybody
     // answered. A place a fork has yet to fill shows whatever stands in it,
     // which is not a promise of what will be chosen there.
+    //
+    // Beside the run, every level there is (`subtests`), and the link that
+    // starts a run on any one of them (`pick`): the dashboard puts the level's
+    // key for `{key}` and the keys of the levels done for `{done}`, so the run
+    // opens on the level chosen and asks none of those again (`blocksIn`). It
+    // walks `all`, whatever the run that wrote it walked, and says it came from
+    // the hub (`source=hub`), since a run begun there was not counterbalanced
+    // by the forks the way one walked from the start is.
     function summary(finished) {
         return {
             title: "The Abyss Test",
@@ -3590,7 +3613,36 @@
                 done: levelProgress(level).unlocked,
                 core: inCore(level),
             })),
+            subtests: SUBTESTS,
+            pick: location.origin + location.pathname + "?account&source=hub" + (testMode ? "&test=true" : "") + "&start={key}&skip={done}",
         }
+    }
+
+    // Every level there is to take, for the dashboard's tiles: `all`'s, which
+    // is everything but the levels a link alone reaches (ASIDE) and the
+    // closing. The levels outside its fork first (General), then the rest by
+    // name, the same on every load, the timeline's own order being drawn.
+    const SUBTESTS = (() => {
+        const levels = BATTERIES.all.filter(
+            (entry) => entry.key && !entry.interlude && entry.blocks.indexOf("closing") === -1 && !entry.blocks.every((name) => ASIDE.indexOf(name) !== -1),
+        )
+        const first = levels.filter((entry) => !entry.fork)
+        const rest = levels.filter((entry) => entry.fork).sort((a, b) => a.name.localeCompare(b.name))
+        return first.concat(rest).map((entry) => ({ key: entry.key, name: entry.name, minutes: entry.minutes || null }))
+    })()
+
+    // The levels finished in this run, which the account keeps beside those
+    // of every run before it (the summary's `done`, merged and never written
+    // over): when each was finished, and the link that draws its results again
+    // from its scores alone, as the participant's own (`levelLink`, results.js).
+    // The scores go to the account, the answers never do.
+    function finishedLevels() {
+        const done = {}
+        for (const level of scoredLevels) {
+            if (!levelProgress(level).unlocked || !levelTimes[level]) continue
+            done[levelKey(level)] = { at: new Date(levelTimes[level]), results: results.levelLink(level, true) }
+        }
+        return done
     }
 
     // A kept run put back: the forks replayed onto the plan, so every level
@@ -4255,7 +4307,14 @@
     // is settled from the link when the page loads (`PLAN`) and cannot be
     // rearranged under it. The link's own scores go and the rest of it — the
     // source, above all — stays.
+    //
+    // Somebody looking at their own results, opened from the hub's dashboard,
+    // goes back there.
     $("visit-start").addEventListener("click", () => {
+        if (visitingLevel && visitingLevel.own) {
+            location.assign("../me/?account")
+            return
+        }
         if (visitingLevel) {
             const query = new URLSearchParams(location.search)
             dropCard(query)
