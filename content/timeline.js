@@ -400,10 +400,13 @@ const TIMELINE_ALL = [
         { key: "Reasoning", name: "How You Think", blocks: ["icar"], fork: 3, minutes: 7 },
         { key: "Regulation", name: "Mind & Heart", blocks: ["regulation"], fork: 3, minutes: 7 },
         { key: "Opinions", name: "Where You Stand", blocks: ["opinions"], fork: 3, minutes: 5 },
-        // Not in `mint`, which the ethics application does not cover it for.
-        // A fork's slots must be scored levels, which is the whole reason one
-        // of its items carries a dimension (see content/block_sex.js). Its
-        // minutes are a guess, nobody having taken it.
+        // Not in `mint`, which the ethics application does not cover it for,
+        // and ASIDE below (October 2026): reached only by a link naming it
+        // (`?start=sex`, `start/sex/`), which is how it is shared, and so not
+        // among the levels the hub's dashboard offers. A fork's slots must be
+        // scored levels, which is the whole reason one of its items carries a
+        // dimension (see content/block_sex.js). Its minutes are a guess,
+        // nobody having taken it.
         { key: "Sexuality", name: "Sexuality", blocks: ["sex"], fork: 3, minutes: 6 },
         // Written here so that it has a place, a key and a name, but ASIDE
         // below: a level on the philosophy of Howard's Hyborian Age, written to
@@ -433,10 +436,12 @@ const TIMELINE_ALL = [
 //
 // **ASIDE is asked by no battery**: blocks on a timeline, so that their level
 // has a place, a key and a name, that a run meets only when a link names them
-// — `?start=hyborian` or `?start=dark` asks a block whatever the battery says
-// and walks that level first.
+// — `?start=hyborian`, `?start=dark` or `?start=sex` asks a block whatever
+// the battery says and walks that level first. The hub's dashboard never
+// offers one (app.js, `SUBTESTS`): they are for the people a link was shared
+// with.
 const BATTERIES = { mint: TIMELINE_MINT, all: TIMELINE_ALL }
-const ASIDE = ["hyborian", "dark"]
+const ASIDE = ["hyborian", "dark", "sex"]
 
 // **The demographics are written on no level**: they open the run's first
 // levels, one apiece and in this order — the first opens level 1, the second

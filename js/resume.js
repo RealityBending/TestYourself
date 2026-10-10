@@ -33,6 +33,11 @@ const RESUME_TAB = "abyss:live"
 // A run is kept this long after it was last touched, and no longer: what is
 // kept is somebody's answers on a device other people may use.
 const KEPT_FOR = 7 * 24 * 60 * 60 * 1000
+// And this long on the participant's account (the lab's hub, `?account`),
+// behind its sign-in rather than in an open browser, since carrying on later
+// on another device is what an account is for (app.js, `fetchKept`). A run
+// is still let go of whenever the test changes under it (`dealt`).
+const KEPT_ON_ACCOUNT = 30 * 24 * 60 * 60 * 1000
 
 // Storage can be refused outright (a private window, blocked site data), and
 // then nothing is kept and every run is a new one, as before.
@@ -46,14 +51,17 @@ function storage(kind) {
 
 // Let go of the kept run: at the end of the test, on "Start again", and when
 // a kept run no longer matches the test it was taken on. The copy on an
-// account goes with it (js/account.js), or the landing page would fetch it
-// back and offer it again.
-function forgetRun() {
+// account goes with it (js/account.js, which takes the dashboard's "Carry on"
+// away with it), or the landing page would fetch it back and offer it again —
+// unless `here` says only this browser's copy is to go: at the end of the
+// test, whose last save to the account let go of the state itself, and when
+// the browser's week is up, the account keeping its own for a month.
+function forgetRun(here) {
     try {
         storage("localStorage").removeItem(RESUME_KEY)
         storage("sessionStorage").removeItem(RESUME_TAB)
     } catch (e) {}
-    if (ACCOUNT.on && ACCOUNT.who()) ACCOUNT.dropState().catch((e) => console.warn(e))
+    if (!here && ACCOUNT.on && ACCOUNT.who()) ACCOUNT.dropState().catch((e) => console.warn(e))
 }
 
 // The run kept in this browser, if there is one still worth offering.
@@ -64,7 +72,7 @@ const KEPT_RUN = (() => {
     } catch (e) {}
     if (!kept || kept.shape !== RESUME_SHAPE) return null
     if (!(Date.now() - new Date(kept.keptAt).getTime() < KEPT_FOR)) {
-        forgetRun()
+        forgetRun(true)
         return null
     }
     return kept

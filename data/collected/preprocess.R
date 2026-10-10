@@ -42,9 +42,10 @@
 #                analysis wants is the analysis's business. What this does is
 #                reshape: many files of records into one table of people.
 #
-#                  the run       participant, file, completed, version,
-#                                test_mode, synthetic, battery, source,
-#                                format_mint, time_start, time_resumed
+#                  the run       participant, account, file, completed,
+#                                version, test_mode, synthetic, battery,
+#                                source, format_mint, time_start,
+#                                time_resumed
 #                  sequences     levels_walked, order_walked (see below)
 #                  Feedback_*    one a reading: agree, disagree or nothing
 #                  Rating_*      one a level: the stars its results were given
@@ -255,6 +256,12 @@ when <- function(text) {
 participant_rows <- function(run, file, completed) {
   data.frame(
     participant = as.character(run$participant %||% NA),
+    # The person across runs where `participant` is the run: the code of the
+    # account it was kept on on the lab's hub, the same in every run of that
+    # account (a level picked from the dashboard, a retake), so one person's
+    # rows are the ones sharing it. NA for a run kept on no account, and in
+    # files from before October 2026.
+    account = as.character(run$account %||% NA),
     file = file,
     completed = completed,
     version = as.character(run$version %||% NA),

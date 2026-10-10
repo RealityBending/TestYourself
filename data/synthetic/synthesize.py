@@ -604,7 +604,9 @@ def write_file(book, persona, given, bio, provenance):
     answers = tidy(book, persona, given)
     now = dt.datetime.now(dt.timezone.utc).isoformat().replace("+00:00", "Z")
 
-    file = {"version": book["version"], "participant": persona["code"], "testMode": False}
+    # Kept on no account, as a run whose link did not ask for one (`account`
+    # null, the app's own shape for that).
+    file = {"version": book["version"], "participant": persona["code"], "account": None, "testMode": False}
     file["synthetic"] = dict(provenance, seed=persona["seed"], flavours=persona["flavours"], bio=bio, generated=now)
     # The mint battery, in its written order, which is what a synthetic run
     # walks (codebook.js reads no other): every level and questionnaire as written.

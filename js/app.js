@@ -102,6 +102,15 @@
             .trim()
             .slice(0, 200) || UNKNOWN_SOURCE
 
+    // The platform the link came from, as the lab's hub names it (its
+    // `claim`), which is what an id it brought is claimed under and what
+    // decides whether keeping the account with an email is offered: a study's
+    // link says `?source=SONA` or `?source=Prolific`, in any case and with
+    // anything after it (`Prolific-pilot`), and any other source is its own
+    // name in lower case. **Prolific's participants are never offered an
+    // email** (the hub's AGENTS.md, **Who is offered what**).
+    const PLATFORM = /^prolific/i.test(source) ? "prolific" : /^sona/i.test(source) ? "sona" : source.toLowerCase()
+
     // Which timeline this run walks — its battery. `?project=<name>` picks
     // one out of BATTERIES (content/timeline.js), which is what a study
     // links with, and a link naming none, or one that is not there, gets
@@ -665,8 +674,16 @@
     // an item added, a block moved, a new deploy — deals another, and answers
     // kept against the old one would land on the wrong items. Such a run is
     // let go of and the page loaded again, afresh.
-    const dealt = formatMint + " " + questions.map((question) => question.key).join(" ")
-    if (RESUMED && RESUMED.dealt !== dealt) {
+    //
+    // It is kept as its length and a hash of it (FNV-1a, the one `answerKey`
+    // in content/timeline.js already does) rather than written out: every
+    // item key of the run is several kilobytes, and the kept run goes to the
+    // participant's account at the end of every level, in a request a closing
+    // tab caps at 64 KiB. A run kept before then, with it written out, is
+    // checked against the whole.
+    const dealtWhole = formatMint + " " + questions.map((question) => question.key).join(" ")
+    const dealt = dealtWhole.length + "-" + answerKey("dealt", dealtWhole)
+    if (RESUMED && RESUMED.dealt !== dealt && RESUMED.dealt !== dealtWhole) {
         console.warn("The run kept in this browser was taken on another version of the test; starting afresh")
         forgetRun()
         location.reload()
@@ -983,6 +1000,14 @@
         const file = {
             version: APP_VERSION,
             participant: participant,
+            // Who is taking it across runs, where `participant` is this run:
+            // the code of the account it is kept on (the hub's `code`, never
+            // the account's own id), the same in every run of that account —
+            // a level picked from the dashboard, a retake months later, a run
+            // on another device — so that one person's runs can be put
+            // together, and a test told from its retest. Null in a run kept on
+            // no account, and until the account is signed into at Start.
+            account: ACCOUNT.on ? ACCOUNT.code() : null,
             testMode: testMode,
             battery: battery,
             source: source,
@@ -2798,12 +2823,11 @@
     let openLevel = null // which level the results panel is showing
     let openFrom = null // and which button it grew out of: a stop, or a badge
 
-    // Panels opened by a bar link of the same id, lit while theirs is up. The
-    // two sit on different bars — the profile at the head of the shelf, the
-    // file at the foot of the gauge — so each is named with the block it is
-    // written in. The level buttons open the results panel, and are lit by
+    // Panels opened by a bar link of the same id, lit while theirs is up: the
+    // profile, at the head of the shelf, named with the block it is written
+    // in. The level buttons open the results panel, and are lit by
     // renderSidebar and renderShelf instead.
-    const LINKED = { profile: "shelf__link", raw: "sidebar__link" }
+    const LINKED = { profile: "shelf__link" }
 
     function openPanel(name) {
         results.hideTip()
@@ -2851,9 +2875,99 @@
         renderSidebar()
     }
 
-    function openRaw() {
-        $("raw-json").textContent = JSON.stringify(container(), null, 2)
-        openPanel("raw")
+    // The account, top right, as the hub's dashboard draws it (its `drawMe`):
+    // whose it is at a glance — nobody yet, an anonymous account (a ghost,
+    // and a dot, being kept in this browser only) or an email — and the way to
+    // the dashboard. Only where the link asks for the account. Drawn at load
+    // and again once Start has signed in.
+    const PERSON = "M12 12a4 4 0 100-8 4 4 0 000 8zM4.5 20a7.5 7.5 0 0115 0"
+    const GHOST = "M6 20V11a6 6 0 0112 0v9l-2-1.5-2 1.5-2-1.5-2 1.5-2-1.5zM10 11h.01M14 11h.01"
+
+    function drawAccount() {
+        const pill = $("account")
+        pill.hidden = !ACCOUNT.on
+        if (!ACCOUNT.on) return
+        const uid = ACCOUNT.who()
+        const email = ACCOUNT.email()
+        const avatar = document.createElement("span")
+        avatar.className = email ? "avatar" : uid ? "avatar avatar--ghost" : "avatar avatar--none"
+        if (email) avatar.textContent = email[0].toUpperCase()
+        else {
+            const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg")
+            svg.setAttribute("viewBox", "0 0 24 24")
+            svg.setAttribute("aria-hidden", "true")
+            const path = document.createElementNS("http://www.w3.org/2000/svg", "path")
+            path.setAttribute("d", uid ? GHOST : PERSON)
+            svg.appendChild(path)
+            avatar.appendChild(svg)
+        }
+        const label = document.createElement("span")
+        label.className = "me__label"
+        label.textContent = email || (uid ? "Anonymous" : "Sign in")
+        pill.replaceChildren(avatar, label)
+        // The dot says there is something to do, which there is not for an
+        // account that is offered no email (one from Prolific).
+        const unkept = !!uid && offersEmail()
+        pill.classList.toggle("me--unkept", unkept)
+        pill.title = unkept ? "Kept in this browser only: add an email to keep it" : ""
+        pill.setAttribute(
+            "aria-label",
+            email ? "Your account, " + email : uid ? "Your anonymous account, kept in this browser only" : "Sign in",
+        )
+        pill.href = toHub(false)
+    }
+
+    // Whether keeping the account with an email is offered here: an
+    // anonymous account (the hub's `offersEmail`, which says no to one that
+    // has ever arrived from Prolific), on a link that is not Prolific's.
+    function offersEmail() {
+        return ACCOUNT.on && ACCOUNT.offersEmail() && PLATFORM !== "prolific"
+    }
+
+    // The way to the hub's dashboard, with the way back to here (`?back=`):
+    // the run's own link while a run is kept, which the page coming back by
+    // it carries on (asking first whose run it is, as any reload does), and
+    // this page otherwise. `keep` opens the dashboard on adding an email.
+    function toHub(toKeep) {
+        const back = location.pathname + (keeping ? loadedSearch : location.search)
+        return "../me/?account" + (toKeep ? "&keep" : "") + "&back=" + encodeURIComponent(back)
+    }
+
+    // **Keep your results**: the offer to add an email to the anonymous
+    // account a run is kept on, at the moment it is worth most — a level's
+    // results just opened, and the end of the run. Through the dashboard
+    // (`toHub`), which is where an account is made and kept: the hub owns who
+    // somebody is, and the way back brings the run back up. Offered by where
+    // the link came from (the hub's AGENTS.md, **Who is offered what**): never
+    // on Prolific's; on SONA's once the core is done, the part the credit is
+    // for; on anybody else's from the first level. Put away for the rest of
+    // the tab's visit by "Not now".
+    const KEEP_LATER = "abyss:keep-later"
+
+    function keepable() {
+        if (!offersEmail() || !ACCOUNT.who()) return false
+        try {
+            if (sessionStorage.getItem(KEEP_LATER)) return false
+        } catch (e) {}
+        if (PLATFORM === "sona") return scoredLevels.filter(inCore).every((level) => levelProgress(level).unlocked)
+        return true
+    }
+
+    function drawKeep() {
+        const shown = keepable()
+        for (const card of document.querySelectorAll(".keep")) {
+            card.hidden = !shown
+            card.querySelector(".keep__go").href = toHub(true)
+        }
+    }
+
+    for (const later of document.querySelectorAll(".keep__later")) {
+        later.addEventListener("click", () => {
+            try {
+                sessionStorage.setItem(KEEP_LATER, "1")
+            } catch (e) {}
+            for (const card of document.querySelectorAll(".keep")) card.hidden = true
+        })
     }
 
     const PARTICLES = 14
@@ -2987,6 +3101,7 @@
         else if (next && !waits) results.renderTeaser($("level-next"), next, levelName(next), "", aboutMinutes(next))
         // From the floor, the way on is down through it rather than on.
         $("level-continue").textContent = level === floorLevel ? "Go beneath the floor →" : "Continue the test →"
+        drawKeep()
 
         results.sealSections($("level-results"), $("level-foot"))
         renderSidebar()
@@ -3255,11 +3370,14 @@
             locked = true // there is nothing after this, and nothing to answer
             // Nothing is left to carry on, and what was kept is somebody's
             // answers on a device others may use. The account keeps the
-            // summary, finished, so the dashboard can say so; the state goes
-            // with the browser's copy (`forgetRun`).
-            if (ACCOUNT.on && ACCOUNT.who()) ACCOUNT.save({ summary: summary(true), done: finishedLevels() }).catch((e) => console.warn(e))
+            // summary, finished, so the dashboard can say so, and lets go of
+            // the state in the same request; the browser's copy goes here
+            // (`forgetRun`, told the account has been seen to).
+            if (ACCOUNT.on && ACCOUNT.who()) {
+                ACCOUNT.save({ summary: summary(true), done: finishedLevels(), state: null }).catch((e) => console.warn(e))
+            }
             keeping = false
-            forgetRun()
+            forgetRun(true)
             saved("sending")
             save().then(
                 () => saved("done"),
@@ -3267,6 +3385,7 @@
             )
             finale(() => {
                 results.renderProfile($("profile-done"))
+                drawKeep()
                 showScreen("done")
                 jump(0)
                 // The web is behind the dark while it clears, so the spray that
@@ -3581,13 +3700,23 @@
     // with the summary the hub's dashboard reads beside it — but only at the
     // end of a level and as the tab is hidden, not every time `keep()` is:
     // that is twice an item, several hundred writes a run, and a free plan
-    // allows 20,000 a day.
+    // allows 20,000 a day. The one as the tab is hidden is `leaving`, sent so
+    // that it outlives the tab, which caps it at 64 KiB: a long run's state
+    // has outgrown that by its last levels, and stays as the end of the last
+    // level saved it, the summary going on its own (js/account.js, `save`).
     let lastKept = null
 
-    function stow() {
+    function stow(leaving) {
         if (!keeping || !lastKept || !ACCOUNT.on || !ACCOUNT.who()) return
-        ACCOUNT.save({ summary: summary(false), done: finishedLevels(), state: lastKept }).catch((e) => console.warn(e))
+        ACCOUNT.save({ summary: summary(false), done: finishedLevels(), state: lastKept, leaving: !!leaving }).catch((e) => console.warn(e))
     }
+
+    // How long after a level is done the dashboard offers to take it again
+    // (`retakeAfter`, in days): the gap between a test and its retest, which
+    // is a decision of the research and not of the page — a month at least
+    // (October 2026). Each retake is a run of its own in the deposit, under
+    // the same `account`.
+    const RETAKE_AFTER = 30
 
     // What the dashboard shows of this run (the hub's AGENTS.md, **The
     // summary**): the levels in the places they stand now, which are done,
@@ -3602,10 +3731,17 @@
     // walks `all`, whatever the run that wrote it walked, and says it came from
     // the hub (`source=hub`), since a run begun there was not counterbalanced
     // by the forks the way one walked from the start is.
+    //
+    // **The link that carries the run on is not the run's own link**, which
+    // may carry a platform's id (`?pid=`), and the summary is what the
+    // dashboard reads, so it names no id: it is the landing page asking for
+    // the account, which finds the run kept in this browser or on the account
+    // (`fetchKept`) and offers it, and its "Carry on" loads the run's own
+    // link from what was kept. "Start" there instead is a run from the hub.
     function summary(finished) {
         return {
             title: "The Abyss Test",
-            url: location.origin + location.pathname + loadedSearch,
+            url: location.origin + location.pathname + "?account&source=hub" + (testMode ? "&test=true" : ""),
             finished: finished,
             levels: scoredLevels.map((level) => ({
                 key: levelKey(level),
@@ -3615,20 +3751,32 @@
             })),
             subtests: SUBTESTS,
             pick: location.origin + location.pathname + "?account&source=hub" + (testMode ? "&test=true" : "") + "&start={key}&skip={done}",
+            retakeAfter: RETAKE_AFTER,
         }
     }
 
     // Every level there is to take, for the dashboard's tiles: `all`'s, which
-    // is everything but the levels a link alone reaches (ASIDE) and the
-    // closing. The levels outside its fork first (General), then the rest by
-    // name, the same on every load, the timeline's own order being drawn.
+    // is everything but the levels a link alone reaches (ASIDE: the Hyborian
+    // hero, Light & Dark and Sexuality, met only by a link that names them,
+    // `?start=`) and the closing. The levels outside its fork first
+    // (General), then the rest by name, the same on every load, the
+    // timeline's own order being drawn. Each with its picture (`preview`):
+    // the README's, the level's results at stand-in scores (assets/readme/,
+    // named by key), so the tile shows what the level gives back. A level
+    // without one is drawn without.
+    const README_PICTURES = location.origin + location.pathname.replace(/[^/]*$/, "") + "assets/readme/"
     const SUBTESTS = (() => {
         const levels = BATTERIES.all.filter(
             (entry) => entry.key && !entry.interlude && entry.blocks.indexOf("closing") === -1 && !entry.blocks.every((name) => ASIDE.indexOf(name) !== -1),
         )
         const first = levels.filter((entry) => !entry.fork)
         const rest = levels.filter((entry) => entry.fork).sort((a, b) => a.name.localeCompare(b.name))
-        return first.concat(rest).map((entry) => ({ key: entry.key, name: entry.name, minutes: entry.minutes || null }))
+        return first.concat(rest).map((entry) => ({
+            key: entry.key,
+            name: entry.name,
+            minutes: entry.minutes || null,
+            preview: README_PICTURES + entry.key.toLowerCase() + ".jpg",
+        }))
     })()
 
     // The levels finished in this run, which the account keeps beside those
@@ -3778,14 +3926,22 @@
     // No run kept in this browser, but one on the account: it is written into
     // this browser as if it had been kept here, and the page loaded again,
     // which then offers it like any other (js/resume.js reads it at load, and
-    // can only read it at load). Only a run js/resume.js will take — of its
-    // shape and inside the week — or the page would load again for ever.
+    // can only read it at load). **An account keeps a run longer than a
+    // browser does** (`KEPT_ON_ACCOUNT`, a month, against the browser's week),
+    // since carrying on later on another device is what it is for: one
+    // fetched is dated now, as a run touched now, so that js/resume.js takes
+    // it — or the page would load again for ever. One past the month, or of
+    // another shape, is let go of on the account too, so that the dashboard
+    // stops offering to carry it on.
     function fetchKept() {
         if (!ACCOUNT.on || !ACCOUNT.who()) return
         ACCOUNT.loadState()
             .then((kept) => {
-                if (!kept || kept.shape !== RESUME_SHAPE || !(Date.now() - new Date(kept.keptAt).getTime() < KEPT_FOR)) return
-                localStorage.setItem(RESUME_KEY, JSON.stringify(kept))
+                if (!kept) return
+                if (kept.shape !== RESUME_SHAPE || !(Date.now() - new Date(kept.keptAt).getTime() < KEPT_ON_ACCOUNT)) {
+                    return ACCOUNT.dropState()
+                }
+                localStorage.setItem(RESUME_KEY, JSON.stringify(Object.assign(kept, { keptAt: new Date().toISOString() })))
                 location.reload()
             })
             .catch((e) => console.warn(e))
@@ -3944,12 +4100,18 @@
 
     // A tab hidden is the last moment a page can be sure of being able to do
     // anything, so a vote still waiting to be staged goes now.
-    // So is keeping where the run has got to.
+    // So is keeping where the run has got to. A tab coming back may find the
+    // account changed in another (an email added on the dashboard), and
+    // draws it again.
     document.addEventListener("visibilitychange", () => {
-        if (document.visibilityState !== "hidden") return
+        if (document.visibilityState !== "hidden") {
+            drawAccount()
+            drawKeep()
+            return
+        }
         stageNoted()
         keep()
-        stow()
+        stow(true)
     })
 
     document.addEventListener("keydown", (e) => {
@@ -4213,10 +4375,18 @@
         // into anonymously, and only the first time in this browser. A link
         // that brought a platform's id claims it for the account, so that the
         // same id arriving on a second one is told apart (what to show it then
-        // is not built yet, and the run goes on).
+        // is not built yet, and the run goes on). It is claimed under the
+        // platform's name (`PLATFORM`), so `SONA` and `sona` are one claim.
+        // Once signed in, the frame goes again with the account's code in it
+        // (`container`), so that a run left in its first level still says
+        // whose it was.
         if (ACCOUNT.on) {
             ACCOUNT.signIn(source)
-                .then(() => (inLink("participant") ? ACCOUNT.claim(source, participant) : null))
+                .then(() => {
+                    drawAccount()
+                    stageFrame()
+                    return inLink("participant") ? ACCOUNT.claim(PLATFORM, participant) : null
+                })
                 .then((claim) => {
                     if (claim === "taken") console.warn("account: this participant id is already claimed by another account")
                 })
@@ -4241,9 +4411,7 @@
     $("download").addEventListener("click", download)
     // Every way in is also the way out: pressing a lit button shuts what it lit.
     $("profile").addEventListener("click", () => (panel === "profile" ? closePanel() : openProfile()))
-    $("raw").addEventListener("click", () => (panel === "raw" ? closePanel() : openRaw()))
-    // The way to the hub's dashboard, for a link that asks for the account.
-    $("account").hidden = !ACCOUNT.on
+    drawAccount()
     // The way out of the level screen — the one button, or either side of a
     // fork: the screen is drawn into its stop on the gauge and the item waiting
     // behind it is put up.

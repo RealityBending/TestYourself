@@ -240,6 +240,103 @@ body::after {
     color: var(--gold);
 }
 
+/* The account, top right, drawn as the hub's dashboard draws it (`.me` in
+   its css/hub.css): restated rather than imported, so a change there is copied
+   here by hand. On the banner during the run, clear of the gauge's readout
+   over the sidebar; in the corner of the page where there is no banner (the
+   landing page, a shared card). */
+.me {
+    position: fixed;
+    top: calc((var(--banner) - 34px) / 2);
+    right: calc(var(--sidebar) + 12px);
+    z-index: 29;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    max-width: 34vw;
+    height: 34px;
+    padding: 2px 12px 2px 2px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text);
+    font-size: 13px;
+    text-decoration: none;
+    transition:
+        border-color 0.2s,
+        background 0.2s;
+}
+
+.me[hidden] {
+    display: none;
+}
+
+body[data-screen="intro"] .me,
+body[data-screen="card"] .me {
+    top: 16px;
+    right: 18px;
+}
+
+.me:hover,
+.me:focus-visible {
+    border-color: var(--accent);
+    background: rgba(124, 92, 255, 0.16);
+}
+
+/* An anonymous account lives in this browser only: a dot says there is
+   something to do, and the dashboard says what. */
+.me--unkept::after {
+    content: "";
+    position: absolute;
+    top: 1px;
+    left: 24px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--gold);
+    box-shadow: 0 0 0 2px var(--bg);
+}
+
+.me__label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.avatar {
+    display: inline-grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    flex: none;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: #fff;
+    font-weight: 700;
+}
+
+.avatar svg {
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.avatar--ghost {
+    background: rgba(124, 92, 255, 0.16);
+    color: #c9bcff;
+    box-shadow: inset 0 0 0 1px rgba(124, 92, 255, 0.45);
+}
+
+.avatar--none {
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--muted);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.16);
+}
+
 /* Everything else the test carries with it, stood on end down the right,
    dressed as a dive gauge: the readout at the head of it, the line down the
    edge the page sits against with a mark every kilometre, the levels on it as
@@ -757,17 +854,9 @@ body[data-screen="card"] {
     color: var(--muted);
 }
 
-/* The panels, as an icon and a word each: the file at the foot of the gauge
-   and the profile at the head of the shelf. They are one kind of button in two
-   places, so they are written as one — and then the profile takes a ring of
-   its own, further down, since it stands at the head of a bar of badges and
-   should read as the one they all add up to. */
-.sidebar__links {
-    display: grid;
-    gap: 4px;
-}
-
-.sidebar__link,
+/* The profile, as an icon and a word, at the head of the shelf — and then
+   with a ring of its own, further down, since it stands at the head of a bar
+   of badges and should read as the one they all add up to. */
 .shelf__link {
     display: grid;
     justify-items: center;
@@ -788,17 +877,6 @@ body[data-screen="card"] {
     transition: color 0.15s, border-color 0.15s, background 0.15s;
 }
 
-/* The account is a link out rather than a panel, so it is an <a> dressed as
-   the button beside it, and shown only where the link asks for it. */
-a.sidebar__link {
-    text-decoration: none;
-}
-
-.sidebar__link[hidden] {
-    display: none;
-}
-
-.sidebar__link svg,
 .shelf__link svg {
     width: 20px;
     height: 20px;
@@ -809,8 +887,6 @@ a.sidebar__link {
     stroke-linejoin: round;
 }
 
-.sidebar__link:hover,
-.sidebar__link:focus-visible,
 .shelf__link:hover,
 .shelf__link:focus-visible {
     color: var(--text);
@@ -818,7 +894,6 @@ a.sidebar__link {
     background: rgba(255, 255, 255, 0.05);
 }
 
-.sidebar__link--open,
 .shelf__link--open {
     color: var(--text);
     background: rgba(124, 92, 255, 0.2);
@@ -1285,22 +1360,6 @@ h1 {
 .lede {
     color: var(--muted);
     margin: 0 0 32px;
-}
-
-/* The raw data file, as it would be saved. */
-.raw {
-    max-height: 60vh;
-    overflow: auto;
-    margin: 0 0 24px;
-    padding: 18px 20px;
-    border-radius: 14px;
-    border: 1px solid var(--line);
-    background: rgba(0, 0, 0, 0.35);
-    color: #c3c9da;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    font-size: 12.5px;
-    line-height: 1.5;
-    white-space: pre;
 }
 
 /* ------------------------------- buttons -------------------------------- */
@@ -1859,6 +1918,60 @@ h1 {
 
 .briefing__body .briefing__credit .btn:hover {
     box-shadow: 0 22px 54px -18px #22c55e, inset 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+
+/* Keep your results (`drawKeep`, app.js): the offer to add an email to the
+   account, over the way on from a level and at the end of the run. Edged in
+   the gold of the account's dot, which says the same thing in the corner,
+   and quieter than the way on beside it: it is an offer, not the next step. */
+.keep {
+    justify-self: stretch;
+    margin: 0 auto;
+    max-width: 520px;
+    padding: 18px 20px 20px;
+    border-radius: 16px;
+    border: 1px solid rgba(217, 164, 65, 0.4);
+    background: rgba(217, 164, 65, 0.07);
+    text-align: center;
+}
+
+.keep[hidden] {
+    display: none;
+}
+
+#profile-done .keep {
+    margin-top: 32px;
+}
+
+.keep__title {
+    margin: 0 0 6px;
+    font-weight: 700;
+    color: var(--gold-pale);
+}
+
+.keep__text {
+    margin: 0 0 14px;
+    font-size: 15px;
+    color: var(--muted);
+}
+
+.keep__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.keep__go {
+    display: inline-block;
+    text-decoration: none;
+    background: linear-gradient(135deg, var(--gold-pale), var(--gold));
+    box-shadow: 0 16px 44px -18px var(--gold), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+.keep__go:hover {
+    box-shadow: 0 22px 54px -18px var(--gold), inset 0 1px 0 rgba(255, 255, 255, 0.45);
 }
 
 /* A briefing that marks a milestone (`celebrate` in content/): the end of
@@ -3085,25 +3198,23 @@ h1 {
         transform: translate(0, 0) scale(1);
     }
 
-    /* Icons alone: the word under each would not fit. */
-    .sidebar__links {
-        display: flex;
-        gap: 0;
+    /* The account as its avatar alone, in the corner beside the centred
+       title: the gauge is along the foot here, and the corner is free. */
+    .me,
+    body[data-screen="intro"] .me,
+    body[data-screen="card"] .me {
+        right: 10px;
+        padding-right: 2px;
     }
 
-    .sidebar__link {
-        width: 36px;
-        padding: 6px 0;
+    .me__label {
+        display: none;
     }
 
     /* The line under a panel's title has less room beside the close button. */
     .panel__sub {
         font-size: 9.5px;
         letter-spacing: 0.1em;
-    }
-
-    .sidebar__link span {
-        display: none;
     }
 
     /* Less room to give away, so the panels keep a thinner edge. */
@@ -3139,7 +3250,6 @@ h1 {
     }
 
     .sidebar__gauge-word,
-    .sidebar__link span,
     .shelf__link span {
         display: none;
     }
