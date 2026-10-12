@@ -1,6 +1,6 @@
 """Save a level's figure, drawn by the app itself at stand-in answers, as a PNG
 for the preview card that sets it beside the level's name (kinks.png for
-sexuality.html, wheel.png for archetypes.html).
+sexuality.html, wheel.png for archetypes.html, soma.png for mint.html).
 
 A card's picture is either restated by hand (the opinions plane, a few dozen
 lines) or, where the figure is too much drawing to copy, taken from the app:
@@ -47,6 +47,15 @@ FIGURES = {
         "answers": None,
         # The wheel's holder, not the <svg>: snapshot measures offsetWidth, which an svg has not.
         "part": ".wheel__all > .result__chart",
+    },
+    # The body lit up well past the middle on all three, so it has colour, nerves and glow.
+    "soma": {
+        "run": ["mint"],
+        "scores": {"Bodily Awareness": 5.2, "Bodily Sensitivity": 4.9, "Bodily Clarity": 4.6},
+        "answers": None,
+        "part": ".soma__stage > .soma__figure",
+        # Its halos are SVG filters, which snapshot() bands headless; photographed instead, without the leads to the readings.
+        "direct": ".soma__leads",
     },
 }
 
@@ -108,7 +117,7 @@ async (figure) => {
         score: (d) => figure.scores[d], total: (d) => figure.scores[d], known: (d) => d in dimensions,
         percentile: percentile, tercile: () => 1, levelProgress: () => ({ answered: 1, total: 1 }),
         answer: (key) => answers[key], showScreen() {}, burst() {}, still: () => true,
-        feedback: {}, ratings: {}, $: (id) => document.getElementById(id), ratingKey: () => "Preview", visit() {}, noted() {},
+        feedback: {}, ratings: {}, $: (id) => document.getElementById(id), ratingKey: () => "Preview", visit() {}, noted() {}, source: "Preview",
     }
     const results = makeResults(engine)
     const box = document.createElement("div")
@@ -119,6 +128,20 @@ async (figure) => {
 
     const part = box.querySelector(figure.part)
     if (!part || !part.offsetWidth) return null
+    // A figure drawn through SVG filters, which snapshot() bands in this headless
+    // browser (not on screen), is left on the page to be photographed instead, on nothing so that it sits on
+    // the card's own dark.
+    if (figure.direct) {
+        for (const one of box.querySelectorAll(figure.direct)) one.style.display = "none"
+        for (const one of document.body.children) if (one !== box) one.style.visibility = "hidden"
+        const bare = document.head.appendChild(document.createElement("style"))
+        bare.textContent = "html, body, body::before, body::after { background: transparent !important } body::before, body::after { display: none !important }"
+        box.style.background = "transparent"
+        box.style.visibility = "visible"
+        for (let one = part; one && one !== box; one = one.parentElement) one.style.cssText += ";background:transparent !important;box-shadow:none !important;border-color:transparent !important"
+        part.id = "still-part"
+        return "direct"
+    }
     const canvas = await snapshot(part, { skip: ".votes, [class*='__ask'], [class*='__vote'], .result__lock", ratio: 2 })
     return canvas.toDataURL("image/png").split(",")[1]
 }
@@ -132,14 +155,17 @@ def main():
         for name in names:
             if name not in FIGURES:
                 sys.exit(f"No figure called {name}; there are {', '.join(FIGURES)}.")
-            page = browser.new_page(viewport={"width": 1000, "height": 900})
+            page = browser.new_page(viewport={"width": 1000, "height": 1600}, device_scale_factor=2)
             page.goto(PAGE, wait_until="networkidle")
             data = page.evaluate(JS, FIGURES[name])
+            out = HERE / f"{name}.png"
+            if data == "direct":
+                page.locator("#still-part").screenshot(path=out, omit_background=True)
             page.close()
             if not data:
                 sys.exit(f"Nothing matched {FIGURES[name]['part']} in the {name} figure.")
-            out = HERE / f"{name}.png"
-            out.write_bytes(base64.b64decode(data))
+            if data != "direct":
+                out.write_bytes(base64.b64decode(data))
             print(f"Wrote {out.relative_to(HERE.parent.parent)}")
         browser.close()
 

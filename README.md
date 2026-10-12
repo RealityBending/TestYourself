@@ -4,6 +4,10 @@ The big dispositional characteristics survey.
 
 - [**Documentation**](https://realitybendinglab.com/TestYourself/docs/index.html#1)
 
+Studies using it:
+
+- **MINT follow-up**: [take part](https://realitybendinglab.com/TestYourself/p/mint/?project=mint&source=README)
+
 ## Levels
 
 Every level closes on results of its own. Each link below starts the test on that level, and the rest of the run follows.

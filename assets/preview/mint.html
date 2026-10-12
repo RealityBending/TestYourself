@@ -1,0 +1,131 @@
+<!doctype html>
+<!-- The picture a link through p/mint/ is shown with (p/mint/index.html names
+     it as its og:image). card.html's look, with the Brain-Body Axis's body
+     beside the name: the picture is soma.png beside this, js/figures/soma.js's
+     own render at stand-in scores, saved by still.py, so it wants saving again
+     when the figure changes. mint.jpg beside it is this, photographed by
+     make.py. It names no duration: a p/ link does not start on the level, so
+     how long until its results depends on the run. -->
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>The Abyss Test: Brain-Body Axis preview card</title>
+        <style>
+            :root {
+                --bg: #05070d;
+                --muted: #d2d8e7;
+                --cream: #f3e3c3;
+                --serif: ui-serif, "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+                --sans: ui-sans-serif, system-ui, sans-serif;
+            }
+
+            html,
+            body {
+                margin: 0;
+                width: 1200px;
+                height: 630px;
+                overflow: hidden;
+                background: var(--bg);
+            }
+
+            .card {
+                position: relative;
+                width: 1200px;
+                height: 630px;
+                font-family: var(--sans);
+                color: var(--muted);
+                background-image: radial-gradient(60% 70% at 76% 52%, rgba(0, 154, 147, 0.16), transparent 62%),
+                    radial-gradient(90% 55% at 8% 4%, rgba(124, 92, 255, 0.14), transparent 62%),
+                    radial-gradient(140% 100% at 50% 120%, rgba(3, 4, 8, 0.9), transparent 55%),
+                    linear-gradient(180deg, #090d18 0%, var(--bg) 45%, #020308 100%);
+            }
+
+            .logos {
+                position: absolute;
+                top: 34px;
+                left: 64px;
+                display: flex;
+                align-items: center;
+                gap: 20px;
+            }
+
+            .logos img {
+                height: 44px;
+                width: auto;
+            }
+
+            .words {
+                position: absolute;
+                left: 64px;
+                top: 170px;
+                width: 520px;
+            }
+
+            .the {
+                font-size: 19px;
+                font-weight: 600;
+                letter-spacing: 0.5em;
+                text-transform: uppercase;
+                margin: 0;
+            }
+
+            .title {
+                margin: 18px 0 0;
+                font-family: var(--serif);
+                font-size: 68px;
+                font-weight: 400;
+                line-height: 1.02;
+                color: var(--cream);
+            }
+
+            .sub {
+                margin: 24px 0 0;
+                font-family: var(--serif);
+                font-size: 29px;
+                font-style: italic;
+                line-height: 1.3;
+                color: #c8cfe4;
+            }
+
+            .meta {
+                margin: 34px 0 0;
+                font-size: 13.5px;
+                letter-spacing: 0.12em;
+                text-transform: uppercase;
+                white-space: nowrap;
+            }
+
+            .meta i {
+                font-style: normal;
+                opacity: 0.45;
+                margin: 0 5px;
+            }
+
+            .figure {
+                position: absolute;
+                left: 760px;
+                top: 28px;
+                width: auto;
+                height: 574px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="card">
+            <div class="logos">
+                <img src="../logo_sussex.svg" alt="" />
+                <img src="../logo_researchplus.png" alt="" />
+                <img src="../logo_rebel.png" alt="" />
+            </div>
+
+            <div class="words">
+                <p class="the">The Abyss</p>
+                <h1 class="title">How well do you sense your body?</h1>
+                <p class="sub">Your heartbeat, your breath, your gut: find out how clearly your body speaks to you</p>
+                <p class="meta">Research-grade measures <i>·</i> results as you go <i>·</i> entirely anonymous</p>
+            </div>
+
+            <img class="figure" src="soma.png" alt="" />
+        </div>
+    </body>
+</html>
