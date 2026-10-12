@@ -397,15 +397,15 @@ body[data-screen="intro"] #app {
 
 .why__points {
     display: grid;
-    gap: 14px;
-    margin: 30px 0 0;
+    gap: 10px;
+    margin: 24px 0 0;
     padding: 0;
     list-style: none;
 }
 
 .why__points li {
     position: relative;
-    padding: 16px 20px 16px 44px;
+    padding: 12px 18px 12px 40px;
     border: 1px solid var(--line);
     border-radius: 14px;
     background: var(--surface);
@@ -417,8 +417,8 @@ body[data-screen="intro"] #app {
 .why__points li::before {
     content: "";
     position: absolute;
-    left: 20px;
-    top: 25px;
+    left: 18px;
+    top: 21px;
     width: 7px;
     height: 7px;
     border-radius: 50%;
@@ -859,12 +859,12 @@ body.sinking #screen-intro::after {
     }
 
     .why__case {
-        flex: 1 1 44%;
+        flex: 1 1 50%;
         min-width: 0;
     }
 
     .why__show {
-        flex: 1 1 56%;
+        flex: 1 1 50%;
         min-width: 0;
     }
 
