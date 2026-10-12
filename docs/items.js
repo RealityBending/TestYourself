@@ -28,7 +28,7 @@ const ITEMS = {
         "In general, would you say your health is... Health, here, refers to your physical health."
     ],
     "r4": [
-        "Over the past few weeks, how much have you felt this kind of stress? Stress, here, means a situation in which a person feels tense, restless, nervous or anxious or is unable to sleep at night because their mind is troubled all the time."
+        "Over the past few days, how much have you felt this kind of stress? Stress, here, means a situation in which a person feels tense, restless, nervous or anxious or is unable to sleep at night because their mind is troubled all the time."
     ],
     "r5": [
         "I have high self-esteem"

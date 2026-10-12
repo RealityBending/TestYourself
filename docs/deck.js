@@ -73,6 +73,20 @@
         event.preventDefault()
     })
 
+    // A mouse's side buttons move the deck as they would move a browser,
+    // back and forward. The browser's own going back is stopped on both the
+    // press and the release, since browsers differ on which one they act on,
+    // and since `replaceState` keeps no entry per slide it would otherwise
+    // leave the deck altogether.
+    const SIDE = { 3: -1, 4: 1 } // event.button: back, forward
+    for (const kind of ["mousedown", "mouseup", "auxclick"]) {
+        document.addEventListener(kind, (event) => {
+            if (!(event.button in SIDE)) return
+            event.preventDefault()
+            if (kind === "mouseup") show(at + SIDE[event.button])
+        })
+    }
+
     // Scrolling on past the end of a slide is the other way on, for anyone
     // whose hand is already on the wheel. It only counts once the slide has
     // nothing left to scroll — so a long table is read to the bottom first —

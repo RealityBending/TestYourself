@@ -3,11 +3,11 @@
 The documentation: a deck about the app, for the people working on it.
 
 Open `index.html`. Nothing to install, nothing to build, no server needed.
-Arrow keys, space, Home and End move between slides, and so does scrolling on
-past the end of one; the slide you are on is in the address, so a link holds
+Arrow keys, space, Home and End move between slides, and so do a mouse's back
+and forward buttons and scrolling on past the end of one; the slide you are on is in the address, so a link holds
 its place. **Click a row of the Content table** to see what that instrument
-asks — the same row again, or Escape, puts it away. On **What is being
-validated**, a card goes to its instrument's own slide and its items button
+asks — the same row again, or Escape, puts it away. On **Project: MINT
+follow-up**, a card goes to its instrument's own slide and its items button
 opens the same list, and a level on the run says what it asks when pointed at
 and goes to it in the table when pressed. The three scales on the MINT's slide
 can be answered.
@@ -54,8 +54,8 @@ read as the same question four times.
 
 ## The study slides are not
 
-**What is being validated** — the MINT and the BAIT, joined to their levels on a
-timeline of the run — is written by hand, so nothing tells you when its words
+**Project: MINT follow-up** — what a project is, and the MINT and the BAIT
+joined to their levels on a timeline of the run — is written by hand, so nothing tells you when its words
 are wrong. It restates the levels of the `mint` battery and their names and the
 samples the norms come from: read it again when `content/timeline.js`,
 `content/block_mint.js` or `content/block_bait.js` changes. What it does not
@@ -66,7 +66,7 @@ column against the level's `data-level`). The lines from the cards to the
 levels are one svg stretched across the run, written in elevenths of its
 width, so a level added to or taken off the run moves every join.
 
-The MINT's and the BAIT's own slides after it, and the HiTOP's at the end, are
+The MINT's and the BAIT's own slides after the table, and the HiTOP's after them, are
 hand-written throughout: the MINT's three scales restate `MINT_FORMATS` in
 `content/block_mint.js`, the HiTOP's spectra and their item counts restate
 `content/block_hitop.js`, and the items quoted on all three are their

@@ -52,18 +52,18 @@
         <!-- 2 · what is wrong with the way it is usually done -------------- -->
         <!-- Written by hand. The references are for the people reading the
              deck to follow up, not a literature review: one a claim that
-             wants one, and none where the claim is common ground. -->
+             wants one, and none where the claim is common ground. The tiles
+             are two rows, what goes wrong for the person answering and what
+             that costs the data, and the next slide answers them row for row
+             under the same two names. -->
         <section class="slide" id="problem">
             <div class="part">
                 <div class="part__said">
                     <h2>The trouble with surveys</h2>
+                    <p class="part__claim">The instruments are rarely what fails. The answering is.</p>
                     <p>
-                        Psychology runs on questionnaires, and nearly all of them are asked the same way: <b>a page of radio buttons on a
-                        platform built for the person writing the study</b>, not the person answering it.
-                    </p>
-                    <p>
-                        The instruments are rarely what fails; the answering is. <b>No amount of validation survives careless
-                        answers</b>, and a dataset nobody can trust is not one worth sharing.
+                        Psychology runs on questionnaires, nearly all asked the same way: <b>a page of radio buttons on a platform built
+                        for the person writing the study</b>, not the person answering it. No validation survives careless answers.
                     </p>
                 </div>
                 <figure class="part__seen">
@@ -71,71 +71,68 @@
                 </figure>
             </div>
 
-            <ul class="tiles tiles--woes">
-                <li class="tile">
-                    <h3>Built for the researcher</h3>
-                    <p>
-                        Qualtrics, Gorilla, jsPsych and the rest are good at building a study and indifferent to taking one: grid after
-                        grid, a progress bar at best, a thank-you at the end. Nothing in them is designed to be finished.
-                    </p>
-                </li>
-                <li class="tile">
-                    <h3>Boredom and fatigue</h3>
-                    <p>
-                        Attention falls with length. The same item is answered worse at the end of a long battery than at its start, and
-                        the people who stop halfway are not a random half.
-                    </p>
-                </li>
-                <li class="tile">
-                    <h3>Careless responding</h3>
-                    <p>
-                        Straight lines, the middle of every scale, a second an item: often a tenth of an online sample or more
-                        (Meade &amp; Craig, 2012), in panels that pay by the minute and reward the quick. It is not only noise: it
-                        can make unrelated scales correlate (Huang et al., 2015).
-                    </p>
-                </li>
-                <li class="tile">
-                    <h3>Nothing back</h3>
-                    <p>
-                        An hour of honest answers buys a debriefing sheet. The participant learns nothing about themselves, so there is
-                        no reason to care how they answer, to come back or to tell anybody else.
-                    </p>
-                </li>
-                <li class="tile">
-                    <h3>Jingle and jangle</h3>
-                    <p>
-                        One name for different things, different names for one thing. Scales multiply (most are used once or twice;
-                        Elson et al., 2023) and are seldom asked side by side, so how far grit is conscientiousness, or worry
-                        rumination, is rarely checked in one sample.
-                    </p>
-                </li>
-                <li class="tile">
-                    <h3>Small, closed datasets</h3>
-                    <p>
-                        Each study asks a handful of scales of a few hundred people and keeps the file. Pooling them afterwards means
-                        reconciling versions, formats and samples that were never meant to meet.
-                    </p>
-                </li>
-            </ul>
+            <div class="tiles tiles--woes">
+                <div class="tiles__row">
+                    <p class="tiles__side"><b>For the participant</b>Nothing makes it worth finishing</p>
+                    <ul>
+                        <li class="tile">
+                            <h3>Built for the researcher</h3>
+                            <p>Qualtrics, Gorilla, jsPsych: good at building a study, indifferent to taking one. Grid after grid, then a thank-you.</p>
+                        </li>
+                        <li class="tile">
+                            <h3>Boredom and fatigue</h3>
+                            <p>The same item is answered worse at the end of a long battery, and those who stop halfway are not a random half.</p>
+                        </li>
+                        <li class="tile">
+                            <h3>Nothing back</h3>
+                            <p>An hour of honest answers buys a debriefing sheet: no reason to care how you answer, come back or tell anyone.</p>
+                        </li>
+                    </ul>
+                </div>
+                <div class="tiles__row">
+                    <p class="tiles__side"><b>For the data</b>So what comes back is weak</p>
+                    <ul>
+                        <li class="tile">
+                            <h3>Careless responding</h3>
+                            <p>
+                                Often a tenth of an online sample or more (Meade &amp; Craig, 2012), and enough to make unrelated scales
+                                correlate (Huang et al., 2015).
+                            </p>
+                        </li>
+                        <li class="tile">
+                            <h3>Jingle and jangle</h3>
+                            <p>
+                                Most scales are used once or twice (Elson et al., 2023) and seldom side by side, so whether grit is just
+                                conscientiousness is rarely checked.
+                            </p>
+                        </li>
+                        <li class="tile">
+                            <h3>Small, closed datasets</h3>
+                            <p>A few scales, a few hundred people, a file kept on a drive. Pooling them later means reconciling what never matched.</p>
+                        </li>
+                    </ul>
+                </div>
+            </div>
         </section>
 
         <!-- 3 · what the Abyss is, and how it works ------------------------ -->
         <!-- Written by hand too, so it wants reading again when a mechanism
              changes in the app: each tile restates a section of AGENTS.md
              (the descent and the gauge, the figures, the fork, the shelf, the
-             votes and stars, sharing, carrying on, quality control). -->
+             votes and stars, quality control, carrying on, sharing). The two
+             rows answer the last slide's two. -->
         <section class="slide" id="abyss">
             <div class="part">
                 <div class="part__said">
                     <h2>What the Abyss is</h2>
+                    <p class="part__claim">A survey people want to finish.</p>
                     <p>
-                        <b>A survey platform built to be engaging enough that people want to finish it.</b> The questionnaires underneath
-                        are ordinary validated ones, asked as they were written; everything around them is there to keep somebody reading
-                        the question they are answering, to the last of them.
+                        The questionnaires are <b>ordinary validated ones, asked as written</b>. Everything around them is designed for the
+                        person answering, so that the last question is read as carefully as the first.
                     </p>
                     <p>
-                        The aim is <b>high-quality, re-usable, open-access datasets</b>, clean enough to be pooled and wide enough to show
-                        how far their measures overlap, since the same people answer all of them.
+                        The aim: <b>high-quality, re-usable, open datasets</b>, with many measures answered by the same people, so how far
+                        they overlap can be seen.
                     </p>
                 </div>
                 <!-- On a plate, the way the app puts a drawn problem on one:
@@ -146,71 +143,57 @@
                 </figure>
             </div>
 
-            <ul class="tiles tiles--works">
-                <li class="tile">
-                    <h3>Staged progress</h3>
-                    <p>
-                        The run is levels, dressed as a dive: a gauge in metres, landmarks passed on the way down, the seabed and the rock
-                        beneath it. What is left is always in sight and the next stretch always short.
-                    </p>
-                </li>
-                <li class="tile">
-                    <h3>Feedback</h3>
-                    <p>
-                        Every level closes on a figure drawn from the answers just given (a body, a hill, a sea, a wheel) rather than a
-                        score. It is what is worth reaching, and why the next level gets answered.
-                    </p>
-                </li>
-                <li class="tile">
-                    <h3>Agency</h3>
-                    <p>
-                        After the first level, participants choose which part of themselves to test next, from two or three cards at a
-                        time. The order is drawn, then theirs; carrying on is their decision.
-                    </p>
-                </li>
-                <li class="tile">
-                    <h3>Collection</h3>
-                    <p>
-                        Each level finished mints a badge onto a shelf, and a whole-run profile fills in as the levels do. The run
-                        accumulates something to look at, not just a bar filling up.
-                    </p>
-                </li>
-                <li class="tile">
-                    <h3>Asking back</h3>
-                    <p>
-                        Every reading can be agreed or disagreed with and every level rated. The verdict is data too, including on a star
-                        sign read beside a temperament: the Barnum effect caught in the act.
-                    </p>
-                </li>
-                <li class="tile">
-                    <h3>Sharing</h3>
-                    <p>
-                        A level's results or the whole profile go out as a link or an image, which opens into the test for whoever
-                        receives it: recruitment by word of mouth, filed as such.
-                    </p>
-                </li>
-                <li class="tile">
-                    <h3>Carrying on</h3>
-                    <p>
-                        Answers are saved as they are given, and a run left partway is picked up where it stopped on the same device, so
-                        closing the tab costs neither the participant nor the data.
-                    </p>
-                </li>
-                <li class="tile">
-                    <h3>Quiet quality control</h3>
-                    <p>
-                        Attention checks, response times and a closing question on whether it was taken seriously are recorded for every
-                        level, and shown to nobody.
-                    </p>
-                </li>
-            </ul>
+            <div class="tiles tiles--works">
+                <div class="tiles__row">
+                    <p class="tiles__side"><b>For the participant</b>Reasons to keep going</p>
+                    <ul>
+                        <li class="tile">
+                            <h3>Staged progress</h3>
+                            <p>Levels, dressed as a dive: a depth gauge, landmarks passing, the seabed and the rock below.</p>
+                        </li>
+                        <li class="tile">
+                            <h3>Feedback</h3>
+                            <p>Each level closes on a figure drawn from the answers just given: a body, a hill, a sea, a wheel.</p>
+                        </li>
+                        <li class="tile">
+                            <h3>Agency</h3>
+                            <p>After the first level, participants pick which part of themselves to test next, from two or three cards.</p>
+                        </li>
+                        <li class="tile">
+                            <h3>Collection</h3>
+                            <p>Each level mints a badge onto a shelf, and a whole-run profile fills in as the levels do.</p>
+                        </li>
+                    </ul>
+                </div>
+                <div class="tiles__row">
+                    <p class="tiles__side"><b>For the data</b>Answers worth keeping</p>
+                    <ul>
+                        <li class="tile">
+                            <h3>Asking back</h3>
+                            <p>Every reading can be agreed or disagreed with, every level rated: the Barnum effect, caught in the act.</p>
+                        </li>
+                        <li class="tile">
+                            <h3>Quiet quality control</h3>
+                            <p>Attention checks, response times and an honesty question, recorded for every level and shown to nobody.</p>
+                        </li>
+                        <li class="tile">
+                            <h3>Nothing lost</h3>
+                            <p>Answers are saved as they are given, and a run left partway picks up where it stopped.</p>
+                        </li>
+                        <li class="tile">
+                            <h3>Sharing</h3>
+                            <p>Results go out as a link or an image that opens into the test: recruitment by word of mouth, filed as such.</p>
+                        </li>
+                    </ul>
+                </div>
+            </div>
 
             <p class="tiles__foot">
-                Built to be changed: the questions are <b>data rather than code</b>, and a study asks its own battery from its own link.
+                Built to be changed: the questions are <b>data rather than code</b>, and each project asks its own levels from its own link.
             </p>
         </section>
 
-        <!-- 4 · the two instruments the study is for ----------------------- -->
+        <!-- 4 · the project, and the two instruments it is for -------------- -->
         <!-- Written by hand, unlike the Content table after it, so it wants
              reading again when `content/timeline.js`, `block_mint.js` or
              `block_bait.js` changes: the levels and their names and the norms'
@@ -226,8 +209,13 @@
              it; the joins are drawn in one svg across the whole width, in
              shares of eleven equal columns, which is why every level on the
              run takes one column and the same margin either side. -->
-        <section class="slide">
-            <h2>What is being validated</h2>
+        <section class="slide" id="project">
+            <h2>Project: MINT follow-up</h2>
+            <p class="study__lede">
+                A <b>project</b> defines a list of mandatory, priority levels that every participant starts with, before the optional
+                ones. The aim of this first project is to <b>collect more data on the MINT</b> and to <b>validate a scale of attitudes to
+                AI</b>, the BAIT.
+            </p>
 
             <div class="study">
                 <div class="study__cards">
@@ -307,156 +295,7 @@
             </div>
         </section>
 
-        <!-- 5 · the MINT, at length ------------------------------------------ -->
-        <!-- Written by hand. The three scales are the MINT's three formats
-             (`MINT_FORMATS` in `content/block_mint.js`) drawn as a participant
-             meets them, and working, so they can be tried; the item over them
-             is one of the MINT's own, verbatim. A format added or changed
-             there wants changing here. -->
-        <section class="slide" id="about-mint">
-            <div class="about about--mint">
-                <header class="about__head">
-                    <h2>MINT</h2>
-                    <p>Multidimensional Interoceptive Traits questionnaire <span>· Makowski et al.</span></p>
-                </header>
-
-                <div class="about__cols">
-                    <div>
-                        <h3>Where it comes from</h3>
-                        <p>
-                            Its first validation (ER/MB2021/2, two studies) established its structure and how it relates to other
-                            interoceptive scales. With the two later studies that asked it too, 1,684 people are its norms.
-                        </p>
-
-                        <h3>In this study</h3>
-                        <ol class="about__points">
-                            <li>
-                                <b>Replication of structure</b> on a new, larger sample with the same design, and its convergent and
-                                discriminant validity against the measures around it.
-                            </li>
-                            <li>
-                                <b>Effect of response format.</b> Each run is dealt one of three formats at random, all scored 0 to 6, to see
-                                whether the numbers on a scale change how it is answered.
-                            </li>
-                            <li>
-                                <b>Correlates with HiTOP</b>, the Hierarchical Taxonomy of Psychopathology, which describes mental ill health
-                                as dimensions rather than diagnoses: to assess the relationship between interoception and psychopathology
-                                within that framing.
-                                <button type="button" class="about__to" data-to="about-hitop">More on the HiTOP</button>
-                            </li>
-                        </ol>
-                    </div>
-
-                    <figure class="formats">
-                        <figcaption>The three formats, as a participant meets them</figcaption>
-                        <p class="formats__item">I can notice even very subtle changes in my breathing</p>
-
-                        <div class="formats__row">
-                            <span class="formats__name">0 to 6</span>
-                            <span class="formats__end">Disagree</span>
-                            <span class="formats__scale" role="radiogroup" aria-label="Circles numbered 0 to 6">
-                                <label><input type="radio" name="format-sequential" /><span>0</span></label>
-                                <label><input type="radio" name="format-sequential" /><span>1</span></label>
-                                <label><input type="radio" name="format-sequential" /><span>2</span></label>
-                                <label><input type="radio" name="format-sequential" /><span>3</span></label>
-                                <label><input type="radio" name="format-sequential" /><span>4</span></label>
-                                <label><input type="radio" name="format-sequential" /><span>5</span></label>
-                                <label><input type="radio" name="format-sequential" /><span>6</span></label>
-                            </span>
-                            <span class="formats__end">Agree</span>
-                        </div>
-
-                        <div class="formats__row">
-                            <span class="formats__name">−3 to +3</span>
-                            <span class="formats__end">Disagree</span>
-                            <span class="formats__scale" role="radiogroup" aria-label="Circles numbered −3 to +3">
-                                <label><input type="radio" name="format-symmetric" /><span>−3</span></label>
-                                <label><input type="radio" name="format-symmetric" /><span>−2</span></label>
-                                <label><input type="radio" name="format-symmetric" /><span>−1</span></label>
-                                <label><input type="radio" name="format-symmetric" /><span>0</span></label>
-                                <label><input type="radio" name="format-symmetric" /><span>+1</span></label>
-                                <label><input type="radio" name="format-symmetric" /><span>+2</span></label>
-                                <label><input type="radio" name="format-symmetric" /><span>+3</span></label>
-                            </span>
-                            <span class="formats__end">Agree</span>
-                        </div>
-
-                        <div class="formats__row">
-                            <span class="formats__name">No numbers</span>
-                            <span class="formats__end">Disagree</span>
-                            <span class="formats__scale">
-                                <input type="range" class="formats__slider" min="0" max="6" step="0.01" value="3" aria-label="A slider with no numbers" />
-                            </span>
-                            <span class="formats__end">Agree</span>
-                        </div>
-                    </figure>
-                </div>
-            </div>
-        </section>
-
-        <!-- 6 · the BAIT, at length ------------------------------------------ -->
-        <!-- Written by hand. The example items are the BAIT's own, verbatim
-             (`content/block_bait.js`), and the four discriminability items it
-             names are that file's Discrimination block, asked and not scored.
-             The candidate items for the usage angle are in README.md, under
-             Relationship with AI. -->
-        <section class="slide" id="about-bait">
-            <div class="about about--bait">
-                <header class="about__head">
-                    <h2>BAIT</h2>
-                    <p>Beliefs about Artificial Intelligence Technology <span>· Makowski et al.</span></p>
-                </header>
-
-                <div class="about__cols">
-                    <div>
-                        <h3>Where it started</h3>
-                        <p>
-                            As a trait measure that could partly modulate and mediate the <b>anti-AI bias</b> the lab measures in its tasks,
-                            drawing on two things:
-                        </p>
-
-                        <div class="flow">
-                            <div class="flow__from">
-                                <div class="flow__chip">
-                                    <b>Expectations</b> about what AI can produce
-                                    <q>Current AI algorithms can generate very realistic videos</q>
-                                </div>
-                                <div class="flow__chip">
-                                    <b>Attitudes</b>, items carried over from the GAAIS
-                                    <q>Much of society will benefit from a future full of AI</q>
-                                </div>
-                            </div>
-                            <p class="flow__arrow">partly modulates and mediates</p>
-                            <div class="flow__to">
-                                <b>Anti-AI bias</b> in the lab's tasks: the same image judged less favourably once it is believed to be
-                                made by AI
-                            </div>
-                        </div>
-                    </div>
-
-                    <div>
-                        <h3>Where it is going</h3>
-                        <p>Its psychometric properties have not been ideal, and more work is needed to make it a better measure.</p>
-                        <ol class="about__points">
-                            <li>
-                                <b>Sharper expectations.</b> Improve the sensitivity of what it measures about what AI can produce, across
-                                modalities: images, text, art and more.
-                            </li>
-                            <li>
-                                <b>Subjective discriminability.</b> Explore a separate factor for how well people think they can tell AI's
-                                work from a person's. Four such items are asked already, and not yet scored.
-                            </li>
-                            <li>
-                                <b>Usage, taken further.</b> Extend it to AI addiction and "AI psychosis": the bond with a chatbot and the
-                                spiral the reports describe.
-                            </li>
-                        </ol>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 7 · what the test asks ----------------------------------------- -->
+        <!-- 5 · what the test asks ----------------------------------------- -->
         <section class="slide">
             <h2>Content</h2>
             <table>
@@ -728,14 +567,162 @@
 
         </section>
 
+        <!-- 6 · the MINT, at length ------------------------------------------ -->
+        <!-- Written by hand. The three scales are the MINT's three formats
+             (`MINT_FORMATS` in `content/block_mint.js`) drawn as a participant
+             meets them, and working, so they can be tried; the item over them
+             is one of the MINT's own, verbatim. A format added or changed
+             there wants changing here. -->
+        <section class="slide" id="about-mint">
+            <div class="about about--mint">
+                <header class="about__head">
+                    <h2>MINT</h2>
+                    <p>Multidimensional Interoceptive Traits questionnaire <span>· Makowski et al.</span></p>
+                </header>
+
+                <div class="about__cols">
+                    <div>
+                        <h3>Where it comes from</h3>
+                        <p>
+                            Its first validation (ER/MB2021/2, two studies) established its structure and how it relates to other
+                            interoceptive scales. With the two later studies that asked it too, 1,684 people are its norms.
+                        </p>
+
+                        <h3>In this study</h3>
+                        <ol class="about__points">
+                            <li>
+                                <b>Replication of structure</b> on a new, larger sample with the same design, and its convergent and
+                                discriminant validity against the measures around it.
+                            </li>
+                            <li>
+                                <b>Effect of response format.</b> Each run is dealt one of three formats at random, all scored 0 to 6, to see
+                                whether the numbers on a scale change how it is answered.
+                            </li>
+                            <li>
+                                <b>Correlates with HiTOP</b>, the Hierarchical Taxonomy of Psychopathology, which describes mental ill health
+                                as dimensions rather than diagnoses: to assess the relationship between interoception and psychopathology
+                                within that framing.
+                                <button type="button" class="about__to" data-to="about-hitop">More on the HiTOP</button>
+                            </li>
+                        </ol>
+                    </div>
+
+                    <figure class="formats">
+                        <figcaption>The three formats, as a participant meets them</figcaption>
+                        <p class="formats__item">I can notice even very subtle changes in my breathing</p>
+
+                        <div class="formats__row">
+                            <span class="formats__name">0 to 6</span>
+                            <span class="formats__end">Disagree</span>
+                            <span class="formats__scale" role="radiogroup" aria-label="Circles numbered 0 to 6">
+                                <label><input type="radio" name="format-sequential" /><span>0</span></label>
+                                <label><input type="radio" name="format-sequential" /><span>1</span></label>
+                                <label><input type="radio" name="format-sequential" /><span>2</span></label>
+                                <label><input type="radio" name="format-sequential" /><span>3</span></label>
+                                <label><input type="radio" name="format-sequential" /><span>4</span></label>
+                                <label><input type="radio" name="format-sequential" /><span>5</span></label>
+                                <label><input type="radio" name="format-sequential" /><span>6</span></label>
+                            </span>
+                            <span class="formats__end">Agree</span>
+                        </div>
+
+                        <div class="formats__row">
+                            <span class="formats__name">−3 to +3</span>
+                            <span class="formats__end">Disagree</span>
+                            <span class="formats__scale" role="radiogroup" aria-label="Circles numbered −3 to +3">
+                                <label><input type="radio" name="format-symmetric" /><span>−3</span></label>
+                                <label><input type="radio" name="format-symmetric" /><span>−2</span></label>
+                                <label><input type="radio" name="format-symmetric" /><span>−1</span></label>
+                                <label><input type="radio" name="format-symmetric" /><span>0</span></label>
+                                <label><input type="radio" name="format-symmetric" /><span>+1</span></label>
+                                <label><input type="radio" name="format-symmetric" /><span>+2</span></label>
+                                <label><input type="radio" name="format-symmetric" /><span>+3</span></label>
+                            </span>
+                            <span class="formats__end">Agree</span>
+                        </div>
+
+                        <div class="formats__row">
+                            <span class="formats__name">No numbers</span>
+                            <span class="formats__end">Disagree</span>
+                            <span class="formats__scale">
+                                <input type="range" class="formats__slider" min="0" max="6" step="0.01" value="3" aria-label="A slider with no numbers" />
+                            </span>
+                            <span class="formats__end">Agree</span>
+                        </div>
+                    </figure>
+                </div>
+            </div>
+        </section>
+
+        <!-- 7 · the BAIT, at length ------------------------------------------ -->
+        <!-- Written by hand. The example items are the BAIT's own, verbatim
+             (`content/block_bait.js`), and the four discriminability items it
+             names are that file's Discrimination block, asked and not scored.
+             The candidate items for the usage angle are in README.md, under
+             Relationship with AI. -->
+        <section class="slide" id="about-bait">
+            <div class="about about--bait">
+                <header class="about__head">
+                    <h2>BAIT</h2>
+                    <p>Beliefs about Artificial Intelligence Technology <span>· Makowski et al.</span></p>
+                </header>
+
+                <div class="about__cols">
+                    <div>
+                        <h3>Where it started</h3>
+                        <p>
+                            As a trait measure that could partly modulate and mediate the <b>anti-AI bias</b> the lab measures in its tasks,
+                            drawing on two things:
+                        </p>
+
+                        <div class="flow">
+                            <div class="flow__from">
+                                <div class="flow__chip">
+                                    <b>Expectations</b> about what AI can produce
+                                    <q>Current AI algorithms can generate very realistic videos</q>
+                                </div>
+                                <div class="flow__chip">
+                                    <b>Attitudes</b>, items carried over from the GAAIS
+                                    <q>Much of society will benefit from a future full of AI</q>
+                                </div>
+                            </div>
+                            <p class="flow__arrow">partly modulates and mediates</p>
+                            <div class="flow__to">
+                                <b>Anti-AI bias</b> in the lab's tasks: the same image judged less favourably once it is believed to be
+                                made by AI
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3>Where it is going</h3>
+                        <p>Its psychometric properties have not been ideal, and more work is needed to make it a better measure.</p>
+                        <ol class="about__points">
+                            <li>
+                                <b>Sharper expectations.</b> Improve the sensitivity of what it measures about what AI can produce, across
+                                modalities: images, text, art and more.
+                            </li>
+                            <li>
+                                <b>Subjective discriminability.</b> Explore a separate factor for how well people think they can tell AI's
+                                work from a person's. Four such items are asked already, and not yet scored.
+                            </li>
+                            <li>
+                                <b>Usage, taken further.</b> Extend it to AI addiction and "AI psychosis": the bond with a chatbot and the
+                                spiral the reports describe.
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- 8 · the HiTOP, and the short form of it the test asks ------------- -->
         <!-- Written by hand, out of `content/block_hitop.js`: the spectra are
              the HiTOP's own names, in the instrument's register, and what a
              participant is shown instead comes up on hover, with one of each
              spectrum's items, verbatim. The item counts are that file's, and
              the two scales across the spectra are the ones its header leaves
-             to analysis time. Reached from the MINT's slide, and last so that
-             the Content table stays where it was.
+             to analysis time. Reached from the MINT's slide.
 
              The model is ColinFreilich's figure off Wikimedia Commons
              (File:HiTOP_Model.png, CC BY-SA 4.0), kept as it was published —
@@ -916,35 +903,6 @@
                 Say which device and browser, name the level, and quote the words on screen: a note that can be found is a note that
                 can be fixed.
             </p>
-        </section>
-
-        <!-- 10 · what is to do next ------------------------------------------ -->
-        <!-- Written by hand, and rewritten week by week. The links back into
-             the deck are `data-to`, a slide's id, like a card's. -->
-        <section class="slide" id="todo">
-            <div class="todo">
-                <h2>TODOs</h2>
-                <p class="todo__when">For next week</p>
-                <ol class="todo__list">
-                    <li>
-                        <b>Pilot the Abyss test</b>
-                        <span>
-                            <a href="https://realitybendinglab.com/TestYourself/" target="_blank" rel="noopener"
-                                >realitybendinglab.com/TestYourself</a
-                            >, with notes
-                            <button type="button" class="about__to" data-to="feedback">as on Feedback expectations</button>
-                        </span>
-                    </li>
-                    <li>
-                        <b>Pilot another experiment: Color illusions</b>
-                        <span>About 10–15 minutes</span>
-                    </li>
-                    <li>
-                        <b>Start thinking about what is interesting to measure in someone's usage of and beliefs about AI</b>
-                        <span>Where the BAIT is going <button type="button" class="about__to" data-to="about-bait">is on its slide</button></span>
-                    </li>
-                </ol>
-            </div>
         </section>
 
         <!-- ----------------------------------------------------------------- -->
