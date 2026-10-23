@@ -4,6 +4,7 @@
 #   Rscript data/collected/preprocess.R                 # raw/ -> clean/
 #   Rscript data/collected/preprocess.R --check         # check only, write nothing
 #   Rscript data/collected/preprocess.R --include-test  # keep the test runs in
+#   Rscript data/collected/preprocess.R --include-pilot # keep the runs before 1.0 in
 #   Rscript data/collected/preprocess.R --long          # the long table as well
 #   Rscript data/collected/preprocess.R --from data/synthetic/out
 #
@@ -105,13 +106,20 @@
 # WHAT IT REFUSES TO DO. It does not score anything, and it does not turn the
 # words back into the numbers they were answered on — see the notes at the
 # foot. It also keeps test and synthetic runs out of `clean/` unless asked
-# (`--include-test`), since neither is data.
+# (`--include-test`), since neither is data, and the pilots' runs, written by
+# a version before the first release, unless asked (`--include-pilot`).
 
 SEP <- " | "  # what a multi-answer's choices are joined with in a cell
+
+# The study and its pilots share one deposit, by choice, and the version each
+# file carries is what tells them apart: everything before the first release
+# asked other things in other ways, and is not the study's data.
+FIRST_RELEASE <- "1.0.0"
 
 args <- commandArgs(trailingOnly = TRUE)
 check_only <- "--check" %in% args
 include_test <- "--include-test" %in% args
+include_pilot <- "--include-pilot" %in% args
 also_long <- "--long" %in% args
 from_at <- match("--from", args)
 here <- tryCatch(dirname(normalizePath(sys.frame(1)$ofile)), error = function(e) "data/collected")
@@ -478,6 +486,23 @@ if (!include_test && any(is_not_data)) {
 }
 if (length(runs) == 0) {
   cat("Nothing left once the test runs were dropped.\n")
+}
+
+# A pilot's run, by the version that wrote it. A file with no version, or one
+# that does not read as one, is older than the field and goes with them. A
+# synthetic run is not a pilot, whatever codebook it was written from.
+before_release <- function(run) {
+  if (!is.null(run$synthetic)) return(FALSE)
+  version <- tryCatch(numeric_version(as.character(run$version %||% "")), error = function(e) NULL)
+  is.null(version) || version < numeric_version(FIRST_RELEASE)
+}
+is_pilot <- vapply(runs, function(one) before_release(one$run), logical(1))
+if (!include_pilot && any(is_pilot)) {
+  cat(sprintf("  %d pilot run(s) from before %s left out (--include-pilot keeps them)\n", sum(is_pilot), FIRST_RELEASE))
+  runs <- runs[!is_pilot]
+}
+if (length(runs) == 0) {
+  cat("Nothing left once the pilot runs were dropped.\n")
 }
 
 # One participant code twice is either a code that came round on a `?pid=` link

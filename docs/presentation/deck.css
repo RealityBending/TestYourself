@@ -643,12 +643,12 @@ a {
     stroke: #06b6d4;
 }
 
-/* The run: eleven levels, each one column of eleven — which is what the joins
+/* The run: ten levels, each one column of ten — which is what the joins
    above are measured in, so the parts take shares of the width in proportion
    to their levels and nothing between them takes any. */
 .run {
     display: grid;
-    grid-template-columns: minmax(0, 4fr) minmax(0, 6fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 4fr) minmax(0, 5fr) minmax(0, 1fr);
     align-items: start;
 }
 
@@ -666,7 +666,7 @@ a {
 }
 
 .run__part--more .run__levels {
-    --levels: 6;
+    --levels: 5;
 }
 
 .run__levels > li {

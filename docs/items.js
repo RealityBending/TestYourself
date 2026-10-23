@@ -2,8 +2,8 @@
    Do not edit by hand: run the script again instead.
 
    One entry per row of the Content table, holding that instrument's
-   items as they are asked, flattened to plain text. Read by deck.js,
-   which shows them beside the row. */
+   items as they are asked, flattened to plain text. Read by docs.js,
+   which opens them under the row, and by presentation/deck.js. */
 
 const ITEMS = {
     "r0": [
@@ -307,40 +307,22 @@ const ITEMS = {
         "Please mark this statement \"slightly disagree.\" [attention check]"
     ],
     "r25": [
-        "What number is one fifth of one fourth of one ninth of 900?",
-        "Zach is taller than Matt and Richard is shorter than Zach. Which of the following statements would be most accurate?",
-        "Joshua is 12 years old and his sister is three times as old as he. When Joshua is 23 years old, how old will his sister be?",
-        "If the day after tomorrow is two days before Thursday then what day is it today?",
-        "In the following alphanumeric series, what letter comes next?K N P S U",
-        "In the following alphanumeric series, what letter comes next?V Q M J H",
-        "In the following alphanumeric series, what letter comes next?I J L O S",
-        "In the following alphanumeric series, what letter comes next?Q S N P L",
-        "Please indicate which is the best answer to complete the figure below [with a figure]",
-        "Please indicate which is the best answer to complete the figure below [with a figure]",
-        "Please indicate which is the best answer to complete the figure below [with a figure]",
-        "Please indicate which is the best answer to complete the figure below [with a figure]",
-        "All the cubes below have a different image on each side. Select the choice that could represent a rotation of the following cube [with a figure]",
-        "All the cubes below have a different image on each side. Select the choice that could represent a rotation of the following cube [with a figure]",
-        "All the cubes below have a different image on each side. Select the choice that could represent a rotation of the following cube [with a figure]",
-        "All the cubes below have a different image on each side. Select the choice that could represent a rotation of the following cube [with a figure]"
-    ],
-    "r26": [
         "How often do you have trouble wrapping up the final details of a project, once the challenging parts have been done?",
         "How often do you have difficulty getting things in order when you have to do a task that requires organization?"
     ],
-    "r27": [
+    "r26": [
         "Do you find you forget what you came to the shops to buy?",
         "Do you start doing one thing at home and get distracted into doing something else (unintentionally)?"
     ],
-    "r28": [
+    "r27": [
         "I find my thoughts wandering spontaneously",
         "I mind-wander even when I'm supposed to be doing something else"
     ],
-    "r29": [
+    "r28": [
         "I am good at resisting temptation",
         "I have a hard time breaking bad habits"
     ],
-    "r30": [
+    "r29": [
         "Even the littlest things make me emotional",
         "I tend to get very emotional very easily",
         "I often get so upset it's hard for me to think straight",
@@ -348,7 +330,7 @@ const ITEMS = {
         "When I am angry/upset, it takes me much longer than most people to calm down",
         "When I feel emotional, it's hard for me to imagine feeling any other way"
     ],
-    "r31": [
+    "r30": [
         "I feel that I am the one who is responsible for what has happened",
         "I think that basically the cause must lie within myself",
         "I think that I have to accept that this has happened",
@@ -369,15 +351,15 @@ const ITEMS = {
         "I feel that basically the cause lies with others",
         "To show that I am reading these statements, I will answer 2 on this one [attention check]"
     ],
-    "r32": [
+    "r31": [
         "In politics people sometimes talk of \"left\" and \"right\". Where would you place yourself on this scale, where 0 means the left and 10 means the right?"
     ],
-    "r33": [
+    "r32": [
         "Many very important things happen in the world which the public is never informed about",
         "Many events which seem unrelated or accidental are in fact the result of secret activities",
         "There are secret organizations that greatly influence political decisions"
     ],
-    "r34": [
+    "r33": [
         "In the country I live in, the government should do more to redistribute income from the better off to those who are less well off",
         "In the country I live in, ordinary working people do not get their fair share of the nation's wealth",
         "In the country I live in, businesses should be free to make as much profit as they can, with as little interference from government as possible",
@@ -386,14 +368,14 @@ const ITEMS = {
         "In the country I live in, the law should always be obeyed, even if I think a particular law is wrong",
         "In the country I live in, the police should have more power to monitor people's activities to prevent crime, even at the cost of privacy"
     ],
-    "r35": [
+    "r34": [
         "A fair society is one where men and women, and people of every background, end up equally well off, not just one where they have the same chances",
         "When a group, such as women or minorities, is under-represented in top jobs, in parliament or at university, steps should be taken until it is represented in proportion to its size",
         "As long as everyone has the same chances, it is fair for some groups to end up doing better than others",
         "Opportunities such as jobs or university places should go to the best-qualified candidates, whatever their background, even if that leaves some groups under-represented",
         "When choosing the members of a body such as a parliament, a company board or a panel of experts, which matters more to you: that they bring a range of different views, or that they come from a range of different backgrounds?"
     ],
-    "r36": [
+    "r35": [
         "If it were safe, I would take a treatment that made me more intelligent",
         "It is good that we try to develop technology that would let people live forever",
         "There is something wrong with using technology to improve on human nature",
@@ -402,7 +384,7 @@ const ITEMS = {
         "A person's character is largely there from birth",
         "The differences in how people behave are mostly the result of how they were raised"
     ],
-    "r37": [
+    "r36": [
         "Tackling climate change should come first, even if it means slower economic growth",
         "I would accept paying more for fuel, flights and heating if it helped cut carbon emissions",
         "Jobs and cheap energy should come before cutting carbon emissions",
@@ -413,21 +395,21 @@ const ITEMS = {
         "The country I live in should build more nuclear power stations",
         "Which best describes what you eat?"
     ],
-    "r38": [
+    "r37": [
         "New public buildings should be beautiful, even if that makes them cost more",
         "It is right to fund beautiful things with no practical use, such as art or monuments, even at the expense of things that are useful",
         "How well a thing works matters more than how it looks"
     ],
-    "r39": [
+    "r38": [
         "Exposing someone to an idea that deeply upsets them can seriously damage their mental health",
         "Vulnerable people should not be exposed to certain kinds of speech, as this might harm them",
         "Some words can be hurtful, but people get over them in time"
     ],
-    "r40": [
+    "r39": [
         "Did you take the test seriously so far? (This won't impact your results, but will help us improve the test.)",
         "Is there anything you would like to share so far? Any feedback or thoughts about the test, or about what it has told you, are very welcome. Please note that whatever you write here may be made publicly available (for instance as part of the published data), so do not include anything that could identify you or anybody else unless you are happy for it to be public."
     ],
-    "r41": [
+    "r40": [
         "One last thing. Did you take the test seriously? (This won't impact your results, but will help us improve the test.)",
         "Is there anything you would like to share? Any feedback or thoughts about the test, or about what it told you, are very welcome. Please note that whatever you write here may be made publicly available (for instance as part of the published data), so do not include anything that could identify you or anybody else unless you are happy for it to be public."
     ]

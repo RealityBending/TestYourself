@@ -2,7 +2,7 @@
 
 The big dispositional characteristics survey.
 
-- [**Documentation**](https://realitybendinglab.com/TestYourself/docs/index.html#1)
+- [**Documentation**](https://realitybendinglab.com/TestYourself/docs/index.html)
 
 Studies using it:
 
@@ -12,6 +12,13 @@ Studies using it:
 
 Every level closes on results of its own. Each link below starts the test on that level, and the rest of the run follows.
 
+<!-- How You Think is out of 1.0 (CHANGELOG.md); its cell, to put back with it:
+    <td align="center" width="50%">
+      <b>How You Think</b><br>
+      <a href="https://realitybendinglab.com/TestYourself/?start=icar&amp;source=README"><img src="assets/readme/reasoning.jpg" alt="The results of How You Think" width="100%"></a><br>
+      <a href="https://realitybendinglab.com/TestYourself/?start=icar&amp;source=README"><b>Take the Thinking Style Test!</b></a>
+    </td>
+-->
 <table>
   <tr>
     <td align="center" width="50%">
@@ -56,17 +63,12 @@ Every level closes on results of its own. Each link below starts the test on tha
       <a href="https://realitybendinglab.com/TestYourself/?start=primals&amp;source=README"><b>Take the Worldview Test!</b></a>
     </td>
     <td align="center" width="50%">
-      <b>How You Think</b><br>
-      <a href="https://realitybendinglab.com/TestYourself/?start=icar&amp;source=README"><img src="assets/readme/reasoning.jpg" alt="The results of How You Think" width="100%"></a><br>
-      <a href="https://realitybendinglab.com/TestYourself/?start=icar&amp;source=README"><b>Take the Thinking Style Test!</b></a>
-    </td>
-  </tr>
-  <tr>
-    <td align="center" width="50%">
       <b>Mind &amp; Heart</b><br>
       <a href="https://realitybendinglab.com/TestYourself/?start=regulation&amp;source=README"><img src="assets/readme/regulation.jpg" alt="The results of Mind &amp; Heart" width="100%"></a><br>
       <a href="https://realitybendinglab.com/TestYourself/?start=regulation&amp;source=README"><b>Take the Mind &amp; Heart Test!</b></a>
     </td>
+  </tr>
+  <tr>
     <td align="center" width="50%">
       <b>Where You Stand</b><br>
       <a href="https://realitybendinglab.com/TestYourself/?start=opinions&amp;source=README"><img src="assets/readme/opinions.jpg" alt="The results of Where You Stand" width="100%"></a><br>
@@ -84,7 +86,7 @@ The pictures are drawn from stand-in scores, not anybody's answers, by `assets/r
 ## Includes
 
 What the test currently asks — every questionnaire, its reference and its
-dimensions — is the **Content** slide of [the documentation deck](docs/index.html),
+dimensions — is the **Content** chapter of [the documentation](docs/index.html),
 which is where that table now lives. Open `docs/index.html`; it needs nothing
 installed. **Adding, removing or renaming anything in `content/` means updating
 it in the same breath.**
@@ -97,8 +99,8 @@ Everything a link can say about a run goes after the address, e.g.
 | Option              | What it does                                                                                                                                                                                                                                                                                                                                                                                                                                                          | Example                       |
 | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------- |
 | `?source=`          | Where the link was handed out (a project, an experimenter, a page). Written into the saved file and its name, never shown. A link without one is saved as `Unknown`.                                                                                                                                                                                                                                                                                                  | `?source=Prolific-Pilot`      |
-| `?pid=`             | The participant's code (`?participant=` in full), for a prewritten list or a platform's own id. Only `A-Z a-z 0-9 _ -` survive, 32 characters at most; otherwise a code is made up. `?sub=` still works as an old name for it, until v1.0.                                                                                                                                                                                                                                                                                                             | `?pid=P0042`                  |
-| `?project=`         | Walk a named timeline out of `BATTERIES` in `content/timeline.js`. With none, or an unknown name, the run walks `all`: everything, the sexuality level included, with General first and every other level in one fork of three. `mint` is the test as the ethics application covers it, General, then the core (MINT, BAIT, HiTOP-BR), then the rest, and is asked only when named. Your Hyborian Hero is asked by neither, and is reached only by `?start=hyborian`. Shorthand `?p=`; `?battery=` still works as an old name for it, until v1.0. | `?project=all`                |
+| `?pid=`             | The participant's code (`?participant=` in full), for a prewritten list or a platform's own id. Only `A-Z a-z 0-9 _ -` survive, 32 characters at most; otherwise a code is made up.                                                                                                                                                                                                                                                                                                                                                                    | `?pid=P0042`                  |
+| `?project=`         | Walk a named timeline out of `BATTERIES` in `content/timeline.js`. With none, or an unknown name, the run walks `all`: everything, the sexuality level included, with General first and every other level in one fork of three. `mint` is the test as the ethics application covers it, General, then the core (MINT, BAIT, HiTOP-BR), then the rest, and is asked only when named. Your Hyborian Hero is asked by neither, and is reached only by `?start=hyborian`. Shorthand `?p=`.                                                            | `?project=all`                |
 | `?only=`            | Ask exactly these blocks (comma-separated), for testing. Applied over `project`.                                                                                                                                                                                                                                                                                                                                                                                      | `?only=mint,icar`             |
 | `?skip=`            | Ask everything but these blocks. Applied after `only`.                                                                                                                                                                                                                                                                                                                                                                                                                | `?skip=opinions`              |
 | `?start=`           | Bring the levels holding these blocks to the front, in the order named; the rest follow as usual. Moves whole levels, and brings a level the battery does not hold off the timeline that does.                                                                                                                                                                                                                                                                        | `?start=icar`                 |
@@ -108,8 +110,8 @@ Everything a link can say about a run goes after the address, e.g.
 
 Options combine with `&`. The blocks, in timeline order, are `fipi`, `singles` (General);
 `mint` (Brain-Body Axis); `bait` (AI Attitudes); `mood`, `health`, `hitop`
-(Mood & Health); `hexaco` (Character); `archetypes`; `primals` (The World); `icar` (How You Think); `regulation`
-(Mind & Heart); `opinions` (Where You Stand); `sex` (Sexuality, asked only by `project=all`); `hyborian` (Your Hyborian Hero, asked by no battery and reached only by `start=hyborian`); and `closing`, which is
+(Mood & Health); `hexaco` (Character); `archetypes`; `primals` (The World); `regulation`
+(Mind & Heart); `opinions` (Where You Stand); `sex` (Sexuality, asked by no battery and reached only by `start=sex`); `hyborian` (Your Hyborian Hero, asked by no battery and reached only by `start=hyborian`); and `closing`, which is
 always asked. `mood` and `hitop` are asked or
 skipped together. `demographics1`, `demographics2` and `demographics3` belong to no level: they open the first three
 levels, whatever those turn out to be, or the three after the levels `?start=` brings forward, which open on their own

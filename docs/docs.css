@@ -1,0 +1,1603 @@
+/* =========================================================================
+   The look of the documentation page, which is the app's look restated
+   rather than imported: the tokens below are the ones in `css/style.css` and
+   the hero is `.hero` from the root `index.html`. Nothing here reaches into
+   the app, so this page can never break it — and a change to the app's look
+   has to be brought across by hand.
+
+   The page is one scroll: a hero that sinks as the page moves, then a chapter
+   a stretch, each coming up as it is scrolled into view (`[data-reveal]`,
+   lit by `docs.js`). The deck this grew out of is in `presentation/` with its
+   own stylesheet.
+   ========================================================================= */
+
+:root {
+    color-scheme: dark;
+
+    --bg: #05070d;
+    --text: #eef1f8;
+    --muted: #d2d8e7;
+    --dim: #98a2bd;
+    --line: rgba(255, 255, 255, 0.11);
+    --accent: #7c5cff;
+    --accent-2: #22d3ee;
+    --gold: #d9a441;
+    --gold-pale: #f6e6c4;
+    /* What is picked out: the row of the table being read and the list of its
+       items, which are one thing in two places and so are one colour. */
+    --pick: #3d7dfb;
+    --pick-soft: rgba(61, 125, 251, 0.26);
+    --serif: ui-serif, "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    /* The house easing: how everything that moves here moves. */
+    --ease: cubic-bezier(0.22, 0.85, 0.3, 1);
+
+    --pad: clamp(24px, 6vw, 90px);
+    --nav: 54px;
+    scrollbar-color: rgba(238, 241, 248, 0.22) transparent;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+    background: radial-gradient(120% 70% at 50% -10%, rgba(124, 92, 255, 0.18), transparent 60%),
+        radial-gradient(90% 55% at 12% 8%, rgba(34, 211, 238, 0.09), transparent 62%),
+        linear-gradient(180deg, #090d18 0%, var(--bg) 45%, #020308 100%);
+    background-attachment: fixed;
+    color: var(--text);
+    font-family: ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: clip;
+}
+
+b {
+    color: var(--text);
+    font-weight: 600;
+}
+
+code {
+    font-family: var(--mono);
+    font-size: 0.9em;
+    color: var(--accent-2);
+}
+
+a {
+    color: var(--gold);
+}
+
+h2 {
+    margin: 0 0 20px;
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(32px, 4.6vw, 52px);
+    line-height: 1.12;
+    letter-spacing: -0.01em;
+    color: var(--gold-pale);
+}
+
+/* ------------------------------- coming up -------------------------------- */
+
+/* Anything written `data-reveal` waits a little below where it will stand and
+   a little faded, and comes up once it is scrolled into view (`.is-in`, which
+   docs.js writes once and never takes off). Its children written with `--i`
+   follow a beat apart, so a row of tiles is dealt rather than dropped. */
+[data-reveal] {
+    opacity: 0;
+    translate: 0 28px;
+    transition:
+        opacity 0.9s var(--ease),
+        translate 0.9s var(--ease);
+}
+
+[data-reveal].is-in {
+    opacity: 1;
+    translate: 0 0;
+}
+
+[data-reveal] [style*="--i"] {
+    opacity: 0;
+    translate: 0 18px;
+    transition:
+        opacity 0.7s var(--ease),
+        translate 0.7s var(--ease),
+        border-color 0.2s,
+        box-shadow 0.2s,
+        background 0.2s,
+        color 0.2s;
+    transition-delay: calc(0.12s + var(--i) * 0.09s), calc(0.12s + var(--i) * 0.09s), 0s, 0s, 0s, 0s;
+}
+
+[data-reveal].is-in [style*="--i"] {
+    opacity: 1;
+    translate: 0 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+
+    [data-reveal],
+    [data-reveal] [style*="--i"] {
+        opacity: 1;
+        translate: none;
+        transition: none;
+    }
+}
+
+/* --------------------------------- the nav -------------------------------- */
+
+/* Along the top, over everything: where the page can go, which chapter it is
+   on, and how far through it is as a line along its foot. Hidden while the
+   hero has the window and brought down once it has been left. */
+.nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    height: var(--nav);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 0 var(--pad);
+    background: linear-gradient(180deg, rgba(5, 7, 13, 0.92), rgba(5, 7, 13, 0.78));
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--line);
+    translate: 0 -100%;
+    transition: translate 0.5s var(--ease);
+}
+
+.nav--shown {
+    translate: 0 0;
+}
+
+.nav__brand {
+    font-family: var(--serif);
+    font-size: 15px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text);
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.nav__brand span {
+    color: var(--dim);
+    letter-spacing: 0.06em;
+}
+
+.nav__list {
+    display: flex;
+    gap: 4px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.nav__brand i {
+    font-style: normal;
+}
+
+.nav__list a {
+    display: block;
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--dim);
+    text-decoration: none;
+    transition:
+        color 0.2s,
+        background 0.2s;
+}
+
+.nav__list a:hover,
+.nav__list a:focus-visible {
+    outline: none;
+    color: var(--text);
+}
+
+.nav__list a.is-here {
+    color: var(--text);
+    background: rgba(255, 255, 255, 0.07);
+}
+
+/* How far through, along the nav's foot. */
+.nav__through {
+    position: absolute;
+    left: 0;
+    bottom: -1px;
+    height: 2px;
+    width: 0;
+    background: linear-gradient(90deg, var(--accent-2), var(--accent), var(--gold));
+}
+
+/* Narrow: the brand down to its one word and the links tighter, on one line
+   each, and the list scrolling sideways if even that is too wide. */
+@media (max-width: 640px) {
+    .nav {
+        gap: 10px;
+    }
+
+    .nav__brand span,
+    .nav__brand i {
+        display: none;
+    }
+
+    .nav__list {
+        overflow-x: auto;
+        scrollbar-width: none;
+    }
+
+    .nav__list::-webkit-scrollbar {
+        display: none;
+    }
+
+    .nav__list a {
+        padding: 5px 7px;
+        font-size: 10.5px;
+        letter-spacing: 0.06em;
+        white-space: nowrap;
+    }
+}
+
+/* A phone: the four chapters alone, the brand being the hero's business. */
+@media (max-width: 480px) {
+    .nav {
+        justify-content: center;
+    }
+
+    .nav__brand {
+        display: none;
+    }
+}
+
+/* ---------------------------------- the hero ------------------------------ */
+
+/* The landing page of the app — the same words in the same order, in the
+   same dark — with what this page is under it. It fills the first window and
+   sinks as the page is scrolled: `--gone` is the share of it scrolled past,
+   written by docs.js, and everything in it fades, lifts and blurs by that. */
+.hero {
+    --logos-top: clamp(18px, 3.6vh, 34px);
+    --logo: clamp(30px, 4.4vw, 52px);
+    position: relative;
+    min-height: 100vh;
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: calc(var(--logos-top) + var(--logo) + 24px) 20px;
+    text-align: center;
+    overflow: hidden;
+    opacity: calc(1 - var(--gone, 0));
+}
+
+.hero__iris {
+    position: absolute;
+    top: 46%;
+    left: 50%;
+    width: min(94vmin, 780px);
+    aspect-ratio: 1;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    pointer-events: none;
+    background: radial-gradient(circle, rgba(124, 92, 255, 0.17) 0%, rgba(124, 92, 255, 0.06) 38%, transparent 66%);
+    animation: iris 11s ease-in-out infinite alternate;
+}
+
+@keyframes iris {
+    from {
+        transform: translate(-50%, -50%) scale(0.86);
+        opacity: 0.55;
+    }
+    to {
+        transform: translate(-50%, -50%) scale(1.08);
+        opacity: 1;
+    }
+}
+
+/* The wheel inside the iris, after the app's: twelve petals in shades of
+   violet over three faint rings, falling into a hole at the middle, dealt out
+   clockwise as the page comes up. */
+.hero__web {
+    position: absolute;
+    inset: 22%;
+    overflow: visible;
+    -webkit-mask-image: radial-gradient(circle, #000 52%, transparent 72%);
+    mask-image: radial-gradient(circle, #000 52%, transparent 72%);
+}
+
+.web__ring {
+    fill: none;
+    stroke: rgba(176, 160, 255, 0.07);
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+}
+
+.web__petal {
+    fill: var(--petal);
+    fill-opacity: 0.14;
+    stroke: var(--petal);
+    stroke-opacity: 0.34;
+    stroke-width: 1;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+}
+
+.hero__web .web__ring,
+.hero__web .web__hole {
+    animation: fade 2.4s 0.3s both;
+}
+
+.hero__web .web__petal {
+    transform-box: view-box;
+    transform-origin: 0 0;
+    animation: deal 0.75s calc(0.5s + var(--i) * 0.09s) cubic-bezier(0.2, 0.9, 0.3, 1.12) both;
+}
+
+@keyframes deal {
+    from {
+        opacity: 0;
+        transform: rotate(-28deg) scale(0.1);
+    }
+}
+
+@keyframes fade {
+    from {
+        opacity: 0;
+    }
+}
+
+.hero__logos {
+    position: absolute;
+    top: var(--logos-top);
+    left: var(--pad);
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.hero__logos img {
+    height: var(--logo);
+    width: auto;
+}
+
+/* The name and what is under it lift and blur together as the page is
+   scrolled, the iris staying where it is behind them. */
+.hero__mark {
+    position: relative;
+    transform: translateY(calc(var(--gone, 0) * -60px));
+    filter: blur(calc(var(--gone, 0) * 7px));
+    animation: surface 1.4s 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.hero__the {
+    margin: 0 0 0.9em;
+    font-size: clamp(12px, 1.5vw, 18px);
+    font-weight: 600;
+    letter-spacing: 0.62em;
+    text-indent: 0.62em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.hero__title {
+    margin: 0;
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(72px, 15vw, 210px);
+    line-height: 0.86;
+    letter-spacing: 0.06em;
+    text-indent: 0.06em;
+    text-transform: uppercase;
+    background: linear-gradient(178deg, #ffffff 4%, #c3cdeb 30%, rgba(120, 133, 175, 0.55) 62%, rgba(80, 90, 130, 0) 92%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.hero__sub {
+    margin: clamp(18px, 3.4vh, 34px) 0 0;
+    font-family: var(--serif);
+    font-size: clamp(15px, 2vw, 22px);
+    font-style: italic;
+    color: #c8cfe4;
+}
+
+.hero__meta {
+    margin: 14px 0 0;
+    font-size: clamp(10.5px, 1.1vw, 12.5px);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.hero__meta i {
+    font-style: normal;
+    opacity: 0.45;
+    margin: 0 4px;
+}
+
+/* What this is, under what it is about: the second word on the page, said
+   large enough to be the reason it is open, and set off by a rule so it is
+   not read as more of the title. */
+.hero__doc {
+    margin: clamp(30px, 5.5vh, 62px) 0 0;
+    padding-top: clamp(18px, 3vh, 30px);
+    border-top: 1px solid var(--line);
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(34px, 6vw, 78px);
+    line-height: 1;
+    letter-spacing: 0.14em;
+    text-indent: 0.14em;
+    text-transform: uppercase;
+    color: var(--text);
+    text-shadow: 0 0 50px rgba(190, 208, 245, 0.28);
+}
+
+/* The way down, and the invitation to take it. */
+.hero__cue {
+    position: absolute;
+    bottom: clamp(20px, 5vh, 44px);
+    display: grid;
+    justify-items: center;
+    gap: 10px;
+    font-size: 11px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-decoration: none;
+    animation: surface 1.6s 1s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.hero__cue:hover {
+    color: var(--text);
+}
+
+.hero__cue i {
+    display: block;
+    width: 1px;
+    height: 46px;
+    background: linear-gradient(180deg, transparent, var(--accent-2));
+    animation: sink 2.4s ease-in-out infinite;
+}
+
+@keyframes sink {
+    0%,
+    100% {
+        opacity: 0.25;
+        transform: scaleY(0.55);
+        transform-origin: top;
+    }
+    50% {
+        opacity: 1;
+        transform: scaleY(1);
+        transform-origin: top;
+    }
+}
+
+@keyframes surface {
+    from {
+        opacity: 0;
+        transform: translateY(26px);
+        filter: blur(10px);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hero__iris,
+    .hero__mark,
+    .hero__cue,
+    .hero__cue i,
+    .hero__web .web__petal,
+    .hero__web .web__ring,
+    .hero__web .web__hole {
+        animation: none;
+    }
+}
+
+/* -------------------------------- a chapter ------------------------------- */
+
+/* One stretch of the page a chapter, each at least a window tall so that
+   scrolling moves from one thing to the next rather than showing two at
+   once, and parted by a hairline. A chapter linked to from the nav stops
+   short of the nav. */
+.chapter {
+    position: relative;
+    max-width: 1100px;
+    min-height: 100vh;
+    min-height: 100svh;
+    margin: 0 auto;
+    padding: calc(var(--nav) + clamp(40px, 8vh, 90px)) var(--pad) clamp(50px, 9vh, 100px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    scroll-margin-top: 0;
+}
+
+.chapter + .chapter::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: var(--pad);
+    right: var(--pad);
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--line) 20%, var(--line) 80%, transparent);
+}
+
+/* The number and the name of the chapter, small over its heading. */
+.chapter__n {
+    margin: 0 0 14px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--accent-2);
+}
+
+/* The link to the chapter, after its number: faint until the line is
+   pointed at, and saying "Link copied" for a moment once pressed. */
+.chapter__link {
+    position: relative;
+    margin-left: 6px;
+    padding: 0 4px;
+    border-radius: 4px;
+    font-family: var(--mono);
+    letter-spacing: 0;
+    text-decoration: none;
+    color: var(--dim);
+    opacity: 0.45;
+    transition:
+        opacity 0.2s,
+        color 0.2s,
+        background 0.2s;
+}
+
+.chapter__n:hover .chapter__link,
+.chapter__link:focus-visible {
+    opacity: 1;
+}
+
+.chapter__link:hover,
+.chapter__link:focus-visible {
+    outline: none;
+    color: var(--text);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.chapter__link::after {
+    content: "Link copied";
+    position: absolute;
+    left: calc(100% + 8px);
+    top: 50%;
+    translate: 0 -50%;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--gold);
+    color: #05070d;
+    font-family: inherit;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
+}
+
+.chapter__link--copied {
+    opacity: 1;
+    color: var(--gold);
+}
+
+.chapter__link--copied::after {
+    opacity: 1;
+}
+
+/* The words of a chapter beside a picture, over the tiles that carry the
+   rest of it. */
+.part {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.62fr);
+    gap: clamp(24px, 4vw, 52px);
+    align-items: center;
+}
+
+/* The second chapter answers the first, so its picture stands on the other
+   side. */
+.part--flip .part__said {
+    order: 2;
+}
+
+.part h2 {
+    margin-bottom: 14px;
+}
+
+.part p {
+    margin: 0 0 14px;
+    color: var(--muted);
+    max-width: 56ch;
+}
+
+.part p:last-child {
+    margin-bottom: 0;
+}
+
+/* The one line a chapter comes down to, under its heading and before the
+   words that explain it. */
+.part p.part__claim {
+    margin-bottom: 16px;
+    font-family: var(--serif);
+    font-size: clamp(20px, 2.2vw, 27px);
+    line-height: 1.3;
+    color: var(--text);
+}
+
+.part__seen {
+    margin: 0;
+}
+
+.part__seen img {
+    display: block;
+    width: 100%;
+    max-height: 34vh;
+    object-fit: contain;
+    border-radius: 12px;
+}
+
+/* A figure drawn on white sits on a plate rather than straight on the water,
+   the way the app puts a reasoning problem on one. The plate hugs the figure
+   — `width: auto` against the height — since a square plot in a column-wide
+   plate is mostly empty white. */
+.part__seen--plated img {
+    width: auto;
+    max-width: 100%;
+    margin-inline: auto;
+    padding: 8px;
+    background: #f4f6fb;
+    box-shadow: 0 18px 40px -26px #000;
+}
+
+@media (max-width: 900px) {
+    .part {
+        grid-template-columns: 1fr;
+    }
+
+    .part--flip .part__said {
+        order: 0;
+    }
+
+    .part__seen img {
+        max-height: 24vh;
+    }
+}
+
+/* The problems and the mechanisms: a name over a line or two each, in two
+   rows — what it is like for the person answering, then what that does to the
+   data — each led by a label down its left edge. The two chapters mirror each
+   other row for row, and tell theirs apart by one colour — a rose for what
+   goes wrong, the page's blue for what is done about it — on the tile's top
+   edge, its name and the label. */
+.tiles {
+    --ink: var(--pick);
+    margin: clamp(26px, 5vh, 48px) auto 0;
+    display: grid;
+    gap: 16px;
+}
+
+.tiles--woes {
+    --ink: #e8697f;
+}
+
+.tiles__row {
+    display: grid;
+    grid-template-columns: 14.5em minmax(0, 1fr);
+    gap: 18px;
+    align-items: stretch;
+}
+
+.tiles__row ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+    gap: 14px;
+}
+
+/* The label points into its row with an arrow rather than being edged like
+   one more box. The arrow is a mask filled with the row's ink, so one shape
+   serves both colours, and it turns downwards when the label stands over the
+   row on a narrow window. */
+.tiles__side {
+    position: relative;
+    margin: 0;
+    padding: 4px 44px 4px 0;
+    align-self: center;
+    font-size: 13px;
+    line-height: 1.4;
+    color: var(--dim);
+}
+
+.tiles__side::after {
+    content: "";
+    position: absolute;
+    right: 2px;
+    top: 50%;
+    width: 34px;
+    height: 16px;
+    margin-top: -8px;
+    background: var(--ink);
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 16'%3E%3Cpath d='M1 8h30M24 2l7 6-7 6' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+        center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 16'%3E%3Cpath d='M1 8h30M24 2l7 6-7 6' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+        center / contain no-repeat;
+    opacity: 0.8;
+}
+
+.tiles__side b {
+    display: block;
+    margin-bottom: 2px;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink);
+}
+
+@media (max-width: 900px) {
+    .tiles__row {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .tiles__side {
+        padding: 4px 0 4px 30px;
+    }
+
+    .tiles__side::after {
+        right: auto;
+        left: -7px;
+        transform: rotate(90deg) scale(0.7);
+    }
+
+    .tiles__row ul {
+        grid-auto-flow: row;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+}
+
+.tile {
+    padding: 16px 18px 17px;
+    border: 1px solid var(--line);
+    border-top: 2px solid var(--ink);
+    border-radius: 12px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(4, 10, 20, 0.35) 80%);
+}
+
+.tile:hover {
+    border-color: rgba(255, 255, 255, 0.2);
+    border-top-color: var(--ink);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(4, 10, 20, 0.35) 80%);
+}
+
+.tile h3 {
+    margin: 0 0 6px;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    color: var(--ink);
+}
+
+.tile p {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--muted);
+}
+
+.tiles__foot {
+    margin: 26px auto 0;
+    color: var(--dim);
+}
+
+/* --------------------------- the two instruments -------------------------- */
+
+/* The MINT and the BAIT as two cards, each joined by a line to its own level
+   on the run under them, and the run braced into the core and what is
+   optional. Each instrument is edged in the colour it is asked in in the app
+   (`format.color` in its block file), restated here like everything else.
+
+   A card, its join and its level are one thing in three places, so pointing
+   at any of them lights all three (`:has`, below). A card opens its items in
+   the table; a level says what it asks and goes to it in the table
+   (`docs.js`). */
+.study__head {
+    margin-bottom: clamp(26px, 5vh, 48px);
+}
+
+.study__lede {
+    margin: 0;
+    max-width: 62ch;
+    color: var(--muted);
+}
+
+.study__cards {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 24px;
+}
+
+.instrument {
+    --ink: var(--pick);
+    --ink-soft: var(--pick-soft);
+    --ink-line: rgba(61, 125, 251, 0.5);
+    display: flex;
+    flex-direction: column;
+    padding: 18px 22px 16px;
+    border: 1px solid var(--ink-line);
+    border-radius: 14px;
+    background: linear-gradient(180deg, var(--ink-soft), rgba(4, 10, 20, 0.35) 70%);
+    box-shadow: 0 18px 40px -30px #000;
+}
+
+.instrument--mint {
+    --ink: #e0457b;
+    --ink-soft: rgba(224, 69, 123, 0.13);
+    --ink-line: rgba(224, 69, 123, 0.5);
+}
+
+.instrument--bait {
+    --ink: #06b6d4;
+    --ink-soft: rgba(6, 182, 212, 0.13);
+    --ink-line: rgba(6, 182, 212, 0.5);
+}
+
+.instrument__head {
+    margin-bottom: 10px;
+}
+
+.instrument h3 {
+    margin: 0;
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(28px, 3vw, 38px);
+    line-height: 1;
+    letter-spacing: 0.06em;
+    color: var(--ink);
+}
+
+.instrument .instrument__head p {
+    margin: 6px 0 0;
+    font-size: 13px;
+    color: var(--text);
+}
+
+.instrument__head span {
+    color: var(--dim);
+}
+
+.instrument p {
+    margin: 0 0 12px;
+}
+
+.instrument__what {
+    font-family: var(--serif);
+    font-size: clamp(16px, 1.5vw, 19px);
+    line-height: 1.4;
+    color: var(--text);
+}
+
+/* Where it is asked, and the way into its items, at the foot of the card
+   whatever the words above it come to, so the buttons line up. */
+.instrument__foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: auto;
+    padding-top: 12px;
+    border-top: 1px solid var(--line);
+    font-size: 12.5px;
+    color: var(--dim);
+}
+
+.instrument__items {
+    appearance: none;
+    padding: 5px 14px;
+    border: 1px solid var(--ink-line);
+    border-radius: 999px;
+    background: rgba(4, 10, 20, 0.4);
+    color: var(--ink);
+    font: inherit;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+        background 0.2s,
+        color 0.2s;
+}
+
+.instrument__items::after {
+    content: " ↓";
+}
+
+.instrument__items:hover,
+.instrument__items:focus-visible,
+.instrument__items[aria-expanded="true"] {
+    outline: none;
+    background: var(--ink);
+    color: #05070d;
+}
+
+/* The joins, from each card down to its level. One svg the width of the run,
+   stretched to it (`preserveAspectRatio="none"`) with strokes that do not
+   stretch with it, so a path written in shares of the width lands on the
+   middle of a column at any size. Each path is written `pathLength="1"` and
+   draws itself from the card down once the run is in view. */
+.study__joins {
+    display: block;
+    width: 100%;
+    height: 34px;
+    overflow: visible;
+}
+
+.study__join {
+    fill: none;
+    stroke-width: 2;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+    opacity: 0.6;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    transition:
+        opacity 0.2s,
+        stroke-width 0.2s,
+        stroke-dashoffset 1.1s 0.5s var(--ease);
+}
+
+.study__joins.is-in .study__join {
+    stroke-dashoffset: 0;
+}
+
+.study__join--mint {
+    stroke: #e0457b;
+}
+
+.study__join--bait {
+    stroke: #06b6d4;
+}
+
+/* The run: ten levels, each one column of ten — which is what the joins
+   above are measured in, so the parts take shares of the width in proportion
+   to their levels and nothing between them takes any. */
+.run {
+    display: grid;
+    grid-template-columns: minmax(0, 4fr) minmax(0, 5fr) minmax(0, 1fr);
+    align-items: start;
+}
+
+.run__levels {
+    display: grid;
+    grid-template-columns: repeat(var(--levels, 1), minmax(0, 1fr));
+    row-gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.run__part--core .run__levels {
+    --levels: 4;
+}
+
+.run__part--more .run__levels {
+    --levels: 5;
+}
+
+.run__levels > li {
+    position: relative;
+    display: flex;
+    margin: 0 4px;
+}
+
+.run__level {
+    appearance: none;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    width: 100%;
+    min-height: 52px;
+    padding: 8px 4px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    background: rgba(4, 10, 20, 0.5);
+    font: inherit;
+    font-size: clamp(10.5px, 1vw, 12.5px);
+    line-height: 1.25;
+    text-align: center;
+    overflow-wrap: anywhere;
+    color: var(--text);
+    cursor: pointer;
+    transition:
+        border-color 0.2s,
+        background 0.2s,
+        color 0.2s,
+        translate 0.2s,
+        box-shadow 0.2s;
+}
+
+/* What is optional is drawn fainter, and the closing level fainter still:
+   it is where the run ends, and in neither part. */
+.run__part--more .run__level {
+    border-style: dashed;
+    background: rgba(4, 10, 20, 0.3);
+    color: var(--muted);
+}
+
+.run__part--end .run__level {
+    border-style: dashed;
+    border-color: var(--line);
+    background: none;
+    color: var(--dim);
+}
+
+/* Pointed at, a level lights in the blue of what it asks. */
+.run__level:hover,
+.run__level:focus-visible {
+    outline: none;
+    border-color: var(--pick);
+    background: rgba(61, 125, 251, 0.16);
+    color: var(--text);
+    translate: 0 -2px;
+}
+
+.run__level b {
+    padding: 1px 7px;
+    border-radius: 999px;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: #05070d;
+    background: var(--ink);
+}
+
+.run__level--mint,
+.run__level--bait,
+.run__level--mint:hover,
+.run__level--mint:focus-visible,
+.run__level--bait:hover,
+.run__level--bait:focus-visible {
+    border-color: var(--ink);
+    background: var(--ink-soft);
+    box-shadow: 0 0 22px -8px var(--ink);
+}
+
+.run__level--mint {
+    --ink: #e0457b;
+    --ink-soft: rgba(224, 69, 123, 0.16);
+}
+
+.run__level--bait {
+    --ink: #06b6d4;
+    --ink-soft: rgba(6, 182, 212, 0.16);
+}
+
+/* Where the join lands. */
+.run__level--mint::before,
+.run__level--bait::before {
+    content: "";
+    position: absolute;
+    top: -4px;
+    left: 50%;
+    width: 7px;
+    height: 7px;
+    margin-left: -3.5px;
+    border-radius: 50%;
+    background: var(--ink);
+}
+
+/* Pointing at a card, its join or its level lights the other two. */
+.study:has(.instrument--mint:hover, .instrument--mint:focus-within, .run__level--mint:hover, .run__level--mint:focus-visible)
+    .study__join--mint,
+.study:has(.instrument--bait:hover, .instrument--bait:focus-within, .run__level--bait:hover, .run__level--bait:focus-visible)
+    .study__join--bait {
+    opacity: 1;
+    stroke-width: 3.5;
+}
+
+.study:has(.instrument--mint:hover, .instrument--mint:focus-within) .run__level--mint,
+.study:has(.instrument--bait:hover, .instrument--bait:focus-within) .run__level--bait {
+    translate: 0 -2px;
+    box-shadow: 0 0 30px -4px var(--ink);
+}
+
+.instrument:hover,
+.instrument:focus-within,
+.study:has(.run__level--mint:hover, .run__level--mint:focus-visible) .instrument--mint,
+.study:has(.run__level--bait:hover, .run__level--bait:focus-visible) .instrument--bait {
+    border-color: var(--ink);
+    box-shadow:
+        0 0 0 1px var(--ink),
+        0 22px 50px -30px var(--ink);
+}
+
+/* What a level asks, over it while it is pointed at. `docs.js` writes it out
+   of the Content table's own rows. It is the blue of the item list under a
+   row, being the same kind of thing: what is asked. Over the first level it
+   is held to the left edge and over the last two to the right, so it never
+   leaves the page. */
+.run__card {
+    position: absolute;
+    z-index: 4;
+    bottom: calc(100% + 12px);
+    left: 50%;
+    width: 250px;
+    margin-left: -125px;
+    padding: 12px 14px 11px;
+    border: 1px solid var(--pick);
+    border-radius: 10px;
+    background: linear-gradient(180deg, rgba(20, 40, 86, 0.98), rgba(7, 12, 26, 0.98));
+    box-shadow: 0 20px 40px -20px #000;
+    text-align: left;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    translate: 0 6px;
+    transition:
+        opacity 0.16s,
+        translate 0.16s,
+        visibility 0.16s;
+}
+
+.run__part--core li:first-child .run__card {
+    left: 0;
+    margin-left: 0;
+}
+
+.run__part--more li:nth-last-child(-n + 2) .run__card,
+.run__part--end .run__card {
+    left: auto;
+    right: 0;
+    margin-left: 0;
+}
+
+.run__card p {
+    margin: 0;
+}
+
+.run__card-of {
+    font-size: 10.5px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--dim);
+}
+
+.run__card-of b {
+    letter-spacing: 0.06em;
+    text-transform: none;
+    font-size: 12px;
+    color: var(--pick);
+}
+
+.run__card ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin: 9px 0 10px;
+    padding: 0;
+    list-style: none;
+}
+
+.run__card li {
+    padding: 2px 8px;
+    border: 1px solid rgba(61, 125, 251, 0.45);
+    border-radius: 6px;
+    font-size: 12px;
+    line-height: 1.35;
+    color: var(--text);
+}
+
+.run__card-go {
+    font-size: 11px;
+    color: var(--dim);
+}
+
+.run__card-go::after {
+    content: " ↓";
+}
+
+@media (hover: hover) {
+    .run__levels > li:hover {
+        z-index: 3;
+    }
+
+    .run__levels > li:hover .run__card {
+        opacity: 1;
+        visibility: visible;
+        translate: 0 0;
+    }
+}
+
+.run__levels > li:has(:focus-visible) {
+    z-index: 3;
+}
+
+.run__levels > li:has(:focus-visible) .run__card {
+    opacity: 1;
+    visibility: visible;
+    translate: 0 0;
+}
+
+/* A curly brace under a part, pointing down at what is said under it: two
+   ends that curl up, two straight runs and a tip in the middle, so it keeps
+   its shape at any width. Its line is the bottom edge of the ends and the
+   runs, 6px down, which is where the tip's two halves start from. */
+.brace {
+    display: flex;
+    align-items: flex-start;
+    margin: 10px 4px 0;
+    color: var(--gold);
+}
+
+.run__part--more .brace {
+    color: var(--dim);
+}
+
+.brace span,
+.brace i {
+    height: 8px;
+    border: 0 solid currentColor;
+    border-bottom-width: 2px;
+}
+
+.brace span {
+    flex: 1;
+}
+
+.brace i:first-child,
+.brace i:last-child {
+    width: 12px;
+}
+
+.brace i:first-child {
+    border-left-width: 2px;
+    border-bottom-left-radius: 12px;
+}
+
+.brace i:last-child {
+    border-right-width: 2px;
+    border-bottom-right-radius: 12px;
+}
+
+.brace i:nth-child(3) {
+    position: relative;
+    width: 16px;
+    height: 14px;
+    border: 0;
+}
+
+.brace i:nth-child(3)::before,
+.brace i:nth-child(3)::after {
+    content: "";
+    position: absolute;
+    top: 6px;
+    width: 9px;
+    height: 8px;
+    border: 0 solid currentColor;
+    border-top-width: 2px;
+}
+
+.brace i:nth-child(3)::before {
+    left: 0;
+    border-right-width: 2px;
+    border-top-right-radius: 9px;
+}
+
+.brace i:nth-child(3)::after {
+    left: 7px;
+    border-left-width: 2px;
+    border-top-left-radius: 9px;
+}
+
+.run__said {
+    margin: 8px 4px 0;
+    text-align: center;
+    font-size: 13px;
+    line-height: 1.45;
+    color: var(--dim);
+}
+
+.run__said b {
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold);
+}
+
+.run__part--more .run__said b {
+    color: var(--text);
+}
+
+/* Narrow: the cards one under the other, which leaves the joins nowhere to
+   run, so they go, and the run is its three parts stacked, each braced. A
+   level still goes to the table when pressed, but says nothing over itself:
+   there is no room beside it, and a finger has no hover. */
+@media (max-width: 980px) {
+    .study__cards {
+        grid-template-columns: 1fr;
+    }
+
+    .study__joins,
+    .run__level--mint::before,
+    .run__level--bait::before,
+    .run__card {
+        display: none;
+    }
+
+    .run {
+        grid-template-columns: 1fr;
+        gap: 18px;
+        margin-top: 26px;
+    }
+
+    .run__part--more .run__levels {
+        --levels: 3;
+    }
+
+    .run__part--end .run__levels > li {
+        width: calc(33.333% - 8px);
+        margin-inline: auto;
+    }
+}
+
+@media (max-width: 560px) {
+    .run__part--core .run__levels,
+    .run__part--more .run__levels {
+        --levels: 2;
+    }
+
+    .instrument__foot {
+        flex-wrap: wrap;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .instrument,
+    .run__level,
+    .run__card,
+    .study__join {
+        transition: none;
+    }
+
+    .study__join {
+        stroke-dashoffset: 0;
+    }
+}
+
+/* --------------------------------- a table -------------------------------- */
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: clamp(11.5px, 1.15vw, 13.5px);
+}
+
+th,
+td {
+    text-align: left;
+    padding: 7px 16px 7px 0;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+}
+
+/* The header stays under the nav while the table is scrolled past, on the
+   page's own dark so the rows go under it. */
+th {
+    position: sticky;
+    top: var(--nav);
+    z-index: 2;
+    padding-top: 10px;
+    padding-bottom: 8px;
+    background: #05070d;
+    font-size: 10.5px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--dim);
+    font-weight: 600;
+}
+
+td {
+    color: var(--dim);
+}
+
+/* The level, then the instrument, then what it scores: narrow, plain, wide.
+   Scoped to the instrument rows, since the list row below has one cell that
+   is both first and last. */
+tr[data-items] td:first-child {
+    white-space: nowrap;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+}
+
+tr[data-items] td:nth-child(2) {
+    color: var(--text);
+}
+
+/* A row of the table says which instrument; picking it opens what that
+   instrument actually asks under it. Hovering only says that it can be
+   picked. */
+tr[data-items] {
+    cursor: pointer;
+    outline: none;
+    scroll-margin-top: calc(var(--nav) + 60px);
+}
+
+tr[data-items]:hover td {
+    color: var(--text);
+    background: rgba(61, 125, 251, 0.1);
+}
+
+tr[data-items]:focus-visible td {
+    background: rgba(61, 125, 251, 0.16);
+}
+
+/* The row being read, in the blue its items are shown in, and the line under
+   it gone, since the list is what follows. */
+tr[data-items][aria-expanded="true"] td {
+    color: var(--text);
+    background: var(--pick-soft);
+    border-bottom-color: transparent;
+}
+
+tr[data-items][aria-expanded="true"] td:first-child {
+    box-shadow: inset 3px 0 0 var(--pick);
+}
+
+tr[data-items] td:last-child {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+/* A row gone to from a level on the run, lit for a moment in the list's blue
+   and left as it was. */
+tr.row--sought td {
+    animation: sought 2.4s ease-out both;
+}
+
+@keyframes sought {
+    from {
+        color: var(--text);
+        background: rgba(61, 125, 251, 0.34);
+    }
+}
+
+/* The items themselves, in a row of the table under the one picked, which
+   opens by growing (a grid track from nothing to its height, so nothing has
+   to be measured). One such row exists and is moved under whichever row is
+   picked. */
+.items td {
+    padding: 0;
+    border-bottom: 0;
+    background: var(--pick-soft);
+    box-shadow: inset 3px 0 0 var(--pick);
+}
+
+.items__grow {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.45s var(--ease);
+}
+
+.items--open .items__grow {
+    grid-template-rows: 1fr;
+}
+
+.items__wrap {
+    overflow: hidden;
+}
+
+.items__in {
+    padding: 14px 18px 20px;
+    border-bottom: 1px solid var(--pick);
+}
+
+.items__of {
+    margin: 0 0 10px;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--dim);
+}
+
+.items__of b {
+    color: var(--pick);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: none;
+    font-size: 13px;
+}
+
+.items__list {
+    margin: 0;
+    padding-left: 22px;
+    columns: 2;
+    column-gap: 40px;
+    font-size: clamp(11.5px, 1.1vw, 13px);
+    line-height: 1.55;
+    color: var(--muted);
+}
+
+.items__list li {
+    break-inside: avoid;
+    margin-bottom: 5px;
+}
+
+.items__list li::marker {
+    color: var(--pick);
+}
+
+@media (max-width: 800px) {
+    .items__list {
+        columns: 1;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .items__grow {
+        transition: none;
+    }
+}
+
+/* --------------------------------- the end -------------------------------- */
+
+.end {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 30px var(--pad) 50px;
+    border-top: 1px solid var(--line);
+    font-size: 13px;
+    color: var(--dim);
+}
+
+.end p {
+    margin: 0;
+}
+
+@media print {
+    .nav,
+    .hero__cue {
+        display: none;
+    }
+
+    [data-reveal],
+    [data-reveal] [style*="--i"] {
+        opacity: 1;
+        translate: none;
+    }
+
+    .chapter {
+        min-height: 0;
+        break-before: page;
+    }
+
+    th {
+        position: static;
+    }
+}

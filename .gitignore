@@ -39,7 +39,8 @@ vignettes/*.pdf
 # R Environment Variables
 .Renviron
 
-# `docs/` is the deck about the app — two hand-written files, nothing built —
+# `docs/` is the documentation page about the app, and under it the deck it
+# grew out of — hand-written files, nothing built —
 # and is kept. (This line used to ignore the whole folder, from the R-package
 # template these rules came out of, where it meant a generated pkgdown site.
 # There has never been one here.)

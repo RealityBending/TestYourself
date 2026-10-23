@@ -20,7 +20,7 @@
 
     // Saved into every response file, so a data export can always be matched
     // back to the code that produced it. Logged in CHANGELOG.md.
-    const APP_VERSION = "0.0.1"
+    const APP_VERSION = "1.0.0"
 
     const $ = (id) => document.getElementById(id)
     const still = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches
@@ -42,15 +42,11 @@
     // Other names a link may use for four of its words, tried in order after
     // the word itself: `?s=` for `?source=`, `?st=` for `?start=`, `?p=` for
     // `?project=` and `?pid=` for `?participant=`, so that a link typed by
-    // hand or printed on a poster stays short; and the words those two were
-    // until October 2026, `?battery=` (and its `?b=`) and `?sub=`. **TODO:
-    // drop `battery`, `b` and `sub` at v1.0**, once the ethics application is
-    // approved and the real deployment starts — they are kept only so that
-    // the pilots' links go on working. The long name wins where a link gives
-    // both. A shared card's `s` is its scores (`?card=1&s=…`, read by
+    // hand or printed on a poster stays short. The long name wins where a
+    // link gives both. A shared card's `s` is its scores (`?card=1&s=…`, read by
     // results.js), so on a card `s` is never the source; the link a card is
     // shared under carries `source=` written out for that reason.
-    const SHORTHANDS = { source: ["s"], start: ["st"], project: ["p", "battery", "b"], participant: ["pid", "sub"] }
+    const SHORTHANDS = { source: ["s"], start: ["st"], project: ["p"], participant: ["pid"] }
 
     function inLink(name) {
         if (query.has(name)) return query.get(name)
@@ -4219,6 +4215,11 @@
         $("consent-hint").textContent = testMode ? "Test mode: consent is not being taken." : "You have reached the end of the form."
         $("consent-hint").classList.add("consent__hint--read")
     }
+
+    // The form describes the run this link asks: `mint` has a core and a
+    // debrief after it, `all` neither, so a part written for one timeline
+    // (`data-project`) is shown on its runs alone.
+    for (const part of document.querySelectorAll("#consent [data-project]")) part.hidden = part.dataset.project !== battery
 
     $("consent").addEventListener("scroll", checkConsent)
     window.addEventListener("resize", checkConsent)

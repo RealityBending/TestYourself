@@ -241,12 +241,12 @@
                     <h2 class="gate__heading">Information and consent</h2>
 
                     <!-- Modelled on the University of Sussex consent sheet the MINT validation study ran with
-                         (`ethics/mint_validation/Consent.pdf`): same headings in the same order, and the six
+                         (ER/MB2021/2's): same headings in the same order, and the six
                          consent statements kept as the committee's own wording rather than reworded, since that
                          is what a reviewer reads for. What is written around them describes this study — see
                          `ethics/mint_followup/application_draft.md`, whose Project Description it has to keep
-                         agreeing with. STILL TO FILL IN before the study runs: the F-REC reference, given on
-                         approval. The duration is the time rewarded (30 minutes, two SONA credits, set on 4 October
+                         agreeing with. It is the approved text (reference 2026-2817-3620, October 2026), so a
+                         change to it wants an amendment first. The duration is the time rewarded (30 minutes, two SONA credits, set on 4 October
                          2026), which the core's 20 to 25 minutes fits inside with room for slower participants.
 
                          **One of the six is no longer the committee's wording**, and it had to change: the third
@@ -280,12 +280,19 @@
                             other measures which help us contextualize your answers, such as your mood and health over the past weeks and
                             months.
                         </p>
-                        <p>
+                        <!-- A paragraph written `data-project` is shown on that timeline's runs alone
+                             (app.js). `mint` has a core and a debrief after it; `all` has neither, so its
+                             runs are told they can stop after any level and are debriefed at the foot of the form. -->
+                        <p data-project="mint">
                             That first part takes <b>about 30 minutes</b> and is the whole of the study. If you are taking part for course
                             credit or payment, it is awarded for finishing it. You will then be told that you have finished, and offered the
                             choice of carrying on through further questionnaires if you would like to.
                             <b>That second part is entirely optional</b>, carries no additional credit or payment, and you can stop anywhere
                             in it.
+                        </p>
+                        <p data-project="all" hidden>
+                            The test is made of levels of a few minutes each, and after the first you choose which to take next. Each ends
+                            with results of its own, so you can stop whenever you want.
                         </p>
                         <p>
                             Please make sure that you are attentive and in a quiet environment, and that you have the time to complete it in
@@ -358,12 +365,33 @@
                             <!-- The Sussex form names the researcher running the study beside the supervisor: the
                                  student submitting the application (September 2026). -->
                             and/or Asel Tohlukov (<i>at775@sussex.ac.uk</i>). This research has been approved
-                            <!-- Placeholder, in the format the other studies use: fill in once this study has its own reference,
-                                 rather than quoting one that covers a different protocol. -->
-                            (XX/XXXX/XX) by the Faculty Research Ethics Committee: Science, Engineering and Technology (F-REC)
+                            (2026-2817-3620) by the Faculty Research Ethics Committee: Science, Engineering and Technology (F-REC)
                             (<i>frecsemset@sussex.ac.uk</i>). The University of Sussex has insurance in place to cover its legal liabilities
                             in respect of this study.
                         </p>
+
+                        <!-- The debrief, for a run with no interim to give it (`all`): the interim's own
+                             (content/block_interim.js), in the present tense, without what the form above
+                             already says. A change to one wants the other. -->
+                        <div data-project="all" hidden>
+                            <h3>About this study</h3>
+                            <p>
+                                This study is validating a new questionnaire of <b>interoception</b>: how you sense and make sense of the
+                                signals from inside your body, such as your heartbeat, your breathing or your stomach, which have been linked to
+                                emotion, self-awareness and well-being. The other questionnaires show how it relates to personality, mood,
+                                health and views of AI, and the questions about your body are answered on circles or on a slider, drawn at
+                                random, to find out whether the way a question is answered changes the answer. The results you are shown
+                                describe your answers: none of them is a diagnosis.
+                            </p>
+                            <p>
+                                If anything in the test brings up something difficult, the
+                                <a href="https://www.samaritans.org/" target="_blank" rel="noopener">Samaritans</a> (116 123, free, day or
+                                night) and <a href="https://www.mind.org.uk/" target="_blank" rel="noopener">Mind</a> (0300 123 3393) are there
+                                to listen, and so are the University of Sussex's
+                                <a href="https://student.sussex.ac.uk/wellbeing/" target="_blank" rel="noopener">health and wellbeing
+                                services</a> for its students.
+                            </p>
+                        </div>
                     </div>
 
                     <p class="consent__hint" id="consent-hint">Scroll to the end of the form to continue.</p>

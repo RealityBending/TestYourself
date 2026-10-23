@@ -37,7 +37,9 @@ import subprocess
 import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-DECK = ROOT / "docs" / "index.html"
+# The two pages the table is written into: the documentation page, and the
+# slide deck it grew out of, kept under presentation/. Both carry the markers.
+PAGES = [ROOT / "docs" / "index.html", ROOT / "docs" / "presentation" / "index.html"]
 ITEMS = ROOT / "docs" / "items.js"
 CODEBOOK = ROOT / "data" / "synthetic" / "codebook.js"
 
@@ -85,7 +87,8 @@ ROWS = [
         ["pi18", "primals_tertiary"],
         None,
     ),
-    ("ICAR-16 Sample Test (ICAR16; Condon & Revelle, 2014; Young & Keith, 2020)", ["icar16"], None),
+    # Out of 1.0 with its level (content/timeline.js); back with it.
+    # ("ICAR-16 Sample Test (ICAR16; Condon & Revelle, 2014; Young & Keith, 2020)", ["icar16"], None),
     ("Adult ADHD Self-Report Scale v1.1, items 1-2 (ASRS; Kessler et al., 2005)", ["control"], ["ASRS_"]),
     ("Cognitive Failures Questionnaire, items 10 and 21 (CFQ; Broadbent et al., 1982)", ["control"], ["CFQ_"]),
     ("Mind Wandering: Spontaneous, items 1 and 4 (MW-S; Carriere et al., 2013)", ["control"], ["MWS_"]),
@@ -222,22 +225,25 @@ def table(rows):
 
 
 def written(rows, items, version):
-    deck = DECK.read_text(encoding="utf-8")
-    if OPEN not in deck or SHUT not in deck:
-        sys.exit("the markers around the table are not in docs/index.html any more")
-    before, rest = deck.split(OPEN, 1)
-    after = rest.split(SHUT, 1)[1]
+    pages = []
+    for page in PAGES:
+        text = page.read_text(encoding="utf-8")
+        if OPEN not in text or SHUT not in text:
+            sys.exit("the markers around the table are not in %s any more" % page.relative_to(ROOT))
+        before, rest = text.split(OPEN, 1)
+        after = rest.split(SHUT, 1)[1]
+        pages.append(before + table(rows) + after)
 
     said = json.dumps(items, indent=4, ensure_ascii=False)
     js = (
         "/* Written by docs/build_slides.py out of the app's own content files.\n"
         "   Do not edit by hand: run the script again instead.\n\n"
         "   One entry per row of the Content table, holding that instrument's\n"
-        "   items as they are asked, flattened to plain text. Read by deck.js,\n"
-        "   which shows them beside the row. */\n\n"
+        "   items as they are asked, flattened to plain text. Read by docs.js,\n"
+        "   which opens them under the row, and by presentation/deck.js. */\n\n"
         "const ITEMS = " + said + "\n"
     )
-    return before + table(rows) + after, js
+    return pages, js
 
 
 def main():
@@ -247,14 +253,19 @@ def main():
 
     book = codebook()
     rows, items = build(book)
-    deck, js = written(rows, items, book.get("version"))
+    pages, js = written(rows, items, book.get("version"))
 
-    stale = deck != DECK.read_text(encoding="utf-8") or not ITEMS.exists() or js != ITEMS.read_text(encoding="utf-8")
+    stale = (
+        any(text != page.read_text(encoding="utf-8") for page, text in zip(PAGES, pages))
+        or not ITEMS.exists()
+        or js != ITEMS.read_text(encoding="utf-8")
+    )
     if said.check:
-        print("the deck is out of date — run docs/build_slides.py" if stale else "the deck is up to date")
+        print("the docs are out of date — run docs/build_slides.py" if stale else "the docs are up to date")
         sys.exit(1 if stale else 0)
 
-    DECK.write_text(deck, encoding="utf-8", newline="\n")
+    for page, text in zip(PAGES, pages):
+        page.write_text(text, encoding="utf-8", newline="\n")
     ITEMS.write_text(js, encoding="utf-8", newline="\n")
     print("wrote %d rows and %d items into docs/" % (len(rows), sum(len(one) for one in items.values())))
 
