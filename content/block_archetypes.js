@@ -5,7 +5,7 @@ defineBlock("archetypes", [
         text:
             "<h2>Archetypes.</h2>" +
             "<p>Long before anyone measured personality, people described each other with, and aspired to be, figures of literature and mythology.</p>" +
-            "<p><em>Let's see how your personality connects with them.</em></p>",
+            "<p><em>Find which archetypes resonate with you.</em></p>",
     },
 
     // OSAI-PM ==============================================================

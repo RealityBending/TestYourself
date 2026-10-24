@@ -250,7 +250,7 @@ function makeWheel(shared) {
             piece("wheel__lead", "Your wheel is an even one")
             piece("wheel__told", sentence("no single story stands out. You carry these in much the same measure, and that is a real result rather than a failure to pick one."))
         } else {
-            piece("wheel__lead", top.length > 1 ? "You lead with these, in equal measure" : "You lead with")
+            piece("wheel__lead", top.length > 1 ? "Your dominant archetypes, in equal measure, are" : "Your dominant archetype is")
             piece("wheel__name", names(top))
             for (const one of top) piece("wheel__told", top.length > 1 ? "The " + one.dimension + ": " + one.reading : sentence(one.reading))
         }
