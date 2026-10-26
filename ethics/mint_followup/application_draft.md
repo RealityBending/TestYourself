@@ -32,8 +32,8 @@ makes from the raw files and which is where the researchers work.
 - [ ] **Recruitment links** carry `?project=mint` (without it a participant
   gets the whole test, including the sexuality level, which is not in this
   application); SONA's also `&source=SONA&pid=%SURVEY_CODE%`.
-- [ ] **SONA credit URL**: replace the placeholder `SONA_CREDIT` in
-  `content/block_interim.js` once the study is set up on SONA (2 credits).
+- [x] **SONA credit URL**: `SONA_CREDIT` in `content/block_interim.js` is the
+  completion URL of experiment 2102 (2 credits), set up on 26 October 2026.
 - [ ] **Prolific completion**: the app has no Prolific completion URL. Build
   one on the debrief screen, or drop Prolific from 6.1, 6.3.1, 7.6.1 and the
   description.

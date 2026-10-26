@@ -221,9 +221,16 @@ offered its credit between the debrief and the choice: a box with a button
 linking to SONA in a new tab, the participant code on the end, and "earn no
 further credit" in the "What next?" line under it, as the consent sheet promises. The text is worded from the run for that (see
 **A question may word itself from an earlier answer**); nobody else sees any
-of it. **The link is a placeholder** (`SONA_CREDIT`, at the head of
-`content/block_interim.js`): the study's client-side completion URL from
-SONA goes there, cut after `survey_code=`, and SONA grants credit only for its
+of it. **The link** (`SONA_CREDIT`, at the head of
+`content/block_interim.js`) is the client-side completion URL of the study on
+SONA (experiment 2102, October 2026; its fields are in
+`data/collected/recruitment.md`), cut after `survey_code=`. **It is written
+encoded**, reversed and then base64, and decoded only as it is offered
+(`sonaCredit`), since its credit token is what grants the credit and the
+repository is public: obfuscation rather than secrecy, `answerKey`'s
+reasoning, keeping the token out of a search of the repository and off a
+casual reading of the source. A new one is encoded in the console, as the
+comment over it says. SONA grants credit only for its
 own survey code, so the study's link on SONA has to carry
 `?pid=%SURVEY_CODE%&source=SONA&project=mint`. Clicking it is not recorded;
 SONA records the credit. A SONA participant who goes on without claiming it

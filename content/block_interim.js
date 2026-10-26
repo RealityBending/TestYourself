@@ -1,13 +1,27 @@
-// **PLACEHOLDER, to be replaced before SONA recruits anybody**: the
-// client-side completion URL SONA gives the study once it is set up there as
-// an online external study, cut after `survey_code=`. The participant's code
-// goes on the end, and it is SONA's own survey code only when the study's
-// link on SONA brings it, so that link has to say `?pid=%SURVEY_CODE%` beside
-// `&source=SONA&project=mint` — without it the code is one the app made, and
-// SONA grants nothing for it. Offered only to a run whose link says
-// `?source=SONA` (any case), under the debrief and over the choice to go on
-// (`Briefing_Onward`).
-const SONA_CREDIT = "https://sussex.sona-systems.com/webstudy_credit.aspx?experiment_id=EXPERIMENT_ID&credit_token=CREDIT_TOKEN&survey_code="
+// The client-side completion URL of the study on SONA (experiment 2102 on
+// sussexpsychology.sona-systems.com, see data/collected/recruitment.md), cut
+// after `survey_code=`. The participant's code goes on the end, and it is
+// SONA's own survey code only when the study's link on SONA brings it, so
+// that link has to say `?pid=%SURVEY_CODE%` beside `&source=SONA&project=mint`
+// — without it the code is one the app made, and SONA grants nothing for it.
+// Offered only to a run whose link says `?source=SONA` (any case), under the
+// debrief and over the choice to go on (`Briefing_Onward`).
+//
+// **It is written encoded**, reversed and then base64, because its
+// `credit_token` is what lets SONA grant the credit and this file is public.
+// That is obfuscation, not secrecy (`answerKey`'s reasoning): the page has to
+// be able to offer the link, so anybody reading the code can decode it, but
+// the token stays out of a search of the repository and off a casual reading
+// of the source, and nothing but a SONA survey code signed up to the study
+// gets credit from it. To write a new one, call
+// `btoa([...url].reverse().join(""))` in the console on the URL SONA gives.
+const SONA_CREDIT =
+    "PWVkb2NfeWV2cnVzJjRmNTY2NzQ1ZWU2MWU3YTk1YmI0OTJhODg5YjBmOTYzPW5la290X3RpZGVyYyYyMDEyPWRpX3RuZW1pcmVweGU/eHBzYS50aWRlcmNfeWR1dHNiZXcvbW9jLnNtZXRzeXMtYW5vcy55Z29sb2hjeXNweGVzc3VzLy86c3B0dGg="
+
+// The credit link for one participant, decoded only when it is offered.
+function sonaCredit(code) {
+    return [...atob(SONA_CREDIT)].reverse().join("") + encodeURIComponent(code)
+}
 
 defineBlock("interim", [
     // THE INTERIM ==========================================================
@@ -93,7 +107,7 @@ defineBlock("interim", [
     //
     // A run whose link says `?source=SONA` is offered its credit under it,
     // since this is where most people stop: a link to SONA in a new tab, their
-    // code on the end of it (`SONA_CREDIT`, above), and the line the consent
+    // code on the end of it (`sonaCredit`, above), and the line the consent
     // sheet and the ethics application promise, that going on earns no more
     // of it. The text is worded from the run (`run.source`,
     // `run.participant`) for that, as an item is worded from an answer.
@@ -110,7 +124,6 @@ defineBlock("interim", [
         onward: true,
         text: (answer, run) => {
             const sona = /^sona$/i.test(run.source)
-            const credit = SONA_CREDIT + encodeURIComponent(run.participant)
             return (
                 "<h2>About this study</h2>" +
                 "<p>This study is validating a new questionnaire of <b>interoception</b>: how you sense and make " +
@@ -133,7 +146,7 @@ defineBlock("interim", [
                       "<p>Your SONA credit is for the main part, which you have finished, so it is yours whatever you " +
                       "do next. Claim it now, in a new tab, before you go on or close this page.</p>" +
                       '<a class="btn" href="' +
-                      credit +
+                      sonaCredit(run.participant) +
                       '" target="_blank" rel="noopener">Claim your SONA credit ↗</a>' +
                       "</div>"
                     : "") +
