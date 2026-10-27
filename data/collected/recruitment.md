@@ -13,7 +13,8 @@ The University of Sussex psychology pool, `sussexpsychology.sona-systems.com`, f
 `mint` (the core, then the optional levels) and is offered its credit at the interim. How SONA studies are set up in
 general, and what makes a name stand out in its list, is in the lab's `Lab/recruitment/sona.md`.
 
-**The study** is experiment 2102, set up on 26 October 2026 as a **draft**: not approved and inactive.
+**The study** is experiment 2102, set up on 26 October 2026, approved by the administrator and made active the same
+day.
 Online External, one part, credit; 2 credits, for a duration of 25 minutes; ages 18 to 99 (SONA's age restriction); ethics code
 2026-2817-3620; participants identified by a random code only; the link still shown after taking part, so that
 somebody can come back to the optional levels; sign-up and cancellation deadlines of an hour; no emails on sign-up.
@@ -25,10 +26,20 @@ the pool's administrator (sona-admin@sussex.ac.uk) can make.
 - [x] The client-side completion URL from the study's page on SONA is in `SONA_CREDIT`
       (`content/block_interim.js`), cut after `survey_code=` and encoded, so that its credit token is not in the
       public repository as plain text (how to encode a new one is in the comment over it).
-- [ ] That change deployed (pushed), and one SONA run through to the credit link before the study opens.
-- [x] A timeslot, the one an online study needs for anybody to sign up: open until **Friday 26 March 2027, 18:00**,
-      with **1000 places** (added 26 October 2026; its Modify link changes either).
-- [ ] Active Study set to Yes, and Send Request on the study's page, for the administrator to approve it.
+- [x] That change deployed (pushed; the live page serves it, checked 26 October 2026).
+- [ ] One SONA run through to the credit link before the study opens, which a draft study cannot be taken for, so
+      by hand: `https://realitybendinglab.com/TestYourself/?pid=TEST123&source=SONA&project=mint&test=true`, and the
+      button on the interim's last screen should reach SONA's credit page (which refuses a made-up code).
+- [x] A timeslot, the one an online study needs for anybody to sign up: open until **Friday 11 December 2026,
+      18:00**, the end of the autumn term, with **1000 places** (added 26 October 2026 to end on 26 March 2027 and
+      cut back to the end of term the same day; its Modify link, under View/Administer Time Slots, changes either).
+- [x] Send Request on the study's page, for the administrator to approve it (approved 26 October 2026).
+- [x] Active Study set to Yes (Change Study Information), 26 October 2026: the study is on the list of available
+      studies. The name's `&nbsp;` had gone by then (the approval was an edit too) and was typed back in the same
+      save.
+
+**After the autumn term**: a new timeslot for the spring term (Add A Timeslot, under View/Administer Time Slots),
+ending at the end of that term, since the first one closes on 11 December 2026.
 
 **`source`**: `SONA`, which is also what puts the credit link on the interim's last screen. The Study URL, as entered:
 

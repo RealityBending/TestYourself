@@ -170,7 +170,8 @@ Not asked yet. "Partly there" names what the test already asks on the same groun
 | Self and others        | Social connection                                              |                                                                                                                                                               |                                                                                                                  |
 | Self and others        | Suggestibility                                                 | SSS (Kotov et al., 2004), as in IllusionGameSuggestibility; see **Fake news and reality**, below                                                              |                                                                                                                  |
 | Self and others        | Dark traits, deception, antisocial behaviour                   | A level of its own, in active work: see **Light and dark** under Pop-Culture Hooks and `content/block_dark.js`                                                | HEXACO Honesty-Humility (Character), HiTOP-BR's Dominance and Impulsivity (Mood & Health), SINS single (General) |
-| Self and others        | PCS?                                                           |                                                                                                                                                               |                                                                                                                  |
+| Control                | Physiological control                                          | Stopping a sneeze or hiccups, holding back a yawn, tears or a blush. A level of its own beside Mind & Heart: see **Control**, below                           |                                                                                                                  |
+| Control                | Phenomenological control                                       | Lush's PCS, a revision of it, or a proxy (the SSS, absorption). See **Control**, below                                                                        |                                                                                                                  |
 | Wellbeing and emotions | Coping                                                         |                                                                                                                                                               | CERQ-short (Mind & Heart)                                                                                        |
 | Wellbeing and emotions | Self-rated health                                              |                                                                                                                                                               | Health single (General)                                                                                          |
 | Wellbeing and emotions | Dimorphous emotions                                            |                                                                                                                                                               |                                                                                                                  |
@@ -261,6 +262,30 @@ real-to-fake slider), the Illusion Game and the COVID fake news study (2021covid
   is shown on the results, unlike the ICAR's (the MIST's is published anyway); several MIST items are political
   ("Left-Wingers Are More Likely to Lie…"), which brings the level near Article 9 as the opinions level is; and a budget: the
   MIST-16 and the SSS alone are 37 items.
+
+**Control**, one or two possible levels beside Mind & Heart. That level asks how well somebody steers their attention and
+their feelings — cognitive control (the ASRS, CFQ, MW-S and BSCS pairs) and emotional control (the ERS and the CERQ). Two
+more kinds of control would complete the set, and asked in the same run they would answer what none of them answers alone:
+whether control is one thing across mind, heart, body and experience, or four. A level each, or one level of two halves;
+folding them into Mind & Heart would make a level already three questionnaires long too long.
+
+- *Physiological control*: how far the body does as it is told — preventing or cancelling a sneeze, stopping hiccups,
+  holding back a cough, a yawn, tears or a blush, stopping a shiver, falling asleep or waking at an hour chosen, and at the
+  rare end giving yourself goosebumps (Heathers et al., 2018), slowing your heart or making your ears rumble. It is the
+  other direction from the MINT, which asks how well the body is felt rather than how far it obeys, so the first thing to
+  look at is whether the two go together. A validated scale wants searching for; failing one, custom items on a ladder of
+  prevalence as the kinks are, from what most people can do down to what few can, so that a count tells people apart at
+  both ends, each asked as how reliably it works for you, with "I've never tried" as a declined answer rather than a no.
+- *Phenomenological control*: the capacity to have the experience a suggestion describes — an arm growing heavy, a taste
+  that is not there — and to have it as happening by itself. The measure is Lush et al.'s PCS (2021), made at Sussex out of
+  the SWASH by taking the hypnosis out of a hypnotisability scale, and it predicts the rubber hand illusion and mirror-touch
+  synaesthesia (Lush et al., 2020), which makes it worth having beside any study of illusions as well as a trait. It is a
+  recorded procedure rather than a questionnaire, and long (see **Fake news and reality**), so asking it here wants a
+  revision: fewer suggestions, perhaps read on screen rather than heard, each rated for how strongly it was felt and how
+  involuntary it seemed, and validated against the full PCS. Heard, it would want an audio item, a new `type`, and sound,
+  which somebody on a phone on a bus does not have. The proxies, if neither: the SSS (Kotov et al., 2004, under
+  Suggestibility above), absorption (the TAS; Tellegen & Atkinson, 1974) and the Creative Imagination Scale (Wilson &
+  Barber, 1978), whose suggestions are scored by the person who heard them.
 
 ## Pop-Culture Hooks
 

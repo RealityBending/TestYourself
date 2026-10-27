@@ -13,7 +13,10 @@ because it holds **real participant data and must never be committed**.
 
 Standard library only, and it runs again safely: a file already in `raw/` with
 the right size and checksum is left alone, so this is the way to pull an
-ongoing study down each morning rather than a thing to run once.
+ongoing study down each morning rather than a thing to run once. That is also
+what it does with Zenodo's bad minutes (a 504 and the like): each is waited out
+a few times, and a file that still will not come is reported and passed over
+for the next run to fetch, rather than stopping the rest.
 
 **The token, and when one is needed.** Only an *open* published record can be
 read by anybody. The other two states are the owner's alone, and both want a
@@ -74,10 +77,12 @@ two a given run came down in.
 
 import argparse
 import hashlib
+import http.client
 import json
 import os
 import re
 import sys
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -159,6 +164,46 @@ def ask(url, token=None, binary=False):
     return reply if binary else json.load(reply)
 
 
+# Zenodo has bad minutes: a gateway that times out (504), a server overloaded
+# (502, 503), a rate limit (429), a connection dropped halfway down a file. None
+# of those says anything about the deposit or the file, and each usually clears
+# within the minute, so they are waited out and tried again rather than taken
+# as an answer.
+AGAIN = (429, 500, 502, 503, 504)
+WAITS = (5, 15, 30)  # seconds before each further try; past the last, it is given up on
+
+
+def passing(error):
+    """Whether an error is Zenodo having a bad moment rather than an answer.
+    A 404 or a refused token is the same however often it is asked."""
+    if isinstance(error, urllib.error.HTTPError):
+        return error.code in AGAIN
+    return isinstance(error, (urllib.error.URLError, http.client.HTTPException, ConnectionError, TimeoutError))
+
+
+def reason(error):
+    """An error in a few words, for a line of the report rather than a traceback."""
+    if isinstance(error, urllib.error.HTTPError):
+        return "HTTP %d" % error.code
+    if isinstance(error, urllib.error.URLError):
+        return str(error.reason)
+    return type(error).__name__
+
+
+def patiently(attempt, what):
+    """`attempt()`, tried again after each of `WAITS` while what goes wrong is
+    `passing`, and let through as it came once they run out."""
+    for wait in WAITS:
+        try:
+            return attempt()
+        except Exception as error:
+            if not passing(error):
+                raise
+            print("  %s: %s, trying again in %d s" % (what, reason(error), wait))
+            time.sleep(wait)
+    return attempt()
+
+
 def deposit(which, token):
     """
     What is in the deposit, whichever of the three it can be: a draft that has
@@ -176,7 +221,7 @@ def deposit(which, token):
     """
     if token:
         try:
-            return "owner", ask("%s/deposit/depositions/%d" % (ZENODO, which), token)
+            return "owner", patiently(lambda: ask("%s/deposit/depositions/%d" % (ZENODO, which), token), "the listing")
         except urllib.error.HTTPError as answer:
             if answer.code in (401, 403):
                 sys.exit(
@@ -189,7 +234,7 @@ def deposit(which, token):
             # legacy deposit endpoint; the public one still knows it.
 
     try:
-        return "record", ask("%s/records/%d" % (ZENODO, which), token)
+        return "record", patiently(lambda: ask("%s/records/%d" % (ZENODO, which), token), "the listing")
     except urllib.error.HTTPError as answer:
         if answer.code in (401, 403, 404) and not token:
             sys.exit(
@@ -261,21 +306,37 @@ def settled(path, size, md5):
 def fetch(entry, token, into):
     """One file onto the disk, written beside itself and moved into place only
     once it is whole, so an interrupted run never leaves a half file that the
-    next run would take for a finished one."""
+    next run would take for a finished one. Gives back why it failed, or None.
+
+    A download Zenodo drops or times out is started again from the top
+    (`patiently`), and one that still fails is **said and passed over** rather
+    than raised, so that one file cannot cost the rest of them: the next run
+    fetches it, and leaves alone everything that came down this time."""
     target = into / entry["name"]
     part = target.with_suffix(target.suffix + ".part")
 
-    reply = ask(entry["url"], token, binary=True)
-    with part.open("wb") as handle:
-        for block in iter(lambda: reply.read(CHUNK), b""):
-            handle.write(block)
+    def download():
+        with ask(entry["url"], token, binary=True) as reply, part.open("wb") as handle:
+            for block in iter(lambda: reply.read(CHUNK), b""):
+                handle.write(block)
+
+    try:
+        patiently(download, entry["name"])
+    except Exception as error:
+        # An HTTP error that is no bad moment (a file gone from the deposit
+        # since it was listed) is passed over the same way; anything else is a
+        # fault here and not Zenodo's, and is raised.
+        part.unlink(missing_ok=True)
+        if passing(error) or isinstance(error, urllib.error.HTTPError):
+            return reason(error)
+        raise
 
     if entry["md5"] and not settled(part, None, entry["md5"]):
         part.unlink()
-        return False
+        return "checksum"
 
     part.replace(target)
-    return True
+    return None
 
 
 def unpack(archive, into):
@@ -362,7 +423,15 @@ def main():
     args = parser.parse_args()
 
     held = token()
-    kind, body = deposit(args.deposit, held)
+    try:
+        kind, body = deposit(args.deposit, held)
+    except Exception as error:
+        if not passing(error):
+            raise
+        sys.exit(
+            "Zenodo did not give the deposit's listing (%s), even after waiting.\n"
+            "Nothing was downloaded and nothing here was touched: run it again in a few minutes." % reason(error)
+        )
     files = listing(args.deposit, body)
     title = body.get("title") or body.get("metadata", {}).get("title") or "(untitled)"
     print("Deposit %d: %s [%s], %d file(s)" % (args.deposit, title, kind, len(files)))
@@ -382,17 +451,21 @@ def main():
         target = args.into / entry["name"]
         if settled(target, entry["size"], entry["md5"]):
             kept += 1
-        elif fetch(entry, held, args.into):
-            got += 1
-            print("  got  %s" % entry["name"])
         else:
-            failed += 1
-            print("  FAILED (checksum)  %s" % entry["name"])
+            why = fetch(entry, held, args.into)
+            if why:
+                failed += 1
+                print("  FAILED (%s)  %s" % (why, entry["name"]))
+            else:
+                got += 1
+                print("  got  %s" % entry["name"])
 
         if target.suffix == ".zip" and target.exists():
             unpacked += unpack(target, args.into)
 
     print("\n%d new, %d already here, %d failed." % (got, kept, failed))
+    if failed:
+        print("Run it again for the %d that failed; what came down is not fetched twice." % failed)
     if unpacked:
         print("%d run(s) unpacked out of archives." % len(unpacked))
 

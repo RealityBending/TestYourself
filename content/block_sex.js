@@ -36,7 +36,7 @@
                          DESIRE).
      Briefing_Kinks      ACTIVE. What the list is, before its first item, so
                          that it does not come out of the blue.
-     kinks               ACTIVE. Twenty-two items — fourteen kinks, eight of
+     kinks               ACTIVE. Twenty-four items — fifteen kinks, nine of
                          them asked as their two sides — one screen each,
                          answered as one cell of a grid: does it turn you on
                          (It's not for me / I'm fine with it / It turns me
@@ -71,13 +71,25 @@
         every one is walked in the end, so somebody who does not want to be
         asked about sex has no way past the level but closing the tab. It
         wants a way to decline a whole level, which the engine does not have.
+        PARTLY ANSWERED (October 2026), on the Lincoln study's model (NOTES,
+        THE SEXUAL FANTASY QUESTIONNAIRE: entered by choosing it, under a
+        warning): while the level is in ASIDE it is met only through a link
+        that names it, and on such a run the consent form carries one more
+        statement (`data-block="sex"` in index.html) saying the study asks
+        explicit questions about the person's sex life and that any of them
+        can be declined, which every item on the level can be. What is still
+        missing is for the day it is put in a fork somebody did not choose
+        it from: the warning is then read before Start, and the way past the
+        level is still twenty-odd presses of "I'd rather not say" or the tab.
      2. ARTICLE 9. Sex life and sexual orientation are special-category data
         under UK GDPR Article 9, like the opinions level's political opinions,
         and explicit items want an amendment (A5/A6). Anything whose extremes a
         committee would not pass — incest, animals, ages, gore — is out, and
         `askable` in data/norms/norms_bks.R marks which. Unwanted attention is
         asked, if at all, only as a consensual game: asked straight, its
-        experience would be a question about assault.
+        experience would be a question about assault. A UK committee has
+        passed a study asking far more than this level does (NOTES, THE
+        SEXUAL FANTASY QUESTIONNAIRE).
      3. DECLINING AN ITEM. Solved (October 2026): "I'd rather not say" is a
         `declined` answer, which app.js leaves out of the dimension rather
         than holding it unfinished or counting it as anything. A dimension
@@ -135,7 +147,7 @@ const SEX_RATHER_NOT = {
 // preference
 // and says nothing about how strongly; disgust is a reaction, and the one the
 // notes kept wanting a measure of (THE LIKING CUES, and the TDDS shelved).
-// Counted over the twenty-two it is a disgust score of its own, read at
+// Counted over the twenty-four it is a disgust score of its own, read at
 // analysis time; it scores 0 towards Kinkiness like every cell off the
 // "It turns me on" column. It has a cell in every row, though disgust at
 // something that is "Part of my sex life" should be rare: rare enough to be a
@@ -649,8 +661,10 @@ defineBlock("sex", [
     // The briefing before the kinks, so that the first of them does not
     // arrive out of the blue straight after the orientation and the counts.
     // It says what the list is, that it runs from the common to the rare and
-    // that not everything on it is meant to appeal, what the steps ask, and
-    // that there is always a way out; and it promises the figure, which is
+    // that not everything on it is meant to appeal, what the steps ask, that
+    // some kinks come twice, a side each (`sided`, below; the two are
+    // shuffled apart, so nothing on an item can say "next"), and that there
+    // is always a way out; and it promises the figure, which is
     // the reason to answer honestly. Like every briefing it says nothing about
     // where in the run it falls.
     {
@@ -659,16 +673,16 @@ defineBlock("sex", [
         text:
             "<h2>Kinks.</h2>" +
             "<p>What follows is a list of kinks: things that turn some people on and leave others cold. Some will be familiar and some may surprise you. Few like all of them, and most of them are not for most people. That is the point: everybody's list is different, and at the end you will see where yours falls among other people's.</p>" +
-            "<p><em>For each one, say whether it turns you on and whether you have done it, with one press.</em></p>",
+            "<p><em>For each one, say whether it turns you on and whether you have done it, with one press. Some come twice, once for each side: doing it, and having it done to you.</em></p>",
     },
 
-    // THE KINKS: fourteen, on a LADDER of prevalence — from rough sex, which
+    // THE KINKS: fifteen, on a LADDER of prevalence — from rough sex, which
     // turns on most people, down to objectification, which turns on almost
     // nobody, a rung or two in every band between (dirty talk, at 94%, was
     // the top rung and came off as too near the floor to tell anybody apart;
     // sexting holds the common end with rough sex and anal) — so that the count
-    // tells people apart at both ends and not only in the middle; eight of
-    // them asked as their two sides (`sided`), which makes twenty-two items. Acts and
+    // tells people apart at both ends and not only in the middle; nine of
+    // them asked as their two sides (`sided`), which makes twenty-four items. Acts and
     // scenarios only: no fetish objects (feet, outfits, crossdressing), which
     // are attractions rather than things done and a construct of their own,
     // and no fantastical items (creatures, transformation, hypnosis), taken
@@ -685,12 +699,15 @@ defineBlock("sex", [
     //
     // THE NORM IS A PLACEHOLDER, loosely the BKS's: its histogram of how many
     // of nineteen earlier kinks turned its 12,123 adults on (BKSPublic.csv,
-    // September 2026), stretched over the twenty-two items — a side is an item
+    // September 2026), stretched over the twenty-four items — a side is an item
     // here and part of a kink there, so the two do not count the same thing —
     // until the app has a crowd of its own; the mean and SD are the BKS's
     // shares, unstretched. Written on the scale the dimension is scored on,
     // the share of the items, a bin an item centred on its count. It is
-    // worked out again whenever an item comes or goes.
+    // worked out again whenever an item comes or goes: each bin's people
+    // spread evenly over its part of the range and gathered into the new
+    // number of bins (October 2026, from the twenty-two it was first
+    // stretched over; its mean held at 0.408).
     {
         key: "kinks",
         name: "Kinks",
@@ -709,31 +726,47 @@ defineBlock("sex", [
                 mean: 0.408,
                 sd: 0.213,
                 distribution: {
-                    from: -0.5 / 22,
-                    step: 1 / 22,
+                    from: -0.5 / 24,
+                    step: 1 / 24,
                     shares: [
-                        0.3, 2.0, 4.0, 5.6, 6.8, 7.5, 8.0, 8.3, 7.9, 7.3, 7.1,
-                        6.5, 5.7, 5.0, 4.1, 3.3, 2.9, 2.4, 1.8, 1.3, 1.0, 0.7,
-                        0.4,
+                        0.3, 1.7, 3.4, 4.8, 5.9, 6.6, 7.1, 7.5, 7.5, 7.1, 6.7,
+                        6.5, 6.0, 5.3, 4.7, 4.0, 3.3, 2.8, 2.4, 2.0, 1.5, 1.1,
+                        0.9, 0.6, 0.4,
                     ],
                 },
             },
         },
         items: [
             // The common rungs. Giving anal sex is glossed so that it is the
-            // same item for everybody: a body, a toy or a strap-on. Rough sex
-            // is worded as what is done to a body, so that it stays apart
-            // from dominating, which is a relation.
+            // same item for everybody: a body, a toy or a strap-on.
+            //
+            // Rough sex is asked from both sides (October 2026; one item,
+            // `Sex_Kink_Rough`, until then). It is the commonest act on the
+            // list with a side to it and splits by sex as much as any, women
+            // mostly on the receiving end, and as one item it left Role
+            // nothing to read at the common end but anal sex, whose sides
+            // follow sex and orientation more than who leads. The examples are
+            // kept to what is done to a body, and "being pinned down" went
+            // with the split, being control rather than roughness, so that the
+            // pair stays apart from dominating, which is a relation. Somebody
+            // who likes it rough both ways answers both. Worded with "your
+            // partner" rather than "someone", as orgasm control and filming
+            // are: rough sex is the one pair whose sides are often lived as one
+            // thing, so each names who is rough with whom outright, and
+            // "someone being rough with you" read alone sounds like violence
+            // from anybody (THE BLOCKERS, 2). That the list holds two sides of
+            // some kinks is said once, in the briefing, and not in a gloss on
+            // this pair, which would say the other pairs are something else.
             {
                 key: "Sex_Kink_Sexting",
                 dimension: "Kinkiness",
                 text: "Sexting: sending each other explicit messages and pictures",
             }, // not a BKS category, ~65
-            {
-                key: "Sex_Kink_Rough",
-                dimension: "Kinkiness",
-                text: "Rough sex, such as hair-pulling, biting or being pinned down",
-            }, // Primal play, ~75
+            ...sided(
+                "Rough",
+                "Being rough with your partner, such as pulling their hair or biting them",
+                "Your partner being rough with you, such as pulling your hair or biting you",
+            ), // Primal play, ~75 for the two (the BKS asks no side), so each alone lower
             ...sided(
                 "Anal",
                 "Giving anal sex<br /><small>With your body, or with a toy or a strap-on.</small>",
@@ -769,7 +802,7 @@ defineBlock("sex", [
                 "Pretending to be taken against your will, as a game you have both agreed to",
             ), // Nonconsent, 37
             // Pain as the point rather than a side effect of roughness, which
-            // `Sex_Kink_Rough` asks: "intense" sets the strength, where
+            // the rough pair asks: "intense" sets the strength, where
             // examples set a kind and were always too narrow or too mild
             // (spanking drew in everybody thinking of the playful sort; a
             // whip, a cane or clamps named three things out of many). "Because
@@ -782,9 +815,29 @@ defineBlock("sex", [
                 "Feeling intense pain because you enjoy it",
             ), // Sadomasochism, 35 (asked of any pain there, so high for this)
 
+            // Filming (October 2026): the couple's own sex as the thing looked
+            // at, which nothing else on the list asks — sexting is sending, and
+            // public sex and a partner watched are other people's eyes. It is
+            // there for self-eroticisation, and for what it sits beside in the
+            // run: the performance brake, whose mechanism is "spectatoring",
+            // watching oneself from outside during sex (Masters & Johnson), of
+            // which this is the deliberate, erotic version; the MINT, feeling
+            // oneself from inside; and the attractiveness and narcissism
+            // singles on level 1. The gloss keeps out sending and posting,
+            // which are sexting and exhibitionism again, and says it is agreed
+            // between the two, so recording somebody unknowing is not what is
+            // asked; partnered, as every rung is. The risk of a recording
+            // getting out keeps many from doing what turns them on, so turned
+            // on and never done is the Caution brake at work rather than noise.
+            {
+                key: "Sex_Kink_Filming",
+                dimension: "Kinkiness",
+                text: "Filming yourself and your partner having sex<br /><small>Agreed between you, just for yourselves and not to share.</small>",
+            }, // not a BKS category, ~30
+
             // The tail: rarer, and still things done between people. Orgasm
             // control and objectification are sided like the rest, so a Role
-            // reading is eight pairs.
+            // reading is nine pairs.
             ...sided("Humiliation", "Humiliating someone", "Being humiliated"), // Humiliation, 22
             ...sided(
                 "OrgasmControl",
@@ -1204,7 +1257,8 @@ defineBlock("sex", [
    What else there is, and what they share. The BKS gates: tick a category,
    then rate its interests 0-5 for arousal, sixty-odd items. Joyal asks
    intensity of each fantasy and, in a second pass, whether it was done.
-   Wilson and Lehmiller ask how often each is fantasised. Common to all:
+   Wilson, Lehmiller and Gray et al.'s SFQ (below) ask how often each is
+   fantasised. Common to all:
    "does it turn you on" and "have you done it" are two instruments or two
    passes, and nothing between wanting and not wanting.
 
@@ -1251,8 +1305,10 @@ defineBlock("sex", [
    Dirty talk (94% of the BKS's adults) was the top rung and came off as too
    near the floor to tell anybody apart — the "none of these" band says
    vanilla well enough — and sexting (~65) took its place at the common end,
-   an act with no side and little sex difference in it. Twenty-two items, fourteen kinks, eight of them
-   as their two sides. Two decisions shape it. Acts and scenarios only: feet,
+   an act with no side and little sex difference in it. Twenty-four items,
+   fifteen kinks, nine of them as their two sides (October 2026: rough sex
+   split into its sides, and filming yourselves added, below; twenty-two
+   until then). Two decisions shape it. Acts and scenarios only: feet,
    outfits and crossdressing are attractions rather than things done — a
    construct of their own, and crossdressing brushes gender identity — so no
    fetish object is on it. And nothing fantastical: creatures, transformation
@@ -1264,12 +1320,125 @@ defineBlock("sex", [
    and the count leans BDSM at its top, knowingly. Dominating and rough sex
    overlap and are both kept, on different rungs and worded apart (a
    relation; what is done to a body). The rung between 22 and 8 is thin, and
-   the four estimated shares want the app's own data. Not on it, and worth
-   weighing if it grows: filming yourselves, sex with somebody just met, an
-   open relationship. A shared card shows the crowd and the count, never
+   the estimated shares want the app's own data. Filming yourselves went on
+   in October 2026, for self-eroticisation and the performance brake (its
+   comment in the block says why), rather than watching others, which stays
+   to explore (VOYEURISM AND EXHIBITIONISM). Not on it, and worth weighing if
+   it grows: sex with somebody just met, an open relationship. A shared card shows the crowd and the count, never
    which kinks (THE BLOCKERS, 4); and "kinkier than 90% of people" is the
    likeliest line to travel, so whose crowd it is has to be said once the
    placeholder norm is replaced.
+
+   THE SEXUAL FANTASY QUESTIONNAIRE, AND A STUDY ASKING IT (October 2026).
+   A study the University of Lincoln's ethics committee has just approved,
+   recruited on Reddit (r/takemysurvey, under a content warning), asks adults
+   how often they have fantasised about each of a list of things, twenty rows
+   to a matrix, on five steps: "Have never sexually fantasised about this",
+   "…once or twice", "…several times", "…frequently", "…very frequently".
+   The post itself was not read (Reddit refuses the tools); what is here is
+   the author's screenshot of its first twenty items and the literature on
+   them.
+
+   The items are Gray et al.'s Sexual Fantasy Questionnaire, word for word
+   (SFQ; Gray, Watt, Hassan & MacCulloch, 2003, Journal of Interpersonal
+   Violence 18, 1018-1034): 87 behavioural items, fifteen sadistic and the
+   rest fillers round them, since it was written to find sadistic fantasy in
+   people who are not offenders, and six target items (adult, adolescent and
+   pre-pubescent males and females). The five steps are Maile's (2015).
+   Bartels & Harper (2018, re-analysed 2021) find five factors in 59 items —
+   Romantic, Impersonal, Sexualised Aggression, Sexualised Submission, Bodily
+   Functions — and Lehmann, Schäfer, Bartels, Sabic & Schache (2024, Archives
+   of Sexual Behavior 53, 2225-2236, doi:10.1007/s10508-024-02831-7), a German
+   version answered online by 846 adults (70% men), five in 65 — normophilic,
+   sexualised aggression, sexualised submission, submissive courtship, bodily
+   functions — with every kept item's mean and SD in their Table 1. Ross
+   Bartels, an author of both, is at Lincoln. What it is worth here:
+
+     - ETHICS (THE BLOCKERS, 2). A precedent, and a strong one: a UK
+       committee has passed an online study, recruited from Reddit, asking
+       how often somebody has fantasised about sex with a sleeping person,
+       with an animal, with an underage person and forcing somebody —
+       everything `askable` marks out. Every item on this level is an act
+       between consenting adults, the non-consent pair asked only as a game
+       agreed to, so the level is well inside what has been passed. The
+       difference a committee will see is the other way: theirs asks fantasy
+       and nothing done, where the grid asks what was done, which every act
+       on the list being legal between consenting adults is what makes
+       askable. It does not answer THE BLOCKERS, 1 — their study is entered
+       by choosing it, under a warning, and this level is met partway down a
+       run. Their application (the warning, what is said about disclosures,
+       how the illegal items were argued) is the template the amendment
+       wants, and worth asking for.
+     - ROLE. Giving and receiving the same acts (hurting and being hurt,
+       humiliating and being humiliated, strangling and being strangled) come
+       out as two factors in both analyses, which agrees with reading Role as
+       two scores rather than one line, from a third data set.
+     - THE LADDER. Lehmann's Table 1 is a second reading of where the rungs it
+       shares stand (bondage, humiliation and pain, both sides each) — fantasy
+       frequency and not arousal, in a German online sample, so an order to
+       check against and not norms. Once the Lincoln study is out, its answers
+       are the nearest thing to a British crowd for those rungs.
+     - WHAT IT HAS AND THE LIST DOES NOT, weighed:
+         Breath play ("Being strangled or asphyxiated (without dying)",
+         "Strangling or asphyxiating others (without killing)"). NOT ADDED:
+         mostly inside the rough pair already. Choking is the act "rough
+         sex" most often means now — it is the commonest one in Herbenick et
+         al.'s studies of rough sex among US students, about 40% of whom had
+         been choked (Archives of Sexual Behavior, 2022), women far more often
+         than men — so somebody it turns on says so on the rough items, and as
+         a rung of its own it would mostly count the same thing twice, in the
+         common band, which is the one the ladder has rungs to spare in. The
+         side, which an item of its own was first wanted for, the rough pair
+         now asks (the split, October 2026, was for this as much as for
+         Role); what is left is choking for itself, which matters to one
+         question: having been choked goes
+         with depression and anxiety in Herbenick's data (Journal of Sex &
+         Marital Therapy, 2022), many of the choked not much enjoying it (the
+         grid's "not for me, done many times"), and the HiTOP-BR beside it
+         could test that as nobody has. Against it: being choked without
+         having agreed is a crime (non-fatal strangulation, England and Wales,
+         since 2022), so the receiving side's "not for me, many times" is
+         close to a disclosure of one; and there is no safe way to do it,
+         which no other rung on a list that can be read as a menu has to
+         answer for. Nor is it named among the rough items' examples: the
+         heaviest example sets an item's reading (the pain items' lesson), and
+         somebody who likes hair-pulling and not choking would answer it as
+         the second. Comes back only for that research question, sided and
+         worded as agreed to (the Resisting pair's form).
+         Watching others have sex: the voyeur side, already wanted
+         (VOYEURISM AND EXHIBITIONISM), and on the SFQ's first page.
+         Anonymous sex with a stranger: "sex with somebody just met", already
+         on THE LIST's worth weighing.
+         Hard pornography: porn use is asked nowhere on the level. As a
+         behaviour (how often, not what kind) it belongs with FREQUENCY; the
+         BKS asks it.
+         A sleeping partner: Bartels & Deehan's Somnophilia Interest and
+         Proclivity Scale (the first study of it, 437 people online) splits
+         active consensual, passive consensual and active nonconsensual. The
+         consensual forms (woken with sex, agreed beforehand) could be a sided
+         rung in the Resisting pair's form; close to that pair already, and
+         wanted only if the thin stretch of the ladder between 22% and 8% is.
+         Kissing, receiving oral sex, touching, being masturbated: left off
+         for oral sex's reason, nearly everybody, nobody told apart.
+         Animals, minors, a sleeping person who has not agreed, forcing
+         somebody: out (THE BLOCKERS, 2), and not only for the committee — a
+         forensic study reads nothing back, and a test that reads answers
+         back and offers to share them cannot ask what it can.
+     - THE FORMAT is the field's, and a reason to keep the grid: one scale of
+       how often something was imagined, which says neither whether it turns
+       somebody on (how often is not how much) nor whether it was done. A
+       fantasy count beside the grid, for setting this sample beside the
+       SFQ's, would be the shelved `fantasies` questionnaire's job and not a
+       fifth column. Their matrix of twenty rows, its header repeated every
+       ten, is what one item a screen avoids.
+     - THE REGISTER is the one Briefing_Sexuality refuses: written to find
+       sadists, ordinary sex as filler round them, factors named sexualised
+       aggression. Worth citing for structure, not a model for words.
+     - A LINE TO LINCOLN before the level is asked of anybody: for their
+       application, for their data once it is out, and perhaps a few items in
+       common so the two samples can be set side by side. This run puts kinks
+       beside interoception, personality, the HiTOP spectra and politics,
+       which theirs does not.
 
    THE FIGURE: A VOLCANO UNDER THE SEA, not built. A cross-section of the
    seabed at a mid-ocean ridge, where new crust is made: dark water above, the

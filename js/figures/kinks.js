@@ -6,7 +6,7 @@
    content/block_sex.js — a kink, or one side of one — turn somebody on,
    whether or not they have done it. It is drawn as the crowd it is read
    against, stood on end — a band for each number of them from none at the
-   foot to all at the top (twenty-two items, so twenty-three bands), each
+   foot to all at the top (twenty-four items, so twenty-five bands), each
    as wide as the share of people turned on by that many and drawn both ways
    out of a spine, so the crowd is one shape, a violin, out of the norm's
    `distribution` — shaded from vanilla to kinky as far as the person

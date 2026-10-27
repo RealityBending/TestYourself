@@ -4220,6 +4220,10 @@
     // debrief after it, `all` neither, so a part written for one timeline
     // (`data-project`) is shown on its runs alone.
     for (const part of document.querySelectorAll("#consent [data-project]")) part.hidden = part.dataset.project !== battery
+    // And a part written for a block (`data-block`) on the runs that ask it,
+    // which for a block no battery asks is the runs a link brought it into.
+    for (const part of document.querySelectorAll("#consent [data-block]"))
+        part.hidden = !PLAN.some((entry) => entry.blocks.indexOf(part.dataset.block) !== -1)
 
     $("consent").addEventListener("scroll", checkConsent)
     window.addEventListener("resize", checkConsent)

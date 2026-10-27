@@ -28,8 +28,10 @@ if (!file.exists(long_file)) {
   stop("No clean/responses.csv: run `Rscript data/collected/preprocess.R --long` first.")
 }
 
-long <- read.csv(long_file, stringsAsFactors = FALSE, na.strings = "NA")
-wide <- read.csv(wide_file, stringsAsFactors = FALSE, na.strings = "NA")
+# The code is text even when it is all digits, as SONA's survey codes are
+# (`?pid=%SURVEY_CODE%`): read as a number it stops matching anything kept as text.
+long <- read.csv(long_file, stringsAsFactors = FALSE, na.strings = "NA", colClasses = c(participant = "character"))
+wide <- read.csv(wide_file, stringsAsFactors = FALSE, na.strings = "NA", colClasses = c(participant = "character"))
 
 SEP <- " | "
 when <- function(x) as.POSIXct(x, format = "%Y-%m-%dT%H:%M:%OS", tz = "UTC")
@@ -141,18 +143,22 @@ if (!KEEP_FLAGGED) {
 # Each run a point, kept against set aside, with the density of each group along
 # the two margins (ggside), so that where the set-aside runs sit relative to the
 # crowd shows without the points having to. A group of one has no density to
-# draw and is left off the margins.
+# draw and is left off the margins, and where no group has two (the first runs
+# of a study) there are no margins at all, since ggside fails on an empty layer.
 timed_runs <- runs[runs$answers > 0 & !is.na(runs$median_s), ]
 if (nrow(timed_runs)) {
   timed_runs$group <- factor(ifelse(timed_runs$flags != "", "set aside", "kept"), c("kept", "set aside"))
   shades <- c(kept = "#5b3fd6", `set aside` = "#d95341")
   dense <- timed_runs[timed_runs$group %in% names(which(table(timed_runs$group) >= 2)), ]
+  margins <- if (nrow(dense)) list(
+    ggside::geom_xsidedensity(data = dense, alpha = 0.35, linewidth = 0.4),
+    ggside::geom_ysidedensity(data = dense, alpha = 0.35, linewidth = 0.4)
+  )
   ggplot2::ggplot(timed_runs, ggplot2::aes(answers, median_s, colour = group, fill = group)) +
     ggplot2::geom_hline(yintercept = FAST_MS / 1000, colour = "grey80", linetype = "dashed") +
     ggplot2::geom_vline(xintercept = GLANCE_ITEMS, colour = "grey80", linetype = "dashed") +
     ggplot2::geom_point(shape = 21, size = 3, colour = "white", alpha = 0.75) +
-    ggside::geom_xsidedensity(data = dense, alpha = 0.35, linewidth = 0.4) +
-    ggside::geom_ysidedensity(data = dense, alpha = 0.35, linewidth = 0.4) +
+    margins +
     ggplot2::scale_x_log10() +
     ggplot2::scale_y_log10() +
     ggplot2::scale_colour_manual(values = shades, aesthetics = c("colour", "fill"), name = NULL) +

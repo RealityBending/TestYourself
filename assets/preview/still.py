@@ -30,10 +30,11 @@ PAGE = "http://localhost:8123/?project=all"
 # for a scored-by-option one), the answers a figure reads item by item, the
 # part of the section to photograph and what to leave out of it.
 FIGURES = {
-    # Nine of the twenty-two turn somebody on, six of those lived out.
+    # Ten of the twenty-four turn somebody on, six of those lived out: a little
+    # kinkier than most, since "more vanilla than" runs off the card's edge.
     "kinks": {
         "run": ["kinks"],
-        "scores": {"Kinkiness": 9 / 22},
+        "scores": {"Kinkiness": 10 / 24},
         "answers": "kinks",
         "part": ".kinks__stage",
     },
@@ -70,13 +71,14 @@ async (figure) => {
             if (!it.dimension) continue
             const format = it.format || q.format
             const options = (format.options || []).map((one) => (typeof one === "number" ? { value: one } : one))
-            const scale = options.filter((one) => !one.custom)
+            const scale = options.filter((one) => !one.custom && !one.declined)
             const worth = scale.some((one) => one.score !== undefined)
             const values = scale.map((one) => (worth ? one.score : one.value))
             const item = Object.assign({}, it, {
                 questionnaire: key, level: 1, options: options, color: format.color || q.format.color,
                 lowest: Math.min(...values), highest: Math.max(...values),
                 custom: options.filter((one) => one.custom).map((one) => one.value),
+                declined: options.filter((one) => one.declined).map((one) => one.value),
                 scores: worth ? Object.fromEntries(scale.map((one) => [one.value, one.score])) : null,
             })
             ;(dimensions[it.dimension] = dimensions[it.dimension] || []).push(item)
@@ -115,7 +117,7 @@ async (figure) => {
     const engine = {
         RUN: figure.run, CHARTS: [], dimensions: dimensions, dimensionOrder: Object.keys(dimensions),
         score: (d) => figure.scores[d], total: (d) => figure.scores[d], known: (d) => d in dimensions,
-        percentile: percentile, tercile: () => 1, levelProgress: () => ({ answered: 1, total: 1 }),
+        percentile: percentile, tercile: () => 1, levelProgress: () => ({ answered: 1, total: 1 }), declined: () => false,
         answer: (key) => answers[key], showScreen() {}, burst() {}, still: () => true,
         feedback: {}, ratings: {}, $: (id) => document.getElementById(id), ratingKey: () => "Preview", visit() {}, noted() {}, source: "Preview",
     }
