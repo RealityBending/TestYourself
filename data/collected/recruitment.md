@@ -47,13 +47,19 @@ ending at the end of that term, since the first one closes on 11 December 2026.
 https://realitybendinglab.com/TestYourself/?pid=%SURVEY_CODE%&source=SONA&project=mint
 ```
 
-**Study Name** (99 of the 100 characters allowed, the tags included). The `&nbsp;` in front puts it at the top of the
-list sorted by name, and **is lost whenever the study is edited**: the form shows it as the character itself, which
-SONA strips on saving, so it has to be typed again each time (see `sona.md`):
+**Study Name** (89 of the 100 characters allowed, the tags included), since 28 October 2026:
 
 ```
-&nbsp;<b><font color="purple">Do you know yourself?</font></b> The Abyss Test | 25min online 2 cred
+&nbsp;<b>[NEW] <font color="purple">The Abyss Test</font></b>  (25min online / 2 credits)
 ```
+
+Until then it was `&nbsp;<b><font color="purple">Do you know yourself?</font></b> The Abyss Test | 25min online 2 cred`
+(99 characters). The `&nbsp;` in front puts it at the top of **My Studies**, which is sorted by name, and **is lost
+whenever the study is edited**: the form shows it as the character itself, which SONA strips on saving, so it has to
+be typed again each time (see `sona.md`). The rename lost it, and it was typed back the same day. **It does nothing
+in All Studies**, the list of the whole pool: that list strips the leading space before it shows or sorts a name, so
+there the study sorts as a name opening with `<b>`, below everything opening with `!`, `(`, `*`, `[` or `£` (42nd of
+105 on 28 October 2026, and in much the same place under the old name).
 
 **25 minutes on SONA, 30 elsewhere.** Everything on SONA (the name, the Duration field, the description and the
 preparation) says 25 minutes, which is what the pilots took for the core. The consent form and the approved advert

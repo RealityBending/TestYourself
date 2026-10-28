@@ -27,26 +27,31 @@
 # *filename*, because nothing inside a partial says it is one — which is the
 # first of the notes at the foot of this file.
 #
-# WHAT IS WRITTEN, into `clean/`: **one file, one row a participant.**
+# WHAT IS WRITTEN, into `clean/`: **one file, one row a run.**
 # Anything that is not data — what was read, what looked wrong — is **said and
 # not filed**: a `checks.csv` that is empty nine times out of ten is a file
 # somebody has to open to learn nothing. The complaints go to the terminal, where
 # whoever ran the script is already looking.
 #
 #   data.csv     **the master file**: everything the saved run says, across
-#                roughly 720 columns, one row a participant. Nothing is left
+#                roughly 720 columns, one row a run. Nothing is left
 #                out to keep it narrow and **nothing is worked out that the
 #                file does not already say** — no mean reaction time, no share
 #                of an instrument completed, no count of failed checks over the
 #                run, no item counts, no minutes taken. All of those are a
 #                line of R away from what is here, and which of them an
 #                analysis wants is the analysis's business. What this does is
-#                reshape: many files of records into one table of people.
+#                reshape: many files of records into one table of runs.
 #
-#                  the run       participant, account, file, completed,
-#                                version, test_mode, synthetic, battery,
-#                                source, format_mint, time_start,
-#                                time_resumed
+#                **A row is a run, not a person.** Somebody who took the test
+#                twice (a retest, a retake from the hub's dashboard, the same
+#                SONA id on a second go) is two rows under one `participant`;
+#                `file` tells them apart, and it is what `responses.csv` joins
+#                on.
+#
+#                  the run       participant, file, completed, version,
+#                                test_mode, synthetic, battery, source,
+#                                format_mint, time_start, time_resumed
 #                  sequences     levels_walked, order_walked (see below)
 #                  Feedback_*    one a reading: agree, disagree or nothing
 #                  Rating_*      one a level: the stars its results were given
@@ -90,7 +95,8 @@
 #
 # One flag adds a second file:
 #
-#   --long        also writes responses.csv, the same answers one row an item,
+#   --long        also writes responses.csv, the same answers one row an item
+#                 of a run (`participant` and `file` on each, as in data.csv),
 #                 which is the shape a mixed model or a per-item plot wants.
 #                 Anything `clean/` holds that a run did not write is removed,
 #                 so a `responses.csv` from an earlier `--long` cannot sit
@@ -102,6 +108,13 @@
 # `""`, which is what the app saves for it. The saved file has always told those
 # apart; this keeps them apart, so `read.csv` gives NA for the one and "" for
 # the other.
+#
+# **WHO IT WAS IS TAKEN OUT.** `participant` is a number (`S000001`) out of a
+# ledger kept beside this script (`ids.csv`, git-ignored), not the id the run
+# came in with, and the day of birth is reduced to the star sign it falls
+# under (`Demographics_StarSign`), as the ethics application promises. The free
+# text is left as typed, to be read before anything is published. See **Who it
+# was, taken out**, further down.
 #
 # WHAT IT REFUSES TO DO. It does not score anything, and it does not turn the
 # words back into the numbers they were answered on — see the notes at the
@@ -261,15 +274,11 @@ when <- function(text) {
 # you have to check the counting of. `completed` is the one thing here that is
 # not copied straight out — nothing *inside* a partial says it is one, so it is
 # read off the filename, which is why the filename is kept beside it.
-participant_rows <- function(run, file, completed) {
+run_row <- function(run, file, completed) {
   data.frame(
+    # The person, the same number in each of their runs: the hub account a run
+    # was kept on is folded into it (see **Who it was, taken out**).
     participant = as.character(run$participant %||% NA),
-    # The person across runs where `participant` is the run: the code of the
-    # account it was kept on on the lab's hub, the same in every run of that
-    # account (a level picked from the dashboard, a retake), so one person's
-    # rows are the ones sharing it. NA for a run kept on no account, and in
-    # files from before October 2026.
-    account = as.character(run$account %||% NA),
     file = file,
     completed = completed,
     version = as.character(run$version %||% NA),
@@ -313,6 +322,7 @@ level_rows <- function(run, file) {
     quality <- held[[key]] %||% held[[name]] %||% held[[paste0("level", n)]]
     data.frame(
       participant = as.character(run$participant %||% NA),
+      file = file,
       level = n,
       key = key,
       name = name,
@@ -340,6 +350,7 @@ response_rows <- function(run, file) {
 
   data.frame(
     participant = as.character(run$participant %||% NA),
+    file = file,
     key = vapply(items, function(one) as.character(one$key %||% NA), character(1)),
     questionnaire = vapply(items, function(one) as.character(one$questionnaire %||% NA), character(1)),
     order = vapply(items, function(one) as.numeric(one$order %||% NA), numeric(1)),
@@ -363,13 +374,13 @@ when_v <- function(texts) {
 # `levels` of the level whose screen it was made on, null where the way on was
 # one button and absent from files before September 2026: the levels offered as
 # keys in the order their cards stood, the one recommended and the one taken.
-choice_rows <- function(run) {
+choice_rows <- function(run, file) {
   levels <- run$levels %||% list()
   made <- which(vapply(levels, function(one) is.list(one$choice), logical(1)))
   if (length(made) == 0) return(NULL)
   held <- lapply(levels[made], function(one) one$choice)
   data.frame(
-    participant = as.character(run$participant %||% NA),
+    file = file,
     screen = paste0("Level_", made),
     offered = vapply(held, function(one) as_cell(one$offered), character(1)),
     recommended = vapply(held, function(one) as.character(one$recommended %||% NA), character(1)),
@@ -378,11 +389,11 @@ choice_rows <- function(run) {
   )
 }
 
-named_rows <- function(run, field, name_column, value_column) {
+named_rows <- function(run, file, field, name_column, value_column) {
   held <- run[[field]] %||% list()
   if (length(held) == 0) return(NULL)
   out <- data.frame(
-    participant = as.character(run$participant %||% NA),
+    file = file,
     a = names(held),
     b = vapply(held, function(one) as_cell(one), character(1)),
     stringsAsFactors = FALSE
@@ -505,13 +516,6 @@ if (length(runs) == 0) {
   cat("Nothing left once the pilot runs were dropped.\n")
 }
 
-# One participant code twice is either a code that came round on a `?pid=` link
-# or two files of one person; either way it wants looking at before counting.
-codes <- vapply(runs, function(one) as.character(one$run$participant %||% NA), character(1))
-for (code in unique(codes[duplicated(codes)])) {
-  grumble(paste(names(runs)[codes == code], collapse = ", "), "participant code in more than one file", code)
-}
-
 versions <- unique(vapply(runs, function(one) as.character(one$run$version %||% NA), character(1)))
 if (length(versions) > 1) {
   cat(sprintf("  NOTE: %d app versions here (%s) — read the changelog before pooling them\n",
@@ -519,7 +523,145 @@ if (length(versions) > 1) {
 }
 
 # ---------------------------------------------------------------------------
-# One row a participant
+# Who it was, taken out
+# ---------------------------------------------------------------------------
+
+# **The file this writes is the compiled, de-identified one the ethics
+# application describes** (9.8), so what in a run points at a person is taken
+# out here, on the run itself, before any table is made of it — and every table
+# after agrees without knowing.
+#
+#   participant, account   one number in place of both ids, `S000001` on: the
+#                          person's, out of the ledger below. A run whose
+#                          participant id or hub account is in it already gets
+#                          the number given then, so a retest, a retake from
+#                          the hub's dashboard or a second go on the same SONA
+#                          id is the same person's second row. `account` is
+#                          not written: it is folded into this.
+#   file                   the name rebuilt with the number in the id's place,
+#                          and DataPipe's session suffix (`-<hex>`) dropped.
+#   Demographics_BirthDay  with the month and the age, most of a date of
+#                          birth: the item becomes `Demographics_StarSign`, the
+#                          sign the day falls under (the cusps in
+#                          `js/figures/theories.js`), or the words "I'd rather
+#                          not say" where no day was given.
+#
+# **The ledger is `ids.csv` beside this script**: a row an id, with the number
+# it was given and the field of the run it came in (`participant`, `account`).
+# **A number once given is never moved.** Somebody new gets the next one, in
+# the order their runs started, so a file that arrives late (one Zenodo would
+# not serve until the next download) or a flag that keeps more runs
+# (`--include-pilot`) adds numbers at the end instead of shifting the ones a
+# table already holds: "S000012" means the same person next month. A number
+# taken by a run that is no longer kept is a gap, and harms nothing. The ledger
+# is git-ignored and lives in Dropbox with the raw files, so every machine reads
+# the same numbers, and **it goes when the raw files go** (9.8): after that
+# nobody can get from a number back to an id, which is the point. Until then,
+# which raw file a number came from is a lookup in it. Only `raw/` is ledgered:
+# `--from` another folder numbers its runs afresh and keeps nothing, and
+# `--check` writes nothing, the ledger included.
+#
+# The free text (`*_Comments`, the "Other" and "in your own words" fields) is
+# left as it was typed. The application promises it is *read*, and edited where
+# it could identify anybody, before anything is published; no script can do the
+# reading, so whatever publishes a file leaves those columns out or reviews them.
+
+ledger_file <- if (is.na(from_at)) file.path(here, "ids.csv") else NA_character_
+ledger <- if (!is.na(ledger_file) && file.exists(ledger_file)) {
+  # Text throughout: a SONA id is all digits, and read as a number it would
+  # match nothing read out of a run.
+  utils::read.csv(ledger_file, colClasses = "character", na.strings = character(0))
+} else {
+  data.frame(participant = character(0), field = character(0), id = character(0), stringsAsFactors = FALSE)
+}
+ledgered <- nrow(ledger)
+highest <- max(0L, suppressWarnings(as.integer(sub("^S", "", ledger$participant))), na.rm = TRUE)
+
+# The person's number: the earliest the ledger holds for either id, else the
+# next one. Both ids go in, so a later run that shares either finds it.
+number <- function(run, file) {
+  ids <- c(participant = as.character(run$participant %||% NA), account = as.character(run$account %||% NA))
+  ids <- ids[!is.na(ids) & nzchar(ids)]
+  at <- match(paste(names(ids), ids), paste(ledger$field, ledger$id))
+  held <- sort(unique(ledger$participant[at[!is.na(at)]]))
+  if (length(held) > 1) {
+    grumble(file, "participant id and account under two numbers", sprintf("kept %s, not %s", held[1], paste(held[-1], collapse = ", ")))
+  }
+  if (length(held) == 0) {
+    highest <<- highest + 1L
+    held <- sprintf("S%06d", highest)
+  }
+  if (anyNA(at)) {
+    ledger <<- rbind(ledger, data.frame(participant = held[1], field = names(ids)[is.na(at)], id = unname(ids[is.na(at)]),
+                                        stringsAsFactors = FALSE))
+  }
+  held[1]
+}
+
+# `<when>_<source>_<id>[-<session>][.partial].json`: the id is the last place it
+# stands in the name once the session suffix is off. A name it cannot be found
+# in is made again out of the run's start and source, the way the app names a
+# file, since `file` is what tells one person's runs apart.
+renamed <- function(file, run, code) {
+  bare <- sub("-[0-9a-f]+(\\.partial\\.json)$", "\\1", file)
+  id <- as.character(run$participant %||% "")
+  at <- if (nzchar(id)) gregexpr(id, bare, fixed = TRUE)[[1]] else -1
+  if (at[1] < 0) {
+    grumble(file, "participant id not in the file's name", "named again out of its start and source")
+    return(paste0(format(when(run$timeStart), "%Y%m%dT%H%M%S"), "_", run$source %||% "Unknown", "_", code,
+                  if (grepl("\\.partial\\.json$", file)) ".partial", ".json"))
+  }
+  last <- at[length(at)]
+  paste0(substr(bare, 1, last - 1), code, substr(bare, last + nchar(id), nchar(bare)))
+}
+
+SIGNS <- c("Capricorn", "Aquarius", "Pisces", "Aries", "Taurus", "Gemini",
+           "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius")
+CUSPS <- c(20, 19, 21, 20, 21, 21, 23, 23, 23, 23, 22, 22)  # the day a month's second sign begins
+
+# Month m's first sign is SIGNS[m], its second SIGNS[m %% 12 + 1]. The month is
+# saved as its name, the day as its number or as the words of declining it.
+star_sign <- function(month, day) {
+  if (is.null(day)) return(NULL)
+  m <- match(as.character(month %||% NA), month.name)
+  d <- suppressWarnings(as.integer(day))
+  if (!is.na(m) && !is.na(d) && d >= 1 && d <= 31) {
+    return(if (d < CUSPS[m]) SIGNS[m] else SIGNS[m %% 12 + 1])
+  }
+  if (is.na(d) && grepl("[A-Za-z]", day)) "I'd rather not say" else NA_character_
+}
+
+deidentify <- function(one, code) {
+  run <- one$run
+  one$file <- renamed(one$file, run, code)
+  run$participant <- code
+  run$account <- NULL
+  keys <- vapply(run$items, function(item) as.character(item$key %||% NA), character(1))
+  month <- run$items[keys %in% "Demographics_BirthMonth"]
+  for (at in which(keys == "Demographics_BirthDay")) {
+    run$items[[at]]$key <- "Demographics_StarSign"
+    run$items[[at]]$response <- star_sign(if (length(month)) month[[1]]$response, run$items[[at]]$response)
+  }
+  one$run <- run
+  one
+}
+
+# In the order the runs started, which is the order the people new to the
+# ledger are numbered in, and the order of the rows; a run with no start last.
+started <- vapply(runs, function(one) as.character(one$run$timeStart %||% NA), character(1))
+runs <- runs[order(started, names(runs), na.last = TRUE)]
+numbers <- vapply(runs, function(one) number(one$run, one$file), character(1))
+runs <- Map(deidentify, runs, numbers)
+
+# `file` is the row's key, so no two runs may share one: it would take two runs
+# of one person named in the same second from the same source.
+files <- vapply(runs, function(one) one$file, character(1))
+for (file in unique(files[duplicated(files)])) grumble(file, "two runs under one name", "told apart by a suffix")
+files <- make.unique(files, sep = "~")
+for (n in seq_along(runs)) runs[[n]]$file <- files[n]
+
+# ---------------------------------------------------------------------------
+# One row a run
 # ---------------------------------------------------------------------------
 
 bind <- function(pieces) {
@@ -528,18 +670,18 @@ bind <- function(pieces) {
   do.call(rbind, pieces)
 }
 
-participants <- bind(lapply(runs, function(one) participant_rows(one$run, one$file, one$completed)))
+run_fields <- bind(lapply(runs, function(one) run_row(one$run, one$file, one$completed)))
 levels_table <- bind(lapply(runs, function(one) level_rows(one$run, one$file)))
 responses <- bind(lapply(runs, function(one) response_rows(one$run, one$file)))
-feedback <- bind(lapply(runs, function(one) named_rows(one$run, "feedback", "reading", "vote")))
-ratings <- bind(lapply(runs, function(one) named_rows(one$run, "ratings", "level", "stars")))
-choices <- bind(lapply(runs, function(one) choice_rows(one$run)))
+feedback <- bind(lapply(runs, function(one) named_rows(one$run, one$file, "feedback", "reading", "vote")))
+ratings <- bind(lapply(runs, function(one) named_rows(one$run, one$file, "ratings", "level", "stars")))
+choices <- bind(lapply(runs, function(one) choice_rows(one$run, one$file)))
 
-if (is.null(participants)) stop("Nothing to write.", call. = FALSE)
+if (is.null(run_fields)) stop("Nothing to write.", call. = FALSE)
 
-who <- participants$participant
+rows_of <- run_fields$file
 
-# A column of `table`'s `value`, one cell a participant, looked up by `key`.
+# A column of `table`'s `value`, one cell a run, looked up by `key`.
 # Everything below is built out of this: a long table, a column of it, and the
 # key that says which column it becomes.
 spread_suffix <- function(table, key_column, value_column, keys, suffix) {
@@ -552,9 +694,9 @@ spread <- function(table, key_column, value_column, keys, prefix) {
   if (is.null(table)) return(list())
   out <- list()
   for (key in keys) {
-    rows <- table[table[[key_column]] == key, c("participant", value_column)]
-    rows <- rows[!duplicated(rows$participant), ]
-    out[[paste0(prefix, tidy_name(key))]] <- rows[[value_column]][match(who, rows$participant)]
+    rows <- table[table[[key_column]] == key, c("file", value_column)]
+    rows <- rows[!duplicated(rows$file), ]
+    out[[paste0(prefix, tidy_name(key))]] <- rows[[value_column]][match(rows_of, rows$file)]
   }
   out
 }
@@ -568,11 +710,11 @@ tidy_name <- function(text) {
   gsub("(^_|_$)", "", text)
 }
 
-wide <- list(participant = who)
+wide <- list()
 
 # 1. The run: who, when, which version, how far they got.
-for (column in setdiff(names(participants), "participant")) {
-  wide[[column]] <- participants[[column]]
+for (column in names(run_fields)) {
+  wide[[column]] <- run_fields[[column]]
 }
 
 # 2. **Nothing is worked out here that the file does not already say.** A mean
@@ -589,17 +731,16 @@ for (column in setdiff(names(participants), "participant")) {
 # sequence, and a row has one cell per item. Joined with the separator they can
 # be split apart again, so nothing is lost and the file stays a table.
 if (!is.null(levels_table)) {
-  walked <- vapply(who, function(code) {
-    mine <- levels_table[levels_table$participant == code, ]
+  wide$levels_walked <- vapply(rows_of, function(file) {
+    mine <- levels_table[levels_table$file == file, ]
     paste(mine$key[order(mine$level)], collapse = SEP)
-  }, character(1))
-  wide$levels_walked <- walked
+  }, character(1), USE.NAMES = FALSE)
 }
 if (!is.null(responses)) {
-  wide$order_walked <- vapply(who, function(code) {
-    rows <- responses[responses$participant == code, ]
+  wide$order_walked <- vapply(rows_of, function(file) {
+    rows <- responses[responses$file == file, ]
     paste(rows$key[order(rows$order)], collapse = SEP)
-  }, character(1))
+  }, character(1), USE.NAMES = FALSE)
 }
 
 # 4. The votes on each reading, and the stars each level's results were given.
@@ -617,9 +758,9 @@ if (!is.null(ratings)) {
   # than left as a column that means a different level in every row.
   old_style <- grepl("^Level_[0-9]+$", ratings$level)
   if (any(old_style) && !is.null(levels_table)) {
-    number <- suppressWarnings(as.numeric(sub("^Level_", "", ratings$level)))
-    known <- unique(levels_table[, c("participant", "level", "key")])
-    at <- match(paste(ratings$participant, number), paste(known$participant, known$level))
+    nth <- suppressWarnings(as.numeric(sub("^Level_", "", ratings$level)))
+    known <- unique(levels_table[, c("file", "level", "key")])
+    at <- match(paste(ratings$file, nth), paste(known$file, known$level))
     ratings$level[old_style & !is.na(at)] <- known$key[at[old_style & !is.na(at)]]
   }
   wide <- c(wide, spread(ratings, "level", "stars", sort(unique(ratings$level)), "Rating_"))
@@ -630,7 +771,7 @@ if (!is.null(ratings)) {
 if (!is.null(levels_table)) {
   for (key in sort(unique(levels_table$key))) {
     rows <- levels_table[levels_table$key == key, ]
-    at <- match(who, rows$participant)
+    at <- match(rows_of, rows$file)
     stem <- paste0("QC_", tidy_name(key), "_")
     wide[[paste0(stem, "RT_Mean")]] <- rows$rt_mean_ms[at]
     wide[[paste0(stem, "RT_SD")]] <- rows$rt_sd_ms[at]
@@ -690,15 +831,21 @@ checks <- if (length(complaints) > 0) do.call(rbind, complaints) else
 
 cat("\n")
 cat(sprintf("  %-22s %d\n", "runs kept", length(runs)))
-if (!is.null(participants)) {
-  cat(sprintf("  %-22s %d finished, %d stopped partway\n", "of which",
-              sum(participants$completed), sum(!participants$completed)))
+cat(sprintf("  %-22s %d finished, %d stopped partway\n", "of which",
+            sum(run_fields$completed), sum(!run_fields$completed)))
+taken <- table(run_fields$participant)
+again <- names(taken)[taken > 1]
+cat(sprintf("  %-22s %d%s\n", "participants", length(taken),
+            if (length(again)) sprintf(", %d with more than one run (%s)", length(again), paste(again, collapse = ", ")) else ""))
+if (!is.na(ledger_file)) {
+  cat(sprintf("  %-22s %d id(s), %d new%s\n", basename(ledger_file), nrow(ledger), nrow(ledger) - ledgered,
+              if (check_only && nrow(ledger) > ledgered) " (not kept: --check)" else ""))
 }
 if (!is.null(responses)) {
   # Counted here to be said out loud and nowhere else: this is not a column of
   # the file, it is how the runs looked going past.
   answered <- responses[!is.na(responses$response) & !grepl("^Level_", responses$key), ]
-  each <- table(answered$participant)
+  each <- table(answered$file)
   if (length(each) > 0) {
     cat(sprintf("  %-22s %s\n", "items answered", paste(range(each), collapse = " to ")))
   }
@@ -750,6 +897,15 @@ if (check_only) {
   }
   cat("\nWritten to ", clean_dir, ":\n", sep = "")
   for (line in written) cat("  ", line, "\n", sep = "")
+
+  # Written last, and only with something new in it: a number given to a run
+  # whose tables were never written would be a gap, and harmless, but there is
+  # no reason to make one.
+  if (!is.na(ledger_file) && nrow(ledger) > ledgered) {
+    utils::write.csv(ledger, ledger_file, row.names = FALSE)
+    cat(sprintf("\n%s: %d new id(s), kept with the raw files and never to be committed.\n",
+                ledger_file, nrow(ledger) - ledgered))
+  }
   cat("\nParticipant data: not to be committed.\n")
 }
 
@@ -782,13 +938,8 @@ if (check_only) {
 #    The wide table's column order is the median of it — a convenience, not a
 #    canonical order, which lives in `content/`.
 #
-# 5. `clean/` IS NOT THE PUBLIC FILE. It still holds what must not be released:
-#    the platform's id where one came in on `?pid=` (`participant`), the day of
-#    birth (`Demographics_BirthDay`, which with the month and the age is most
-#    of a date of birth) and the free text of `Interim_Comments` and
-#    `Closing_Comments`. Before any of it is made public the id goes, the day
-#    is dropped or grouped (into the star sign, or the half of the month either
-#    side of the cusp), and the comments are read — the consent sheet and the
-#    ethics application promise all three.
-#    That step is not written yet, and is a release script's business rather
-#    than this one's.
+# 5. `clean/` IS DE-IDENTIFIED BUT FOR THE FREE TEXT. The platform's id and the
+#    day of birth are taken out here (see **Who it was, taken out**); the free
+#    text is not, since the ethics application promises it is read before it
+#    is published and a script cannot read. Whatever publishes a file made out
+#    of this one leaves the free-text columns out, or publishes them reviewed.

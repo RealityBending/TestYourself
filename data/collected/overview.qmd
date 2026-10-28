@@ -28,10 +28,10 @@ if (!file.exists(long_file)) {
   stop("No clean/responses.csv: run `Rscript data/collected/preprocess.R --long` first.")
 }
 
-# The code is text even when it is all digits, as SONA's survey codes are
-# (`?pid=%SURVEY_CODE%`): read as a number it stops matching anything kept as text.
-long <- read.csv(long_file, stringsAsFactors = FALSE, na.strings = "NA", colClasses = c(participant = "character"))
-wide <- read.csv(wide_file, stringsAsFactors = FALSE, na.strings = "NA", colClasses = c(participant = "character"))
+# A row of `wide` is a run, and `file` is its key: somebody who took the test
+# twice is two rows under one `participant`, and `long` joins on `file`.
+long <- read.csv(long_file, stringsAsFactors = FALSE, na.strings = "NA")
+wide <- read.csv(wide_file, stringsAsFactors = FALSE, na.strings = "NA")
 
 SEP <- " | "
 when <- function(x) as.POSIXct(x, format = "%Y-%m-%dT%H:%M:%OS", tz = "UTC")
@@ -78,15 +78,16 @@ random_said <- if (length(random_said)) {
 } else character()
 
 runs <- do.call(rbind, lapply(seq_len(nrow(wide)), function(row) {
-  one <- wide$participant[row]
-  answers <- given[given$participant == one, ]
-  shown <- long[long$participant == one, ]
+  one <- wide$file[row]
+  answers <- given[given$file == one, ]
+  shown <- long[long$file == one, ]
   times <- answers$rt_ms[!is.na(answers$rt_ms)]
   span <- if (nrow(shown) && any(!is.na(shown$time_response)))
     as.numeric(difftime(max(when(shown$time_response), na.rm = TRUE), min(when(shown$time_onset), na.rm = TRUE), units = "mins")) else NA
   walked <- length(strsplit(wide$levels_walked[row], SEP, fixed = TRUE)[[1]])
   data.frame(
-    participant = one,
+    file = one,
+    participant = wide$participant[row],
     source = wide$source[row],
     started = substr(wide$time_start[row], 1, 16),
     completed = wide$completed[row],
@@ -118,8 +119,8 @@ runs$flags <- vapply(seq_len(nrow(runs)), function(i) paste(names(flags)[vapply(
 flagged <- runs[runs$flags != "", ]
 
 if (!KEEP_FLAGGED) {
-  wide <- wide[!wide$participant %in% flagged$participant, ]
-  long <- long[long$participant %in% wide$participant, ]
+  wide <- wide[!wide$file %in% flagged$file, ]
+  long <- long[long$file %in% wide$file, ]
 }
 ```
 
@@ -216,16 +217,16 @@ if (nrow(flagged)) {
 # time.
 between_keys <- unlist(lapply(codebook$items, function(item) if (isTRUE(item$between)) item$key))
 levels_of <- function(one) {
-  row <- wide[wide$participant == one, ]
+  row <- wide[wide$file == one, ]
   walked <- strsplit(row$levels_walked, SEP, fixed = TRUE)[[1]]
-  items <- long[long$participant == one, ]
+  items <- long[long$file == one, ]
   items <- items[order(items$order), ]
   # A run that pressed Start and answered nothing has a row and no items.
   if (!nrow(items)) return(NULL)
   screen <- grepl("^Level_[0-9]+$", items$key)
   at <- 1 + cumsum(screen) - screen
   data.frame(
-    participant = one,
+    file = one,
     key = items$key,
     screen = screen,
     between = items$key %in% between_keys,
@@ -236,24 +237,24 @@ levels_of <- function(one) {
     stringsAsFactors = FALSE
   )
 }
-items <- do.call(rbind, lapply(unique(wide$participant), levels_of))
+items <- do.call(rbind, lapply(wide$file, levels_of))
 
 # Only finished levels are timed, or the moment somebody gave up would count.
 finished <- function(one, key) {
   column <- paste0("QC_", key, "_TimeFinished")
-  column %in% names(wide) && !is.na(wide[wide$participant == one, column])
+  column %in% names(wide) && !is.na(wide[wide$file == one, column])
 }
 
 # Wall time from the level's first onset to its last response, briefings in
 # and an interlude out.
 answering <- items[!items$screen & !items$between, ]
-spans <- do.call(rbind, lapply(split(answering, list(answering$participant, answering$level), drop = TRUE), function(one) {
+spans <- do.call(rbind, lapply(split(answering, list(answering$file, answering$level), drop = TRUE), function(one) {
   data.frame(
-    participant = one$participant[1],
+    file = one$file[1],
     level = one$level[1],
     position = one$position[1],
     minutes = as.numeric(difftime(max(one$response, na.rm = TRUE), min(one$onset, na.rm = TRUE), units = "mins")),
-    finished = finished(one$participant[1], one$level[1]),
+    finished = finished(one$file[1], one$level[1]),
     stringsAsFactors = FALSE
   )
 }))
@@ -298,8 +299,8 @@ reading <- rows(summarise(read), met)
 
 # A finished level with no screen in the file: the way on is only staged once
 # pressed, so the tab was closed on its results.
-left <- paste(screens$participant, screens$level)
-stopped_on <- done[!paste(done$participant, done$level) %in% left, ]
+left <- paste(screens$file, screens$level)
+stopped_on <- done[!paste(done$file, done$level) %in% left, ]
 reading$closed <- as.integer(table(factor(stopped_on$level, levels = table$level)))
 
 # The core is every level before the interim, which the codebook places at the
@@ -308,7 +309,7 @@ interim_at <- min(unlist(lapply(codebook$items, function(item) if (isTRUE(item$b
 core_keys <- level_keys[seq_along(level_keys) < interim_at]
 ```
 
-`r nrow(wide)` runs `r if (KEEP_FLAGGED) "in all" else "kept"`: `r sum(wide$completed)` finished, `r sum(!wide$completed)` stopped partway.
+`r nrow(wide)` runs `r if (KEEP_FLAGGED) "in all" else "kept"`, by `r length(unique(wide$participant))` participants: `r sum(wide$completed)` finished, `r sum(!wide$completed)` stopped partway.
 
 ## How long a level takes
 
@@ -498,7 +499,7 @@ for (screen in grep("^Level_[0-9]+$", names(wide), value = TRUE)) {
     offered <- column(paste0(screen, "_Offered"), row)
     if (!is.na(offered)) {
       picks[[length(picks) + 1]] <- list(
-        participant = wide$participant[row], screen = screen, placed = TRUE,
+        file = wide$file[row], screen = screen, placed = TRUE,
         offered = strsplit(offered, SEP, fixed = TRUE)[[1]],
         recommended = column(paste0(screen, "_Recommended"), row),
         chosen = column(paste0(screen, "_Chosen"), row)
@@ -514,7 +515,7 @@ for (screen in grep("^Level_[0-9]+$", names(wide), value = TRUE)) {
       next
     }
     picks[[length(picks) + 1]] <- list(
-      participant = wide$participant[row], screen = screen, placed = FALSE,
+      file = wide$file[row], screen = screen, placed = FALSE,
       offered = keys, recommended = NA_character_, chosen = keys[1]
     )
   }
@@ -526,7 +527,7 @@ cards <- do.call(rbind, lapply(seq_along(picks), function(i) {
   one <- picks[[i]]
   k <- length(one$offered)
   data.frame(
-    choice = i, participant = one$participant, level = one$offered, k = k,
+    choice = i, file = one$file, level = one$offered, k = k,
     position = if (one$placed) seq_len(k) else NA_integer_,
     recommended = if (is.na(one$recommended)) NA else one$offered == one$recommended,
     chosen = one$offered == one$chosen,
@@ -537,7 +538,7 @@ n_choices <- length(picks)
 n_known <- sum(vapply(picks, function(one) !is.na(one$recommended), TRUE))
 ```
 
-`r n_choices` choices by `r length(unique(vapply(picks, function(one) one$participant, "")))` runs, `r n_known` of them saying where the cards stood and which was recommended. A level offered beside *k* others would be taken 1 in *k* times by chance, so **expected** below is that chance added up over every time the level was offered, and **lift** is the times taken over it: 1 is chance, 2 is twice as often. All of it is blind: nobody has taken a level when it is offered, only seen its name, its length and its blurred results.
+`r n_choices` choices by `r length(unique(vapply(picks, function(one) one$file, "")))` runs, `r n_known` of them saying where the cards stood and which was recommended. A level offered beside *k* others would be taken 1 in *k* times by chance, so **expected** below is that chance added up over every time the level was offered, and **lift** is the times taken over it: 1 is chance, 2 is twice as often. All of it is blind: nobody has taken a level when it is offered, only seen its name, its length and its blurred results.
 
 ```{r}
 #| label: choices-pull
@@ -796,6 +797,7 @@ runs_on <- vapply(by_level, function(frame) sum(rowSums(!is.na(frame)) > 0), 0)
 answered_keys <- setdiff(names(wide)[grepl("^[A-Z][A-Za-z0-9]*_", names(wide))], grep("_RT$", names(wide), value = TRUE))
 stale <- setdiff(answered_keys, vapply(codebook$items, function(item) item$key, ""))
 stale <- stale[!grepl("^(QC|Feedback|Rating|Level)_", stale)]
+stale <- setdiff(stale, "Demographics_StarSign")  # the day of birth, reduced by preprocess.R
 ```
 
 One radar per level that at least `r MIN_RUNS` runs have answered: a box plot along each ray (median, quartiles, whiskers to 1.5 IQR, points beyond), each item as a share of its own scale, as answered (reversed items not flipped). Nothing joins the rays: neighbouring items are not a continuum. Demographics, free text and right-answer items are left out.

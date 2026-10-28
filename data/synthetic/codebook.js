@@ -16,8 +16,11 @@
    A `text` written as a function (an item wording itself from an earlier
    answer, such as `Demographics_BirthDay`) cannot be written to JSON, so it
    is evaluated once per possible answer to the item it waits on and written
-   as `textBy: { <key>: { <value>: "…" } }`. Nothing here reaches the browser;
-   it is a workbench, like `data/norms/`.
+   as `textBy: { <key>: { <value>: "…" } }`. A briefing's is carried as the
+   HTML the person reads, so that what framed the items can be read beside
+   them; one written as a function (the onward briefing, which reads the
+   run) is evaluated for a run that came from nowhere. Nothing here reaches
+   the browser; it is a workbench, like `data/norms/`.
    ========================================================================== */
 
 const fs = require("fs")
@@ -62,6 +65,11 @@ for (const interlude of written.filter((entry) => entry.interlude)) {
 content.DEMOGRAPHICS.forEach((name, at) => opening[Math.min(at, places.length - 1)].push(name))
 places.forEach((entry, at) => (entry.blocks = opening[at].concat(entry.blocks)))
 
+// An item out of a demographics block or an interlude belongs to the place and
+// not to the level walked there (`placed` in app.js): a synthetic run that
+// draws its levels keeps these where they are written and moves the rest.
+const placedIn = (name) => interluded.indexOf(name) !== -1 || content.DEMOGRAPHICS.indexOf(name) !== -1
+
 // The app version, so a synthetic file says which code its codebook came from.
 const app = fs.readFileSync(path.join(ROOT, "js", "app.js"), "utf8")
 const version = (app.match(/const APP_VERSION = "([^"]+)"/) || [])[1] || null
@@ -81,6 +89,16 @@ const items = []
 const run = []
 const levels = []
 const byKey = {}
+
+// What a briefing puts on screen, as the HTML it is written in. One written as
+// a function reads the run (the onward briefing offers the SONA credit to a run
+// from SONA) and is evaluated for a run from nowhere, with nothing answered,
+// which is what a synthetic run is; it throws if that is not enough for it,
+// the way everything else here stops rather than guesses.
+function briefingText(text) {
+    if (typeof text !== "function") return text === undefined ? null : text
+    return text(() => undefined, { participant: "", source: "Synthetic" })
+}
 
 // A string is written as it is; a function is evaluated for each answer the
 // item it waits on could take, since that is the only answer it may read.
@@ -108,7 +126,9 @@ timeline.forEach((entry, at) => {
         for (const entry of block) {
             // Nothing to answer on a briefing, but the app records one in
             // `items[]` like any other step, so a synthetic file wants the
-            // same row (with nothing in it) to have the same columns.
+            // same row (with nothing in it) to have the same columns — and
+            // its words are what the person read between the items, which a
+            // synthetic run shows the model in their place.
             // One that ends an interlude (`onward`) is answered, in a run, by
             // the choice of the level that comes next.
             if (entry.type === "briefing") {
@@ -120,6 +140,8 @@ timeline.forEach((entry, at) => {
                     questionnaire: null,
                     type: "briefing",
                     onward: entry.onward === true,
+                    text: briefingText(entry.text),
+                    placed: placedIn(name),
                 })
                 continue
             }
@@ -156,6 +178,7 @@ timeline.forEach((entry, at) => {
                         // An interlude's: at the head of this level's place but
                         // part of no level, so no level's count or time holds it.
                         between: interluded.indexOf(name) !== -1,
+                        placed: placedIn(name),
                         questionnaire: questionnaire.key,
                         type: typeOf(item, questionnaire),
                         instructions: setting(item, questionnaire, "instructions") || null,

@@ -68,6 +68,9 @@ data/norms/bks/
 # machine and in the deposit, never here.
 data/collected/raw/
 data/collected/clean/
+# ...and the ledger preprocess.R numbers participants out of: it maps each
+# number back to a platform's id, so it goes when raw/ goes.
+data/collected/ids.csv
 # ...and the overview rendered out of them: aggregates, but of a handful of people.
 data/collected/overview.html
 data/collected/overview_files/
