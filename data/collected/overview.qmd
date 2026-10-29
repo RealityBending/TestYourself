@@ -11,8 +11,11 @@ execute:
 ---
 
 <!--
-    Rscript data/collected/preprocess.R --long
+    Rscript data/collected/preprocess.R --long --include-pilot
     quarto render data/collected/overview.qmd
+
+The pilots (runs before 1.0.0) are kept in for now, while the study has few
+runs of its own; drop `--include-pilot` to read the study alone.
 
 Base R, and ggplot2 with ggside for the set-aside plot. The rendered page is git-ignored: out of a handful of people an
 aggregate is close to a person.
@@ -298,22 +301,110 @@ table <- rows(summarise(timed), met)
 reading <- rows(summarise(read), met)
 
 # A finished level with no screen in the file: the way on is only staged once
-# pressed, so the tab was closed on its results.
+# pressed, so the tab was closed on its results. A level with nothing scored in
+# it (the closing) has no results screen, so no tab can be closed on one; the
+# stars are given on that screen, so a level the file has a `Rating_` for is a
+# level that had one, including those the test no longer asks.
+scored_keys <- sub("^Rating_", "", grep("^Rating_", names(wide), value = TRUE))
 left <- paste(screens$file, screens$level)
-stopped_on <- done[!paste(done$file, done$level) %in% left, ]
-reading$closed <- as.integer(table(factor(stopped_on$level, levels = table$level)))
+stopped_on <- done[!paste(done$file, done$level) %in% left & done$level %in% scored_keys, ]
+reading$closed <- ifelse(reading$level %in% scored_keys,
+                         as.integer(table(factor(stopped_on$level, levels = table$level))), NA_integer_)
 
 # The core is every level before the interim, which the codebook places at the
 # head of the first optional level: what somebody who stops there has taken.
 interim_at <- min(unlist(lapply(codebook$items, function(item) if (isTRUE(item$between)) item$level)), Inf)
 core_keys <- level_keys[seq_along(level_keys) < interim_at]
+
+# Where the runs got to. The core is what everybody is asked for, so a run that
+# finished it and stopped at the interim did what it was asked, though the
+# deposit files it as a partial. Going on is answering anything placed after
+# the last of the core's levels, which reads the same whether the run had an
+# interim to stop at or was a pilot's from before there was one.
+core_done <- length(core_keys) > 0 & vapply(wide$file, function(one) all(vapply(core_keys, function(key) finished(one, key), TRUE)), TRUE)
+went_on <- vapply(wide$file, function(one) {
+  walked <- strsplit(wide$levels_walked[wide$file == one], SEP, fixed = TRUE)[[1]]
+  after <- items[items$file == one & !items$screen & !items$between & !is.na(items$onset), ]
+  any(after$position > max(match(core_keys, walked), -Inf, na.rm = TRUE))
+}, TRUE)
+
+# Pilots: a run from before the first release (1.0.0), or saying no version,
+# which is `preprocess.R`'s rule; pooled here by `--include-pilot` while there
+# is little else to read.
+pilots <- vapply(wide$version, function(v) is.na(v) || utils::compareVersion(v, "1.0.0") < 0, TRUE)
+by_source <- sort(table(wide$source), decreasing = TRUE)
 ```
 
-`r nrow(wide)` runs `r if (KEEP_FLAGGED) "in all" else "kept"`, by `r length(unique(wide$participant))` participants: `r sum(wide$completed)` finished, `r sum(!wide$completed)` stopped partway.
+`r nrow(wide)` runs `r if (KEEP_FLAGGED) "in all" else "kept"`, by `r length(unique(wide$participant))` participants: `r sum(wide$completed)` finished, `r sum(!wide$completed)` stopped partway. `r if (length(core_keys)) sprintf("%d finished the core, and %d of them went on past it into the optional levels.", sum(core_done), sum(went_on & core_done))` By source: `r paste(sprintf("%s %d", names(by_source), by_source), collapse = ", ")`. `r if (any(pilots)) sprintf("**%d of them are pilots** from before the first release (version %s), pooled with the %d after it for now: the test changed between them, so a level or an item may mean a little less for being read across both.", sum(pilots), paste(unique(ifelse(is.na(wide$version[pilots]), "none", wide$version[pilots])), collapse = ", "), sum(!pilots))`
+
+## Recruitment
+
+Every run kept, by when it started, from the first to today: the runs added up, and how many of them went on to finish the core. The dashed lines are what happened to the test along the way.
+
+```{r}
+#| label: recruitment
+#| fig-width: 8
+#| fig-height: 3.8
+
+# What happened to the test along the way, a line each: the day and a few
+# words. Add one whenever the test is put somewhere new.
+MILESTONES <- data.frame(
+  date = c("2026-10-23", "2026-10-26"),
+  label = c("1.0 released", "MINT study live on SONA"),
+  stringsAsFactors = FALSE
+)
+
+started <- when(wide$time_start)
+order_in <- order(started)
+recruited <- data.frame(time = started[order_in], core = core_done[order_in])
+recruited <- recruited[!is.na(recruited$time), ]
+
+if (nrow(recruited)) {
+  now <- Sys.time()
+  attr(now, "tzone") <- "UTC"
+  # A step a run, from nought at the first run and held flat to today, so the
+  # line also says how long nothing has come in.
+  curve <- function(times, series) {
+    data.frame(time = c(recruited$time[1], times, now), n = c(0, seq_along(times), length(times)),
+               run = c(FALSE, rep(TRUE, length(times)), FALSE), series = series)
+  }
+  SERIES <- c("Runs kept", "Finished the core")
+  curves <- rbind(curve(recruited$time, SERIES[1]), curve(recruited$time[recruited$core], SERIES[2]))
+  curves$series <- factor(curves$series, SERIES)
+  ends <- curves[curves$time == now, ]
+  marks <- MILESTONES
+  marks$time <- as.POSIXct(marks$date, tz = "UTC")
+  marks <- marks[marks$time >= recruited$time[1] & marks$time <= now, ]
+  # The labels sit in a band of their own above the data, a row each and the
+  # latest at the top, each written leftwards from its line and each line
+  # rising only to its own row: so no label crosses the data, another label,
+  # or a line it is not about, however many there come to be.
+  top <- max(curves$n)
+  marks <- marks[order(marks$time), ]
+  marks$y <- top * (1 + 0.1 * seq_len(nrow(marks)))
+
+  ggplot2::ggplot(curves, ggplot2::aes(time, n, colour = series)) +
+    ggplot2::geom_segment(data = marks, ggplot2::aes(x = time, xend = time, y = 0, yend = y), inherit.aes = FALSE,
+                          colour = "grey60", linetype = "dashed", linewidth = 0.4) +
+    ggplot2::geom_text(data = marks, ggplot2::aes(time, y, label = label), inherit.aes = FALSE,
+                       hjust = 1.04, size = 3.1, colour = "grey30") +
+    ggplot2::geom_step(direction = "hv", linewidth = 0.7) +
+    ggplot2::geom_point(data = curves[curves$run, ], size = 1.8) +
+    ggplot2::geom_text(data = ends, ggplot2::aes(label = n), hjust = -0.4, size = 3.4, colour = "grey25", show.legend = FALSE) +
+    ggplot2::scale_colour_manual(values = setNames(c("#5b3fd6", "#b07d1c"), SERIES), name = NULL) +
+    ggplot2::scale_x_datetime(date_breaks = "1 week", date_labels = "%e %b", expand = ggplot2::expansion(mult = c(0.02, 0.05))) +
+    ggplot2::scale_y_continuous(breaks = scales::breaks_pretty()(c(0, top)), expand = ggplot2::expansion(mult = c(0, 0.05))) +
+    ggplot2::labs(x = NULL, y = "Runs") +
+    ggplot2::theme_minimal(base_size = 11) +
+    ggplot2::theme(panel.grid.minor = ggplot2::element_blank(), legend.position = "bottom")
+} else {
+  cat("No run kept yet.")
+}
+```
 
 ## How long a level takes
 
-Answering: first item shown to last answer, finished levels only. Results screen: until the way on was pressed. Anything over `r BREAK` minutes is a break rather than a time and is left out of both (`r breaks` so far). Total: the levels' medians added up, which is how long the whole test would take somebody typical on every level, over the levels timed so far. Core: the same over the levels before the interim (`r paste(level_names[level_keys %in% core_keys], collapse = ", ")`), which is what somebody who stops there has taken.
+Answering: first item shown to last answer, finished levels only. Results screen: until the way on was pressed. Anything over `r BREAK` minutes is a break rather than a time and is left out of both (`r breaks` so far). Total: the levels' medians added up, which is how long the whole test would take somebody typical on every level, over the levels timed so far (a level only a pilot walked, and the test no longer asks, is shown and not added). Core: the same over the levels before the interim (`r paste(level_names[level_keys %in% core_keys], collapse = ", ")`), which is what somebody who stops there has taken.
 
 ```{r}
 #| label: plot
@@ -372,7 +463,7 @@ subtotal <- function(label, keep) {
     Level = sprintf("**%s** (%d levels)", label, sum(table$n[keep] > 0)),
     median = added(table[keep, ]),
     median_read = added(reading[keep, ]),
-    closed = sum(reading$closed[keep]),
+    closed = sum(reading$closed[keep], na.rm = TRUE),
     stringsAsFactors = FALSE
   )
 }
@@ -386,7 +477,10 @@ rated <- lapply(levels_n$level, function(key) {
 
 shown <- data.frame(
   Level = levels_n$level,
-  kind = if (core_here) ifelse(levels_n$level %in% core_keys, "core", "optional") else "optional",
+  # A level the codebook no longer holds (How You Think, the sexuality level)
+  # was walked by a pilot and is not asked now.
+  kind = ifelse(!levels_n$level %in% level_keys, "gone",
+                ifelse(core_here & levels_n$level %in% core_keys, "core", "optional")),
   n = levels_n$n,
   median = timed(levels_n, "median"),
   n_read = reading_n$n,
@@ -419,8 +513,10 @@ if (nrow(table)) {
                   gt::cells_body(columns = "Level", rows = shown$kind == "core")) |>
     gt::tab_style(gt::cell_fill(color = "#ece6f7"),
                   gt::cells_body(columns = "Level", rows = shown$kind == "optional")) |>
+    gt::tab_style(gt::cell_fill(color = "#ececec"),
+                  gt::cells_body(columns = "Level", rows = shown$kind == "gone")) |>
     gt::tab_source_note(paste0("Click a column's header to sort by it. First shown by the number of runs that finished each level. ",
-                               "Level: blue is core (before the interim), violet optional. ",
+                               "Level: blue is core (before the interim), violet optional, grey no longer asked. ",
                                "Median answering time: green is quick, red slow, across the levels shown.")) |>
     gt::tab_options(table.font.size = gt::px(14), data_row.padding = gt::px(4)) |>
     gt::opt_interactive(use_sorting = TRUE, use_pagination = FALSE, use_highlight = TRUE, use_compact_mode = TRUE)
@@ -431,7 +527,7 @@ if (nrow(table)) {
 #| label: totals
 
 if (nrow(table)) {
-  totals <- subtotal("Total", rep(TRUE, nrow(table)))
+  totals <- subtotal("Total", table$level %in% level_keys)
   if (core_here) totals <- rbind(subtotal("Core", table$level %in% core_keys), totals)
   gt::gt(totals) |>
     gt::fmt_markdown(columns = "Level") |>
@@ -442,7 +538,7 @@ if (nrow(table)) {
     gt::tab_spanner("Answering", columns = "median") |>
     gt::tab_spanner("Results screen", columns = c("median_read", "closed")) |>
     gt::cols_align("right", columns = -Level) |>
-    gt::tab_source_note("The levels' medians added up, over the levels timed so far.") |>
+    gt::tab_source_note("The levels' medians added up, over the levels timed so far that the test still asks.") |>
     gt::tab_options(table.font.size = gt::px(14), data_row.padding = gt::px(4))
 }
 ```
@@ -487,9 +583,13 @@ if (nrow(liked)) {
 # and what was passed over, in the words on the cards (`Level_<N>`, the taken
 # first), so where its cards stood and which was recommended are unknown; its
 # names are read back to keys through the codebook, which holds today's names,
-# and through what a level was called before it was renamed: a name on screen
-# is free to change, and an older file still carries the one it was read under.
-FORMER_NAMES <- c("AI Expertise & Usage" = "AIExpertise") # renamed AI Attitudes, October 2026
+# and through what a level was called before it was renamed, or by a level the
+# test no longer asks: a name on screen is free to change, and an older file
+# still carries the one it was read under.
+FORMER_NAMES <- c(
+  "AI Expertise & Usage" = "AIExpertise", # renamed AI Attitudes, October 2026
+  "How You Think" = "Reasoning"           # out of 1.0, October 2026
+)
 key_of <- c(setNames(level_keys, level_names), FORMER_NAMES)
 unnamed <- character()
 picks <- list()
@@ -882,7 +982,12 @@ if (length(waiting)) {
 if (length(unread)) {
   cat("\n\n**Answers not read** (words matching no option of the item in the codebook): ", paste(unique(unread), collapse = "; "), "\n", sep = "")
 }
+# Counted by prefix, with the keys themselves folded away: the pilots answered
+# whole levels the test no longer asks, which is a long list of nothing new.
 if (length(stale)) {
-  cat("\n\n**Keys no longer in the codebook**, left out: ", paste(stale, collapse = ", "), "\n", sep = "")
+  prefix <- sort(table(sub("_.*", "", stale)), decreasing = TRUE)
+  cat("\n\n**Keys no longer in the codebook**, left out: ", length(stale), " (",
+      paste(sprintf("%s %d", names(prefix), prefix), collapse = ", "), ").\n\n",
+      "<details><summary>Every one</summary>\n\n", paste(sort(stale), collapse = ", "), "\n\n</details>\n", sep = "")
 }
 ```

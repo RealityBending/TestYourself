@@ -456,6 +456,29 @@ def place_of(item, way):
     return next(level["place"] for level in way if level["written"] == item["level"])
 
 
+def stop_of(book, persona):
+    """The place a persona's run stops at, or None for one that goes to the
+    end. A persona made with `--core` stops where a participant who does only
+    the mandatory part stops: at the place the first interlude opens (the
+    interim, on `mint`), having answered every place before it and the
+    interlude itself, and having chosen nothing on its last screen."""
+    if not persona.get("core"):
+        return None
+    between = [item["level"] for item in book["items"] if item.get("between")]
+    if not between:
+        sys.exit("--core: this battery has no interlude, so no core to stop after")
+    return min(between)
+
+
+def reached(book, persona):
+    """Whether an item is reached in this persona's run (`stop_of`)."""
+    stop = stop_of(book, persona)
+    if stop is None:
+        return lambda item: True
+    way = walk(book, persona)
+    return lambda item: place_of(item, way) < stop or (place_of(item, way) == stop and bool(item.get("between")))
+
+
 def sentence(persona):
     """Who the persona is, in the one sentence it is told."""
     told = persona["told"]
@@ -490,9 +513,13 @@ def strayed(book, persona, answers):
     return out
 
 
-def personas(book, n, seed):
+def personas(book, n, seed, core=False):
     rng = random.Random(seed)
     made = [sample_persona(book, rng, seed) for _ in range(n)]
+    # Set after sampling and drawing nothing, so that one seed is the same
+    # people whether they go to the end or stop after the core (`stop_of`).
+    for persona in made:
+        persona["core"] = core
     WORK.mkdir(parents=True, exist_ok=True)
     (WORK / "personas.json").write_text(json.dumps(made, indent=2), encoding="utf-8")
     print(f"{n} personas sampled (seed {seed}) -> {WORK / 'personas.json'}")
@@ -504,10 +531,12 @@ def personas(book, n, seed):
 
 def for_model(book, persona):
     """The items the model answers, in the order this persona was dealt them:
-    everything not sampled, not a check, and not behind a branch the persona closed."""
+    everything not sampled, not a check, not behind a branch the persona
+    closed and not past where its run stops (`reached`)."""
     items = []
+    reach = reached(book, persona)
     for item in in_order(book, persona):
-        if item["type"] == "briefing" or item["key"] in persona["answers"] or item["check"] is not None:
+        if item["type"] == "briefing" or item["key"] in persona["answers"] or item["check"] is not None or not reach(item):
             continue
         # A follow-up to a fact the persona was given is settled now (the
         # discipline, after an education); one waiting on the model's own
@@ -719,7 +748,9 @@ def build(book, made, model, effort, condition, grain):
         # October 2026).
         shown = for_model(book, made[0])
         screens_ = len(shown)
-        whole = (sum(len(screen_of(item, {})) for item in shown) + sum(len(prose(item.get("text"))) for item in book["items"] if item["type"] == "briefing")) / 2.6 + 400
+        reach = reached(book, made[0])
+        briefings = sum(len(prose(item.get("text"))) for item in book["items"] if item["type"] == "briefing" and reach(item))
+        whole = (sum(len(screen_of(item, {})) for item in shown) + briefings) / 2.6 + 400
         guess = {"input_tokens": 0, "cache_creation_input_tokens": whole, "cache_read_input_tokens": screens_ * whole / 2, "output_tokens": screens_ * 12}
         print(f"{len(requests)} conversations of about {screens_} screens each -> {path}")
         each = dollars(model, guess, batch=False)
@@ -780,18 +811,114 @@ def unmask(given, shown):
     return out
 
 
+# The fewest answers a scale can be read off. One or two answers off an item's
+# scale say nothing about which scale they were given on.
+READ_FROM = 3
+
+
+def numbered(item):
+    """The bounds of an item answered on consecutive whole numbers (a row of
+    circles, a Likert scale), its ways out aside; None for any other."""
+    if item["type"] != "choice":
+        return None
+    values = [o["value"] for o in item["options"] if not o["custom"] and not o["small"]]
+    if not values or not all(isinstance(v, int) and not isinstance(v, bool) for v in values):
+        return None
+    low, high = min(values), max(values)
+    return (low, high) if sorted(values) == list(range(low, high + 1)) else None
+
+
+def reading_of(values, low, high):
+    """The scale a questionnaire's answers were all given on, where some went
+    past the top of the item's own and one other scale accounts for every one
+    of them, as its name and the reading back onto the item's own; None where
+    none does. Two are read, and nothing else:
+
+    - One up from the item's own (1 to 7 for 0 to 6), where the answers reach
+      both its ends: the lowest is one above the item's foot and the highest
+      one above its top. Shifted down a point. Answers that only go one past
+      the top now and then, never touching the foot, are as like a person who
+      never chose the lowest point and slipped, and are not read.
+    - 0 to 100, the scale of the test's own curve and slider items: every
+      answer inside it and most of them past the item's top. Rescaled and
+      rounded to the nearest point, halves up.
+
+    The first is tried first, since answers on it are inside 0 to 100 too."""
+    whole = all(v == int(v) for v in values)
+    if whole and min(values) == low + 1 and max(values) == high + 1:
+        return f"{low + 1}-{high + 1}", lambda v: int(v) - 1
+    if all(0 <= v <= 100 for v in values) and sum(v > high for v in values) > len(values) / 2:
+        return "0-100", lambda v: low + int(v * (high - low) / 100 + 0.5)
+    return None
+
+
+def read_back(code, book, given):
+    """Answers off their item's scale, read back where the questionnaire was
+    answered consistently on another one, and recorded either way.
+
+    A model now and then answers a whole questionnaire on a scale it was not
+    given (the MINT on 0 to 100, in 2 runs out of 500): every answer then says
+    where the person stands on the item's scale as plainly as the right number
+    would, so it is read back onto it (`reading_of`), the questionnaire's
+    answers that were inside the item's scale included, since they were given
+    on the other one too. Another scale is only looked for where an answer
+    went past the top of the item's; any other answer off the scale (below its
+    foot, between two points), and any the two readings do not account for, is
+    left unanswered. Every answer changed or dropped is recorded
+    (`offscale` in the file's `synthetic`), with what was given, what was saved
+    and the scale it was read on, so that how often this happens can be
+    compared across models and efforts."""
+    groups = {}
+    for item in asked(book):
+        bounds = numbered(item)
+        value = given.get(item["key"])
+        if bounds is None or not isinstance(value, (int, float)) or isinstance(value, bool):
+            continue
+        # A way out ("I'd rather not say", valued off the scale) is an answer
+        # on any scale and says nothing about which.
+        if value in [o["value"] for o in item["options"] if o["custom"] or o["small"]]:
+            continue
+        groups.setdefault((item["questionnaire"], bounds), []).append(item)
+
+    out, records = dict(given), []
+    for (questionnaire, (low, high)), items in groups.items():
+        values = {item["key"]: given[item["key"]] for item in items}
+        off = [key for key, v in values.items() if not (v == int(v) and low <= v <= high)]
+        if not off:
+            continue
+        past = any(v > high for v in values.values())
+        reading = reading_of(list(values.values()), low, high) if past and len(values) >= READ_FROM else None
+        if reading:
+            scale, back = reading
+            print(f"  ! {code} {questionnaire}: answered on {scale} rather than {low}-{high}, read back ({len(values)} answers)")
+            for key, v in values.items():
+                if back(v) != v:
+                    out[key] = back(v)
+                    records.append({"key": key, "questionnaire": questionnaire, "given": v, "saved": out[key], "scale": scale})
+        else:
+            print(f"  ! {code} {questionnaire}: {len(off)} answers off {low}-{high} on no one other scale, left unanswered: {', '.join(off[:8])}")
+            for key in off:
+                out[key] = None
+                records.append({"key": key, "questionnaire": questionnaire, "given": values[key], "saved": None, "scale": None})
+    return out, records
+
+
 def tidy(book, persona, given):
     """Every answer checked against its item, follow-ups pruned, checks passed,
-    and the model's demographics held up against who it was told it was."""
+    and the model's demographics held up against who it was told it was.
+    Returns the answers and the record of those read back or dropped for being
+    off their scale (`read_back`)."""
     known = {item["key"] for item in asked(book)}
     unknown = sorted(set(given) - known)
     if unknown:
         print(f"  ! {persona['code']}: {len(unknown)} answers to no item, dropped: {', '.join(unknown[:8])}{' …' if len(unknown) > 8 else ''}")
     given = {key: value for key, value in given.items() if key in known}
+    given, offscale = read_back(persona["code"], book, given)
 
     answers = dict(persona["answers"])
+    reach = reached(book, persona)
     for item in asked(book):
-        if item["check"] is not None:
+        if item["check"] is not None and reach(item):
             answers[item["key"]] = item["check"]
     for key, value in given.items():
         answers[key] = value
@@ -825,12 +952,14 @@ def tidy(book, persona, given):
 
     # Missing is counted once the branches are settled: a follow-up the model's
     # own answers closed (no "Other", so no country to type) was rightly left out.
-    missing = [item["key"] for item in for_model(book, persona) if shown(item, answers) and given.get(item["key"]) is None]
+    # An answer dropped for being off its scale was given, and is reported there.
+    dropped = {record["key"] for record in offscale}
+    missing = [item["key"] for item in for_model(book, persona) if shown(item, answers) and given.get(item["key"]) is None and item["key"] not in dropped]
     if missing:
         print(f"  ! {persona['code']}: {len(missing)} items not answered, left unanswered: {', '.join(missing[:8])}{' …' if len(missing) > 8 else ''}")
     for problem in strayed(book, persona, answers):
         print(f"  ! {persona['code']}: strayed from the persona: {problem}")
-    return answers
+    return answers, offscale
 
 
 def said(item, value, answers):
@@ -899,11 +1028,12 @@ def fork_offers(way):
     return [(run[at]["place"], run[at : at + run[at]["fork"]]) for run in runs for at in range(len(run) - 1)]
 
 
-def fork_choices(way):
+def fork_choices(way, stop=None):
     """Place -> the `choice` on that place's entry in `levels`, as
     `container()` writes it, for each place whose screen offers one. Laid out
     on no page, the cards stand in the order the levels are walked, and the
-    first of them is both the one recommended and the one taken."""
+    first of them is both the one recommended and the one taken. A run that
+    stops (`stop_of`) makes no choice of what stands where it stops or after."""
     return {
         place - 1: {
             "offered": [one["key"] for one in offered],
@@ -911,19 +1041,25 @@ def fork_choices(way):
             "chosen": offered[0]["key"],
         }
         for place, offered in fork_offers(way)
+        if stop is None or place < stop
     }
 
 
-def onward(book, way):
+def onward(book, way, stop=None):
     """The briefing that ends an interlude, keyed by the place it opens, and
     the words it is answered with: the fork choice of what stands there, which
     it offers in place of the level screen before it (`onward` in app.js) —
-    taken as recommended, the levels offered in the order walked."""
+    taken as recommended, the levels offered in the order walked. A run that
+    stops at the interlude reads it and chooses nothing."""
     heads = {item["level"]: item["key"] for item in book["items"] if item.get("onward")}
-    return {heads[place]: [one["name"] for one in offered] for place, offered in fork_offers(way) if place in heads}
+    return {
+        heads[place]: [one["name"] for one in offered]
+        for place, offered in fork_offers(way)
+        if place in heads and (stop is None or place < stop)
+    }
 
 
-def screens(book, way):
+def screens(book, way, stop=None):
     """One item per level screen, keyed by the place it showed.
 
     Its `response` is the way on that was taken. A synthetic run walks its
@@ -933,7 +1069,9 @@ def screens(book, way):
     taken and the rest follow it as the ones passed over; otherwise it is the
     words on the one button, which say so when the way on goes through the
     seabed. A choice an interlude offers after it instead is not the level
-    screen's but the interlude's briefing's (`onward`).
+    screen's but the interlude's briefing's (`onward`). A run that stops
+    (`stop_of`) reaches no level screen where it stops or after, and those
+    are null, as in a run left there.
     """
     # The floor is the last scored place in the water, and only where there is
     # rock under it to go down into — `floorLevel` in app.js.
@@ -943,12 +1081,13 @@ def screens(book, way):
 
     opened = {item["level"] for item in book["items"] if item.get("onward")}
     taken = {place - 1: [one["name"] for one in offered] for place, offered in fork_offers(way) if place not in opened}
+    way_on = lambda place: taken.get(place, "Go beneath the floor →" if place == floor else "Continue the test →")
 
     return {
         entry["place"]: {
             "key": "Level_" + str(entry["place"]),
             "questionnaire": None,
-            "response": taken.get(entry["place"], "Go beneath the floor →" if entry["place"] == floor else "Continue the test →"),
+            "response": way_on(entry["place"]) if stop is None or entry["place"] < stop else None,
             "timeOnset": None,
             "timeResponse": None,
         }
@@ -964,8 +1103,9 @@ def walked(book, persona, answers):
     splices them in. Shuffling never crosses a questionnaire, so a level's
     items stay together however they were dealt."""
     way = walk(book, persona)
-    shown = screens(book, way)
-    chosen = onward(book, way)
+    stop = stop_of(book, persona)
+    shown = screens(book, way, stop)
+    chosen = onward(book, way, stop)
     out = []
     standing = None
     for item in in_order(book, persona):
@@ -989,7 +1129,7 @@ def walked(book, persona, answers):
 
 
 def write_file(book, persona, given, bio, provenance):
-    answers = tidy(book, persona, given)
+    answers, offscale = tidy(book, persona, given)
     now = dt.datetime.now(dt.timezone.utc).isoformat().replace("+00:00", "Z")
 
     # Kept on no account, as a run whose link did not ask for one (`account`
@@ -997,7 +1137,11 @@ def write_file(book, persona, given, bio, provenance):
     file = {"version": book["version"], "participant": persona["code"], "account": None, "testMode": False}
     # `told` is who the persona was told it was, so that its own demographic
     # answers can be held up against it at analysis time as `strayed` does here.
-    file["synthetic"] = dict(provenance, seed=persona["seed"], told=persona.get("told"), bio=bio, generated=now)
+    # `offscale` is every answer read back or dropped for being off its scale
+    # (`read_back`), empty where there were none, so that how often it happens
+    # can be counted across models and efforts.
+    # `core` is whether the persona stopped after the core (`stop_of`).
+    file["synthetic"] = dict(provenance, seed=persona["seed"], told=persona.get("told"), bio=bio, core=bool(persona.get("core")), offscale=offscale, generated=now)
     # The mint battery (codebook.js reads no other), its levels drawn for this
     # persona and walked as drawn (`walk`).
     file["battery"] = "mint"
@@ -1006,7 +1150,7 @@ def write_file(book, persona, given, bio, provenance):
     for field in ("device", "touchscreen", "screenLayout", "screenLayouts", "viewport", "screen"):
         file[field] = None
     way = walk(book, persona)
-    chosen = fork_choices(way)
+    chosen = fork_choices(way, stop_of(book, persona))
     file["levels"] = [{"key": entry["key"], "name": entry["name"], "blocks": entry["blocks"], "choice": chosen.get(entry["place"])} for entry in way]
     # The questionnaires in the order asked (`RUN`), which the drawn levels decide.
     file["questionnaires"] = []
@@ -1021,9 +1165,11 @@ def write_file(book, persona, given, bio, provenance):
     # place in one person's run, a key is the same level for everybody, and the
     # name beside it is prose that may be reworded without moving a column.
     # Every check is passed, so a level carrying one failed none, and a level
-    # carrying none has null there, the way `qualityControl` writes it.
+    # carrying none, or not reached by a run that stopped, has null there,
+    # the way `qualityControl` writes it.
     by_number = {level["level"]: level for level in book["levels"]}
-    checked = {by_number[item["level"]]["key"] for item in asked(book) if item["check"] is not None}
+    reach = reached(book, persona)
+    checked = {by_number[item["level"]]["key"] for item in asked(book) if item["check"] is not None and reach(item)}
     file["qualityControl"] = {
         entry["key"]: {
             "responseTimeMean": None,
@@ -1373,6 +1519,7 @@ def main():
     cli.add_argument("--condition", default="typical", choices=CONDITIONS, help="how much the persona is made a person of its own (see CONDITIONS)")
     cli.add_argument("--grain", default="item", choices=GRAINS, help="how the model meets the items: one screen a turn, or all in one request (see GRAINS)")
     cli.add_argument("--seed", type=int, default=None, help="for the personas; random if not given")
+    cli.add_argument("--core", action="store_true", help="personas stop after the core and the interim, as a participant who does only the mandatory part (see stop_of)")
     steps = cli.add_subparsers(dest="step", required=True)
     steps.add_parser("codebook", help="read the items out of content/ into work/codebook.json")
     steps.add_parser("personas", help="sample personas into work/personas.json").add_argument("--n", type=int, default=10)
@@ -1393,7 +1540,7 @@ def main():
     if args.step == "codebook":
         print(f"{len(asked(book))} items in {len(book['run'])} questionnaires -> {WORK / 'codebook.json'}")
     elif args.step == "personas":
-        personas(book, args.n, seed)
+        personas(book, args.n, seed, args.core)
     elif args.step == "build":
         made = json.loads((WORK / "personas.json").read_text(encoding="utf-8"))
         build(book, made, args.model, args.effort, args.condition, args.grain)
@@ -1404,7 +1551,7 @@ def main():
     elif args.step == "collect":
         collect(book, args.wait)
     elif args.step == "run":
-        made = personas(book, args.n, seed)
+        made = personas(book, args.n, seed, args.core)
         if args.fake:
             fake(book, made, seed, args.grain)
             return
