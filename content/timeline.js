@@ -266,10 +266,14 @@ const TIMELINE_ALL = [
         { key: "Opinions", name: "Where You Stand", blocks: ["opinions"], fork: 3, minutes: 5 },
         // The next three are in ASIDE (below), so asked only through a link
         // naming them, and their minutes are guesses. Light & Dark is still
-        // being written.
+        // being written: its briefing and the SD4, then the lies and the
+        // deeds in an order drawn for each run, so that neither is always
+        // met first, and then the receiving end (`wronged`), which turns
+        // from what you have done to what was done to you and so wants the
+        // deeds asked before it.
         { key: "Sexuality", name: "Sexuality", blocks: ["sex"], fork: 3, minutes: 6 },
         { key: "Hyborian", name: "Your Hyborian Hero", blocks: ["hyborian"], fork: 3, minutes: 3 },
-        { key: "Dark", name: "Light & Dark", blocks: ["dark"], fork: 3, minutes: 5 },
+        { key: "Dark", name: "Light & Dark", blocks: ["dark", shuffle(["lies", "deeds"]), "wronged"].flat(), fork: 3, minutes: 7 },
     ]),
     { key: "Closing", name: "Closing", blocks: ["closing"] },
 ].flat()
@@ -281,7 +285,7 @@ const TIMELINE_ALL = [
 // offers one (app.js, `SUBTESTS`). `?only=`, `?skip=` and `?start=` are under
 // **Batteries** in AGENTS.md.
 const BATTERIES = { mint: TIMELINE_MINT, all: TIMELINE_ALL }
-const ASIDE = ["hyborian", "dark", "sex"]
+const ASIDE = ["hyborian", "dark", "lies", "deeds", "wronged", "sex"]
 
 // The demographics open the run's first three levels, one apiece and in this
 // order, whatever those levels hold, so that every run asks them at the same
@@ -293,4 +297,11 @@ const DEMOGRAPHICS = ["demographics1", "demographics2", "demographics3"]
 
 // Blocks that come and go together, because one figure is drawn from both:
 // the climb reads the PHQ-4 out of `mood` and the HiTOP-BR out of `hitop`.
-const HELD_TOGETHER = [["mood", "hitop"]]
+// And Light & Dark's four, because its briefing introduces the other three:
+// `?start=dark` names the briefing's block alone, and brings the lies, the
+// deeds and the receiving end in with it only by being held together with
+// them.
+const HELD_TOGETHER = [
+    ["mood", "hitop"],
+    ["dark", "lies", "deeds", "wronged"],
+]

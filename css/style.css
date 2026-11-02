@@ -210,9 +210,15 @@ body::after {
     border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
+/* A button, being the way into About, dressed as nothing but the name: it
+   brightens under the pointer and while its panel is up. */
 .banner__title {
+    padding: 6px 10px;
+    border: 0;
+    font: inherit;
     font-size: 12px;
     font-weight: 700;
+    line-height: 1;
     letter-spacing: 0.34em;
     text-indent: 0.34em;
     text-transform: uppercase;
@@ -220,6 +226,20 @@ body::after {
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
+    cursor: pointer;
+    transition: filter 0.2s ease;
+}
+
+.banner__title:hover,
+.banner__title:focus-visible,
+.banner__title--open {
+    filter: brightness(1.35) drop-shadow(0 0 8px rgba(124, 92, 255, 0.45));
+}
+
+.banner__title:focus-visible {
+    outline: 1px solid rgba(255, 255, 255, 0.35);
+    outline-offset: 2px;
+    border-radius: 6px;
 }
 
 /* A run started with `?test=true` answers most of itself and is not data.
@@ -1264,6 +1284,21 @@ body[data-screen="card"] {
     opacity: 0;
 }
 
+/* About is a few lines and three logos, so a card in the middle of the page
+   that rises into place, rather than a drawer off one side. Before
+   `.panel--open`, which takes the rise off it. */
+.panel--about {
+    inset: 0;
+    margin: auto;
+    width: min(560px, 100% - 32px);
+    height: fit-content;
+    max-height: calc(100% - 32px);
+    border: 1px solid var(--line);
+    border-radius: 22px;
+    transform: translateY(14px) scale(0.97);
+    opacity: 0;
+}
+
 .panel--open {
     visibility: visible;
     transform: none;
@@ -1319,25 +1354,53 @@ body[data-screen="card"] {
     display: none;
 }
 
+/* The cross is drawn rather than typed, so it sits in the middle of its ring
+   whatever the font: a × glyph sits a pixel or two off, which the quarter turn
+   it used to make on hover showed up as a wobble. Pointed at, the ring lights
+   and the cross draws in a little; pressed, the button gives. */
 .panel__close {
     flex: 0 0 auto;
+    display: grid;
+    place-items: center;
     width: 32px;
     height: 32px;
-    font: inherit;
-    font-size: 20px;
-    line-height: 1;
+    padding: 0;
     color: var(--muted);
     background: transparent;
     border: 1px solid var(--line);
     border-radius: 50%;
     cursor: pointer;
-    transition: color 0.15s, border-color 0.15s, transform 0.15s;
+    transition: color 0.18s ease, background-color 0.18s ease, border-color 0.18s ease, transform 0.12s ease;
 }
 
-.panel__close:hover {
+.panel__close svg {
+    width: 14px;
+    height: 14px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    transition: transform 0.25s var(--ease);
+}
+
+.panel__close:hover,
+.panel__close:focus-visible {
     color: var(--text);
+    background: rgba(255, 255, 255, 0.08);
     border-color: rgba(255, 255, 255, 0.4);
-    transform: rotate(90deg);
+}
+
+.panel__close:hover svg {
+    transform: scale(0.82);
+}
+
+.panel__close:active {
+    transform: scale(0.9);
+}
+
+.panel__close:focus-visible {
+    outline: 2px solid rgba(34, 211, 238, 0.6);
+    outline-offset: 2px;
 }
 
 .panel__body {
@@ -1346,6 +1409,50 @@ body[data-screen="card"] {
 
 .panel__body .lede {
     margin-bottom: 24px;
+}
+
+/* The landing page's three logos, one height and a row where there is room,
+   with the words centred under them. */
+.about__logos {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 14px 22px;
+    margin: 4px 0 26px;
+}
+
+.about__logos img {
+    display: block;
+    height: 30px;
+    width: auto;
+}
+
+.about__text {
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.6;
+    text-align: center;
+    color: var(--text);
+}
+
+.about__contact {
+    margin: 12px 0 0;
+    font-size: 14px;
+    text-align: center;
+    color: var(--muted);
+}
+
+.about__contact a {
+    color: var(--text);
+    text-decoration: underline;
+    text-decoration-color: rgba(255, 255, 255, 0.35);
+    text-underline-offset: 3px;
+}
+
+.about__contact a:hover,
+.about__contact a:focus-visible {
+    text-decoration-color: currentColor;
 }
 
 h1 {
@@ -3220,6 +3327,10 @@ h1 {
     /* Less room to give away, so the panels keep a thinner edge. */
     .panel {
         width: min(760px, 100% - 44px);
+    }
+
+    .panel--about {
+        width: min(560px, 100% - 32px);
     }
 
     /* A briefing is prose, and the narrow column it comes down to on a phone

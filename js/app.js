@@ -2820,10 +2820,10 @@
     let openFrom = null // and which button it grew out of: a stop, or a badge
 
     // Panels opened by a bar link of the same id, lit while theirs is up: the
-    // profile, at the head of the shelf, named with the block it is written
-    // in. The level buttons open the results panel, and are lit by
-    // renderSidebar and renderShelf instead.
-    const LINKED = { profile: "shelf__link" }
+    // profile, at the head of the shelf, and About, the name on the banner,
+    // each named with the block it is written in. The level buttons open the
+    // results panel, and are lit by renderSidebar and renderShelf instead.
+    const LINKED = { profile: "shelf__link", about: "banner__title" }
 
     function openPanel(name) {
         results.hideTip()
@@ -4416,6 +4416,7 @@
     $("download").addEventListener("click", download)
     // Every way in is also the way out: pressing a lit button shuts what it lit.
     $("profile").addEventListener("click", () => (panel === "profile" ? closePanel() : openProfile()))
+    $("about").addEventListener("click", () => (panel === "about" ? closePanel() : openPanel("about")))
     drawAccount()
     // The way out of the level screen — the one button, or either side of a
     // fork: the screen is drawn into its stop on the gauge and the item waiting

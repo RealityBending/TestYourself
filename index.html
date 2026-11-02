@@ -62,8 +62,11 @@
         <link rel="stylesheet" href="css/results.css" />
     </head>
     <body data-screen="intro">
-        <!-- The name of the test, over every screen it is taken on. -->
-        <header class="banner" id="banner"><span class="banner__title">The Abyss Test</span></header>
+        <!-- The name of the test, over every screen it is taken on, and the way
+             into the About panel: who is behind it and who to write to. -->
+        <header class="banner" id="banner">
+            <button class="banner__title" id="about" aria-expanded="false" aria-haspopup="dialog">The Abyss Test</button>
+        </header>
 
         <!-- The account, where the link asks for it (`?account`): top right, and
              drawn as the hub's dashboard draws it (`drawAccount`, app.js), so it
@@ -603,7 +606,9 @@
                              of it is still to answer. Written by openResults. -->
                         <p class="panel__sub" id="results-sub"></p>
                     </div>
-                    <button class="panel__close" data-close aria-label="Close">&times;</button>
+                    <button class="panel__close" data-close aria-label="Close">
+                        <svg viewBox="0 0 14 14" aria-hidden="true"><path d="M2.5 2.5l9 9M11.5 2.5l-9 9" /></svg>
+                    </button>
                 </header>
                 <div class="panel__body">
                     <div id="results-body"></div>
@@ -614,7 +619,9 @@
             <section class="panel panel--right" id="panel-profile" role="dialog" aria-modal="true" aria-labelledby="profile-title">
                 <header class="panel__bar">
                     <h1 class="panel__title" id="profile-title">Your profile</h1>
-                    <button class="panel__close" data-close aria-label="Close">&times;</button>
+                    <button class="panel__close" data-close aria-label="Close">
+                        <svg viewBox="0 0 14 14" aria-hidden="true"><path d="M2.5 2.5l9 9M11.5 2.5l-9 9" /></svg>
+                    </button>
                 </header>
                 <!-- The same profile the last screen shows, so both are drawn by
                      class rather than by id: whichever one is handed to
@@ -639,6 +646,29 @@
                             <p class="share__note"></p>
                         </section>
                     </div>
+                </div>
+            </section>
+
+            <!-- about, opened from the name on the banner: the landing page's
+                 three logos and a few lines, so a card in the middle rather
+                 than a drawer -->
+            <section class="panel panel--about" id="panel-about" role="dialog" aria-modal="true" aria-labelledby="about-title">
+                <header class="panel__bar">
+                    <h1 class="panel__title" id="about-title">About</h1>
+                    <button class="panel__close" data-close aria-label="Close">
+                        <svg viewBox="0 0 14 14" aria-hidden="true"><path d="M2.5 2.5l9 9M11.5 2.5l-9 9" /></svg>
+                    </button>
+                </header>
+                <div class="panel__body">
+                    <div class="about__logos">
+                        <img src="assets/logo_sussex.svg" alt="University of Sussex" />
+                        <img src="assets/logo_researchplus.png" alt="ResearchPlus" />
+                        <img src="assets/logo_rebel.png" alt="Reality Bending Lab" />
+                    </div>
+                    <p class="about__text">The Abyss is a platform for questionnaires developed at the Reality Bending Lab.</p>
+                    <p class="about__contact">
+                        For inquiries, contact <a href="mailto:D.Makowski@sussex.ac.uk">D.Makowski@sussex.ac.uk</a>
+                    </p>
                 </div>
             </section>
         </div>
@@ -686,6 +716,9 @@
         <script src="content/block_sex.js"></script>
         <script src="content/block_hyborian.js"></script>
         <script src="content/block_dark.js"></script>
+        <script src="content/block_lies.js"></script>
+        <script src="content/block_deeds.js"></script>
+        <script src="content/block_wronged.js"></script>
         <script src="content/block_interim.js"></script>
         <script src="content/block_closing.js"></script>
         <script src="content/block_UNUSED.js"></script>
