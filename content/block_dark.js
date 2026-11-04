@@ -9,11 +9,13 @@
    in the ethics application.
 
    WHAT IS ASKED SO FAR: a briefing; the SD4 (`sd4`, the Super-Short Dark
-   Tetrad's sixteen and an attention check, beside the briefing in this
-   file); Serota's lie count (`liecount`, one typed number) and the LPQ whole
-   (`lpq`, sixteen sliders) — the SD4 and the lying all November 2026 and
-   shown nowhere yet — and `deeds`, twenty-four grids — of the plan below the
-   SD4, the lying and the deeds, and nothing else of it yet: twelve
+   Tetrad's sixteen, item 27, four TriPM Meanness items, the GP-5's five
+   guilt-proneness items made statements, and an attention check, all
+   shuffled together), beside the briefing in this file; Serota's lie count (`liecount`, one typed number
+   and a follow-up) and the LPQ whole (`lpq`, sixteen sliders) — the SD4,
+   the GP-5 and the lying all November 2026 and shown nowhere yet — then
+   `deeds`, twenty-four grids, and `wronged`, the receiving end (THE FOURTH
+   BLOCK), nineteen screens shown nowhere yet. The deeds are twelve
    ordinary wrongs and twelve good deeds, shuffled in among one another. They
    are the level's two sides (October 2026), Dark Side (the share of the
    wrongs done) and Light Side (the share of the good deeds done), so the
@@ -21,20 +23,21 @@
    closes on the balance (RESULTS, below). Their crowds are invented until
    the app has one of its own — see SCORING in content/block_deeds.js.
 
-   THREE BLOCKS, THREE FILES (November 2026): `dark`, this one, the briefing,
-   the SD4 and the level's notes; `lies` (content/block_lies.js), the lie
-   count and the LPQ; and `deeds` (content/block_deeds.js), the grids and what
-   they are scored and weighed by. The SD4 is asked straight after the
-   briefing, being in its block; the lies and the deeds come after it in
-   an order drawn for each run (`shuffle()` in content/timeline.js), so
-   that neither is always met fresh and neither always after the other, and
-   the saved file's `levels` says which came first; the three are held
-   together (HELD_TOGETHER), since `?start=dark` names the briefing's block
-   alone. Each file keeps the notes about what it asks beside it, the way
-   block_sex.js keeps its NOTES beside the block they are about rather than
-   in a conversation nobody can find again; this header is THE PLAN and the
-   rest of the level's thinking, and the other two refer to its sections by
-   their names in capitals.
+   FOUR BLOCKS, FOUR FILES (November 2026): `dark`, this one, the briefing,
+   the SD4, the GP-5 and the level's notes; `lies` (content/block_lies.js),
+   the lie count and the LPQ; `deeds` (content/block_deeds.js), the grids and
+   what they are scored and weighed by; and `wronged`
+   (content/block_wronged.js), the receiving end. The SD4, with the GP-5
+   dealt in, is asked straight after the briefing, being in its block; the
+   lies and the deeds come after it in an order drawn for each run (`shuffle()` in
+   content/timeline.js), so that neither is always met fresh and neither
+   always after the other, and the saved file's `levels` says which came
+   first; `wronged` comes last. The four are held together (HELD_TOGETHER),
+   since `?start=dark` names the briefing's block alone. Each file keeps the
+   notes about what it asks beside it, the way block_sex.js keeps its NOTES
+   beside the block they are about rather than in a conversation nobody can
+   find again; this header is THE PLAN and the rest of the level's thinking,
+   and the other three refer to its sections by their names in capitals.
 
    ==========================================================================
    THE PLAN
@@ -152,7 +155,18 @@
                         placeholder — the rule wherever a mean and an SD are
                         published and a distribution is not.
 
-     bold              4 items. Boldness, out of the Triarchic Psychopathy
+     GP-5               5 items. ASKED (November 2026, dealt into `sd4`): the
+                        Five-Item Guilt Proneness Scale (Cohen, Kim & Panter,
+                        2014), checked against the published sheet and
+                        adapted from its scenarios and likelihoods into
+                        first-person statements on the SD4's agreement scale
+                        (the reasons beside them), as Scruples: the light
+                        trait beside the good deeds, as the SD4 is the dark
+                        one beside the wrongs, and the series' counterweight
+                        against agreeing with everything (WHAT WAS CUT,
+                        Guilt-proneness).
+
+     bold             4 items. Boldness, out of the Triarchic Psychopathy
                         Measure (TriPM; Patrick, 2010; 4-point true/false
                         agreement). The one dimension here orthogonal to
                         antagonism, and the fork between the successful and
@@ -198,8 +212,9 @@
      Attention check    1, in `sd4`, asking for a circle off either end —
                         ASKED (November 2026, `SD4_AttentionCheck`, 2 of 5).
 
-   Total about 64 screens with the deeds as grids: 16 + 4 + 17 + 24 + 1 + 1
-   + the briefing. Expected reliabilities: SD4 facets .65-.80 at four items
+   Total about 64 screens with the deeds as grids, as planned: 16 + 4 + 17 +
+   24 + 1 + 1 + the briefing. As asked (November 2026), 89: the briefing,
+   27 in `sd4`, up to 18 of lying, 24 deeds and 19 in `wronged`. Expected reliabilities: SD4 facets .65-.80 at four items
    with Machiavellianism lowest everywhere it has been tried; Boldness about
    .70 at four; LPQ ability above .80. A count of deeds is an index and not
    a scale, and is not judged by an alpha. Items are listed under THE ITEMS,
@@ -293,20 +308,26 @@
      the instructions and items in github.com/DominiqueMakowski/2020structure
      (Deception_Scale_LIE.docx), written into `lpq` in block_lies.js.
 
+     GP-5 — VERIFIED (November 2026) against the published sheet (Cohen, Kim
+     & Panter, 2014, literature/Cohen2014GP5.pdf), adapted into statements
+     and dealt into `sd4` in this file, each sheet item quoted beside its own.
+
      Serota's count — CHECKED (November 2026) against Serota, Levine &
      Docan-Morgan (2021), whose one-item daily measure and prompt are quoted
      beside `liecount` in block_lies.js, with how the item departs from them.
 
    Keys: `SD4_Mach_02`, `SD4_Narc_08`, `SD4_Psych_18`, `SD4_Sadism_28` (the
    published item number, padded to two digits, since Pride's run from 8 to
-   13), `TriPM_Bold_1`, `TriPM_Mean_1`, `Lie_Ability_1` (and
+   13), `TriPM_Bold_1`, `TriPM_Mean_1`, `GP5_1` (the GP-5's own number,
+   one to five), `Lie_Ability_1` (and
    `Lie_Frequency_1`, `Lie_Negativity_1`, `Lie_Contextuality_1`),
    `Lie_Count` (and `Lie_Count_ForOthers`, its follow-up),
    `Deed_<Name>` and `GoodDeed_<Name>` (below),
    `SD4_AttentionCheck`; and, in the fourth block, `Victim_<Name>` (pairing
    with the `Deed_<Name>` it mirrors), `Victimhood_<Face>_<Word>` and
    `HSNS_<published number>` (THE FOURTH BLOCK). Dimensions carry the plain
-   names (Cunning, Pride, Recklessness, Cruelty; Coldness; Boldness; Lying
+   names (Cunning, Pride, Recklessness, Cruelty; Coldness; Boldness;
+   Scruples, for guilt-proneness; Lying
    Ability, Lying Frequency, Lying Negativity, Lying Contextuality; Wrongs
    Received, Grievance, Thin Skin),
    documented against the construct here, the two registers' rule. None is a
@@ -425,15 +446,19 @@
                            extraversion, antagonism, neuroticism) is the
                            tidier three-factor alternative if narcissism is
                            ever asked in full.
-     Guilt-proneness       NOTED FOR LATER (October 2026): the strongest
-                           candidate if the level ever wants a light TRAIT
-                           beside the good deeds. The GP-5 (Cohen, Kim &
-                           Panter, 2014), five scenarios out of the GASP's
-                           guilt scales (Cohen, Wolf, Panter & Insko, 2011) —
-                           "You lie to people but they never find out about
-                           it. What is the likelihood that you would feel
-                           terrible about the lies you told?" — each 1-7,
-                           extremely unlikely to extremely likely. The best
+     Guilt-proneness       BACK (November 2026): the GP-5, made statements
+                           and dealt into `sd4`, as Scruples; noted for later
+                           in October 2026 as the strongest candidate if the
+                           level ever wanted a light TRAIT beside the good
+                           deeds. The GP-5 (Cohen, Kim &
+                           Panter, 2014), five scenarios, the first four out
+                           of the GASP's guilt scales (Cohen, Wolf, Panter &
+                           Insko, 2011) — "You lie to people but they never
+                           find out about it. What is the likelihood that you
+                           would feel terrible about the lies you told?" —
+                           each on FIVE points, Extremely unlikely to
+                           Extremely likely (the GASP's own are seven, which
+                           this note had wrong until the sheet was read). The best
                            forensic record of any light trait: in 476 jail
                            inmates followed into the year after release,
                            guilt-proneness directly predicted LESS reoffending,
@@ -445,8 +470,7 @@
                            THE DEEDS' stance axis carries the remorse felt over
                            acts somebody actually did; the GP-5 is guilt
                            anticipated over invented ones, which is a different
-                           thing and not a duplicate. Five screens if it goes
-                           in.
+                           thing and not a duplicate. Five screens.
      Proactive/reactive aggression  RPQ (Raine et al., 2006; never/sometimes/
                            often): proactive "Had fights with others to show
                            who was on top" / "Hurt others to win a game" /
@@ -877,7 +901,8 @@ defineBlock("dark", [
     // For now the briefing introduces the SD4, the lies and the deeds; when
     // the rest of the level is written it becomes the level's (THE PLAN,
     // Briefing_Dark). It says that statements about yourself come first (the
-    // SD4, below, in this block) and that then the screens ask about lying and
+    // SD4, with the TriPM and the GP-5 dealt in, below, in this block) and
+    // that then the screens ask about lying and
     // name deeds, in no order, since those two come in an order drawn for each
     // run (`lies` and `deeds`, content/timeline.js); what the deed screens
     // hold, that the list runs from the common to the rare,
@@ -930,19 +955,22 @@ defineBlock("dark", [
     // and only the ends are labelled, the archetypes' way. None of the SD4's
     // reversed: it has no reversed item, which is a known weakness against
     // agreeing with everything, and the attention check is the guard against
-    // the worst of it — with one TriPM Meanness item, reversed, dealt in
-    // beside them (below).
+    // the worst of it — with one TriPM Meanness item, reversed, and the five
+    // GP-5 items, keyed the light way, dealt in beside them (below).
     //
     // Keyed by facet and the SD4's own item number, padded to two digits
     // since Pride's run from 8 to 13. Dimensions carry the plain names of THE
     // ITEMS — Cunning, Pride, Recklessness, Cruelty for Machiavellianism,
-    // narcissism, psychopathy and sadism, and Coldness for the TriPM's
-    // Meanness, below — and no norms: the SD4's published
-    // norms are for its 28 and do not transfer, and nothing on the level reads
-    // the facets yet (RESULTS: positions out of ten, never standings).
+    // narcissism, psychopathy and sadism, Coldness for the TriPM's Meanness
+    // and Scruples for the GP-5's guilt-proneness, below — and no norms: the
+    // SD4's published norms are for its 28 and do not transfer, and nothing
+    // on the level reads the facets yet (RESULTS: positions out of ten, never
+    // standings). The questionnaire keeps the key `sd4` with the TriPM and
+    // the GP-5 in it, as `hexaco18` keeps the KSE-G: being one questionnaire
+    // is what deals them in among one another.
     {
         key: "sd4",
-        name: "Dark Traits",
+        name: "Traits",
         profile: false,
         instructions: "How much do you agree with this statement?",
         format: {
@@ -996,6 +1024,80 @@ defineBlock("dark", [
             { key: "TriPM_Mean_2", dimension: "Coldness", text: "It doesn't bother me to see someone else in pain" }, // TriPM 20
             { key: "TriPM_Mean_3", dimension: "Coldness", text: "I don't care much if what I do hurts others" }, // TriPM 29
             { key: "TriPM_Mean_4", dimension: "Coldness", reverse: true, text: "How other people feel is important to me" }, // TriPM 2
+
+            // THE GP-5, five items dealt in among the dark traits (November
+            // 2026), the KSE-G's way among the HEXACO's: the Five-Item Guilt
+            // Proneness Scale (Cohen, Kim & Panter, 2014, Carnegie Mellon
+            // technical report, doi 10.17605/OSF.IO/G389S; first used in Study
+            // 3 of Cohen, Panter, Turan, Morse & Kim, 2014, JPSP 107, 943-963;
+            // items 1 to 4 out of the GASP's guilt scales, Cohen, Wolf, Panter
+            // & Insko, 2011, JPSP 100, 947-966), checked against the published
+            // sheet, shelved as literature/Cohen2014GP5.pdf. It is the level's
+            // one light TRAIT, beside the good deeds as the SD4 is beside the
+            // wrongs (WHAT WAS CUT, Guilt-proneness): guilt anticipated over a
+            // wrong nobody finds out about, which is not the deeds' stance
+            // row, the guilt felt over what was actually done. Dealt in here
+            // rather than asked on its own so that the run of dark statements
+            // is broken by light ones and the series is no longer keyed all
+            // one way: somebody agreeing with everything now scores high on
+            // Scruples as well as on the dark facets, which an analysis can
+            // see where it could not before.
+            //
+            // ADAPTED, HEAVILY, and never pooled with GP-5 data as the same
+            // items: each of the sheet's scenarios and the reaction it asks
+            // about made one first-person conditional statement on the SD4's
+            // agreement scale, where the sheet asks the likelihood of the
+            // reaction on five points of its own (Extremely unlikely to
+            // Extremely likely) under its own instructions ("…try to imagine
+            // yourself in that situation. Then indicate the likelihood that
+            // you would react in the way described."). Kept in every one: the
+            // wrong, that nobody finds out about it, and the sheet's own word
+            // for the reaction (uncomfortable, remorse, pathetic, terrible,
+            // bad). Also "a felony", a category English law dropped in 1967,
+            // is "a serious crime", "the salesclerk" is "the cashier", the
+            // spelling is British, and the housewarming's details are cut for
+            // a statement's length. Each sheet item is quoted beside its own.
+            // Keyed by the GP-5's number; scored as Scruples, the mean of the
+            // five and none reversed, agreeing being the guilty end as
+            // likely is on the sheet; plain name Scruples, since Conscience
+            // is kept for the deeds' remorse (RESULTS); no norms, so shown
+            // nowhere yet. A crime imagined is no crime admitted, so GP5_2 is
+            // not the SD4's item 19 (ETHICS).
+            {
+                key: "GP5_1",
+                dimension: "Scruples",
+                // "After realizing you have received too much change at a store, you decide to keep it because the
+                // salesclerk doesn't notice. What is the likelihood that you would feel uncomfortable about keeping the money?"
+                text: "If I kept too much change at a store because the cashier didn't notice, I would feel uncomfortable about keeping the money",
+            },
+            {
+                key: "GP5_2",
+                dimension: "Scruples",
+                // "You secretly commit a felony. What is the likelihood that you would feel remorse about breaking the law?"
+                text: "If I secretly committed a serious crime, I would feel remorse about breaking the law",
+            },
+            {
+                key: "GP5_3",
+                dimension: "Scruples",
+                // "At a coworker's housewarming party, you spill red wine on their new cream-colored carpet. You cover the
+                // stain with a chair so that nobody notices your mess. What is the likelihood that you would feel that the
+                // way you acted was pathetic?"
+                text: "If I spilled red wine on a co-worker's new carpet and hid the stain so that nobody noticed, I would feel that the way I acted was pathetic",
+            },
+            {
+                key: "GP5_4",
+                dimension: "Scruples",
+                // "You lie to people but they never find out about it. What is the likelihood that you would feel terrible
+                // about the lies you told?"
+                text: "If I lied to people and they never found out, I would feel terrible about the lies I told",
+            },
+            {
+                key: "GP5_5",
+                dimension: "Scruples",
+                // "Out of frustration, you break the photocopier at work. Nobody is around and you leave without telling
+                // anyone. What is the likelihood you would feel bad about the way you acted?"
+                text: "If I broke the photocopier at work out of frustration and left without telling anyone, I would feel bad about the way I acted",
+            },
 
             // The attention check, dealt in among them, the archetypes' own:
             // the circles carry their numbers, so it can name one, and one

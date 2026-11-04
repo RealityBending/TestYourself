@@ -266,7 +266,7 @@ const TIMELINE_ALL = [
         { key: "Opinions", name: "Where You Stand", blocks: ["opinions"], fork: 3, minutes: 5 },
         // The next three are in ASIDE (below), so asked only through a link
         // naming them, and their minutes are guesses. Light & Dark is still
-        // being written: its briefing and the SD4, then the lies and the
+        // being written: its briefing and the SD4 (the GP-5 dealt in), then the lies and the
         // deeds in an order drawn for each run, so that neither is always
         // met first, and then the receiving end (`wronged`), which turns
         // from what you have done to what was done to you and so wants the
