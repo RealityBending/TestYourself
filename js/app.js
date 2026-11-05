@@ -13,9 +13,11 @@
     // Questionnaires that get a spider chart of their own. The FIPI is not
     // among them: only two of its five dimensions carry norms, and a spider
     // wants three axes, so it reads back as two rows; nor are the `regulation`
-    // block's three, which are read back together as the two heads. The
-    // `emoreg` block's two have no figure of their own and read back this way.
-    const CHARTS = ["hexaco18", "hitopbr", "ders16", "ress"]
+    // block's three, which are read back together as the two heads. An entry
+    // may be a list of questionnaires, drawn as one web in one section and
+    // nothing else: the `emoreg` block's three, the two orange ones on one
+    // side of it and the blue on the other.
+    const CHARTS = ["hexaco18", "hitopbr", ["ders16", "loneliness", "ress"]]
     const ADVANCE_DELAY = 330 // ms between answering and the next item
     const TURN = 180 // ms of that spent fading the answered item out
 

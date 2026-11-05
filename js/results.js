@@ -413,9 +413,19 @@ function makeResults(engine) {
     // The average person stands at the middle of every axis that has a norm.
     const AVERAGE_ON_WEB = outward(0.5)
 
+    // The questionnaires drawn on one web with `name` (an entry of `CHARTS`,
+    // which may be one name or a list), as many of them as this run asks, or
+    // nothing where `name` gets no web.
+    function chartOf(name) {
+        const entry = CHARTS.find((one) => [].concat(one).indexOf(name) !== -1)
+        return entry ? RUN.filter((one) => [].concat(entry).indexOf(one) !== -1) : null
+    }
+
     // Grows to `many` when it carries the whole profile; drawn as a `tease`, it
-    // stands in for results not yet unlocked.
-    function drawSpider(chart, list, tease) {
+    // stands in for results not yet unlocked. `split` fills the shape in the
+    // colour of each run of axes that share one, rather than in one colour
+    // for the lot: a web carrying two questionnaires, one on each side.
+    function drawSpider(chart, list, tease, split) {
         const many = list.length > 8
         const centreX = many ? 280 : 200
         const centreY = many ? 200 : 150
@@ -424,8 +434,11 @@ function makeResults(engine) {
         const found = []
         const average = []
 
+        // Split, the web is turned half a step, so that no axis stands at the
+        // top and two sides of equal length meet down the vertical middle.
+        const angleOf = (position) => (Math.PI * 2 * (position + (split ? 0.5 : 0))) / list.length - Math.PI / 2
         const pointAt = (position, distance) => {
-            const angle = (Math.PI * 2 * position) / list.length - Math.PI / 2
+            const angle = angleOf(position)
             return [centreX + Math.cos(angle) * distance, centreY + Math.sin(angle) * distance]
         }
 
@@ -505,7 +518,36 @@ function makeResults(engine) {
         // Complete, the shape closes; partial, only neighbours are joined, so a
         // locked dimension leaves a gap rather than a line across the middle.
         const shape = "--chart: " + (single ? found[0] && found[0].colour : "var(--accent)")
-        if (found.length === list.length && list.length > 2) {
+        const sides = split && !single && found.length === list.length && list.length > 2 ? sidesOf(found) : null
+        if (sides) {
+            // Cut along the ray halfway between the two axes where the colour
+            // changes, to where it crosses the edge joining them — the
+            // vertical middle, where the web is turned for it. The shape is
+            // seen whole from its centre, so the pieces tile it exactly.
+            // Filled without a stroke, which would draw the cuts, and
+            // outlined along their own stretch of the rim.
+            const cut = (from, to) => {
+                const angle = angleOf(from.position) + Math.PI / list.length
+                const ray = [Math.cos(angle), Math.sin(angle)]
+                const cross = (a, b) => a[0] * b[1] - a[1] * b[0]
+                const start = [from.spot[0] - centreX, from.spot[1] - centreY]
+                const along = [to.spot[0] - from.spot[0], to.spot[1] - from.spot[1]]
+                const t = -cross(ray, start) / cross(ray, along)
+                return [from.spot[0] + t * along[0], from.spot[1] + t * along[1]]
+            }
+            for (const side of sides) {
+                const first = side[0]
+                const last = side[side.length - 1]
+                const before = found[(first.position - 1 + found.length) % found.length]
+                const after = found[(last.position + 1) % found.length]
+                const rim = [cut(before, first)].concat(side.map((one) => one.spot), [cut(last, after)])
+                const style = "--chart: " + side[0].colour
+                chart.appendChild(
+                    draw("polygon", { class: "chart__area chart__area--side", points: [[centreX, centreY]].concat(rim).join(" "), style: style }),
+                )
+                chart.appendChild(draw("polyline", { class: "chart__rim", points: rim.join(" "), style: style }))
+            }
+        } else if (found.length === list.length && list.length > 2) {
             chart.appendChild(draw("polygon", { class: "chart__area", points: found.map((one) => one.spot.join(",")).join(" "), style: shape }))
         } else {
             const spots = {}
@@ -514,8 +556,9 @@ function makeResults(engine) {
                 const next = (position + 1) % list.length
                 if (next === position || (next < position && list.length === 2)) continue
                 if (!spots[position] || !spots[next]) continue
+                const style = split ? "--chart: " + dimensions[list[position]][0].color : shape
                 chart.appendChild(
-                    draw("line", { class: "chart__link", x1: spots[position][0], y1: spots[position][1], x2: spots[next][0], y2: spots[next][1], style: shape }),
+                    draw("line", { class: "chart__link", x1: spots[position][0], y1: spots[position][1], x2: spots[next][0], y2: spots[next][1], style: style }),
                 )
             }
         }
@@ -546,13 +589,46 @@ function makeResults(engine) {
         return { found: found.length, compared: compared, colour: single && found[0] ? found[0].colour : null, at: { x: centreX, y: centreY, r: radius } }
     }
 
-    function legend(colour) {
+    // The runs of neighbouring points that share a colour, every point in one,
+    // the last joined to the first where they meet across the top.
+    function sidesOf(found) {
+        const sides = []
+        for (const one of found) {
+            const last = sides[sides.length - 1]
+            if (last && last[0].colour === one.colour) last.push(one)
+            else sides.push([one])
+        }
+        if (sides.length > 1 && sides[0][0].colour === sides[sides.length - 1][0].colour) sides[0] = sides.pop().concat(sides[0])
+        return sides.length > 1 ? sides : null
+    }
+
+    // A shared web's sides for its legend: one a colour, named for the
+    // questionnaires drawn in it.
+    function sidesNamed(together) {
+        const sides = []
+        for (const one of together) {
+            const colour = colourOf(dimensionsOf(one)[0])
+            const side = sides.find((each) => each.colour === colour)
+            if (side) side.label += " & " + titleOf(one)
+            else sides.push({ colour: colour, label: titleOf(one) })
+        }
+        return sides
+    }
+
+    // "You" in the chart's colour, or, for a web split between
+    // questionnaires, each side in its own colour under its own name.
+    function legend(colour, parts) {
         const key = document.createElement("p")
         key.className = "legend"
-        key.innerHTML =
-            '<span class="legend__item"><i class="legend__you" style="--chart: ' +
-            (colour || "var(--accent)") +
-            '"></i>You</span><span class="legend__item"><i class="legend__average"></i>The average person</span>'
+        for (const part of parts || [{ colour: colour, label: "You" }]) {
+            const item = document.createElement("span")
+            item.className = "legend__item"
+            item.innerHTML = '<i class="legend__you"></i><span></span>'
+            item.firstChild.style.setProperty("--chart", part.colour || "var(--accent)")
+            item.lastChild.textContent = part.label
+            key.appendChild(item)
+        }
+        key.insertAdjacentHTML("beforeend", '<span class="legend__item"><i class="legend__average"></i>The average person</span>')
         return key
     }
 
@@ -759,12 +835,17 @@ function makeResults(engine) {
                 continue
             }
 
-            const owned = dimensionsOf(name)
+            // Questionnaires sharing a web share a section, drawn where the
+            // first of them falls and skipped where the others would.
+            const together = chartOf(name) || [name]
+            if (together[0] !== name) continue
+            const owned = [].concat(...together.map(dimensionsOf))
             const inLevel = owned.filter((dimension) => dimensions[dimension][0].level === level)
             const shown = locked ? inLevel : inLevel.filter((dimension) => score(dimension) !== undefined)
             if (!shown.length) continue
 
-            const label = titleOf(name)
+            const label = together.map(titleOf).join(" & ")
+            const joint = together.length > 1
             const opened = openSection(into, label, colourOf(shown[0]), locked)
             const body = opened.body
 
@@ -777,17 +858,20 @@ function makeResults(engine) {
                 opened.section.classList.add("result--bare")
                 body.appendChild(theories.renderOldTheories(locked, teaser))
             } else {
-                if (CHARTS.indexOf(name) !== -1) {
+                if (chartOf(name)) {
                     const chart = figureHolder(
                         locked ? "Blurred preview of your " + label.toLowerCase() + ", still locked" : "Spider chart of your " + label.toLowerCase() + " dimensions",
-                        "",
+                        joint ? "result__chart--joint" : "",
                         locked,
                     )
                     body.appendChild(chart.holder)
-                    const drawn = drawSpider(chart.figure, owned, locked)
-                    if (drawn.compared) body.appendChild(legend(drawn.colour))
+                    const drawn = drawSpider(chart.figure, owned, locked, joint)
+                    if (drawn.compared) body.appendChild(legend(drawn.colour, joint ? sidesNamed(together) : null))
                 }
-                body.appendChild(rows(shown, locked))
+                // A shared web is the whole of its section: its points give
+                // each standing on hover, and rows under a dozen axes are a
+                // second, longer telling of the same thing.
+                if (!joint) body.appendChild(rows(shown, locked))
             }
         }
 
@@ -1650,11 +1734,12 @@ function makeResults(engine) {
                 return crop(plane, square[0], square[1], square[2])
             }
 
-            if (CHARTS.indexOf(name) !== -1) {
-                const owned = dimensionsOf(name)
+            const together = chartOf(name)
+            if (together) {
+                const owned = [].concat(...together.map(dimensionsOf))
                 if (!owned.length) continue
                 const figure = document.createElementNS(SVG, "svg")
-                const drawn = drawSpider(figure, owned)
+                const drawn = drawSpider(figure, owned, false, together.length > 1)
                 return crop(figure, drawn.at.x, drawn.at.y, 2 * (drawn.at.r + 14))
             }
         }

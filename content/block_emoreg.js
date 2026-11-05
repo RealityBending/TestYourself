@@ -7,10 +7,11 @@
    only through a link naming it, `?start=emoreg`, which walks it first. It is
    not in the ethics application.
 
-   TWO QUESTIONNAIRES, one stretch: how much trouble feelings give somebody
-   (the DERS-16) and what they do about them in the moment (the RESS). Two
-   questionnaires rather than one because they are two instruments with two
-   stems, asked in that order, each shuffled within itself.
+   THREE QUESTIONNAIRES, one stretch: how much trouble feelings give somebody
+   (the DERS-16), how lonely they feel (one item, for now) and what they do
+   about feelings in the moment (the RESS). Separate questionnaires because
+   they are separate instruments with separate stems, asked in that order,
+   each shuffled within itself.
 
    IT OVERLAPS THE `regulation` BLOCK, KNOWINGLY: the ERS there asks how hard
    feelings hit and the CERQ-short what the mind does after a bad event, and
@@ -18,10 +19,15 @@
    Rumination and the DERS's Strategies. Kept apart for now because the
    student's project wants these two instruments whole and as published.
 
-   READ BACK the plain way, as the HEX-ACO-18 is: each questionnaire a section
-   with a spider chart and a row a dimension (both are in `CHARTS` in
-   js/app.js), no figure of its own. Every norm here is an invented
-   placeholder, so every standing on the level is one too.
+   READ BACK as one section and nothing but a spider chart carrying all
+   three (one entry of `CHARTS` in js/app.js): the DERS-16 and Loneliness on
+   the right in orange, six axes, and the RESS on the left in blue, six
+   axes, split down the vertical middle. No rows, no interpretations, no
+   votes, on purpose: they were fluff under the chart, whose points still
+   give each standing on hover, and the level is rated by its stars alone.
+   KEEP THE TWO SIDES EQUAL: a dimension added to one wants one on the
+   other, or the split leans. Every norm here is an invented placeholder, so
+   every standing on the level is one too.
 
    THE DIMENSIONS CARRY PLAIN NAMES, the instruments' own written beside them
    below, for the two reasons the rest of the run has: what the person reads
@@ -96,56 +102,11 @@ defineBlock("emoreg", [
         // total and subscale sums by sample). Replace with a real sample, as
         // item means, before any of this is presented as a standing.
         norms: {
-            "Emotional Confusion": {
-                key: "EmotionalConfusion",
-                mean: 2.1,
-                sd: 0.9,
-                interpretations: {
-                    low: "you usually know what you are feeling, and can make sense of it.",
-                    mid: "your feelings make sense to you most of the time, though now and then they leave you puzzled.",
-                    high: "your feelings can be hard to read: you may be upset without being sure what it is you feel.",
-                },
-            },
-            "Losing Focus": {
-                key: "LosingFocus",
-                mean: 2.9,
-                sd: 1.0,
-                interpretations: {
-                    low: "being upset rarely stops you working or thinking about other things.",
-                    mid: "when you are upset your mind keeps going back to it and work slows for a while, as it does for most people.",
-                    high: "when you are upset it takes over: work stalls and it is hard to think about anything else.",
-                },
-            },
-            "Losing Control": {
-                key: "LosingControl",
-                mean: 1.8,
-                sd: 0.9,
-                interpretations: {
-                    low: "even when you are upset, you stay in charge of what you do.",
-                    mid: "a strong feeling pushes you to act on it now and then, as it does most people.",
-                    high: "when you are upset your feelings can take the wheel, and what you do is harder to hold back than it is for most people.",
-                },
-            },
-            "Feeling Stuck": {
-                key: "FeelingStuck",
-                mean: 2.1,
-                sd: 0.9,
-                interpretations: {
-                    low: "when you are upset you trust that it will pass and that there is something you can do to feel better.",
-                    mid: "a bad mood can feel as if it will last, though you usually find your way out of it.",
-                    high: "when you are upset it can feel as if it will last a long time and nothing you do will lift it.",
-                },
-            },
-            "Self-Reproach": {
-                key: "SelfReproach",
-                mean: 2.2,
-                sd: 1.0,
-                interpretations: {
-                    low: "you let yourself feel what you feel, without holding it against yourself.",
-                    mid: "you are sometimes hard on yourself for being upset, and sometimes let it be.",
-                    high: "being upset tends to bring a second feeling with it: shame, irritation or weakness at feeling that way at all.",
-                },
-            },
+            "Emotional Confusion": { mean: 2.1, sd: 0.9 },
+            "Losing Focus": { mean: 2.9, sd: 1.0 },
+            "Losing Control": { mean: 1.8, sd: 0.9 },
+            "Feeling Stuck": { mean: 2.1, sd: 0.9 },
+            "Self-Reproach": { mean: 2.2, sd: 1.0 },
         },
 
         items: [
@@ -174,6 +135,39 @@ defineBlock("emoreg", [
             { key: "DERS_Goals_3", dimension: "Losing Focus", text: "When I am upset, I have difficulty thinking about anything else" }, // 15
             { key: "DERS_Strategies_5", dimension: "Feeling Stuck", text: "When I am upset, my emotions feel overwhelming" }, // 16
         ],
+    },
+
+    // LONELINESS ===========================================================
+    // One custom item, a direct question about how lonely somebody feels,
+    // asked between the two instruments (November 2026). A placeholder for a
+    // short scale: the UCLA-3 (Hughes, Waite, Hawkley & Cacioppo, 2004) is
+    // the obvious one if it ever wants more. A questionnaire of its own
+    // rather than an item of the DERS-16, whose stem ("how often does this
+    // apply to you?") and keys it does not share. Drawn on the orange side of
+    // the level's chart beside the DERS-16's five, so that the two sides are
+    // six axes each and the chart splits down its middle.
+    {
+        key: "loneliness",
+        name: "Loneliness",
+        profile: false,
+        format: {
+            options: [
+                { value: 1, text: "Not at all" },
+                { value: 2, text: "A little" },
+                { value: 3, text: "Somewhat" },
+                { value: 4, text: "Very" },
+                { value: 5, text: "Extremely" },
+            ],
+            columns: 5,
+            color: "#ea580c",
+        },
+
+        // PLACEHOLDER norm, invented, on the 1-5 above.
+        norms: {
+            Loneliness: { mean: 2.2, sd: 1.0 },
+        },
+
+        items: [{ key: "Loneliness_Direct", dimension: "Loneliness", text: "How lonely do you feel?" }],
     },
 
     // RESS =================================================================
@@ -236,66 +230,12 @@ defineBlock("emoreg", [
         // a real sample, as item means, before any of this is presented as a
         // standing.
         norms: {
-            "Keeping Busy": {
-                key: "KeepingBusy",
-                mean: 3.0,
-                sd: 0.9,
-                interpretations: {
-                    low: "you rarely throw yourself into something else to get away from a bad feeling.",
-                    mid: "you sometimes reach for something to do when a bad feeling comes, and sometimes stay with it.",
-                    high: "your first move with a bad feeling is to get busy with something else.",
-                },
-            },
-            Replaying: {
-                key: "Replaying",
-                mean: 3.1,
-                sd: 0.9,
-                interpretations: {
-                    low: "once something has upset you, you rarely go back over it.",
-                    mid: "you turn what upset you over in your mind for a while, as most people do.",
-                    high: "what upset you plays again and again in your head while you try to work out what went wrong.",
-                },
-            },
-            Rethinking: {
-                key: "Rethinking",
-                mean: 2.9,
-                sd: 0.9,
-                interpretations: {
-                    low: "you seldom look for another way to see what upset you.",
-                    mid: "you sometimes step back and look at what upset you from another side.",
-                    high: "you are quick to look for another angle on what upset you, and another way to read it.",
-                },
-            },
-            Hiding: {
-                key: "Hiding",
-                mean: 2.7,
-                sd: 0.9,
-                interpretations: {
-                    low: "you rarely hide what you feel or act as though nothing is wrong.",
-                    mid: "you keep your feelings to yourself some of the time, and let them be seen some of the time.",
-                    high: "you tend to keep your feelings out of sight, so that nobody can tell you are upset.",
-                },
-            },
-            Expressing: {
-                key: "Expressing",
-                mean: 2.7,
-                sd: 0.9,
-                interpretations: {
-                    low: "you rarely let a bad feeling show on your face or in what you say.",
-                    mid: "a bad feeling shows on you some of the time, and some of the time it does not.",
-                    high: "when you are upset it shows: in your face, in your voice and in what you say about it.",
-                },
-            },
-            "Calming Down": {
-                key: "CalmingDown",
-                mean: 2.4,
-                sd: 1.0,
-                interpretations: {
-                    low: "you rarely turn to your breathing or your body to bring a feeling down.",
-                    mid: "you sometimes slow your breathing or loosen up to take the edge off a bad feeling.",
-                    high: "you reach for your body first: slower breaths, a slower heart and less tension.",
-                },
-            },
+            "Keeping Busy": { mean: 3.0, sd: 0.9 },
+            Replaying: { mean: 3.1, sd: 0.9 },
+            Rethinking: { mean: 2.9, sd: 0.9 },
+            Hiding: { mean: 2.7, sd: 0.9 },
+            Expressing: { mean: 2.7, sd: 0.9 },
+            "Calming Down": { mean: 2.4, sd: 1.0 },
         },
 
         items: [

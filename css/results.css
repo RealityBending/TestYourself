@@ -613,6 +613,12 @@
     margin: 0 auto;
 }
 
+/* A web shared by several questionnaires is the whole of its section, and
+   at a dozen axes wants the room. */
+.result__chart--joint {
+    max-width: 620px;
+}
+
 .result__chart svg {
     width: 100%;
     height: auto;
@@ -4110,6 +4116,21 @@
     stroke-width: 2;
     stroke-linejoin: round;
     filter: drop-shadow(0 0 10px var(--chart));
+    animation: fade 0.5s ease both;
+}
+
+/* A web split between questionnaires: each side filled in its own colour
+   without a stroke, which would draw the cuts between them, and outlined
+   along its own stretch of the rim. */
+.chart__area--side {
+    stroke: none;
+}
+
+.chart__rim {
+    fill: none;
+    stroke: var(--chart);
+    stroke-width: 2;
+    stroke-linejoin: round;
     animation: fade 0.5s ease both;
 }
 
