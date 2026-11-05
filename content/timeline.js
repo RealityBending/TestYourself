@@ -264,8 +264,10 @@ const TIMELINE_ALL = [
         // { key: "Reasoning", name: "How You Think", blocks: ["icar"], fork: 3, minutes: 7 },
         { key: "Regulation", name: "Mind & Heart", blocks: ["regulation"], fork: 3, minutes: 7 },
         { key: "Opinions", name: "Where You Stand", blocks: ["opinions"], fork: 3, minutes: 5 },
-        // The next three are in ASIDE (below), so asked only through a link
-        // naming them, and their minutes are guesses. Light & Dark is still
+        // The next four are in ASIDE (below), so asked only through a link
+        // naming them, and their minutes are guesses. Storm & Calm is the
+        // DERS-16 and the RESS, written for a student's dissertation (November
+        // 2026). Light & Dark is still
         // being written: its briefing and the SD4 (the GP-5 dealt in), then the lies and the
         // deeds in an order drawn for each run, so that neither is always
         // met first, and then the receiving end (`wronged`), which turns
@@ -274,6 +276,7 @@ const TIMELINE_ALL = [
         { key: "Sexuality", name: "Sexuality", blocks: ["sex"], fork: 3, minutes: 6 },
         { key: "Hyborian", name: "Your Hyborian Hero", blocks: ["hyborian"], fork: 3, minutes: 3 },
         { key: "Dark", name: "Light & Dark", blocks: ["dark", shuffle(["lies", "deeds"]), "wronged"].flat(), fork: 3, minutes: 7 },
+        { key: "EmoReg", name: "Storm & Calm", blocks: ["emoreg"], fork: 3, minutes: 6 },
     ]),
     { key: "Closing", name: "Closing", blocks: ["closing"] },
 ].flat()
@@ -285,7 +288,7 @@ const TIMELINE_ALL = [
 // offers one (app.js, `SUBTESTS`). `?only=`, `?skip=` and `?start=` are under
 // **Batteries** in AGENTS.md.
 const BATTERIES = { mint: TIMELINE_MINT, all: TIMELINE_ALL }
-const ASIDE = ["hyborian", "dark", "lies", "deeds", "wronged", "sex"]
+const ASIDE = ["hyborian", "dark", "lies", "deeds", "wronged", "sex", "emoreg"]
 
 // The demographics open the run's first three levels, one apiece and in this
 // order, whatever those levels hold, so that every run asks them at the same

@@ -199,8 +199,10 @@ defineBlock("wronged", [
     // "very characteristic"; asked here on the level's agreement anchors
     // instead, so that the three agreement questionnaires of the level read
     // alike, which makes it an adapted HSNS and never pooled with its data as
-    // the same items. Keyed `HSNS_<published number>`, padded, since the
-    // scale's ten reach ten. Plain name Thin Skin, documented here against
+    // the same items. Keyed `HSNS_VulnerableNarcissism_<published number>`,
+    // the construct in the key so that a saved file says what the items
+    // measure without the comment beside them, and the number padded, since
+    // the scale's ten reach ten. Plain name Thin Skin, documented here against
     // the construct, the two registers' rule; no norms, so fed back nowhere
     // yet — and if it ever is, never as "more narcissistic than…".
     {
@@ -214,10 +216,10 @@ defineBlock("wronged", [
             color: WRONGED_COLOUR,
         },
         items: [
-            { key: "HSNS_02", dimension: "Thin Skin", text: "My feelings are easily hurt by ridicule or the slighting remarks of others" },
-            { key: "HSNS_07", dimension: "Thin Skin", text: "I often interpret the remarks of others in a personal way" },
-            { key: "HSNS_10", dimension: "Thin Skin", text: "I am secretly annoyed when other people come to me with their troubles, asking me for my time and sympathy" },
-            { key: "HSNS_04", dimension: "Thin Skin", text: "I dislike sharing the credit of an achievement with others" },
+            { key: "HSNS_VulnerableNarcissism_02", dimension: "Thin Skin", text: "My feelings are easily hurt by ridicule or the slighting remarks of others" },
+            { key: "HSNS_VulnerableNarcissism_07", dimension: "Thin Skin", text: "I often interpret the remarks of others in a personal way" },
+            { key: "HSNS_VulnerableNarcissism_10", dimension: "Thin Skin", text: "I am secretly annoyed when other people come to me with their troubles, asking me for my time and sympathy" },
+            { key: "HSNS_VulnerableNarcissism_04", dimension: "Thin Skin", text: "I dislike sharing the credit of an achievement with others" },
         ],
     },
 ])

@@ -615,19 +615,56 @@ if (nrow(table)) {
 ```{r}
 #| label: totals
 
+# A part is named for the timeline and the content it was timed on, so that a
+# later battery, or a core whose levels change, is a row of its own rather than
+# the same name meaning something else. Raise it with the content.
+CORE_LABEL <- "Mint Core 1.0"
+CORE_BATTERY <- "mint"
+CORE_VERSION <- "1." # the app versions a part's runs may come from (a prefix)
+
+# How long the part took each run that answered all of it, answering only (no
+# results screens, no interlude): the sum of its levels' times, and only from
+# runs of the battery and version the label names, none of whose levels was a
+# break. The spread across runs is what the sum of medians cannot say.
+QUANTILES <- c(0.1, 0.9)
+span_of <- function(keys) {
+  ok <- done[done$level %in% keys, ]
+  runs <- wide$file[wide$battery %in% CORE_BATTERY & startsWith(ifelse(is.na(wide$version), "", wide$version), CORE_VERSION)]
+  per <- vapply(runs, function(one) {
+    mine <- ok[ok$file == one, ]
+    if (!all(keys %in% mine$level) || any(mine$minutes > BREAK)) NA_real_ else sum(mine$minutes)
+  }, 0)
+  per <- per[!is.na(per)]
+  if (length(per) < 2) return(if (length(per)) sprintf("%.1f (n = 1)", per) else NA_character_)
+  q <- stats::quantile(per, QUANTILES, names = FALSE)
+  sprintf("%.1f to %.1f (n = %d)", q[1], q[2], length(per))
+}
+
 if (nrow(table)) {
   totals <- subtotal("Total", table$level %in% level_keys)
-  if (core_here) totals <- rbind(subtotal("Core", table$level %in% core_keys), totals)
+  totals$spread <- span_of(level_keys)
+  if (core_here) {
+    core <- subtotal(CORE_LABEL, table$level %in% core_keys)
+    core$spread <- span_of(core_keys)
+    totals <- rbind(core, totals)
+  }
+  totals$closed <- NULL
   gt::gt(totals) |>
     gt::fmt_markdown(columns = "Level") |>
     gt::fmt_number(columns = "median", decimals = 1) |>
     gt::fmt_number(columns = "median_read", decimals = 1) |>
     gt::sub_missing(missing_text = "") |>
-    gt::cols_label(Level = "", median = "median (min)", median_read = "median (min)", closed = "closed on it") |>
-    gt::tab_spanner("Answering", columns = "median") |>
-    gt::tab_spanner("Results screen", columns = c("median_read", "closed")) |>
+    gt::cols_label(Level = "", median = "sum of medians (min)",
+                   spread = sprintf("per run, q%d to q%d (min)", 100 * QUANTILES[1], 100 * QUANTILES[2]),
+                   median_read = "sum of medians (min)") |>
+    gt::cols_move(columns = "spread", after = "median") |>
+    gt::tab_spanner("Answering", columns = c("median", "spread")) |>
+    gt::tab_spanner("Results screen", columns = "median_read") |>
     gt::cols_align("right", columns = -Level) |>
-    gt::tab_source_note("The levels' medians added up, over the levels timed so far that the test still asks.") |>
+    gt::tab_source_note(paste0("Sum of medians: the levels' medians added up, over the levels timed so far that the test still asks. ",
+                               sprintf("Per run: the time answering the whole part, levels added up, in runs of `%s` on version %sx ", CORE_BATTERY, CORE_VERSION),
+                               "that finished every level of it with no break, its ", 100 * QUANTILES[1], "th to ", 100 * QUANTILES[2],
+                               "th percentile across those runs.")) |>
     gt::tab_options(table.font.size = gt::px(14), data_row.padding = gt::px(4))
 }
 ```

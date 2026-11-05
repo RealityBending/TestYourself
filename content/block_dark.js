@@ -325,7 +325,8 @@
    `Deed_<Name>` and `GoodDeed_<Name>` (below),
    `SD4_AttentionCheck`; and, in the fourth block, `Victim_<Name>` (pairing
    with the `Deed_<Name>` it mirrors), `Victimhood_<Face>_<Word>` and
-   `HSNS_<published number>` (THE FOURTH BLOCK). Dimensions carry the plain
+   `HSNS_VulnerableNarcissism_<published number>` (THE FOURTH BLOCK).
+   Dimensions carry the plain
    names (Cunning, Pride, Recklessness, Cruelty; Coldness; Boldness;
    Scruples, for guilt-proneness; Lying
    Ability, Lying Frequency, Lying Negativity, Lying Contextuality; Wrongs
@@ -816,7 +817,8 @@
         FROM MEMORY, TO BE CHECKED, the item numbers with them. ω ≈ .6 at
         four (WHAT WAS CUT), the price of the budget; the FFNI-SSF's
         neuroticism items are the alternative if the four do not hold. Keyed
-        `HSNS_<published number>`, padded, since the ten reach ten. Plain
+        `HSNS_VulnerableNarcissism_<published number>`, the construct named
+        in the key, padded, since the ten reach ten. Plain
         name: Thin Skin. It goes here and not in `sd4` because the SD4's
         narcissism is the grandiose kind (Pride) and a dimension is one name
         across the run (AGENTS.md), and because its register — hurt,

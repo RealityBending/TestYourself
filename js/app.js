@@ -13,8 +13,9 @@
     // Questionnaires that get a spider chart of their own. The FIPI is not
     // among them: only two of its five dimensions carry norms, and a spider
     // wants three axes, so it reads back as two rows; nor are the `regulation`
-    // block's three, which are read back together as the two heads.
-    const CHARTS = ["hexaco18", "hitopbr"]
+    // block's three, which are read back together as the two heads. The
+    // `emoreg` block's two have no figure of their own and read back this way.
+    const CHARTS = ["hexaco18", "hitopbr", "ders16", "ress"]
     const ADVANCE_DELAY = 330 // ms between answering and the next item
     const TURN = 180 // ms of that spent fading the answered item out
 
@@ -3753,8 +3754,8 @@
 
     // Every level there is to take, for the dashboard's tiles: `all`'s, which
     // is everything but the levels a link alone reaches (ASIDE: the Hyborian
-    // hero, Light & Dark and Sexuality, met only by a link that names them,
-    // `?start=`) and the closing. The levels outside its fork first
+    // hero, Light & Dark, Sexuality and Storm & Calm, met only by a link that
+    // names them, `?start=`) and the closing. The levels outside its fork first
     // (General), then the rest by name, the same on every load, the
     // timeline's own order being drawn. Each with its picture (`preview`):
     // the README's, the level's results at stand-in scores (assets/readme/,
