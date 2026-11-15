@@ -236,9 +236,26 @@ for (const key of run) {
     }
 }
 
+// The levels no battery asks (`ASIDE`), which a link naming one brings in
+// (`?start=dark`), so that a deposit holds their answers though nothing above
+// describes them. Not walked and not numbered, a `mint` run never meeting
+// them, but named, with every key they record, so that a reader of the answers
+// can tell an item asked off `mint` from one the test no longer asks.
+const isAside = (name) => content.ASIDE.indexOf(name) !== -1
+const aside = []
+for (const entry of Object.values(content.BATTERIES).flat()) {
+    if (entry.interlude || !entry.blocks.some(isAside) || aside.some((one) => one.key === entry.key)) continue
+    const blocks = entry.blocks.filter(isAside)
+    const keys = blocks.flatMap((name) => {
+        if (!content.BLOCKS[name]) throw new Error("timeline.js asks for a block that is not defined: " + name)
+        return content.BLOCKS[name].flatMap((one) => (one.type === "briefing" ? [one.key] : one.items.map((item) => item.key)))
+    })
+    aside.push({ key: entry.key, name: entry.name, blocks: blocks, keys: keys })
+}
+
 process.stdout.write(
     JSON.stringify(
-        { version: version, formatMint: content.formatMint, levels: levels, run: run, questionnaires: questionnaires, items: items },
+        { version: version, formatMint: content.formatMint, levels: levels, run: run, questionnaires: questionnaires, items: items, aside: aside },
         null,
         2,
     ),

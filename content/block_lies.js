@@ -1,121 +1,89 @@
 /* ==========================================================================
-   content/block_lies.js — the lying of the Light & Dark level: Serota's lie
-   count and the LPQ (November 2026). One of the level's three blocks, with
-   `dark` (the briefing, and the level's notes at the head of
-   content/block_dark.js) and `deeds` (content/block_deeds.js). This one and
-   the deeds are asked in an order drawn for each run (content/timeline.js),
-   so nothing here may assume the deeds have or have not been asked, and the
-   three come and go together (HELD_TOGETHER). A name in capitals in
-   brackets — THE PLAN, RESULTS, WHAT WAS CUT — is a section of the head of
-   content/block_dark.js.
+   content/block_lies.js — TRUTH & LIES, a level of its own (`Lies` on the
+   timeline, November 2026) and this one block: a briefing and the LPQ
+   whole, with eight items of our own on other people's lies dealt into it,
+   closing on the chameleon
+   (js/figures/chameleon.js). ASKED BY NO BATTERY, like the level it came
+   out of: it is in ASIDE, so a run meets it only through `?start=lies`,
+   which walks it first.
+
+   IT WAS A BLOCK OF LIGHT & DARK until November 2026, drawn against the
+   deeds so that neither was always met first. Two things took it out. The
+   level had grown to 89 screens against a planned ~40, and a pilot found it
+   long; and of those 89 only the 24 deeds were read back at the end, so the
+   18 screens of lying were unpaid work on a test whose whole bargain is
+   that a level ends in something about you. Split, each level ends in a
+   figure of its own and neither is long. What it costs: the two are no
+   longer one link. `?start=dark` asks the deeds and `?start=lies` the
+   lying, a study that wants both says `?start=dark,lies`, and the student
+   battery (WHERE IT GOES) names both levels.
+
+   The level's notes are still at the head of content/block_dark.js, where
+   the measure was planned: a name in capitals in brackets — THE PLAN,
+   RESULTS, WHAT WAS CUT — is a section of that header. What is written
+   there as the mask is drawn here as the chameleon instead.
    ========================================================================== */
 
-// The level's red, the wrongs' grid's (DEED_COLOUR in block_deeds.js),
-// written again under a name of its own: a block file reads the timeline's
-// globals and nothing of another block's, and two files declaring one
-// `const` would stop the page loading.
-const LIE_COLOUR = "#b23a3a"
+// Light & Dark's ochre, kept for a level that came out of it (DEED_COLOUR in
+// block_deeds.js, where why it is no longer red is written): the two are
+// sister levels and read as a pair, and this is the one constant to change
+// if Truth & Lies ever wants a colour of its own — a green would be the
+// obvious one and is exactly what the chameleon's own scene is drawn in,
+// which is why it is not. Written out again rather than borrowed: a block
+// file reads the timeline's globals and nothing of another block's, and two
+// files declaring one `const` would stop the page loading.
+const LIE_COLOUR = "#b2793a"
 
 defineBlock("lies", [
-    // SEROTA'S LIE COUNT, the first thing this block asks: one typed
-    // number, the lies told in the past day — how often a person lies as a
-    // behaviour, where the LPQ's items after it (`lpq`) ask how well, as a
-    // self-description. It is the one-item daily measure of Serota,
-    // Levine & Docan-Morgan (2021, Communication Monographs; the follow-up to
-    // Serota, Levine & Boster, 2010), checked against the paper (November
-    // 2026). Their participants read a paragraph first — "Most people think a
-    // lie occurs any time you intentionally try to mislead someone. Some lies
-    // are big while others are small; some are completely false statements
-    // and others are truths with a few essential details made up or left
-    // out…", lies told for a good reason, selfish lies and lies that protect
-    // others, then "Think about where you were and what you were doing during
-    // the past 24 h, from this time yesterday until right now" and who they
-    // might have lied to and how — and then answered "In the past 24 h, how
-    // many times have you lied? Write in one number for your total lies. If
-    // you told no lies, write in "0"." Here the recall cue is the lead-in, the
-    // question is theirs with the hours written out, and the definition and
-    // the who-and-how are cut to the gloss under it, a paragraph read before a
-    // single number being a briefing's length on an item's screen; so it is
-    // adapted, and never pooled with their data as the same item.
+    // The level's own briefing (November 2026, when the lying became a level
+    // rather than a stretch of Light & Dark's). It opens on everybody lies,
+    // which is a fact (Serota's people average between one and two a day) and
+    // is there to do the work normalising does on a sensitive measure: the
+    // under-reporting this level has most to fear from is somebody who thinks
+    // admitting to a lie is admitting to something. It then names the four
+    // things asked — how often, how well, what it costs, when it depends —
+    // which are the LPQ's four subscales, and then what you make of other
+    // people's lies (the eight detection and prevalence items dealt into it).
+    // The chameleon draws the first three (as how often, how well and how it
+    // feels) and none of the rest (js/figures/chameleon.js says why of the
+    // fourth).
     //
-    // First in its block, so that the LPQ's sixteen statements about lying do
-    // not colour a recall of the last day. The deeds are another matter:
-    // twenty-four grids about things ever done, three of them lies, could
-    // prompt a count of more or of fewer, and this block and the deeds come in
-    // an order drawn for each run (content/timeline.js), so half the runs
-    // count before the deeds and half after, and the saved file's `levels`
-    // says which — whether it moves the count is a question the data can
-    // answer, where a fixed order would have hidden it. What to expect, from
-    // 1,000 American adults (Serota et al., 2010): a mean of 1.65 lies a day,
-    // 59.9% telling none and half of all the lies told by 5.3% of people — a
-    // long tail, which is why it is a count and not a scale. No dimension yet:
-    // it is the frequency half of the mask (THE PLAN, RESULTS) and is read by
-    // nothing until the mask is drawn. The cap is a guard against a slip of
-    // the keyboard and no more.
+    // THE PRIVACY PARAGRAPH is the one Briefing_Dark and Briefing_Sexuality
+    // carry, word for word: a change to one wants making in all three. It is
+    // here because a level a link can open on is a level somebody may meet
+    // with nothing in front of it, and this one asks them about their own
+    // lies. As in the other two it DOES NOT SAY THE COMMITTEE HAS APPROVED
+    // THIS, because it has not: the level is not in the ethics application.
+    //
+    // It says nowhere where in the run it falls, and nothing about the deeds:
+    // Light & Dark may not be in this run at all.
     {
-        key: "liecount",
-        name: "Lies Told",
-        instructions: "Think about where you were and what you were doing in the past 24 hours, from this time yesterday until now",
-        items: [
-            {
-                key: "Lie_Count",
-                text:
-                    "In the past 24 hours, how many times have you lied?<br /><br />" +
-                    "<small>A lie is any time you intentionally try to mislead someone: big or small, a false statement or a truth with details made up or left out, told for a good reason or a selfish one. Count every one, whoever it was told to and however, face to face, in writing, by phone or online. If you told none, write 0.</small>",
-                format: {
-                    input: "number",
-                    min: 0,
-                    max: 200,
-                    placeholder: "Number of lies",
-                    tooHigh: "Please write a number from 0 to 200",
-                    color: LIE_COLOUR,
-                },
-            },
-
-            // THE WHITE LIES (November 2026): of the lies just counted, how
-            // many were told for the other person — to spare their feelings,
-            // to be polite, to avoid a fuss — rather than for one's own
-            // benefit. DePaulo, Kashy, Kirkendol, Wyer and Epstein (1996,
-            // JPSP 70, 979-995) found about a quarter of everyday lies
-            // other-oriented, and that is the split the count alone cannot
-            // make: a kind person who tells white lies all day and a
-            // manipulator give the same number. Asked only after a count
-            // above nought (`showIf` on every number the field can take),
-            // worded from the count so that it reads as one question in two
-            // parts, the one-lie case asked as 1 or 0. Capped at 200 like
-            // the count, since the field's bound cannot follow an answer; an
-            // answer above the count is impossible and is read back at
-            // analysis time (capped to it, or the pair dropped). Scored
-            // nowhere; the mask reads the count (THE PLAN). Keyed under
-            // `Lie_`, the block's rule, and after `Lie_Count`, whose
-            // follow-up it is.
-            {
-                key: "Lie_Count_ForOthers",
-                showIf: { key: "Lie_Count", is: Array.from({ length: 200 }, (_, i) => i + 1) },
-                text: (answer) => {
-                    const count = answer("Lie_Count")
-                    return count === 1
-                        ? "Was that one lie told for the other person's sake, to spare their feelings, to be polite or to avoid a fuss, rather than for your own benefit?<br /><br /><small>Write 1 if it was and 0 if it was not.</small>"
-                        : "Of those " + count + " lies, how many were told for the other person's sake, to spare their feelings, to be polite or to avoid a fuss, rather than for your own benefit?"
-                },
-                format: {
-                    input: "number",
-                    min: 0,
-                    max: 200,
-                    placeholder: "Number of lies",
-                    tooHigh: "Please write a number from 0 to 200",
-                    color: LIE_COLOUR,
-                },
-            },
-        ],
+        type: "briefing",
+        key: "Briefing_Lies",
+        text:
+            "<h2>Everybody lies.</h2>" +
+            "<p>Most people tell one or two lies on an ordinary day and think little of them. A few tell a great many, a few go to real lengths not to, and most of us are better at it than we care to admit. What follows asks how often you lie, how well, what it costs you, when you think it depends and what you make of other people's lies. By a lie we mean any time you intentionally try to mislead someone: big or small, an outright falsehood or a truth with details made up or left out, told for a good reason or a selfish one.</p>" +
+            "<p>A reminder on privacy before you go on. Your answers are anonymous: nothing in them identifies you, they are analysed together with everybody else's and never on their own, and anything that could be traced back to you is removed. It is vital for us that you feel comfortable answering truthfully, and the way your answers are kept has been carefully designed for that.</p>" +
+            "<p><em>Answer for what you actually do, not for what you would like to be true. At the end you will see the colours you wear.</em></p>",
     },
 
-    // THE LPQ, straight after the count: the Lying Profile Questionnaire
+    // THE LIE COUNT IS GONE (November 2026). The block opened on Serota's
+    // one-item daily measure, "In the past 24 hours, how many times have you
+    // lied?" (`Lie_Count`, a typed number; Serota, Levine & Docan-Morgan,
+    // 2021), with a follow-up on whether that was fewer or more than on most
+    // days (`Lie_Count_Usual`), read back as a crowd over the chameleon. Cut
+    // as capturing nothing meaningful about a person: one day is a sample of
+    // one, some 60% answer nought, what counts as a lie is each reader's own
+    // call, and the LPQ's Frequency asks the same thing as a tendency. What
+    // the finding is about is the population's long tail, not anybody's
+    // place in it. Files from before then carry both keys.
+
+    // THE LPQ, straight after the briefing: the Lying Profile Questionnaire
     // (Makowski, Pham, Lau, Raine & Chen, 2023, Current Psychology 42,
     // 4001-4016; online 2021), all sixteen items in its four subscales of
     // four — Ability, how well a person lies, the skill half of the mask
-    // (THE PLAN, RESULTS); Frequency, how often, as a self-description, to
-    // set beside the count's behaviour over a day; Negativity, reluctance to
+    // (THE PLAN, RESULTS); Frequency, how often, as a
+    // self-description; Negativity, reluctance to
     // lie on moral or emotional grounds; and Contextuality, lying as right or
     // wrong by the situation. Verbatim from the instructions and items the lab
     // keeps beside the paper (Deception_Scale_LIE.docx in
@@ -125,20 +93,22 @@ defineBlock("lies", [
     // items in any order, a dimension the mean of its four and none reversed
     // — so a slider over 1 to 10 with no number on it, the MINT's slider
     // (`reading: false`), the sixteen shuffled together. Its instructions
-    // there are the definition of a lie the count's gloss has just given
-    // (Serota's, which the LPQ's were written from) and a word on anonymity
-    // the briefing gives, so the lead-in is only the question the scale
-    // answers. Ability alone was asked until November 2026 (the plan's
-    // budget; WHAT WAS CUT); whole, the published LPQ is scored as published
-    // and its Frequency can be checked against the count.
+    // there are a definition of a lie (written from Serota's) and a word on
+    // anonymity the briefing gives, so the lead-in is only the question the
+    // scale answers. THE DEFINITION IS IN THE BRIEFING, its last sentence of
+    // the first paragraph, since the lie count, whose gloss carried it, was
+    // cut (November 2026): said once at the head of the level, as the
+    // published LPQ says it once in its instructions. Ability alone was
+    // asked until November 2026 (the plan's budget; WHAT WAS CUT); whole, the
+    // published LPQ is scored as published.
     //
-    // No norms, so nothing on screen reads it yet: the paper's means are of
-    // a Singaporean sample on this scale, and the mask, which is what will
-    // read Ability, places the two halves against their own midpoints rather
-    // than against other people (the heads' rule). No way out either, the
-    // published scale having none.
+    // No norms: the paper's means are of a Singaporean sample on this
+    // scale, and the chameleon, which is what reads it back, draws a scale
+    // as a reach along itself and places Ability and Frequency against their
+    // own midpoints rather than against other people (the heads' rule). No
+    // way out either, the published scale having none.
     //
-    // Keyed `Lie_` with the count rather than `LPQ_`, so that everything the
+    // Keyed `Lie_` rather than `LPQ_`, so that everything the
     // level asks about lying sorts together in a saved file and `^Lie_` finds
     // it; the subscale is the second segment and the last counts within it,
     // the published item number in a comment beside each (Ability's are the
@@ -175,6 +145,49 @@ defineBlock("lies", [
             { key: "Lie_Contextuality_2", dimension: "Lying Contextuality", text: "I lie when necessary" }, // LPQ 14
             { key: "Lie_Contextuality_3", dimension: "Lying Contextuality", text: "It is acceptable to lie depending on the context" }, // LPQ 15
             { key: "Lie_Contextuality_4", dimension: "Lying Contextuality", text: "I would lie if something important was at stake" }, // LPQ 16
+
+            // LIE DETECTION, four CUSTOM items (November 2026) dealt in among
+            // the LPQ's sixteen, the KSE-G's way among the HEXACO's, written
+            // in its style as an extension of it: how well a person thinks
+            // they catch other people's lies. NOT LPQ items, and never pooled
+            // with LPQ data as such. Each mirrors the Ability item of its
+            // number, quoted beside it, so that the two can be set side by
+            // side — whether good liars take themselves for good detectors,
+            // as measured the two skills go together (Wright, Berry & Bird,
+            // 2012) — at the price of the shared wording inflating that
+            // correlation somewhat. Self-rated detection is close to
+            // unrelated to accuracy (DePaulo et al., 1997; people catch about
+            // 54% of lies, Bond & DePaulo, 2006), so this is a belief and not
+            // a skill, and it goes with distrust (Fernandes et al., 2023),
+            // which Lie Prevalence, below, helps to tell apart from it.
+            // Scored as Lie Detection, the mean of four and none reversed,
+            // the LPQ's way; no norms, and drawn nowhere, the chameleon
+            // reading three of the LPQ's own.
+            { key: "Lie_Detection_1", dimension: "Lie Detection", text: "I can tell when someone is lying to me" }, // "I can lie well"
+            { key: "Lie_Detection_2", dimension: "Lie Detection", text: "I am good at spotting lies" }, // "I am a good liar"
+            { key: "Lie_Detection_3", dimension: "Lie Detection", text: "It is hard for others to fool me with a lie" }, // "It is hard for others to detect my lies"
+            { key: "Lie_Detection_4", dimension: "Lie Detection", text: "I can see through even clever lies" }, // "It is easy for me to make up clever lies"
+
+            // LIE PREVALENCE, four more CUSTOM items (November 2026), dealt
+            // in the same way: how much a person thinks other people lie.
+            // Each mirrors the Frequency item of its number, quoted beside
+            // it, as Detection mirrors Ability, so that the eight are the LPQ
+            // turned outwards — how well I catch lies against how well I tell
+            // them, how much others lie against how much I do — and false
+            // consensus can be asked directly: whether people who lie more
+            // take everybody else to lie more too (Lying Frequency
+            // against this). About how often ordinary people lie, never
+            // their motives ("Most people would lie to me if it served them"
+            // was weighed and left, being the Cook-Medley cynicism Grievance
+            // borrows from on Light & Dark) and never institutions, the CMQ's
+            // ground on Where You Stand. "Most people" rather than "I", so
+            // they stand out a little among the LPQ's first-person
+            // statements. Scored as Lie Prevalence, the mean of four and none
+            // reversed, the LPQ's way; no norms, and drawn nowhere.
+            { key: "Lie_Prevalence_1", dimension: "Lie Prevalence", text: "Most people have a tendency to lie" }, // "I have a tendency to lie"
+            { key: "Lie_Prevalence_2", dimension: "Lie Prevalence", text: "Most people lie more often than they admit" }, // "I lie more often than most people do"
+            { key: "Lie_Prevalence_3", dimension: "Lie Prevalence", text: "Most people find it hard not to lie" }, // "I find it difficult to refrain myself from lying"
+            { key: "Lie_Prevalence_4", dimension: "Lie Prevalence", text: "Most people lie a lot" }, // "I lie frequently"
         ],
     },
 ])

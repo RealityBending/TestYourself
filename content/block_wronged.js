@@ -32,16 +32,17 @@ const WRONGED_COLOUR = "#8a5a9e"
 
 // The three answers to a wrong received and the way out. The deeds split the
 // never into a willing and an unwilling one; there is no such split in being
-// hit, so three steps and nothing hypothetical. Once and more than once are
-// each worth 1 to the count (`score`), the deeds' rule (Once or More than
-// once is done), so the dimension is the share of the wrongs received and
+// hit, so three steps and nothing hypothetical. The two steps above Never are
+// each worth 1 to the count (`score`), the deeds' rule, and are worded as the
+// deeds' own columns are, so that a wrong received and the wrong done it
+// mirrors are answered on one scale. So the dimension is the share of the wrongs received and
 // its value stays in the words for the analysis. "I'd rather not say" is
 // declined, the deeds' and the kinks' way: left out of the count rather than
 // counted as a no.
 const VICTIM_OPTIONS = [
     { value: 0, text: "Never", score: 0 },
-    { value: 1, text: "Once", score: 1 },
-    { value: 2, text: "More than once", score: 1 },
+    { value: 1, text: "Once or twice", score: 1 },
+    { value: 2, text: "Many times", score: 1 },
     { value: 98, text: "I'd rather not say", small: true, declined: true },
 ]
 

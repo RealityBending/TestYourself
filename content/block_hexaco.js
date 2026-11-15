@@ -204,9 +204,15 @@ defineBlock("hexaco", [
         // Emotional Stability — that this fills in; its other three norms are
         // commented out there rather than here.
         // PLACEHOLDER norms, invented. Not from any published sample.
+        // Each domain carries a `color` of its own, which only the level's own
+        // chart and the rows under it read (`hueOf` in results.js): six steps
+        // from sky through the questionnaire's fuchsia to coral, so that a point
+        // on the web and its row are one colour. The whole-run web keeps the
+        // questionnaire's, where a colour says which level an axis came from.
         norms: {
             "Honesty-Humility": {
                 key: "HonestyHumility",
+                color: "#4cc3ff",
                 mean: 3.6,
                 sd: 0.7,
                 interpretations: {
@@ -217,6 +223,7 @@ defineBlock("hexaco", [
             },
             "Emotionality": {
                 key: "Emotionality",
+                color: "#7c8cff",
                 mean: 3.2,
                 sd: 0.7,
                 interpretations: {
@@ -227,6 +234,7 @@ defineBlock("hexaco", [
             },
             "Sociability": {
                 key: "Sociability",
+                color: "#b26bff",
                 mean: 3.3,
                 sd: 0.7,
                 interpretations: {
@@ -237,6 +245,7 @@ defineBlock("hexaco", [
             },
             "Patience": {
                 key: "Patience",
+                color: "#e24fd8",
                 mean: 3.1,
                 sd: 0.6,
                 interpretations: {
@@ -247,6 +256,7 @@ defineBlock("hexaco", [
             },
             "Diligence": {
                 key: "Diligence",
+                color: "#ff5c9a",
                 mean: 3.5,
                 sd: 0.7,
                 interpretations: {
@@ -257,6 +267,7 @@ defineBlock("hexaco", [
             },
             "Curiosity": {
                 key: "Curiosity",
+                color: "#ff7a59",
                 mean: 3.5,
                 sd: 0.7,
                 interpretations: {

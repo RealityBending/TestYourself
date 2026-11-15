@@ -38,18 +38,19 @@
    with the published keys.
    ========================================================================== */
 defineBlock("emoreg", [
-    // Says nowhere where in the run it falls. The last line is the RESS's
+    // Says nowhere where in the run it falls. The last sentence is the RESS's
     // own instruction, which asks for what is done rather than what ought to
     // be, said once here rather than over each of its items.
     {
         type: "briefing",
         key: "Briefing_EmoReg",
         text:
-            "<h2>When feelings run high.</h2>" +
-            "<p>Everybody has bad moments: anger, sadness, stress, fear. This part is about what happens next — how well " +
-            "you can tell what you are feeling, how much it throws you and what you do to bring it back down.</p>" +
-            "<p>People handle hard feelings in very different ways, and most use several. There are no right answers.</p>" +
-            "<p><em>Answer for what you actually do, not for what you think you should do or wish you did.</em></p>",
+            "<h2>When feelings take hold.</h2>" +
+            "<p>Everybody experiences negative emotions: anger, sadness, stress, fear. How people recognise them, the ways " +
+            "in which they deal with them and the effect they have on one's life all depend on the person.</p>" +
+            "<p>Difficult feelings affect people in many different ways, and there is no single 'right' way to handle " +
+            "them. <em>Answer these questions for how you actually feel and deal with emotions, not for what you " +
+            "believe you should do or wish you did.</em></p>",
     },
 
     // DERS-16 ==============================================================

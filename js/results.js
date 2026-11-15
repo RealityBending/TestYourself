@@ -69,6 +69,15 @@ function makeResults(engine) {
         return known(dimension) ? dimensions[dimension][0].color : undefined
     }
 
+    // A dimension's own colour, where its norms carry one, and otherwise its
+    // questionnaire's. Read only where one questionnaire's dimensions are
+    // told apart from each other — its level's own chart and the rows under
+    // it — and not where a colour says which questionnaire an axis came from.
+    function hueOf(dimension) {
+        const norm = known(dimension) && normOf(dimension)
+        return (norm && norm.color) || colourOf(dimension)
+    }
+
     // How far along its own scale a value sits, as a share.
     function reachOf(dimension, value) {
         const question = dimensions[dimension][0]
@@ -378,6 +387,7 @@ function makeResults(engine) {
     const volcano = makeVolcano(shared)
     const hyborian = makeHyborian(shared)
     const balance = makeBalance(shared)
+    const chameleon = makeChameleon(shared)
 
     // The climb is one section for two questionnaires, rendered where the
     // first of them falls in the run and skipped where the other would; the
@@ -413,6 +423,12 @@ function makeResults(engine) {
     // The average person stands at the middle of every axis that has a norm.
     const AVERAGE_ON_WEB = outward(0.5)
 
+    // How long a level's own chart takes to grow out of the average, in
+    // milliseconds, and a count of the webs drawn: a web's gradients are
+    // found by id, and several webs share a page.
+    const GROWS = 1100
+    let webs = 0
+
     // The questionnaires drawn on one web with `name` (an entry of `CHARTS`,
     // which may be one name or a list), as many of them as this run asks, or
     // nothing where `name` gets no web.
@@ -424,8 +440,14 @@ function makeResults(engine) {
     // Grows to `many` when it carries the whole profile; drawn as a `tease`, it
     // stands in for results not yet unlocked. `split` fills the shape in the
     // colour of each run of axes that share one, rather than in one colour
-    // for the lot: a web carrying two questionnaires, one on each side.
-    function drawSpider(chart, list, tease, split) {
+    // for the lot: a web carrying two questionnaires, one on each side. `own`
+    // is a level's chart of one questionnaire, which is read closely rather
+    // than at a glance and is drawn to be: each dimension in a hue of its own
+    // (`hueOf`), the outline running from one hue to the next, what stands
+    // outside the average lit more than what stands inside it, and the shape
+    // growing out of the average person's as it arrives.
+    function drawSpider(chart, list, tease, split, own) {
+        const id = "web" + ++webs
         const many = list.length > 8
         const centreX = many ? 280 : 200
         const centreY = many ? 200 : 150
@@ -447,7 +469,17 @@ function makeResults(engine) {
         // own, and drawing into it a second time must not take that off it.
         chart.classList.add("chart__web")
         chart.classList.toggle("chart__web--many", many)
+        chart.classList.toggle("chart__web--own", !!own)
         chart.innerHTML = ""
+
+        const hue = (dimension) => (own && hueOf(dimension)) || dimensions[dimension][0].color
+        const marks = {}
+
+        // The middle third of people, between the two inner rings, faintly
+        // filled: the rings are the terciles a reading is picked by, and the
+        // band is where "about as much as most people" lives.
+        const ringAt = (share) => "M" + list.map((_, position) => pointAt(position, radius * outward(share)).join(" ")).join("L") + "Z"
+        chart.appendChild(draw("path", { class: "chart__band", d: ringAt(2 / 3) + ringAt(1 / 3), "fill-rule": "evenodd" }))
 
         for (let ring = 1; ring <= 3; ring++) {
             const corners = list.map((_, position) => pointAt(position, radius * outward(ring / 3)).join(","))
@@ -476,6 +508,7 @@ function makeResults(engine) {
             const value = tease ? teaseValue(dimension) : score(dimension)
             const label = draw("text", {
                 class: "chart__label" + (value === undefined ? " chart__label--awaiting" : ""),
+                style: "--chart: " + hue(dimension),
                 x: labelX,
                 y: labelY,
                 "text-anchor": Math.abs(labelX - centreX) < 8 ? "middle" : labelX > centreX ? "start" : "end",
@@ -492,7 +525,16 @@ function makeResults(engine) {
             if (normOf(dimension)) average.push({ position: position, spot: pointAt(position, AVERAGE_ON_WEB * radius) })
 
             if (value === undefined) return
-            found.push({ dimension: dimension, position: position, spot: pointAt(position, onWeb(dimension, value, tease) * radius), colour: dimensions[dimension][0].color })
+            marks[dimension] = { label: label }
+            found.push({
+                dimension: dimension,
+                position: position,
+                spot: pointAt(position, onWeb(dimension, value, tease) * radius),
+                // The questionnaire's colour, which is what a split web's
+                // sides are told apart by, and the point's own beside it.
+                colour: dimensions[dimension][0].color,
+                hue: hue(dimension),
+            })
         })
 
         // The average person, dashed, under everything else: closed when there
@@ -518,6 +560,8 @@ function makeResults(engine) {
         // Complete, the shape closes; partial, only neighbours are joined, so a
         // locked dimension leaves a gap rather than a line across the middle.
         const shape = "--chart: " + (single ? found[0] && found[0].colour : "var(--accent)")
+        // What follows the points when they move (see the growing, below).
+        const moved = []
         const sides = split && !single && found.length === list.length && list.length > 2 ? sidesOf(found) : null
         if (sides) {
             // Cut along the ray halfway between the two axes where the colour
@@ -548,7 +592,66 @@ function makeResults(engine) {
                 chart.appendChild(draw("polyline", { class: "chart__rim", points: rim.join(" "), style: style }))
             }
         } else if (found.length === list.length && list.length > 2) {
-            chart.appendChild(draw("polygon", { class: "chart__area", points: found.map((one) => one.spot.join(",")).join(" "), style: shape }))
+            // Filled from faint at the centre to full at the rim, so the
+            // shape has a depth to it; the gradient carries the colour, a
+            // stop reading nothing off the shape it fills.
+            const defs = chart.appendChild(draw("defs", {}))
+            const depth = defs.appendChild(
+                draw("radialGradient", { id: id + "-depth", gradientUnits: "userSpaceOnUse", cx: centreX, cy: centreY, r: radius, style: shape }),
+            )
+            depth.appendChild(draw("stop", { class: "chart__depth chart__depth--in", offset: 0.08 }))
+            depth.appendChild(draw("stop", { class: "chart__depth chart__depth--out", offset: 1 }))
+
+            const cornersOf = (spots) => spots.map((spot) => spot.join(",")).join(" ")
+            const filled = shape + "; fill: url(#" + id + "-depth)"
+            const lit = own && average.length === list.length
+            const area = chart.appendChild(
+                draw("polygon", { class: "chart__area chart__area--deep" + (own ? " chart__area--edged" : ""), points: cornersOf(found.map((one) => one.spot)), style: filled }),
+            )
+            moved.push((spots) => area.setAttribute("points", cornersOf(spots)))
+
+            // The same shape again, over the first, wherever it stands
+            // outside the average person's: that is the part that is the
+            // person's own, and it is the part that is lit.
+            if (lit) {
+                const outside = defs.appendChild(draw("clipPath", { id: id + "-outside" }))
+                outside.appendChild(
+                    draw("path", {
+                        d: "M-50 -50H700V500H-50Z M" + average.map((one) => one.spot.join(" ")).join("L") + "Z",
+                        "clip-rule": "evenodd",
+                    }),
+                )
+                const over = chart.appendChild(
+                    draw("polygon", {
+                        class: "chart__area chart__area--deep chart__area--over",
+                        points: cornersOf(found.map((one) => one.spot)),
+                        style: filled,
+                        "clip-path": "url(#" + id + "-outside)",
+                    }),
+                )
+                moved.push((spots) => over.setAttribute("points", cornersOf(spots)))
+            }
+
+            // The outline as an edge apiece, each running from the hue of
+            // the point it leaves to the hue of the one it reaches.
+            if (own) {
+                found.forEach((one, at) => {
+                    const next = found[(at + 1) % found.length]
+                    const run = defs.appendChild(draw("linearGradient", { id: id + "-edge" + at, gradientUnits: "userSpaceOnUse" }))
+                    run.appendChild(draw("stop", { offset: 0, "stop-color": one.hue }))
+                    run.appendChild(draw("stop", { offset: 1, "stop-color": next.hue }))
+                    const edge = chart.appendChild(draw("line", { class: "chart__edge", stroke: "url(#" + id + "-edge" + at + ")" }))
+                    const lay = (spots) => {
+                        const ends = { x1: spots[at][0], y1: spots[at][1], x2: spots[(at + 1) % spots.length][0], y2: spots[(at + 1) % spots.length][1] }
+                        for (const end in ends) {
+                            run.setAttribute(end, ends[end])
+                            edge.setAttribute(end, ends[end])
+                        }
+                    }
+                    lay(found.map((each) => each.spot))
+                    moved.push(lay)
+                })
+            }
         } else {
             const spots = {}
             for (const one of found) spots[one.position] = one.spot
@@ -563,7 +666,7 @@ function makeResults(engine) {
             }
         }
 
-        for (const one of found) {
+        found.forEach((one, at) => {
             const dot = draw("circle", {
                 class: "chart__point",
                 cx: one.spot[0],
@@ -572,7 +675,12 @@ function makeResults(engine) {
                 // `--at` rather than the delay itself, so a card that wants the
                 // whole chart to arrive later can push all of them back
                 // together without losing the stagger between them.
-                style: "--chart: " + one.colour + "; --at: " + (one.position * 0.06).toFixed(3) + "s",
+                style: "--chart: " + one.hue + "; --at: " + (one.position * 0.06).toFixed(3) + "s",
+            })
+            marks[one.dimension].dot = dot
+            moved.push((spots) => {
+                dot.setAttribute("cx", spots[at][0])
+                dot.setAttribute("cy", spots[at][1])
             })
             // A teased point stands for nothing, so it says nothing on hover.
             if (!tease) {
@@ -582,11 +690,73 @@ function makeResults(engine) {
                 dot.addEventListener("mouseleave", hideTip)
             }
             chart.appendChild(dot)
+        })
+
+        // The shape grows out of the average person's into the person's own,
+        // so the comparison the chart makes is seen being made. It is drawn
+        // finished first — a badge, a picture of the results and reduced
+        // motion all show it finished — and set back to the average only as
+        // its arrival starts, which a sealed card holds (the shape's `fade`
+        // carries a delay for that: an animation paused before its delay is
+        // up has not started).
+        if (own && own !== "still" && !tease && moved.length && average.length === list.length && found.length === list.length) {
+            const from = average.map((one) => one.spot)
+            const to = found.map((one) => one.spot)
+            const area = chart.querySelector(".chart__area")
+            const grow = (event) => {
+                if (event.target !== area || event.animationName !== "fade") return
+                area.removeEventListener("animationstart", grow)
+                if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
+                let began
+                const step = (now) => {
+                    if (!chart.isConnected) return
+                    began = began || now
+                    const through = Math.min(1, (now - began) / GROWS)
+                    const eased = 1 - Math.pow(1 - through, 3)
+                    const spots = to.map((spot, at) => [from[at][0] + (spot[0] - from[at][0]) * eased, from[at][1] + (spot[1] - from[at][1]) * eased])
+                    for (const move of moved) move(spots)
+                    if (through < 1) requestAnimationFrame(step)
+                }
+                for (const move of moved) move(from)
+                requestAnimationFrame(step)
+            }
+            area.addEventListener("animationstart", grow)
         }
 
         // `at` is where the web was drawn, for anything that wants to frame
-        // it rather than the room around it.
-        return { found: found.length, compared: compared, colour: single && found[0] ? found[0].colour : null, at: { x: centreX, y: centreY, r: radius } }
+        // it rather than the room around it; `marks` is each scored
+        // dimension's point and label, for anything that lights them.
+        return {
+            found: found.length,
+            compared: compared,
+            colour: single && found[0] ? found[0].colour : null,
+            at: { x: centreX, y: centreY, r: radius },
+            marks: marks,
+        }
+    }
+
+    // A level's chart and the rows under it are one reading told twice, so
+    // pointing at either lights the other: a point or its label lights its
+    // row, a row its point and label, and pressing a point goes to its row.
+    function linkWeb(marks, holder) {
+        for (const row of holder.children) {
+            const mark = marks[row.dataset.dimension]
+            if (!mark || !mark.dot) continue
+            const light = (on) => {
+                row.classList.toggle("row--lit", on)
+                mark.dot.classList.toggle("chart__point--lit", on)
+                mark.label.classList.toggle("chart__label--lit", on)
+            }
+            for (const one of [row, mark.dot, mark.label]) {
+                one.addEventListener("mouseenter", () => light(true))
+                one.addEventListener("mouseleave", () => light(false))
+            }
+            row.addEventListener("focusin", () => light(true))
+            row.addEventListener("focusout", () => light(false))
+            for (const one of [mark.dot, mark.label]) {
+                one.addEventListener("click", () => row.scrollIntoView({ behavior: "smooth", block: "center" }))
+            }
+        }
     }
 
     // The runs of neighbouring points that share a colour, every point in one,
@@ -694,7 +864,8 @@ function makeResults(engine) {
             const reading = norm.interpretations && (locked ? norm.interpretations.mid : norm.interpretations[tercile(standing.proportion)])
             const row = document.createElement("div")
             row.className = "row"
-            row.style.setProperty("--chart", colourOf(dimension) || "var(--accent)")
+            row.dataset.dimension = dimension
+            row.style.setProperty("--chart", hueOf(dimension) || "var(--accent)")
 
             const head = rowHead(dimension, locked ? "Higher than <b>00%</b> of people" : sentence(standing.direction) + " than <b>" + standing.share + "%</b> of people")
             if (locked) head.lastChild.classList.add("blank")
@@ -800,6 +971,15 @@ function makeResults(engine) {
                 continue
             }
 
+            // Truth & Lies' chameleon. The LPQ carries no norms either, so
+            // it goes through `dimensionsIn` like the wheel and the hero
+            // card, and every channel is a reach along its own scale.
+            if (name === chameleon.CHAMELEON_OF) {
+                if (!onLevel(dimensionsIn(name), level) || (!locked && !chameleon.ready())) continue
+                openSection(into, titleOf(name), colourOf(chameleon.DIMENSION), locked).body.appendChild(chameleon.renderChameleon(locked))
+                continue
+            }
+
             // The Hyborian Age's hero card carries no norms, so it goes
             // through `dimensionsIn` like the wheel; the section is bare,
             // the cards being boxes enough.
@@ -858,6 +1038,7 @@ function makeResults(engine) {
                 opened.section.classList.add("result--bare")
                 body.appendChild(theories.renderOldTheories(locked, teaser))
             } else {
+                let drawn
                 if (chartOf(name)) {
                     const chart = figureHolder(
                         locked ? "Blurred preview of your " + label.toLowerCase() + ", still locked" : "Spider chart of your " + label.toLowerCase() + " dimensions",
@@ -865,13 +1046,16 @@ function makeResults(engine) {
                         locked,
                     )
                     body.appendChild(chart.holder)
-                    const drawn = drawSpider(chart.figure, owned, locked, joint)
+                    drawn = drawSpider(chart.figure, owned, locked, joint, !joint)
                     if (drawn.compared) body.appendChild(legend(drawn.colour, joint ? sidesNamed(together) : null))
                 }
                 // A shared web is the whole of its section: its points give
                 // each standing on hover, and rows under a dozen axes are a
                 // second, longer telling of the same thing.
-                if (!joint) body.appendChild(rows(shown, locked))
+                if (!joint) {
+                    const under = body.appendChild(rows(shown, locked))
+                    if (drawn && !locked) linkWeb(drawn.marks, under)
+                }
             }
         }
 
@@ -1692,6 +1876,13 @@ function makeResults(engine) {
                 const at = balance.youAt()
                 return crop(figureIn(balance.renderBalance(false), "svg.balance__scales"), at[0], at[1], balance.CROWD_HIGH + 70)
             }
+            // The eye on its turret, and whatever the skin round it has
+            // turned: the one part of the animal that is the same size
+            // whatever the answers were.
+            if (name === chameleon.CHAMELEON_OF) {
+                if (!chameleon.ready()) continue
+                return crop(chameleon.portrait(), chameleon.HEAD[0], chameleon.HEAD[1], 170)
+            }
             // The hero's face, out of the top of its painting.
             if (name === hyborian.HYBORIAN_OF) {
                 if (!hyborian.ready()) continue
@@ -1739,7 +1930,7 @@ function makeResults(engine) {
                 const owned = [].concat(...together.map(dimensionsOf))
                 if (!owned.length) continue
                 const figure = document.createElementNS(SVG, "svg")
-                const drawn = drawSpider(figure, owned, false, together.length > 1)
+                const drawn = drawSpider(figure, owned, false, together.length > 1, together.length > 1 ? false : "still")
                 return crop(figure, drawn.at.x, drawn.at.y, 2 * (drawn.at.r + 14))
             }
         }
@@ -1785,6 +1976,7 @@ function makeResults(engine) {
             } else if (name === volcano.VOLCANO_OF) add(volcano.VOLCANO_KEY, volcano.VOLCANO_KEY)
             else if (name === kinks.KINKS_OF) add(kinks.KINKS_KEY, kinks.KINKS_KEY)
             else if (name === balance.BALANCE_OF) add(balance.BALANCE_KEY, balance.BALANCE_KEY)
+            else if (name === chameleon.CHAMELEON_OF) add(chameleon.CHAMELEON_KEY, chameleon.CHAMELEON_KEY)
             else if (name === archetype.ARCHETYPE_OF) add(archetype.ARCHETYPE_KEY, archetype.ARCHETYPE_KEY)
             // The god's card is not shown for now, so it files no vote.
             else if (name === hyborian.HYBORIAN_OF) add(hyborian.HERO_KEY, hyborian.HERO_KEY)

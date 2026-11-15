@@ -373,3 +373,57 @@ run's pattern again. The work files are under
 `work/live_item_full_seed20261028/`, `work/live_item_full_seed2026102802/` and
 `work/live_item_full_seed2026102802_101-200_seed2026102803_1-50/`, the
 conversations in `work/conversations/`.
+
+**100 more on the whole run** (15 November 2026): the third batch's personas 51
+to 150 (seed 2026102803) at `--grain item` without `--core`, sent live 25 at a
+time through the same driver, so that each is again the twin of an
+all-at-once file; the `mint` codebook was checked first to be the one the
+October runs were dealt from (app 1.0.0, every item the same), which is what
+keeps them the same people. Sonnet 5.5, effort `high`, `typical`; $120.40 at
+standard rates ($1.17 to $1.23 a persona), 34 minutes, 308 to 310 screens a
+persona. None strayed, left an item out or answered off the scale. On the MINT
+the twins gave the same answer to 59% of the items and differed by 0.44
+points on average; screen by screen, a persona's answers spread more (an SD
+across the 33 items of 1.12, against 0.93) and sat higher (a mean of 3.07,
+against 2.93), and a persona's mean in one mode went with its mean in the
+other at r = 0.21 — the pattern of the 300 before them. 400 personas now have
+a whole run at both grains. The work files are under
+`work/live_item_full_seed2026102803_51-150/`, with the run's log beside them
+(`work/live_item_full_seed2026102803_51-150.log`), the conversations in
+`work/conversations/`.
+
+**100 more on the core** (15 November 2026): the personas with a whole run at
+both grains and no core run yet — the first batch's 26 to 50 (seed
+20261028), the second's 176 to 200 (seed 2026102802) and the third's 1 to 50
+(seed 2026102803) — at `--grain item` with `--core`, sent live 25 at a time
+through the same driver. Sonnet 5.5, effort `high`, `typical`; $27.15 at
+standard rates ($0.26 to $0.28 a persona), 15 minutes, 136 to 138 screens a
+persona. None strayed, left an item out or answered off the scale. Every
+persona of the first two seeds now has three files (all at once, the core and
+the whole run, both screen by screen), 300 personas in all. Against the
+all-at-once twin the MINT reads as before (the same answer to 57% of the
+items, 0.46 points apart on average, an SD across the items of 1.11 against
+0.90, a mean of 3.07 against 2.90, r = 0.22 between a persona's two means).
+Against the same persona's whole run screen by screen, which was dealt the
+same screens in the same order up to the core's end, it reads almost the
+same: the same answer to 87% of the items, 0.13 points apart, the same SD and
+mean, r = 0.85. So the spread from answering a second time at one grain is
+small next to the difference between the grains. The work files are under
+`work/live_item_core_seed20261028_26-50_seed2026102802_176-200_seed2026102803_1-50/`,
+with the run's log beside them.
+
+**300 more on the core** (15 November 2026): the third batch's 51 to 250 (seed
+2026102803) and the fourth's 1 to 100 (seed 2026102804), at `--grain item`
+with `--core`, live 25 at a time through the same driver, so that every one
+is the twin of an all-at-once file and the third batch's 51 to 150 of a whole
+run screen by screen too. Sonnet 5.5, effort `high`, `typical`; $81.33 at
+standard rates ($0.26 to $0.28 a persona), 41 minutes, 136 to 138 screens a
+persona. None strayed, left an item out or answered off the scale. That makes
+600 core runs screen by screen, 400 of them by personas with all three files.
+Against the all-at-once twin the MINT reads as before (the same answer to 58%
+of the items, 0.45 points apart, an SD of 1.10 against 0.90, a mean of 3.08
+against 2.91, r = 0.13 between a persona's two means), and against the 100
+whole runs screen by screen as in the hundred before (87% the same, 0.13
+points apart, r = 0.78). The work files are under
+`work/live_item_core_seed2026102803_51-250_seed2026102804_1-100/`, with the
+run's log beside them.

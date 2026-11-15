@@ -17,7 +17,8 @@ execute:
 The pilots (runs before 1.0.0) are kept in for now, while the study has few
 runs of its own; drop `--include-pilot` to read the study alone.
 
-Base R, and ggplot2 with ggside for the set-aside plot. The rendered page is git-ignored: out of a handful of people an
+Base R, and ggplot2 with ggside for the set-aside plot and ggdist for the
+level times. The rendered page is git-ignored: out of a handful of people an
 aggregate is close to a person.
 -->
 
@@ -48,6 +49,13 @@ codebook <- tryCatch(
 )
 level_keys <- vapply(codebook$levels, function(one) one$key, "")
 level_names <- vapply(codebook$levels, function(one) one$name, "")
+# The levels no battery asks (Light & Dark, Storm & Calm, ...): a link naming
+# one brings it in, so a deposit holds their answers though the codebook walks
+# none of them. Named here so that they are not taken for levels the test no
+# longer asks.
+aside_keys <- vapply(codebook$aside, function(one) one$key, "")
+aside_names <- vapply(codebook$aside, function(one) one$name, "")
+aside_items <- lapply(setNames(codebook$aside, aside_keys), function(one) unlist(one$keys))
 ```
 
 ```{r}
@@ -103,6 +111,8 @@ runs <- do.call(rbind, lapply(seq_len(nrow(wide)), function(row) {
     battery = wide$battery[row],
     subset = walked < length(level_keys),
     no_source = is.na(wide$source[row]) | wide$source[row] %in% c("", "Unknown"),
+    # Out of test mode, so `preprocess.R` kept it, but the link says what it was.
+    test_source = grepl("^test([^a-z]|$)", wide$source[row] %||% "", ignore.case = TRUE),
     random = any(vapply(intersect(SERIOUS, names(wide)), function(key) wide[[key]][row] %in% random_said, logical(1))),
     stringsAsFactors = FALSE
   )
@@ -116,7 +126,8 @@ flags <- list(
   "scripted" = runs$headless | (!is.na(runs$cv) & runs$cv < STEADY_CV),
   "tryout" = runs$subset,
   "said random" = runs$random,
-  "no source" = runs$no_source
+  "no source" = runs$no_source,
+  "test link" = runs$test_source
 )
 runs$flags <- vapply(seq_len(nrow(runs)), function(i) paste(names(flags)[vapply(flags, `[`, TRUE, i)], collapse = ", "), "")
 flagged <- runs[runs$flags != "", ]
@@ -137,6 +148,7 @@ if (!KEEP_FLAGGED) {
 - **scripted**: a headless browser (a window 0 pixels wide) or answer times too even for a person (SD under `r STEADY_CV` of the mean);
 - **tryout**: a hand-picked subset of the levels (`?only=`, `?skip=`);
 - **no source**: the link named none (`?source=` empty, saved as "Unknown"), so nobody sent it: a test, a link passed on, somebody guessing the address;
+- **test link**: the link says it is a test (`?source=test`) though the run is not in test mode, so `preprocess.R` kept it: somebody trying a level out;
 - **said random**: answered "`r if (length(random_said)) random_said[1] else "No"`" to whether they took it seriously, at the end of the core or at the end of the run.
 
 ```{r}
@@ -493,38 +505,66 @@ if (!is.null(went) && nrow(went)) {
 
 ## How long a level takes
 
-Answering: first item shown to last answer, finished levels only. Results screen: until the way on was pressed. Anything over `r BREAK` minutes is a break rather than a time and is left out of both (`r breaks` so far). Total: the levels' medians added up, which is how long the whole test would take somebody typical on every level, over the levels timed so far (a level only a pilot walked, and the test no longer asks, is shown and not added). Core: the same over the levels before the interim (`r paste(level_names[level_keys %in% core_keys], collapse = ", ")`), which is what somebody who stops there has taken.
+Answering: first item shown to last answer, finished levels only. Results screen: until the way on was pressed. Anything over `r BREAK` minutes is a break rather than a time and is left out of both (`r breaks` so far). Total: the levels' medians added up, which is how long the whole test would take somebody typical on every level, over the levels timed so far (a level the test no longer asks, or one asked only through a link of its own and never on `mint`, is shown and not added). Core: the same over the levels before the interim (`r paste(level_names[level_keys %in% core_keys], collapse = ", ")`), which is what somebody who stops there has taken.
 
 ```{r}
 #| label: plot
 #| fig-width: 8
-#| fig-height: !expr max(2.4, 0.55 * nrow(table) + 1.4)
+#| fig-height: !expr max(2.4, 0.6 * nrow(table) + 1.2)
 
-ANSWERING <- c(line = "#a58bff", dot = "#7c5cff80", median = "#5b3fd6")
-RESULTS <- c(line = "#e8c77a", dot = "#d9a44180", median = "#b07d1c")
+ANSWERING <- c(slab = "#cfc3ff", line = "#5b3fd6")
+RESULTS <- c(slab = "#f3e0ae", line = "#b07d1c")
+PANELS <- c("Answering", "Results screen")
 
-panel <- function(summary, runs, unit, title, colours, named) {
-  y <- rev(seq_len(nrow(summary)))
-  has <- summary$n > 0
-  top <- if (any(has)) max(summary$max[has]) else 1
-  par(mar = c(4, if (named) 9 else 1.5, 2, 1.5))
-  plot(NULL, xlim = c(0, top * 1.1), ylim = c(0.5, nrow(summary) + 0.5),
-       yaxt = "n", xlab = tools::toTitleCase(unit), ylab = "", bty = "n")
-  title(main = title, font.main = 1, cex.main = 1, adj = 0)
-  if (named) axis(2, at = y, labels = summary$level, las = 1, tick = FALSE)
-  abline(h = y, col = "grey93")
-  segments(summary$min[has], y[has], summary$max[has], y[has], lwd = 3, col = colours["line"])
-  points(runs[[unit]], y[match(runs$level, summary$level)], pch = 16, cex = 0.7, col = colours["dot"])
-  points(summary$median[has], y[has], pch = 21, bg = colours["median"], col = "white", cex = 1.6)
+# A ridge a level: the histogram of its times, with the median and the 66% and
+# 95% intervals under it. The bins are one width across a panel and start at
+# nought, so that ridges can be read against each other; each ridge is scaled
+# to its own tallest bin, or a level two people finished would be a spike that
+# flattens the rest.
+ridges <- function(frame, colours) {
+  if (!nrow(frame)) return(NULL)
+  width <- diff(pretty(c(0, max(frame$minutes)), n = 24))[1]
+  # A level timed once has no spread to draw, and a histogram of one time is a
+  # spike: its one time is a point.
+  once <- ave(frame$minutes, frame$level, FUN = length) == 1
+  list(
+    if (any(!once)) ggdist::stat_histinterval(
+      data = frame[!once, ],
+      breaks = ggdist::breaks_fixed(width = width), align = ggdist::align_boundary(at = 0),
+      normalize = "groups", scale = 0.9,
+      fill = colours[["slab"]], slab_colour = colours[["line"]], slab_linewidth = 0.3,
+      colour = colours[["line"]], point_fill = colours[["line"]], point_size = 2
+    ),
+    if (any(once)) ggplot2::geom_point(data = frame[once, ], colour = colours[["line"]], size = 2.6)
+  )
 }
 
 if (nrow(table)) {
-  # Wider by the names, so the two plots come out the same width.
-  op <- par(no.readonly = TRUE)
-  layout(matrix(1:2, 1), widths = c(1.45, 1))
-  panel(table, timed, "minutes", "Answering", ANSWERING, TRUE)
-  panel(reading, read[read$level %in% table$level, ], "minutes", "Results screen", RESULTS, FALSE)
-  par(op)
+  # Shortest at the top, by the median time answering; a level whose only time
+  # was a break has nothing to go by and goes last. The results screen keeps
+  # the same rows, so a level reads across both.
+  ladder <- table$level[order(table$n == 0, table$median)]
+  times_in <- function(frame, panel) {
+    frame <- frame[frame$level %in% ladder, c("level", "minutes")]
+    frame$level <- factor(frame$level, rev(ladder))
+    frame$panel <- factor(rep(panel, nrow(frame)), PANELS)
+    frame
+  }
+  ggplot2::ggplot(mapping = ggplot2::aes(minutes, level)) +
+    ridges(times_in(timed, PANELS[1]), ANSWERING) +
+    ridges(times_in(read, PANELS[2]), RESULTS) +
+    ggplot2::facet_wrap(~ panel, scales = "free_x") +
+    ggplot2::scale_y_discrete(drop = FALSE) +
+    ggplot2::scale_x_continuous(expand = ggplot2::expansion(mult = c(0.01, 0.04))) +
+    ggplot2::expand_limits(x = 0) +
+    ggplot2::labs(x = "Minutes", y = NULL) +
+    ggplot2::theme_minimal(base_size = 11) +
+    ggplot2::theme(
+      panel.grid.minor = ggplot2::element_blank(),
+      panel.grid.major.y = ggplot2::element_line(colour = "grey93"),
+      strip.text = ggplot2::element_text(hjust = 0, size = 11),
+      panel.spacing.x = ggplot2::unit(1.5, "lines")
+    )
 } else {
   cat("No level has been finished yet.")
 }
@@ -566,10 +606,12 @@ rated <- lapply(levels_n$level, function(key) {
 
 shown <- data.frame(
   Level = levels_n$level,
-  # A level the codebook no longer holds (How You Think, the sexuality level)
-  # was walked by a pilot and is not asked now.
-  kind = ifelse(!levels_n$level %in% level_keys, "gone",
-                ifelse(core_here & levels_n$level %in% core_keys, "core", "optional")),
+  # A level no battery asks (Light & Dark, Storm & Calm) is met only through a
+  # link naming it; one neither the codebook nor ASIDE holds (How You Think) was
+  # walked by a pilot and is not asked now.
+  kind = ifelse(levels_n$level %in% aside_keys, "aside",
+                ifelse(!levels_n$level %in% level_keys, "gone",
+                       ifelse(core_here & levels_n$level %in% core_keys, "core", "optional"))),
   n = levels_n$n,
   median = timed(levels_n, "median"),
   n_read = reading_n$n,
@@ -602,10 +644,13 @@ if (nrow(table)) {
                   gt::cells_body(columns = "Level", rows = shown$kind == "core")) |>
     gt::tab_style(gt::cell_fill(color = "#ece6f7"),
                   gt::cells_body(columns = "Level", rows = shown$kind == "optional")) |>
+    gt::tab_style(gt::cell_fill(color = "#fbe6c9"),
+                  gt::cells_body(columns = "Level", rows = shown$kind == "aside")) |>
     gt::tab_style(gt::cell_fill(color = "#ececec"),
                   gt::cells_body(columns = "Level", rows = shown$kind == "gone")) |>
     gt::tab_source_note(paste0("Click a column's header to sort by it. First shown by the number of runs that finished each level. ",
-                               "Level: blue is core (before the interim), violet optional, grey no longer asked. ",
+                               "Level: blue is core (before the interim), violet optional, ",
+                               "amber asked only through a link of its own (not on mint), grey no longer asked. ",
                                "Median answering time: green is quick, red slow, across the levels shown.")) |>
     gt::tab_options(table.font.size = gt::px(14), data_row.padding = gt::px(4)) |>
     gt::opt_interactive(use_sorting = TRUE, use_pagination = FALSE, use_highlight = TRUE, use_compact_mode = TRUE)
@@ -716,7 +761,7 @@ FORMER_NAMES <- c(
   "AI Expertise & Usage" = "AIExpertise", # renamed AI Attitudes, October 2026
   "How You Think" = "Reasoning"           # out of 1.0, October 2026
 )
-key_of <- c(setNames(level_keys, level_names), FORMER_NAMES)
+key_of <- c(setNames(level_keys, level_names), setNames(aside_keys, aside_names), FORMER_NAMES)
 unnamed <- character()
 picks <- list()
 column <- function(name, row) if (name %in% names(wide)) as.character(wide[[name]][row]) else NA_character_
@@ -1024,6 +1069,15 @@ answered_keys <- setdiff(names(wide)[grepl("^[A-Z][A-Za-z0-9]*_", names(wide))],
 stale <- setdiff(answered_keys, vapply(codebook$items, function(item) item$key, ""))
 stale <- stale[!grepl("^(QC|Feedback|Rating|Level)_", stale)]
 stale <- setdiff(stale, "Demographics_StarSign")  # the day of birth, reduced by preprocess.R
+# What a level no battery asks recorded is not stale: the codebook walks `mint`
+# and so draws none of it, but the test still asks it through a link.
+off_mint <- intersect(stale, unlist(aside_items))
+stale <- setdiff(stale, off_mint)
+off_mint_runs <- vapply(aside_items, function(keys) {
+  keys <- intersect(keys, names(wide))
+  if (!length(keys)) return(0L)
+  sum(rowSums(!is.na(wide[, keys, drop = FALSE]) & wide[, keys, drop = FALSE] != "") > 0)
+}, 0L)
 ```
 
 One radar per level that at least `r MIN_RUNS` runs have answered: a box plot along each ray (median, quartiles, whiskers to 1.5 IQR, points beyond), each item as a share of its own scale, as answered (reversed items not flipped). Nothing joins the rays: neighbouring items are not a continuum. Demographics, free text and right-answer items are left out.
@@ -1107,6 +1161,11 @@ if (length(waiting)) {
 
 if (length(unread)) {
   cat("\n\n**Answers not read** (words matching no option of the item in the codebook): ", paste(unique(unread), collapse = "; "), "\n", sep = "")
+}
+if (length(off_mint)) {
+  cat("\n\n**Levels asked only through a link of their own**, not drawn (the codebook walks `mint`): ",
+      paste(sprintf("%s (%d run%s)", aside_names, off_mint_runs, ifelse(off_mint_runs == 1, "", "s")), collapse = ", "),
+      ", over ", length(off_mint), " keys.\n", sep = "")
 }
 # Counted by prefix, with the keys themselves folded away: the pilots answered
 # whole levels the test no longer asks, which is a long list of nothing new.

@@ -2446,11 +2446,11 @@ h1 {
 }
 
 .options--sweeping .grid__beam--across {
-    animation: grid-beam-across 0.3s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+    animation: grid-beam-across 0.22s cubic-bezier(0.2, 0.7, 0.3, 1) both;
 }
 
 .options--sweeping .grid__beam--down {
-    animation: grid-beam-down 0.3s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+    animation: grid-beam-down 0.22s cubic-bezier(0.2, 0.7, 0.3, 1) both;
 }
 
 /* The cell under the pointer (or focused) traced back to its two headers by
@@ -2477,13 +2477,17 @@ h1 {
 }
 
 /* The headers pop as their beams leave them, and the cell as the beams
-   arrive. */
+   arrive. THE WHOLE SEQUENCE HAS TO BE OVER BY `hold - TURN` in app.js, which
+   is 370ms of the grid's 550 (550 from November 2026, 700 before it): the
+   beams run to 220, the headers to 360, and the cell from 180 to 420, whose
+   last 50ms fall under the first of the fade and are not missed. Lengthen any
+   of them and the cell pops inside an item already going. */
 .options--sweeping .grid__head--chosen {
-    animation: grid-head 0.42s ease-out both;
+    animation: grid-head 0.36s ease-out both;
 }
 
 .option--cell.option--met {
-    animation: grid-meet 0.32s 0.24s ease-out both;
+    animation: grid-meet 0.24s 0.18s ease-out both;
 }
 
 @keyframes grid-beam-across {

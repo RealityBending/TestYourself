@@ -2043,8 +2043,13 @@
 
     // How long an answer stays on screen before the next item, where a type
     // wants longer than ADVANCE_DELAY: a grid's beams have to meet at the cell
-    // (`grid-beam` and `grid-meet` in style.css) before the item fades.
-    const HOLDS = { grid: 700 }
+    // (`grid-beam` and `grid-meet` in style.css) before the item fades. 700ms
+    // until November 2026, when a pilot found a run of grids slow: the
+    // choreography in the stylesheet was tightened to fit 550 instead, which
+    // is one number for the kinks and the deeds alike, HOLDS being keyed by
+    // type. Whatever it says, the meet has to be over by `hold - TURN`, where
+    // the fade starts, or the cell pops inside an item already going.
+    const HOLDS = { grid: 550 }
 
     function renderScale(question) {
         const wrap = $("options")
@@ -3756,8 +3761,8 @@
 
     // Every level there is to take, for the dashboard's tiles: `all`'s, which
     // is everything but the levels a link alone reaches (ASIDE: the Hyborian
-    // hero, Light & Dark, Sexuality and Storm & Calm, met only by a link that
-    // names them, `?start=`) and the closing. The levels outside its fork first
+    // hero, Light & Dark, Truth & Lies, Sexuality and Storm & Calm, met only
+    // by a link that names them, `?start=`) and the closing. The levels outside its fork first
     // (General), then the rest by name, the same on every load, the
     // timeline's own order being drawn. Each with its picture (`preview`):
     // the README's, the level's results at stand-in scores (assets/readme/,

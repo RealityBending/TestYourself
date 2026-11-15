@@ -11,8 +11,8 @@
    WHAT IS ASKED SO FAR: a briefing; the SD4 (`sd4`, the Super-Short Dark
    Tetrad's sixteen, item 27, four TriPM Meanness items, the GP-5's five
    guilt-proneness items made statements, and an attention check, all
-   shuffled together), beside the briefing in this file; Serota's lie count (`liecount`, one typed number
-   and a follow-up) and the LPQ whole (`lpq`, sixteen sliders) — the SD4,
+   shuffled together), beside the briefing in this file; the LPQ whole
+   (`lpq`, sixteen sliders; on a level of its own since) — the SD4,
    the GP-5 and the lying all November 2026 and shown nowhere yet — then
    `deeds`, twenty-four grids, and `wronged`, the receiving end (THE FOURTH
    BLOCK), nineteen screens shown nowhere yet. The deeds are twelve
@@ -25,7 +25,7 @@
 
    FOUR BLOCKS, FOUR FILES (November 2026): `dark`, this one, the briefing,
    the SD4, the GP-5 and the level's notes; `lies` (content/block_lies.js),
-   the lie count and the LPQ; `deeds` (content/block_deeds.js), the grids and
+   the LPQ; `deeds` (content/block_deeds.js), the grids and
    what they are scored and weighed by; and `wronged`
    (content/block_wronged.js), the receiving end. The SD4, with the GP-5
    dealt in, is asked straight after the briefing, being in its block; the
@@ -96,7 +96,7 @@
                         everybody; nothing here is a diagnosis; at the end,
                         which side is stronger in you and what each is made
                         of. Says nowhere where in the run it falls. (For now
-                        the briefing introduces the lie count and the deeds,
+                        the briefing introduces the deeds,
                         below.)
 
      Self-ratings       DROPPED (November 2026). The plan had one item,
@@ -179,16 +179,16 @@
                         (LPQ; Makowski, Pham, Lau, Raine & Chen, 2023, Current
                         Psychology, online 2021 — the lab's own; analogue
                         scale): Ability, Frequency, Negativity and
-                        Contextuality, four items each; and Serota's lie
-                        count, "In the past 24 hours, how many times have you
-                        lied?" (Serota, Levine & Docan-Morgan, 2021, after
-                        Serota, Levine & Boster, 2010), a typed number — both
-                        ASKED (November 2026, `liecount` and `lpq`, in
-                        block_lies.js), the count first. The mask's two axes are
-                        skill × frequency, the LPQ's Ability against the
-                        count, which is frequency as behaviour over a day; the
-                        LPQ's own Frequency is frequency as a self-description,
-                        and the two set side by side are a check on each other.
+                        Contextuality, four items each — ASKED (November
+                        2026, `lpq`, in block_lies.js). Serota's lie count,
+                        "In the past 24 hours, how many times have you lied?"
+                        (Serota, Levine & Docan-Morgan, 2021, after Serota,
+                        Levine & Boster, 2010), a typed number, was asked
+                        before it for a while and CUT (November 2026; why is
+                        in block_lies.js). The mask's two axes are skill ×
+                        frequency, now the LPQ's Ability against its own
+                        Frequency, a self-description, where the plan had the
+                        count, frequency as behaviour over a day.
                         The plan had Ability alone, for the budget; the other
                         three came in on the author's call (November 2026).
 
@@ -313,15 +313,14 @@
      and dealt into `sd4` in this file, each sheet item quoted beside its own.
 
      Serota's count — CHECKED (November 2026) against Serota, Levine &
-     Docan-Morgan (2021), whose one-item daily measure and prompt are quoted
-     beside `liecount` in block_lies.js, with how the item departs from them.
+     Docan-Morgan (2021); asked for a while and cut since (block_lies.js).
 
    Keys: `SD4_Mach_02`, `SD4_Narc_08`, `SD4_Psych_18`, `SD4_Sadism_28` (the
    published item number, padded to two digits, since Pride's run from 8 to
    13), `TriPM_Bold_1`, `TriPM_Mean_1`, `GP5_1` (the GP-5's own number,
    one to five), `Lie_Ability_1` (and
-   `Lie_Frequency_1`, `Lie_Negativity_1`, `Lie_Contextuality_1`),
-   `Lie_Count` (and `Lie_Count_ForOthers`, its follow-up),
+   `Lie_Frequency_1`, `Lie_Negativity_1`, `Lie_Contextuality_1`, and the
+   custom `Lie_Detection_1` and `Lie_Prevalence_1` dealt in among them),
    `Deed_<Name>` and `GoodDeed_<Name>` (below),
    `SD4_AttentionCheck`; and, in the fourth block, `Victim_<Name>` (pairing
    with the `Deed_<Name>` it mirrors), `Victimhood_<Face>_<Word>` and
@@ -329,7 +328,8 @@
    Dimensions carry the plain
    names (Cunning, Pride, Recklessness, Cruelty; Coldness; Boldness;
    Scruples, for guilt-proneness; Lying
-   Ability, Lying Frequency, Lying Negativity, Lying Contextuality; Wrongs
+   Ability, Lying Frequency, Lying Negativity, Lying Contextuality, Lie
+   Detection, Lie Prevalence; Wrongs
    Received, Grievance, Thin Skin),
    documented against the construct here, the two registers' rule. None is a
    name already on the run.
@@ -588,7 +588,7 @@
    facets as positions out of ten under the dark pan (rubies, the
    Hyborian's), never standings — "more sadistic than 90% of people" must
    not appear on a screen read over a shoulder; and Boldness, the mask (the
-   LPQ's ability against the lie count) and Conscience (the deeds' remorse, a
+   LPQ's ability against its frequency) and Conscience (the deeds' remorse, a
    reach) as lines under those. NOTHING ON IT SAYS WHICH DEEDS. Locked: the scales from
    the stand-ins, blurred, the two sides named. Badge: the heavier pan and
    the crowd in it.
@@ -634,7 +634,7 @@
                  purpose: a cunning Chancellor on a green world is a real
                  reading, not a contradiction — cunning is your loudest trait,
                  and against other people you are on the light side.
-     Frame       THE MASK: the LPQ's ability against the lie count at the
+     Frame       THE MASK: the LPQ's ability against its frequency at the
                  midpoint, the heads' four-sentence rule — skilled and
                  frequent the Smuggler's mask, skilled and rare the
                  Diplomat's, unskilled and frequent the Gambler's, unskilled
@@ -931,9 +931,9 @@ defineBlock("dark", [
         key: "Briefing_Dark",
         text:
             "<h2>Good turns and bad.</h2>" +
-            "<p>Some statements about yourself come first. Then screens that ask how you lie, and screens that name things people do: a dozen ordinary wrongs and as many good turns, from the ones nearly everybody has done to the ones few have. At the end you will see which way your own scales tip, and you can pass on any of the deeds.</p>" +
+            "<p>Some statements about yourself come first. Then screens that name things people do: a dozen ordinary wrongs and as many good turns, from the ones nearly everybody has done to the ones few have. At the end you will see which way your own scales tip, and you can pass on any of the deeds.</p>" +
             "<p>A reminder on privacy before you go on. Your answers are anonymous: nothing in them identifies you, they are analysed together with everybody else's and never on their own, and anything that could be traced back to you is removed. It is vital for us that you feel comfortable answering truthfully, and the way your answers are kept has been carefully designed for that.</p>" +
-            "<p><em>For each deed, say with one press whether you have done it — or would — and how you feel about it.</em></p>",
+            "<p><em>For each deed, say with one press whether you have done it — or would — and how you feel about doing it.</em></p>",
     },
 
     // THE SD4, straight after the briefing and before the lies and the deeds
@@ -978,7 +978,7 @@ defineBlock("dark", [
         format: {
             options: [1, 2, 3, 4, 5],
             anchors: ["Strongly disagree", "Strongly agree"],
-            color: "#b23a3a", // the level's red, the wrongs' grid's
+            color: "#b2793a", // the level's ochre, the wrongs' grid's
         },
         items: [
             { key: "SD4_Mach_02", dimension: "Cunning", text: "Whatever it takes, you must get the important people on your side" },

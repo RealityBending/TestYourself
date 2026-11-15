@@ -13,9 +13,9 @@
 
 // THE DEEDS. Twelve ordinary wrongs, each one screen, each answered as a cell of
 // a grid (`type: "grid"`, the kinks' pattern): across, whether you have done
-// it — Never, and I wouldn't / Never, but I would if it came to it / Once /
-// More than once — and down, how you feel about it — Guilty / Indifferent /
-// Pleased. Two scales at one press, and the second is what makes a tick-list
+// it — Never, and I wouldn't / Never, but I would if it came to it / Once or
+// twice / Many times — and down, how you feel about doing it — Guilty /
+// Indifferent / Pleased. Two scales at one press, and the second is what makes a tick-list
 // a measure: a deed alone is a count, a deed with the feeling that goes with
 // it is two of the oldest constructs in the field at once. Lack of remorse
 // is a core PCL-R item, which the self-report inventories reach for with
@@ -78,14 +78,23 @@
 // anger is not planned for, and there alone the column means "I could see
 // myself doing it" rather than "I would choose to"; accepted. Three columns
 // of frequency rather than the kinks' four, since deeds are heavy-tailed and
-// "several times" against "regularly" tells nothing for rare acts. The kinks'
-// own first row, "Never / not yet", blends exactly these two answers and
-// could borrow the split.
+// "several times" against "regularly" tells nothing for rare acts. ONCE OR
+// TWICE AND MANY TIMES rather than Once and More than once (November 2026):
+// a pilot read the old pair as a cliff, "more than once" holding twice and
+// every week alike, and the kinks' own wording puts the cut where the two
+// words meet instead of leaving the second to cover everything above one.
+// The cost is the exact-once cell, which was the cleanest reading of a
+// one-off against a habit; the score reads neither, being done against not
+// done, so what is lost is an analysis, and the first crowd can say whether
+// it wanted one. A FIFTH COLUMN is the one thing the screen cannot take:
+// four at 56px beside the row headers is already the tightest table of the
+// run. The kinks' own first row, "Never / not yet", blends the two nevers
+// and could borrow their split.
 //
 // SCORING (October 2026): each deed feeds one side, off the across axis of its
 // grid — a wrong done counts towards Dark Side and a good deed done towards
-// Light Side, 1 in the Once and More than once columns and 0 in either never
-// column (the column's `score:`), so each side is the share of its ladder
+// Light Side, 1 in the two columns that say it was done and 0 in either
+// never column (the column's `score:`), so each side is the share of its ladder
 // done. That is a variety score, the count the self-report delinquency
 // literature prefers to a sum of frequencies, and the same count on both
 // sides, so that the two pans are weighed alike. The balance the level closes
@@ -247,10 +256,29 @@
 // Keys `GoodDeed_<Name>`, so that `Deed_` finds every deed of either kind and
 // `^Deed_` and `^GoodDeed_` tell them apart.
 
-// The wrongs' grid in a red near the dark pan's and the good deeds' in a blue
-// near the light pan's (js/figures/balance.js), so that the change of rows
-// between one deed and the next is seen before it is read.
-const DEED_COLOUR = "#b23a3a"
+// The wrongs' grid in the level's ochre and the good deeds' in a blue near
+// the light pan's (js/figures/balance.js), so that the change of rows between
+// one deed and the next is seen before it is read. THE LEVEL WAS RED until
+// November 2026, the dark pan's own colour, and a pilot read the red on the
+// wrongs as being told off for answering that they had done it. The colour is
+// on the screen and not on the answer — every cell of a wrong's grid is drawn
+// in it, the two nevers included — but it is a cue to the kind of deed, given
+// item by item, on the side that is under-reported and not on the side that
+// is overclaimed, and the two counts are then weighed against each other in
+// the balance; a hue with no verdict in it buys the same change of rows for
+// nothing. It is the level's and not the grid's, so it changed in three
+// places at once — here, LIE_COLOUR in block_lies.js and the SD4's in
+// block_dark.js — since the wrongs alone in another colour would have left
+// the statements and the lying red, and the one screen that felt like an
+// accusation the only one that did not look like it. Ochre rather than the
+// obvious plum, which came out within a few degrees of `wronged`'s violet
+// (WRONGED_COLOUR, #8a5a9e) and would have read as the same block; it is the
+// blue turned to hue 40 at its own saturation and lightness, so the two read
+// as a pair, and the one thing to watch is that it is not the gold everything
+// earned is written in (#d9a441, lighter and yellower). The balance's pans
+// keep their red and blue: a figure read once at the end is a reading and not
+// a nudge.
+const DEED_COLOUR = "#b2793a"
 const GOOD_COLOUR = "#3a86b2"
 
 // One scale of involvement for both kinds of deed, a column worth what it
@@ -259,8 +287,8 @@ const GOOD_COLOUR = "#3a86b2"
 const DEED_ACROSS = [
     { value: 0, text: "Never, and I wouldn't", score: 0 },
     { value: 1, text: "Never, but I would if it came to it", score: 0 },
-    { value: 2, text: "Once", score: 1 },
-    { value: 3, text: "More than once", score: 1 },
+    { value: 2, text: "Once or twice", score: 1 },
+    { value: 3, text: "Many times", score: 1 },
 ]
 // How you feel about it, a row each kind, the uncomfortable feeling on top
 // and the warm one at the foot (THE GOOD DEEDS).
@@ -281,17 +309,21 @@ const DEED_RATHER_NOT = {
     declined: true,
 }
 // The two questions the table is the product of, written in the margin over
-// the headers they ask (renderGrid in app.js). The down one is in the present
-// tense on purpose: "How do you feel about it?" covers a deed done (how you
-// feel now about having done it) and a deed never done (how you feel about
-// the idea) in five words, where "How did you / would you feel about it?"
-// puts a slash in a hand-written note and wraps it to four lines on a phone,
-// where it already takes three. The stance words under it are tense-free for
+// the headers they ask (renderGrid in app.js). The down one NAMES THE ACT,
+// "about doing it" rather than "about it" (November 2026): a pilot had to
+// stop and work out what "it" was, and so it is, the screen carrying three
+// of them — the lead-in's "Have you ever…", the across note's and this one —
+// of which only this one could also have meant the answer just given. It is
+// in the present tense on purpose: it covers a deed done (how you feel now
+// about having done it) and a deed never done (how you feel about the idea),
+// where "How did you / would you feel about doing it?" puts a slash in a
+// hand-written note and wraps it to four lines on a phone, where it already
+// takes three and the word added may take a fourth. The stance words under it are tense-free for
 // the same reason. On a phone (56px columns) the second column header wraps
 // to four lines and the first to three; the table still fits the width.
 const DEED_ASK = {
     across: "Have you done it?",
-    down: "How do you feel about it?",
+    down: "How do you feel about doing it?",
 }
 
 // The grid format out of its two scales — the table for the renderer and the
@@ -387,7 +419,15 @@ defineBlock("deeds", [
                 { key: "Deed_CV", text: "…lied on a CV, an application or in an interview?" }, // ~35%
                 { key: "Deed_Wallet", text: "…kept money or a wallet you found without trying to return it?" }, // ~30%
                 { key: "Deed_Infidelity", text: "…cheated on a partner?" }, // ~20%
-                { key: "Deed_Mocking", text: "…mocked or humiliated somebody to their face on purpose?" }, // ~20%, verbal cruelty (the CAST's facet)
+                // MEANING TO HURT THEM, and the gloss under it (November 2026). It
+                // read "…to their face on purpose?" until then, which a pilot and
+                // every friend they asked took for deliberate words rather than for
+                // meant harm, and answered for banter — so the item was counting the
+                // wrong thing at the common end of its band. The gloss is the belt to
+                // the wording's braces, and the first thing to drop if the screen
+                // comes out too full on a phone; its mirror, GoodDeed_StoodUp, still
+                // pairs with it.
+                { key: "Deed_Mocking", text: "…mocked or humiliated somebody to their face, meaning to hurt them?<br /><small>Not teasing between friends</small>" }, // ~20%, verbal cruelty (the CAST's facet)
                 // The rare rungs: damage, the RPQ's two kinds of aggression as
                 // deeds, taking from somebody close (which tells people apart
                 // where shoplifting did not), and the forensic literature's one

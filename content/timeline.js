@@ -267,15 +267,24 @@ const TIMELINE_ALL = [
         // The next four are in ASIDE (below), so asked only through a link
         // naming them, and their minutes are guesses. Storm & Calm is the
         // DERS-16 and the RESS, written for a student's dissertation (November
-        // 2026). Light & Dark is still
-        // being written: its briefing and the SD4 (the GP-5 dealt in), then the lies and the
-        // deeds in an order drawn for each run, so that neither is always
-        // met first, and then the receiving end (`wronged`), which turns
-        // from what you have done to what was done to you and so wants the
-        // deeds asked before it.
+        // 2026). Light & Dark is still being written: its briefing and the SD4
+        // (the GP-5 dealt in), then the deeds, and then the receiving end
+        // (`wronged`), which turns from what you have done to what was done to
+        // you and so wants the deeds asked before it. TRUTH & LIES WAS PART OF
+        // IT until November 2026, its `lies` block drawn against the deeds so
+        // that neither was always met first; at 89 screens the level was twice
+        // its planned length and only the deeds were read back, so the lying
+        // was given a level of its own, a briefing of its own and the
+        // chameleon (js/figures/chameleon.js) to close on. The two are
+        // separate levels and no longer come as one: `?start=dark` asks the
+        // deeds and `?start=lies` the lying, and a study that wants both says
+        // `?start=dark,lies`. Their minutes are the screen counts they were
+        // split into, 71 and 19, at what the levels of known length take a
+        // screen; the first timings will correct them.
         { key: "Sexuality", name: "Sexuality", blocks: ["sex"], fork: 3, minutes: 6 },
         { key: "Hyborian", name: "Your Hyborian Hero", blocks: ["hyborian"], fork: 3, minutes: 3 },
-        { key: "Dark", name: "Light & Dark", blocks: ["dark", shuffle(["lies", "deeds"]), "wronged"].flat(), fork: 3, minutes: 7 },
+        { key: "Dark", name: "Light & Dark", blocks: ["dark", "deeds", "wronged"], fork: 3, minutes: 9 },
+        { key: "Lies", name: "Truth & Lies", blocks: ["lies"], fork: 3, minutes: 3 },
         { key: "EmoReg", name: "Storm & Calm", blocks: ["emoreg"], fork: 3, minutes: 6 },
     ]),
     { key: "Closing", name: "Closing", blocks: ["closing"] },
@@ -300,11 +309,12 @@ const DEMOGRAPHICS = ["demographics1", "demographics2", "demographics3"]
 
 // Blocks that come and go together, because one figure is drawn from both:
 // the climb reads the PHQ-4 out of `mood` and the HiTOP-BR out of `hitop`.
-// And Light & Dark's four, because its briefing introduces the other three:
-// `?start=dark` names the briefing's block alone, and brings the lies, the
-// deeds and the receiving end in with it only by being held together with
-// them.
+// And Light & Dark's three, because its briefing introduces the other two:
+// `?start=dark` names the briefing's block alone, and brings the deeds and
+// the receiving end in with it only by being held together with them. The
+// lying left the group in November 2026 with the level: `lies` carries its
+// own briefing now and is asked on its own (`?start=lies`).
 const HELD_TOGETHER = [
     ["mood", "hitop"],
-    ["dark", "lies", "deeds", "wronged"],
+    ["dark", "deeds", "wronged"],
 ]

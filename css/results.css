@@ -645,6 +645,19 @@
     padding-bottom: 4px;
 }
 
+/* Lit from the chart: its point or its name there is under the pointer. */
+.row {
+    transition: background 0.25s;
+}
+
+.row--lit {
+    background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--chart) 11%, transparent) 14%, transparent 78%);
+}
+
+.row--lit .row__name::before {
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--chart) 30%, transparent);
+}
+
 .row__head {
     display: flex;
     flex-wrap: wrap;
@@ -4056,6 +4069,7 @@
 
 /* Everything that hangs on the axes waits for them. */
 #profile-done .chart__ring,
+#profile-done .chart__band,
 #profile-done .chart__average,
 #profile-done .chart__area,
 #profile-done .chart__link,
@@ -4085,10 +4099,27 @@
     stroke: rgba(255, 255, 255, 0.09);
 }
 
+/* The middle third of people, between the two inner rings. */
+.chart__band {
+    fill: rgba(255, 255, 255, 0.035);
+}
+
 .chart__label {
     font-size: 11.5px;
     font-weight: 600;
     fill: #cfd4e4;
+}
+
+/* On a level's own chart a name is in its dimension's hue, lightened so it
+   still reads as a label, and answers the pointer: it lights its row. */
+.chart__web--own .chart__label:not(.chart__label--awaiting) {
+    fill: color-mix(in srgb, var(--chart) 62%, #fff);
+    cursor: pointer;
+    transition: fill 0.2s;
+}
+
+.chart__web--own .chart__label--lit:not(.chart__label--awaiting) {
+    fill: #fff;
 }
 
 /* The whole-profile chart carries more labels than a level's. */
@@ -4117,6 +4148,63 @@
     stroke-linejoin: round;
     filter: drop-shadow(0 0 10px var(--chart));
     animation: fade 0.5s ease both;
+}
+
+/* Filled by a gradient of its own, faint at the centre and full at the rim,
+   whose stops carry the opacity the flat fill had. */
+.chart__area--deep {
+    fill-opacity: 1;
+}
+
+.chart__depth {
+    stop-color: var(--chart);
+}
+
+.chart__depth--in {
+    stop-opacity: 0.05;
+}
+
+.chart__depth--out {
+    stop-opacity: 0.38;
+}
+
+/* A level's own chart: the outline is an edge apiece (`.chart__edge`), each
+   in the hues of its two ends, so the shape itself draws none. Its arrival
+   waits a moment, and everything on it waits with it, since the growing out
+   of the average starts as this animation does and what is already on
+   screen by then would be seen to jump. */
+.chart__area--edged {
+    stroke: none;
+    animation-delay: 0.1s;
+}
+
+.chart__web--own .chart__point {
+    --from: 0.1s;
+}
+
+/* What stands outside the average person's shape, filled a second time. */
+.chart__area--over {
+    stroke: none;
+    filter: none;
+    animation-delay: 0.1s;
+}
+
+.chart__edge {
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    animation: fade 0.5s ease 0.1s both;
+}
+
+/* The chart's own arrivals are held under a seal by name: the general hold
+   (`.result--sealed *`) weighs the same as a rule of one class and stands
+   before these, and an `animation` shorthand sets the play state back to
+   running. */
+.result--sealed .chart__area,
+.result--sealed .chart__edge,
+.result--sealed .chart__rim,
+.result--sealed .chart__link,
+.result--sealed .chart__point {
+    animation-play-state: paused;
 }
 
 /* A web split between questionnaires: each side filled in its own colour
@@ -4156,10 +4244,17 @@
     animation-delay: calc(var(--from, 0s) + var(--at, 0s));
 }
 
-.chart__point:hover {
+.chart__point:hover,
+.chart__point--lit {
     stroke: var(--chart);
     stroke-opacity: 0.4;
     stroke-width: 6;
+}
+
+/* On a level's own chart a point is a little light of its own. */
+.chart__web--own .chart__point {
+    filter: drop-shadow(0 0 5px var(--chart));
+    transition: stroke-width 0.2s;
 }
 
 @keyframes reveal {
@@ -4553,6 +4648,7 @@
     .climbview__vote,
     #profile-done .chart__axis,
     #profile-done .chart__ring,
+    #profile-done .chart__band,
     #profile-done .chart__average,
     #profile-done .chart__area,
     #profile-done .chart__link,
@@ -5142,4 +5238,125 @@
     .balance__pan {
         animation: none;
     }
+}
+
+/* =========================================================================
+   The chameleon — what Truth & Lies closes on (js/figures/chameleon.js): one
+   animal on a branch among leaves, then one line and a vote. What each part
+   of the picture means is in the tooltip, on hover, focus or a tap, and
+   nowhere under it.
+
+   The scene carries its own ground, so it is the one figure in the app with
+   a background of its own; it is rounded and clipped to sit as a picture on
+   the card rather than as a drawing bleeding off it.
+   ========================================================================= */
+.chameleon__head {
+    margin: 0 0 10px;
+    text-align: center;
+    animation: rise 0.8s var(--ease) both;
+}
+
+.chameleon__title {
+    margin: 0;
+    font-family: var(--serif);
+    font-size: clamp(26px, 4vw, 34px);
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    color: var(--gold-pale);
+    text-shadow: 0 0 40px rgba(217, 164, 65, 0.35);
+}
+
+/* The stage's own arrival is also what starts the skin turning (`arrive` in
+   chameleon.js listens for it), so the animation has to stay on this
+   element: a sealed card holds it, and the turning with it, until the level
+   opens. */
+.chameleon__stage {
+    max-width: 660px;
+    margin: 0 auto;
+    animation: fade 1s var(--ease) 0.15s both;
+}
+
+/* The hold on a sealed card is said again for these four. The sheet's own
+   (`.result--sealed *`) weighs the same as a rule of one class and stands
+   before them, and an `animation` shorthand sets the play state back to
+   running, so without this they ran behind the seal and the turning was
+   over before the card opened. */
+.result--sealed .chameleon__head,
+.result--sealed .chameleon__stage,
+.result--sealed .chameleon__reading,
+.result--sealed .chameleon__vote {
+    animation-play-state: paused;
+}
+
+.chameleon__scene {
+    display: block;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+/* Pointing at the skin brings the whole animal up faintly, which is how one
+   that has disappeared into the leaves is found again; pointing at the face
+   rings it. `data-lit` on the scene names which. */
+.chameleon__reveal,
+.chameleon__ring {
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    pointer-events: none;
+}
+
+.chameleon__scene[data-lit="skin"] .chameleon__reveal {
+    opacity: 0.2;
+}
+
+.chameleon__scene[data-lit="face"] .chameleon__ring {
+    opacity: 0.85;
+}
+
+/* What the pointer finds. Nothing is drawn in it, so it answers on its
+   whole shape; and the lit part is what shows where the focus is. */
+.chameleon__hit {
+    cursor: pointer;
+    pointer-events: all;
+    outline: none;
+}
+
+/* What a part says, in the shared tooltip: a name and a line for each scale
+   it carries. */
+.chameleon__told {
+    margin: 0;
+}
+
+.chameleon__told + .chameleon__told {
+    margin-top: 7px;
+}
+
+.chameleon__part {
+    display: block;
+    font-weight: 700;
+    color: var(--gold-pale);
+}
+
+.chameleon__reading {
+    margin: 18px 0 0;
+    font-family: var(--serif);
+    font-size: clamp(19px, 2.6vw, 23px);
+    text-align: center;
+    text-wrap: balance;
+    color: var(--gold-pale);
+    animation: rise 0.8s var(--ease) 0.5s both;
+}
+
+.chameleon__vote {
+    display: grid;
+    justify-items: center;
+    gap: 10px;
+    margin-top: 16px;
+    animation: rise 0.8s var(--ease) 0.7s both;
+}
+
+.chameleon__ask {
+    margin: 0;
+    font-size: 14px;
+    font-style: italic;
+    color: var(--text);
 }
